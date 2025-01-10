@@ -1,0 +1,33 @@
+name: "버그 제보"
+description: Bug Issue 작성 기본 양식입니다.
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        작성 예시 : "[FE/BE/iOS/COMMON] bug: 유튜브 동기처리에 새로고침 시 안되는 버그"
+  - type: textarea
+    id: bug-description
+    attributes:
+      label: 버그 설명
+      description: 버그가 언제/어떻게 발생했는지 명확하게 적어주세요.
+      placeholder: 설명을 적어주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: reproduction
+    attributes:
+      label: 재현 방법
+      description: 버그가 재현되는 상황을 설명해주세요.
+      placeholder: 설명을 적어주세요.
+    validations:
+      required: true
+  - type: textarea
+    id: system-info
+    attributes:
+      label: 시스템 환경 (선택 사항)
+      description: 현재 버그가 발생한 시스템 환경을 적어주세요.
+      render: shell
+      placeholder: OS, 브라우저 등을 적어주세요.
+    validations:
+      required: false
