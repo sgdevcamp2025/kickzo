@@ -1,0 +1,22 @@
+version: "3.8"
+
+name: kickzo
+
+services:
+  chat-service:
+    build:
+      context: ../backend/chat-service
+    container_name: chat-service
+    ports:
+      - "${CHAT_PORT:-3001}:${CHAT_PORT:-3001}" # 환경변수로 포트 설정: "make up CHAT_PORT=4001"로 포트 변경 가능
+    environment:
+      - CHAT_PORT=${CHAT_PORT:-3001} # 환경변수로 포트 전달
+    networks:
+      - app-network
+    volumes:
+      - ../backend/chat-service:/usr/src/app
+      - /usr/src/app/node_modules
+
+networks:
+  app-network:
+    driver: bridge

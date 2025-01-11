@@ -1,0 +1,11 @@
+{
+  "name": "chat-service",
+  "version": "1.0.0",
+  "main": "src/chat-server.js",
+  "scripts": {
+    "start": "node src/chat-server.js"
+  },
+  "dependencies": {
+    "ws": "^8.18.0"
+  }
+}
