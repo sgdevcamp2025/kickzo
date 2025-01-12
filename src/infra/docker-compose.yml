@@ -1,22 +1,41 @@
-version: "3.8"
+version: "3.9"
 
 name: kickzo
 
 services:
+  # Chat Service
   chat-service:
     build:
       context: ../backend/chat-service
     container_name: chat-service
     ports:
-      - "${CHAT_PORT:-3001}:${CHAT_PORT:-3001}" # 환경변수로 포트 설정: "make up CHAT_PORT=4001"로 포트 변경 가능
+      - "${CHAT_PORT}:${CHAT_PORT}"
     environment:
-      - CHAT_PORT=${CHAT_PORT:-3001} # 환경변수로 포트 전달
-    networks:
-      - app-network
+      - CHAT_PORT=${CHAT_PORT}
     volumes:
       - ../backend/chat-service:/usr/src/app
       - /usr/src/app/node_modules
+    networks:
+      - kickzo-network
+
+  # Kong API Gateway
+  kong:
+    build:
+      context: ./kong
+    container_name: kong
+    ports:
+      - "${KONG_PROXY_HTTP_PORT}:${KONG_PROXY_HTTP_PORT}"
+      - "${KONG_PROXY_HTTPS_PORT}:${KONG_PROXY_HTTPS_PORT}"
+      - "${KONG_ADMIN_HTTP_PORT}:${KONG_ADMIN_HTTP_PORT}"
+      - "${KONG_ADMIN_HTTPS_PORT}:${KONG_ADMIN_HTTPS_PORT}"
+    environment:
+      KONG_DATABASE: "off" # DB-less 모드 활성화
+      KONG_DECLARATIVE_CONFIG: "/usr/local/kong/declarative/kong.yml"
+    volumes:
+      - ./kong/kong.yml:/usr/local/kong/declarative/kong.yml
+    networks:
+      - kickzo-network
 
 networks:
-  app-network:
+  kickzo-network:
     driver: bridge
