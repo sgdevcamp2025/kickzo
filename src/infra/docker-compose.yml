@@ -36,6 +36,22 @@ services:
     networks:
       - kickzo-network
 
+  # JSON Mock Server
+  mock-server:
+    build:
+      context: ./mock
+    container_name: mock-server
+    ports:
+      - "${MOCK_PORT}:${MOCK_PORT}"
+    environment:
+      - MOCK_PORT=${MOCK_PORT}
+    volumes:
+      - ./mock/db.json:/usr/src/app/db.json
+    networks:
+      - kickzo-network
+    profiles:
+      - mock
+
 networks:
   kickzo-network:
     driver: bridge
