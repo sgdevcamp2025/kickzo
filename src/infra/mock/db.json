@@ -1,0 +1,59 @@
+{
+  "users": [
+    {
+      "id": 1,
+      "name": "인호",
+      "email": "alice@example.com"
+    },
+    {
+      "id": 2,
+      "name": "주원",
+      "email": "bob@example.com"
+    },
+    {
+      "id": 3,
+      "name": "Charlie",
+      "email": "charlie@example.com"
+    }
+  ],
+  "posts": [
+    {
+      "id": 1,
+      "title": "Introduction to Kong",
+      "content": "Learn how to use Kong Gateway.",
+      "authorId": 1
+    },
+    {
+      "id": 2,
+      "title": "Advanced Kong Features",
+      "content": "Explore advanced features of Kong.",
+      "authorId": 2
+    },
+    {
+      "id": 3,
+      "title": "Mocking APIs with Kong",
+      "content": "Learn how to mock APIs using Kong.",
+      "authorId": 1
+    }
+  ],
+  "comments": [
+    {
+      "id": 1,
+      "postId": 1,
+      "content": "Great introduction!",
+      "userId": 2
+    },
+    {
+      "id": 2,
+      "postId": 1,
+      "content": "Very helpful, thanks!",
+      "userId": 3
+    },
+    {
+      "id": 3,
+      "postId": 3,
+      "content": "Looking forward to more!",
+      "userId": 1
+    }
+  ]
+}
