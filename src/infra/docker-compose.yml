@@ -25,12 +25,13 @@ services:
     container_name: kong
     ports:
       - "${KONG_PROXY_HTTP_PORT}:${KONG_PROXY_HTTP_PORT}"
-      - "${KONG_PROXY_HTTPS_PORT}:${KONG_PROXY_HTTPS_PORT}"
+      - "${KONG_PROXY_SSL_PORT}:${KONG_PROXY_SSL_PORT}"
       - "${KONG_ADMIN_HTTP_PORT}:${KONG_ADMIN_HTTP_PORT}"
-      - "${KONG_ADMIN_HTTPS_PORT}:${KONG_ADMIN_HTTPS_PORT}"
-    environment:
-      KONG_DATABASE: "off" # DB-less 모드 활성화
-      KONG_DECLARATIVE_CONFIG: "/usr/local/kong/declarative/kong.yml"
+      - "${KONG_ADMIN_SSL_PORT}:${KONG_ADMIN_SSL_PORT}"
+      - "${KONG_ADMIN_GUI_PORT}:${KONG_ADMIN_GUI_PORT}"
+      - "${KONG_ADMIN_GUI_SSL_PORT}:${KONG_ADMIN_GUI_SSL_PORT}"
+      - "${KONG_CUSTOM_PORT_1}:${KONG_CUSTOM_PORT_1}"
+      - "${KONG_CUSTOM_PORT_2}:${KONG_CUSTOM_PORT_2}"
     volumes:
       - ./kong/kong.yml:/usr/local/kong/declarative/kong.yml
     networks:
