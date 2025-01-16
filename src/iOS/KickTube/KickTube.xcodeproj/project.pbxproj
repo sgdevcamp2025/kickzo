@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		532D560A2D37BBC300B78EA6 /* SampleTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 532D56092D37BBC300B78EA6 /* SampleTest.swift */; };
 		532F31812D364BB200D2C67E /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 532F31802D364BB200D2C67E /* SnapKit */; };
 		532F31842D364BC200D2C67E /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 532F31832D364BC200D2C67E /* RxCocoa */; };
 		532F31862D364BC200D2C67E /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 532F31852D364BC200D2C67E /* RxSwift */; };
@@ -32,6 +33,7 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		532D56092D37BBC300B78EA6 /* SampleTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleTest.swift; sourceTree = "<group>"; };
 		532F31322D3649CA00D2C67E /* KickTube.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KickTube.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		532F31482D3649CC00D2C67E /* KickTubeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KickTubeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		532F31522D3649CC00D2C67E /* KickTubeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KickTubeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -111,6 +113,7 @@
 		532F31292D3649CA00D2C67E = {
 			isa = PBXGroup;
 			children = (
+				532D56092D37BBC300B78EA6 /* SampleTest.swift */,
 				532F318A2D364C2E00D2C67E /* .gitignore */,
 				532F31342D3649CA00D2C67E /* KickTube */,
 				532F31332D3649CA00D2C67E /* Products */,
@@ -275,6 +278,7 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				532D560A2D37BBC300B78EA6 /* SampleTest.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
