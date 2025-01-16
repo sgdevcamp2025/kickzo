@@ -7,8 +7,6 @@
 
 import Foundation
 
-import RxSwift
-
 final class NetworkManager {
     private let session: URLSession
     private let decoder = JSONDecoder()
