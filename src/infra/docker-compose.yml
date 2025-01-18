@@ -4,14 +4,28 @@ name: kickzo
 
 services:
   # Chat Service
-  chat-service:
+  chat-service-1:
     build:
       context: ../backend/chat-service
-    container_name: chat-service
+    container_name: chat-service-1
     ports:
       - "${CHAT_PORT}:${CHAT_PORT}"
     environment:
       - CHAT_PORT=${CHAT_PORT}
+    volumes:
+      - ../backend/chat-service:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - kickzo-network
+
+  chat-service-2:
+    build:
+      context: ../backend/chat-service
+    container_name: chat-service-2
+    ports:
+      - "3101:3101"
+    environment:
+      - CHAT_PORT=3101
     volumes:
       - ../backend/chat-service:/usr/src/app
       - /usr/src/app/node_modules

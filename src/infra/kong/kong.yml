@@ -1,16 +1,22 @@
 _format_version: "3.0"
-services:
-  - name: chat-service # Chat 서비스
-    url: http://chat-service:3001 # 주의: docker container 이름과 같아야 함!
-    routes:
-      - name: chat-route
-        paths:
-          - /api/chat # 요청 경로: /api/chat으로 시작하면 chat-service로 전달
 
-  # JSON Mock Server
-  - name: mock-service
-    url: http://mock-server:3999 # 주의: docker container 이름과 같아야 함!
-    routes:
-      - name: mock-route
-        paths:
-          - /mock
+routes:
+  - name: chat-route
+    paths:
+      - /api/chat
+    service: chat-service
+
+services:
+  - name: chat-service
+    url: http://chat-service-upstream # upstream 이름
+
+upstreams:
+  - name: chat-service-upstream
+    targets:
+      - target: chat-service-1:3001
+        weight: 50
+      - target: chat-service-2:3101
+        weight: 50
+    healthchecks:
+      active:
+        http_path: /health
