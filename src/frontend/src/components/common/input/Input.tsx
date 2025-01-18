@@ -1,4 +1,4 @@
-import React, { ChangeEvent } from 'react';
+import { ChangeEvent } from 'react';
 import {
   Container,
   Container__Wrapper,
@@ -32,36 +32,26 @@ interface IInput {
   design?: Design;
 }
 
-export const Input: React.FC<IInput> = ({
-  type = 'text',
-  placeholder,
-  value,
-  onChange,
-  disabled = false,
-  error,
-  buttonLabel,
-  onButtonClick,
-  design = Design.INPUT,
-}) => {
+export const Input = (props: IInput) => {
   return (
     <Container>
-      <Container__Wrapper design={design}>
+      <Container__Wrapper design={props.design || Design.INPUT}>
         <Container__Wrapper__Input
-          type={type}
-          placeholder={placeholder}
-          value={value}
-          onChange={onChange}
-          disabled={disabled}
-          hasError={!!error}
-          design={design}
+          type={props.type || 'text'}
+          placeholder={props.placeholder}
+          value={props.value}
+          onChange={props.onChange}
+          disabled={props.disabled || false}
+          hasError={!!props.error}
+          design={props.design || Design.INPUT}
         />
-        {design === Design.INPUT && buttonLabel && (
-          <Container__Wrapper__Btn onClick={onButtonClick} disabled={disabled}>
-            {buttonLabel}
+        {props.design === Design.INPUT && props.buttonLabel && (
+          <Container__Wrapper__Btn onClick={props.onButtonClick} disabled={props.disabled || false}>
+            {props.buttonLabel}
           </Container__Wrapper__Btn>
         )}
       </Container__Wrapper>
-      {error && <Container__ErrorMessage>{error}</Container__ErrorMessage>}
+      {props.error && <Container__ErrorMessage>{props.error}</Container__ErrorMessage>}
     </Container>
   );
 };
