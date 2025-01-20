@@ -44,7 +44,9 @@
 		532F315A2D3649CC00D2C67E /* Exceptions for "KickTube" folder in "KickTube" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				App/Resource/Info.plist,
+				"/Localized: Resource/LaunchScreen.storyboard",
+				Config/Secrets.xcconfig,
+				Info.plist,
 				KickTubeTests/KickTubeTests.swift,
 				KickTubeUITests/KickTubeUITests.swift,
 				KickTubeUITests/KickTubeUITestsLaunchTests.swift,
@@ -154,6 +156,7 @@
 				532F31832D364BC200D2C67E /* RxCocoa */,
 				532F31852D364BC200D2C67E /* RxSwift */,
 				532F31882D364BCE00D2C67E /* ReactorKit */,
+				5351F2E02D392C600093EB87 /* ManipulateDataModel */,
 			);
 			productName = KickTube;
 			productReference = 532F31322D3649CA00D2C67E /* KickTube.app */;
@@ -235,6 +238,7 @@
 				532F317F2D364BB200D2C67E /* XCRemoteSwiftPackageReference "SnapKit" */,
 				532F31822D364BC200D2C67E /* XCRemoteSwiftPackageReference "RxSwift" */,
 				532F31872D364BCE00D2C67E /* XCRemoteSwiftPackageReference "ReactorKit" */,
+				531399852D393085002F4E5E /* XCLocalSwiftPackageReference "../ManipulateDataModel" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 532F31332D3649CA00D2C67E /* Products */;
@@ -602,6 +606,13 @@
 		};
 /* End XCConfigurationList section */
 
+/* Begin XCLocalSwiftPackageReference section */
+		531399852D393085002F4E5E /* XCLocalSwiftPackageReference "../ManipulateDataModel" */ = {
+			isa = XCLocalSwiftPackageReference;
+			relativePath = ../ManipulateDataModel;
+		};
+/* End XCLocalSwiftPackageReference section */
+
 /* Begin XCRemoteSwiftPackageReference section */
 		532F317F2D364BB200D2C67E /* XCRemoteSwiftPackageReference "SnapKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
@@ -649,6 +660,10 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 532F31872D364BCE00D2C67E /* XCRemoteSwiftPackageReference "ReactorKit" */;
 			productName = ReactorKit;
+		};
+		5351F2E02D392C600093EB87 /* ManipulateDataModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ManipulateDataModel;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};
