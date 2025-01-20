@@ -2,9 +2,11 @@ import styled, { css } from 'styled-components';
 
 /** 버튼 색상 타입 */
 export enum ButtonColor {
-  GRAY = '#f4f4f4',
+  LIGHTGRAY = '#f4f4f4',
+  GRAY = '#d4d4d4',
+  DARKGRAY = '#444444',
   ORANGE = '#FF9100',
-  TRANSPARENT = 'transparent', // 투명 옵션 추가
+  TRANSPARENT = 'transparent',
 }
 
 /** 버튼 스타일 */
@@ -42,7 +44,7 @@ export const StyledButton = styled.button<{
     disabled &&
     css`
       background-color: #ccc;
-      color: #666;
+      color: #d4d4d4;
       cursor: not-allowed;
     `}
 `;
