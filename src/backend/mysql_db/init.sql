@@ -30,7 +30,9 @@ CREATE TABLE IF NOT EXISTS room (
     code CHAR(8) NOT NULL,                  -- 방 코드
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,     -- 방 생성 시간
     user_count INT DEFAULT 0,               -- 사용자 수
-    creator VARCHAR(20) NOT NULL            -- 방 생성자 닉네임
+    creator VARCHAR(20) NOT NULL,            -- 방 생성자 닉네임
+
+    FOREIGN KEY (creator) REFERENCES user(nickname) ON UPDATE CASCADE ON DELETE CASCADE
 );
 
 -- room user 테이블
