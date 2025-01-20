@@ -1,0 +1,44 @@
+//
+//  ComponentSize.swift
+//  KickTube
+//
+//  Created by 김수경 on 1/20/25.
+//
+
+import UIKit
+
+enum ComponentSize {
+    static var screenWidth: CGFloat {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+            return windowScene.screen.bounds.size.width
+        }
+        return UIScreen.main.bounds.size.width
+    }
+    static var screenHeight: CGFloat {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene {
+            return windowScene.screen.bounds.size.height
+        }
+        return UIScreen.main.bounds.size.height
+    }
+    
+    case navigationItem
+    case alarmNavigtionItem
+}
+
+extension ComponentSize {
+    var size: CGSize {
+        switch self {
+        case .navigationItem:
+            return CGSize(width: ComponentSize.screenWidth / 17, height: ComponentSize.screenWidth / 17)
+        case .alarmNavigtionItem:
+            return CGSize(width: ComponentSize.screenWidth / 15, height: ComponentSize.screenWidth / 15)
+        }
+    }
+    
+    var radius: CGFloat {
+        switch self {
+        default:
+            return 0
+        }
+    }
+}
