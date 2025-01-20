@@ -44,7 +44,9 @@
 		532F315A2D3649CC00D2C67E /* Exceptions for "KickTube" folder in "KickTube" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
-				App/Resource/Info.plist,
+				"/Localized: Resource/LaunchScreen.storyboard",
+				Config/Secrets.xcconfig,
+				Info.plist,
 				KickTubeTests/KickTubeTests.swift,
 				KickTubeUITests/KickTubeUITests.swift,
 				KickTubeUITests/KickTubeUITestsLaunchTests.swift,
