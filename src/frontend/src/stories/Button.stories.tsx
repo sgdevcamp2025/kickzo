@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from '../components/common/button';
-import { ButtonColor } from '../components/common/button/index.css';
-import MicrophoneOn from '../assets/img/MicrophoneOn.svg';
-import Add from '../assets/img/Add.svg';
-import Check from '../assets/img/Check.svg';
+import { Button } from '@/components/common/button';
+import { ButtonColor } from '@/components/common/button/index.css';
+import MicrophoneOn from '@/assets/img/MicrophoneOn.svg';
+import Add from '@/assets/img/Add.svg';
+import Check from '@/assets/img/Check.svg';
 
 const meta = {
   title: 'Components/Common/Button',

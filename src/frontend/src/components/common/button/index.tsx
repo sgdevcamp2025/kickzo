@@ -16,7 +16,7 @@ interface IButton {
   /** 버튼의 border */
   border?: string;
   /** 버튼 클릭 핸들러 */
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   /** 버튼 내부 콘텐츠 (텍스트 또는 이미지) */
   children?: React.ReactNode;
   /** 버튼 비활성화 상태 */
