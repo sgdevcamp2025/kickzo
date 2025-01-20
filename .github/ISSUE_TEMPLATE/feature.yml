@@ -4,7 +4,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        작성 예시 : "[FE/BE/iOS/COMMON] feat: 메인 View 개발"
+        작성 예시 : "[FE/BE/iOS/COMMON] FEAT: 메인 View 개발"
   - type: textarea
     id: bug-description
     attributes:
@@ -27,6 +27,14 @@ body:
       label: 대체 방안 (선택 사항)
       description: 고려한 방법 외에 다른 대안이 있을 시 적어주세요.
       render: shell
+      placeholder: 설명을 적어주세요.
+    validations:
+      required: false
+  - type: textarea
+    id: reference
+    attributes:
+      label: 레퍼런스 (선택 사항)
+      description: 참고한 레퍼런스 링크를 추가해주세요.
       placeholder: 설명을 적어주세요.
     validations:
       required: false
