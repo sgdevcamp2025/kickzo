@@ -5,7 +5,7 @@ body:
   - type: markdown
     attributes:
       value: |
-        작성 예시 : "[FE/BE/iOS/COMMON] bug: 유튜브 동기처리에 새로고침 시 안되는 버그"
+        작성 예시 : "[FE/BE/iOS/COMMON] BUG: 유튜브 동기처리에 새로고침 시 안되는 버그"
   - type: textarea
     id: bug-description
     attributes:
