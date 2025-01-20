@@ -50,7 +50,7 @@ CREATE TABLE IF NOT EXISTS room_user(
 CREATE TABLE IF NOT EXISTS friend (
     friend_1 BIGINT NOT NULL,
     friend_2 BIGINT NOT NULL,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     
     PRIMARY KEY (friend_1, friend_2),  -- friend_1과 friend_2의 조합을 기본 키로 설정
     CONSTRAINT fk_friend_1 FOREIGN KEY (friend_1) REFERENCES user(id) ON DELETE CASCADE,  -- friend_1은 users 테이블의 id를 참조
