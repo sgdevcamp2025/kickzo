@@ -9,14 +9,7 @@ import {
   InputContainer,
   SearchInput,
 } from './index.css';
-
-enum ButtonColor {
-  LIGHTGRAY = '#f4f4f4',
-  GRAY = '#d4d4d4',
-  DARKGRAY = '#444444',
-  ORANGE = '#FF9100',
-  TRANSPARENT = 'transparent',
-}
+import { ButtonColor } from '@/types/enums/ButtonColor';
 
 interface VideoItem {
   id: string;
@@ -62,15 +55,15 @@ export const Playlist = (props: IPlaylist) => {
     setInputUrl('');
   };
 
-  const handleVideoStart = (index: number) => {
-    props.setVideoQueue(prevQueue => prevQueue.filter((_, i) => i !== index));
+  // const handleVideoStart = (index: number) => {
+  //   props.setVideoQueue(prevQueue => prevQueue.filter((_, i) => i !== index));
 
-    if (props.currentIndex === index) {
-      props.setCurrentIndex(0);
-    } else if (props.currentIndex > index) {
-      props.setCurrentIndex(props.currentIndex - 1);
-    }
-  };
+  //   if (props.currentIndex === index) {
+  //     props.setCurrentIndex(0);
+  //   } else if (props.currentIndex > index) {
+  //     props.setCurrentIndex(props.currentIndex - 1);
+  //   }
+  // };
 
   const handleRemove = (index: number) => {
     props.setVideoQueue(prevQueue => prevQueue.filter((_, i) => i !== index));
@@ -89,7 +82,7 @@ export const Playlist = (props: IPlaylist) => {
           <VideoItem
             key={`${video.id}-${index}`}
             onClick={() => props.setCurrentIndex(index)}
-            $active={index === props.currentIndex}
+            active={index === props.currentIndex}
           >
             <Thumbnail src={video.thumbnail} alt={`Video ${video.id}`} />
             <Button

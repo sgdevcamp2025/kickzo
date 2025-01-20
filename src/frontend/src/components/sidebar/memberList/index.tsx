@@ -14,13 +14,7 @@ import {
   ActionButton,
   JoinButton,
 } from './index.css';
-
-enum SidebarType {
-  Chat = 0,
-  Playlist = 1,
-  VoiceChat = 2,
-  Member = 3,
-}
+import { SidebarType } from '@/types/enums/SidebarType';
 
 interface IMemberListProps {
   sidebarType?: SidebarType;

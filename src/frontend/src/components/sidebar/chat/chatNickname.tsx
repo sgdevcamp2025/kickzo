@@ -1,12 +1,7 @@
 import styled from 'styled-components';
 import RoleOwner from '@/assets/img/RoleOwner.svg';
 import RoleManager from '@/assets/img/RoleManager.svg';
-
-enum UserRole {
-  OWNER = 0,
-  MANAGER = 1,
-  USER = 2,
-}
+import { UserRole } from '@/types/enums/UserRole';
 
 interface IChatNickname {
   role: UserRole;

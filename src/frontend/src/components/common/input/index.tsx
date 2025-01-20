@@ -5,8 +5,8 @@ import {
   Container__Wrapper__Input,
   Container__Wrapper__Btn,
   Container__ErrorMessage,
-  Design,
 } from './index.css';
+import { InputDesign } from '@/types/enums/InputDesign';
 
 /**
  * Input 컴포넌트의 Props 인터페이스
@@ -29,13 +29,13 @@ interface IInput {
   /** 버튼 클릭 이벤트 핸들러 */
   onButtonClick?: () => void;
   /** Input 디자인 선택 (INPUT 또는 SEARCH) */
-  design?: Design;
+  design?: InputDesign;
 }
 
 export const Input = (props: IInput) => {
   return (
     <Container>
-      <Container__Wrapper design={props.design || Design.INPUT}>
+      <Container__Wrapper design={props.design || InputDesign.INPUT}>
         <Container__Wrapper__Input
           type={props.type || 'text'}
           placeholder={props.placeholder}
@@ -43,9 +43,9 @@ export const Input = (props: IInput) => {
           onChange={props.onChange}
           disabled={props.disabled || false}
           hasError={!!props.error}
-          design={props.design || Design.INPUT}
+          design={props.design || InputDesign.INPUT}
         />
-        {props.design === Design.INPUT && props.buttonLabel && (
+        {props.design === InputDesign.INPUT && props.buttonLabel && (
           <Container__Wrapper__Btn onClick={props.onButtonClick} disabled={props.disabled || false}>
             {props.buttonLabel}
           </Container__Wrapper__Btn>

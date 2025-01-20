@@ -8,20 +8,11 @@ import {
 } from './index.css';
 import MicrophoneOffRed from '@/assets/img/MicrophoneOffRed.svg';
 import HeadphoneOffRed from '@/assets/img/HeadphoneOffRed.svg';
-
-enum UserRole {
-  OWNER = 0,
-  MANAGER = 1,
-  USER = 2,
-}
-enum profileType {
-  INVITE = 0,
-  VOICECHAT = 1,
-  MEMBER = 2,
-}
+import { UserRole } from '@/types/enums/UserRole';
+import { ProfileType } from '@/types/enums/ProfileType';
 
 interface ISmallProfile {
-  type: profileType;
+  type: ProfileType;
   role: UserRole;
   nickname: string;
   imgUrl: string;
@@ -29,9 +20,9 @@ interface ISmallProfile {
 
 export const SmallProfile = (props: ISmallProfile) => {
   const renderBtn = () => {
-    if (props.type === profileType.INVITE) {
+    if (props.type === ProfileType.INVITE) {
       return <button>초대</button>;
-    } else if (props.type === profileType.VOICECHAT) {
+    } else if (props.type === ProfileType.VOICECHAT) {
       return (
         <ImgWrapper>
           <ImgWrapper_Img src={MicrophoneOffRed} />
@@ -39,7 +30,7 @@ export const SmallProfile = (props: ISmallProfile) => {
         </ImgWrapper>
       );
     }
-    // else if(props.type === profileType.MEMBER){
+    // else if(props.type === ProfileType.MEMBER){
     //     return();
     // }
     return null;

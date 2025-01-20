@@ -1,5 +1,6 @@
 import React from 'react';
-import { StyledButton, ButtonColor } from './index.css';
+import { StyledButton } from './index.css';
+import { ButtonColor } from '@/types/enums/ButtonColor';
 
 /**
  * 버튼 컴포넌트 Props 인터페이스

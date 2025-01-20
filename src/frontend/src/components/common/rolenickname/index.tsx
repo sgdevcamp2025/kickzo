@@ -1,12 +1,7 @@
 import RoleOwner from '@/assets/img/RoleOwner.svg';
 import RoleManager from '@/assets/img/RoleManager.svg';
 import { Wrapper, Wrapper__Img, Wrapper__Nickname } from './index.css';
-
-export enum UserRole {
-  OWNER = 0,
-  MANAGER = 1,
-  USER = 2,
-}
+import { UserRole } from '@/types/enums/UserRole';
 
 interface IRoleNickname {
   role: UserRole;

@@ -8,12 +8,7 @@ import {
   Time,
   Wrapper__Chat_Container__Chat,
 } from './index.css';
-
-enum UserRole {
-  OWNER = 0,
-  MANAGER = 1,
-  USER = 2,
-}
+import { UserRole } from '@/types/enums/UserRole';
 
 interface IChat {
   role: UserRole;

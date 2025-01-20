@@ -10,15 +10,9 @@ import Add from '@/assets/img/Add.svg';
 import { Input } from '@/components/common/input';
 import { Button } from '@/components/common/button';
 import { chatDataTest } from '@/assets/data/chatDataTest';
-import { ButtonColor } from '@/components/common/button/index.css';
 import { Wrapper, Nav, Content, NavButton, InputContainer, ChatContainer } from './index.css';
-
-enum SidebarType {
-  Chat,
-  Playlist,
-  VoiceChat,
-  Member,
-}
+import { SidebarType } from '@/types/enums/SidebarType';
+import { ButtonColor } from '@/types/enums/ButtonColor';
 
 interface VideoItem {
   id: string;

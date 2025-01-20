@@ -1,5 +1,5 @@
 import styled from 'styled-components';
-import { UserRole } from '.';
+import { UserRole } from '@/types/enums/UserRole';
 
 export const Wrapper = styled.div`
   display: flex;

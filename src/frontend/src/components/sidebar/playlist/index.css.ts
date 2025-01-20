@@ -17,7 +17,7 @@ export const PlaylistWrapper = styled.div`
 `;
 
 interface VideoItemProps {
-  $active?: boolean;
+  active?: boolean;
 }
 
 export const VideoItem = styled.div<VideoItemProps>`
@@ -26,8 +26,8 @@ export const VideoItem = styled.div<VideoItemProps>`
   gap: 5px;
   padding: 10px;
   border-radius: 5px;
-  background-color: ${({ $active }) => ($active ? '#f8d7da' : '#fff')};
-  border: ${({ $active }) => ($active ? '2px solid #ff0000' : '1px solid #ddd')};
+  background-color: ${({ active }) => (active ? '#f8d7da' : '#fff')};
+  border: ${({ active }) => (active ? '2px solid #ff0000' : '1px solid #ddd')};
   cursor: pointer;
 `;
 
