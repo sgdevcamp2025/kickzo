@@ -1,11 +1,5 @@
 import { RoleNickname } from '../roleNickname';
-import {
-  Container,
-  Container__Profile,
-  Container__Profile__Img,
-  ImgWrapper,
-  ImgWrapper_Img,
-} from './index.css';
+import { Container, Profile, Profile__Img, ImgWrapper, ImgWrapper_Img } from './index.css';
 import MicrophoneOffRed from '@/assets/img/MicrophoneOffRed.svg';
 import HeadphoneOffRed from '@/assets/img/HeadphoneOffRed.svg';
 import { UserRole } from '@/types/enums/UserRole';
@@ -37,10 +31,10 @@ export const SmallProfile = (props: ISmallProfile) => {
   };
   return (
     <Container>
-      <Container__Profile>
-        <Container__Profile__Img src={props.imgUrl} />
+      <Profile>
+        <Profile__Img src={props.imgUrl} />
         <RoleNickname role={props.role} nickname={props.nickname} />
-      </Container__Profile>
+      </Profile>
       {renderBtn()}
     </Container>
   );

@@ -1,14 +1,7 @@
 import { useState } from 'react';
 import Trashcan from '@/assets/img/Trashcan.svg';
-import { Button } from '@/components/common/button';
-import {
-  PlaylistContainer,
-  PlaylistWrapper,
-  VideoItem,
-  Thumbnail,
-  InputContainer,
-  SearchInput,
-} from './index.css';
+import { CommonButton } from '@/components/common/button';
+import { Container, Wrapper, VideoItem, Thumbnail, InputContainer, SearchInput } from './index.css';
 import { ButtonColor } from '@/types/enums/ButtonColor';
 
 interface VideoItem {
@@ -76,8 +69,8 @@ export const Playlist = (props: IPlaylist) => {
   };
 
   return (
-    <PlaylistContainer>
-      <PlaylistWrapper>
+    <Container>
+      <Wrapper>
         {props.videoQueue.map((video, index) => (
           <VideoItem
             key={`${video.id}-${index}`}
@@ -85,7 +78,7 @@ export const Playlist = (props: IPlaylist) => {
             active={index === props.currentIndex}
           >
             <Thumbnail src={video.thumbnail} alt={`Video ${video.id}`} />
-            <Button
+            <CommonButton
               onClick={e => {
                 e.stopPropagation();
                 handleRemove(index);
@@ -95,10 +88,10 @@ export const Playlist = (props: IPlaylist) => {
               padding="5px"
             >
               <img src={Trashcan} />
-            </Button>
+            </CommonButton>
           </VideoItem>
         ))}
-      </PlaylistWrapper>
+      </Wrapper>
       <InputContainer>
         <SearchInput
           type="text"
@@ -106,10 +99,10 @@ export const Playlist = (props: IPlaylist) => {
           value={inputUrl}
           onChange={e => setInputUrl(e.target.value)}
         />
-        <Button color={ButtonColor.DARKGRAY} onClick={handleAddVideo} padding="5px 10px">
+        <CommonButton color={ButtonColor.DARKGRAY} onClick={handleAddVideo} padding="5px 10px">
           +
-        </Button>
+        </CommonButton>
       </InputContainer>
-    </PlaylistContainer>
+    </Container>
   );
 };

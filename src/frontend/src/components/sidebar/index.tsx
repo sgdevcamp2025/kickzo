@@ -7,8 +7,8 @@ import SidebarPlaylist from '@/assets/img/SidebarPlaylist.svg';
 import SidebarVoicechat from '@/assets/img/SidebarVoicechat.svg';
 import SidebarMember from '@/assets/img/SidebarMember.svg';
 import Add from '@/assets/img/Add.svg';
-import { Input } from '@/components/common/input';
-import { Button } from '@/components/common/button';
+import { CommonInput } from '@/components/common/input';
+import { CommonButton } from '@/components/common/button';
 import { chatDataTest } from '@/assets/data/chatDataTest';
 import { Wrapper, Nav, Content, NavButton, InputContainer, ChatContainer } from './index.css';
 import { SidebarType } from '@/types/enums/SidebarType';
@@ -100,9 +100,9 @@ const ChatMessages = () => (
 // 채팅 입력
 const ChatInput = () => (
   <InputContainer>
-    <Button color={ButtonColor.TRANSPARENT} borderRadius="20px">
+    <CommonButton color={ButtonColor.TRANSPARENT} borderRadius="20px">
       <img src={Add} alt="Add" />
-    </Button>
-    <Input placeholder="메시지 보내기" design={1} />
+    </CommonButton>
+    <CommonInput placeholder="메시지 보내기" design={1} />
   </InputContainer>
 );

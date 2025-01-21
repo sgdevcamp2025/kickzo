@@ -24,7 +24,7 @@ interface IButton {
   disabled?: boolean;
 }
 
-export const Button = (props: IButton) => {
+export const CommonButton = (props: IButton) => {
   return (
     <StyledButton
       color={props.color}

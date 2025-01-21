@@ -12,7 +12,7 @@ export const ChatNickname = (props: IChatNickname) => {
   return (
     <Wrapper>
       {props.role !== UserRole.USER ? (
-        <Wrapper__Img
+        <Img
           src={
             props.role === UserRole.OWNER
               ? RoleOwner
@@ -26,7 +26,7 @@ export const ChatNickname = (props: IChatNickname) => {
         ''
       )}
 
-      <Wrapper__Nickname role={props.role}>{props.nickname}</Wrapper__Nickname>
+      <Nickname role={props.role}>{props.nickname}</Nickname>
     </Wrapper>
   );
 };
@@ -37,9 +37,9 @@ const Wrapper = styled.div`
   gap: 8px;
 `;
 
-const Wrapper__Img = styled.img``;
+const Img = styled.img``;
 
-const Wrapper__Nickname = styled.div<{ role: UserRole }>`
+const Nickname = styled.div<{ role: UserRole }>`
   color: ${({ role }) =>
     role === UserRole.OWNER ? '#FF9100' : role === UserRole.MANAGER ? '#4D94E1' : '#000000'};
   font-weight: bold;

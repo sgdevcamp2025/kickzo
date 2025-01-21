@@ -7,13 +7,13 @@ export const Container = styled.div`
   justify-content: space-between;
 `;
 
-export const Container__Profile = styled.div`
+export const Profile = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
 `;
 
-export const Container__Profile__Img = styled.img`
+export const Profile__Img = styled.img`
   width: 32px;
   height: 32px;
   margin-right: 4px;

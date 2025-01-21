@@ -1,13 +1,6 @@
 import { ChatNickname } from './chatNickname';
 import ProfileImg from '@/assets/img/ProfileImg.svg';
-import {
-  Wrapper,
-  Wrapper__Profile,
-  Wrapper__Chat_Container,
-  Wrapper__Chat_Container__Title,
-  Time,
-  Wrapper__Chat_Container__Chat,
-} from './index.css';
+import { Wrapper, Profile, ChatContainer, Title, Title__Time, ChatText } from './index.css';
 import { UserRole } from '@/types/enums/UserRole';
 
 interface IChat {
@@ -20,14 +13,14 @@ interface IChat {
 export const Chat = (props: IChat) => {
   return (
     <Wrapper>
-      <Wrapper__Profile src={ProfileImg} />
-      <Wrapper__Chat_Container>
-        <Wrapper__Chat_Container__Title>
+      <Profile className="Profile" src={ProfileImg} />
+      <ChatContainer>
+        <Title>
           <ChatNickname role={props.role} nickname={props.nickname} />
-          <Time>{props.time}</Time>
-        </Wrapper__Chat_Container__Title>
-        <Wrapper__Chat_Container__Chat>{props.text}</Wrapper__Chat_Container__Chat>
-      </Wrapper__Chat_Container>
+          <Title__Time>{props.time}</Title__Time>
+        </Title>
+        <ChatText>{props.text}</ChatText>
+      </ChatContainer>
     </Wrapper>
   );
 };

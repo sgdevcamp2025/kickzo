@@ -8,7 +8,7 @@ export const Container = styled.div`
   justify-content: space-between;
 `;
 
-export const Container__UserList = styled.div`
+export const UserList = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;

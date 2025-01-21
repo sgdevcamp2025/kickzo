@@ -5,23 +5,23 @@ export const Wrapper = styled.div`
   flex-direction: row;
   padding: 10px;
 `;
-export const Wrapper__Profile = styled.img`
+export const Profile = styled.img`
   width: 40px;
   height: 40px;
   margin-right: 4px;
 `;
-export const Wrapper__Chat_Container = styled.div`
+export const ChatContainer = styled.div`
   display: flex;
   flex-direction: column;
 `;
-export const Wrapper__Chat_Container__Title = styled.div`
+export const Title = styled.div`
   display: flex;
   flex-direction: row;
   align-items: center;
 `;
-export const Time = styled.div`
+export const Title__Time = styled.div`
   font-size: 12px;
   font-color: #888888;
   margin-left: 4px;
 `;
-export const Wrapper__Chat_Container__Chat = styled.div``;
+export const ChatText = styled.div``;

@@ -1,6 +1,6 @@
 import RoleOwner from '@/assets/img/RoleOwner.svg';
 import RoleManager from '@/assets/img/RoleManager.svg';
-import { Wrapper, Wrapper__Img, Wrapper__Nickname } from './index.css';
+import { Wrapper, Img, Nickname } from './index.css';
 import { UserRole } from '@/types/enums/UserRole';
 
 interface IRoleNickname {
@@ -12,7 +12,7 @@ export const RoleNickname = (props: IRoleNickname) => {
   return (
     <Wrapper>
       {props.role !== UserRole.USER ? (
-        <Wrapper__Img
+        <Img
           src={
             props.role === UserRole.OWNER
               ? RoleOwner
@@ -26,7 +26,7 @@ export const RoleNickname = (props: IRoleNickname) => {
         ''
       )}
 
-      <Wrapper__Nickname role={props.role}>{props.nickname}</Wrapper__Nickname>
+      <Nickname role={props.role}>{props.nickname}</Nickname>
     </Wrapper>
   );
 };

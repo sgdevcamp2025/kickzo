@@ -1,5 +1,5 @@
 import { SmallProfile } from '@/components/common/smallProfile';
-import { Input } from '@/components/common/input';
+import { CommonInput } from '@/components/common/input';
 
 import AddUserIcon from '@/assets/img/AddUser.svg';
 import MicrophoneOn from '@/assets/img/MicrophoneOn.svg';
@@ -10,7 +10,7 @@ import { memberListTest } from '@/assets/data/memberListTest';
 
 import {
   Container,
-  Container__UserList,
+  UserList,
   MemberFooter,
   VoiceChatFooter,
   ActionButton,
@@ -32,7 +32,7 @@ export const MemberList = ({ sidebarType }: IMemberListProps) => {
       return (
         <MemberFooter>
           <img src={AddUserIcon} alt="Add User" />
-          <Input placeholder="룸 유저 검색" design={1} />
+          <CommonInput placeholder="룸 유저 검색" design={1} />
         </MemberFooter>
       );
     }
@@ -62,7 +62,7 @@ export const MemberList = ({ sidebarType }: IMemberListProps) => {
 
   return (
     <Container>
-      <Container__UserList>
+      <UserList>
         {memberListTest
           .sort((a, b) => a.role - b.role)
           .map(member => (
@@ -74,7 +74,7 @@ export const MemberList = ({ sidebarType }: IMemberListProps) => {
               imgUrl={member.profileImg}
             />
           ))}
-      </Container__UserList>
+      </UserList>
       {renderFooter()}
     </Container>
   );

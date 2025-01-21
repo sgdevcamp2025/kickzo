@@ -10,7 +10,7 @@ export const Container = styled.div`
 `;
 
 /** Input Wrapper 스타일 */
-export const Container__Wrapper = styled.div<{ design: InputDesign }>`
+export const Wrapper = styled.div<{ design: InputDesign }>`
   display: flex;
   align-items: center;
   border: 1px solid #d4d4d4;
@@ -26,7 +26,7 @@ export const Container__Wrapper = styled.div<{ design: InputDesign }>`
 `;
 
 /** Input 필드 스타일 */
-export const Container__Wrapper__Input = styled.input<{ hasError: boolean; design: InputDesign }>`
+export const StyledInput = styled.input<{ hasError: boolean; design: InputDesign }>`
   flex: 1;
   padding: 8px 12px;
   border: none;
@@ -50,7 +50,7 @@ export const Container__Wrapper__Input = styled.input<{ hasError: boolean; desig
 `;
 
 /** 버튼 스타일 */
-export const Container__Wrapper__Btn = styled.button`
+export const Btn = styled.button`
   background: none;
   color: #007bff;
   font-size: 14px;
@@ -70,7 +70,7 @@ export const Container__Wrapper__Btn = styled.button`
 `;
 
 /** 에러 메시지 스타일 */
-export const Container__ErrorMessage = styled.span`
+export const ErrorMessage = styled.span`
   color: red;
   font-size: 12px;
 `;

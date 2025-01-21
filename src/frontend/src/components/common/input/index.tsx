@@ -1,11 +1,5 @@
 import { ChangeEvent } from 'react';
-import {
-  Container,
-  Container__Wrapper,
-  Container__Wrapper__Input,
-  Container__Wrapper__Btn,
-  Container__ErrorMessage,
-} from './index.css';
+import { Container, Wrapper, StyledInput, Btn, ErrorMessage } from './index.css';
 import { InputDesign } from '@/types/enums/InputDesign';
 
 /**
@@ -32,11 +26,11 @@ interface IInput {
   design?: InputDesign;
 }
 
-export const Input = (props: IInput) => {
+export const CommonInput = (props: IInput) => {
   return (
     <Container>
-      <Container__Wrapper design={props.design || InputDesign.INPUT}>
-        <Container__Wrapper__Input
+      <Wrapper design={props.design || InputDesign.INPUT}>
+        <StyledInput
           type={props.type || 'text'}
           placeholder={props.placeholder}
           value={props.value}
@@ -46,12 +40,12 @@ export const Input = (props: IInput) => {
           design={props.design || InputDesign.INPUT}
         />
         {props.design === InputDesign.INPUT && props.buttonLabel && (
-          <Container__Wrapper__Btn onClick={props.onButtonClick} disabled={props.disabled || false}>
+          <Btn onClick={props.onButtonClick} disabled={props.disabled || false}>
             {props.buttonLabel}
-          </Container__Wrapper__Btn>
+          </Btn>
         )}
-      </Container__Wrapper>
-      {props.error && <Container__ErrorMessage>{props.error}</Container__ErrorMessage>}
+      </Wrapper>
+      {props.error && <ErrorMessage>{props.error}</ErrorMessage>}
     </Container>
   );
 };
