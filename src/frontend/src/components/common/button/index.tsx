@@ -7,7 +7,7 @@ import { ButtonColor } from '@/types/enums/ButtonColor';
  */
 interface IButton {
   /** 버튼 색상 */
-  color: ButtonColor;
+  color?: ButtonColor;
   /** 글자 색상 (기본값: 흰색) */
   textcolor?: string;
   /** 버튼 내부 패딩 */
@@ -26,12 +26,14 @@ interface IButton {
   width?: string;
   /** 버튼의 높이 */
   height?: string;
+  /** 글자 정렬 */
+  justifycontent?: string;
 }
 
 export const CommonButton = (props: IButton) => {
   return (
     <StyledButton
-      color={props.color}
+      color={props.color || ButtonColor.LIGHTGRAY}
       textcolor={props.textcolor || 'white'}
       padding={props.padding || '0px'}
       borderradius={props.borderradius || '4px'}
@@ -40,6 +42,7 @@ export const CommonButton = (props: IButton) => {
       disabled={props.disabled || false}
       width={props.width || 'auto'}
       height={props.height || 'auto'}
+      justifycontent={props.justifycontent || 'center'}
     >
       {props.children}
     </StyledButton>
