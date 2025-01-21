@@ -21,6 +21,8 @@ class BaseViewController<R: Reactor>: UIViewController{
             self.bind(reactor: reactor)
         }
         
+        hideKeyboardWhenTappedAround()
+        
         configureHierarchy()
         configureLayout()
         configureUI()

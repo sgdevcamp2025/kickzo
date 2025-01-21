@@ -19,13 +19,13 @@ final class TabBarViewController: UITabBarController {
         let nav5VC = UIViewController()
         
         let nav1 = UINavigationController(rootViewController: nav1VC)
-        nav1.tabBarItem = UITabBarItem(title: nil, image: UIImage.home.resize(to: CGSize(width: ComponentSize.navigationItem.size.width, height: ComponentSize.navigationItem.size.height)), tag: 0)
+        nav1.tabBarItem = UITabBarItem(title: nil, image: UIImage.playlist.resize(to: CGSize(width: ComponentSize.navigationItem.size.width, height: ComponentSize.navigationItem.size.height)), tag: 0)
         
         let nav2 = UINavigationController(rootViewController: nav2VC)
-        nav2.tabBarItem = UITabBarItem(title: nil, image: UIImage.playlist.resize(to: CGSize(width: ComponentSize.navigationItem.size.width, height: ComponentSize.navigationItem.size.height)), tag: 1)
+        nav2.tabBarItem = UITabBarItem(title: nil, image: UIImage.friend.resize(to: CGSize(width: ComponentSize.navigationItem.size.width, height: ComponentSize.navigationItem.size.height)), tag: 1)
         
         let nav3 = UINavigationController(rootViewController: nav3VC)
-        nav3.tabBarItem = UITabBarItem(title: nil, image: UIImage.create.resize(to: CGSize(width: ComponentSize.navigationItem.size.width, height: ComponentSize.navigationItem.size.height)), tag: 2)
+        nav3.tabBarItem = UITabBarItem(title: nil, image: UIImage.home.resize(to: CGSize(width: ComponentSize.navigationItem.size.width, height: ComponentSize.navigationItem.size.height)), tag: 2)
         
         let nav4 = UINavigationController(rootViewController: nav4VC)
         nav4.tabBarItem = UITabBarItem(title: nil, image: UIImage.notification.resize(to: CGSize(width: ComponentSize.screenWidth / 15, height: ComponentSize.screenWidth / 15)), tag: 3)
@@ -35,7 +35,7 @@ final class TabBarViewController: UITabBarController {
         
         setViewControllers([nav1, nav2, nav3, nav4, nav5], animated: false)
         
-        selectedIndex = 0
+        selectedIndex = 2
         tabBar.tintColor = .primary
     }
 }
