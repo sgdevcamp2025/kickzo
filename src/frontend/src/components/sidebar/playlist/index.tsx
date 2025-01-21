@@ -49,7 +49,7 @@ export const Playlist = (props: IPlaylist) => {
       {
         id: videoId,
         start: startTime,
-        thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`,
+        thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`, // NOTE - 유튜브 썸네일
       },
     ]);
     setInputUrl('');

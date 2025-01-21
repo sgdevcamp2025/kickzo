@@ -1,4 +1,4 @@
-import { RoleNickname } from '../rolenickname';
+import { RoleNickname } from '../roleNickname';
 import {
   Container,
   Container__Profile,

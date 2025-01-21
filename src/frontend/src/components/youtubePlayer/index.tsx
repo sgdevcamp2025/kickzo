@@ -98,7 +98,7 @@ export const YouTubePlayer = (props: IYouTubePlayer) => {
     lastKnownTimeRef.current = playerRef.current.getCurrentTime(); // 현재 재생 시간 저장
 
     // 1000ms마다 현재 시간이 맞는지 확인하다가 시간이 다르다면 바뀐 시간을 console.log로 찍어줌
-    // Todo: 매초마다 확인하는 방법이 맞는지 확인하기
+    // TODO - 매초마다 확인하는 방법이 맞는지 확인하기
     setInterval(() => {
       if (playerRef.current) {
         const currentTime = playerRef.current.getCurrentTime();
@@ -111,7 +111,7 @@ export const YouTubePlayer = (props: IYouTubePlayer) => {
   };
 
   // 유튜브 영상의 재생, 멈춤, 끝남 상태에 따라 동작
-  // Todo: 재생시, 끝남시, 다음 영상 재생시 소켓에 보내줌
+  // TODO - 재생시, 끝남시, 다음 영상 재생시 소켓에 보내줌
   const handleVideoStateChange = (event: YT.OnStateChangeEvent) => {
     if (event.data === YT.PlayerState.PLAYING) {
       console.log('재생');
@@ -154,7 +154,7 @@ export const YouTubePlayer = (props: IYouTubePlayer) => {
   };
 
   // // input창에 숫자를 입력하면 해당 초로 이동
-  // // Todo: 나중에 싱크 맞출때 소켓으로 시간 받아오면 해당 시간으로 유튜브 영상 변경
+  // // TODO - 나중에 싱크 맞출때 소켓으로 시간 받아오면 해당 시간으로 유튜브 영상 변경
   // const handleSeek = () => {
   //   if (playerRef.current) {
   //     const time = parseInt(seekTime, 10);
