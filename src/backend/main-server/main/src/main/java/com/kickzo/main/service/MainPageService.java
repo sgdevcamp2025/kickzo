@@ -35,6 +35,13 @@ public class MainPageService {
 	}
 
 	// 본인이 소속한 방 list 제공
+	public List<RoomResponseDto> getUserRooms(Long userId) {
+		List<Room> rooms = roomUserRepository.findRoomsByUserId(userId);
+
+		return rooms.stream()
+			.map(this::convertToDto)
+			.collect(Collectors.toList());
+	}
 
 	// 방 만들기
 

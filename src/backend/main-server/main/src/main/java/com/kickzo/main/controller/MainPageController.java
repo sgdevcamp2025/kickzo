@@ -31,7 +31,12 @@ public class MainPageController {
 		return ResponseEntity.ok(rooms);
 	}
 
-	//@GetMapping("/v1/list/my")
+	// 추후 jwt 토큰 확인 작업 & userId 추출 작업 필요
+	@GetMapping("/v1/list/my")
+	public ResponseEntity<List<RoomResponseDto>> getUserRooms(@RequestParam Long userId) {
+		List<RoomResponseDto> rooms = mainpageService.getUserRooms(userId);
+		return ResponseEntity.ok(rooms);
+	}
 
 	//@PostMapping("/v1/create-room")
 
