@@ -1,13 +1,6 @@
+import { useState } from 'react';
 import { SmallProfile } from '@/components/common/smallProfile';
 import { CommonInput } from '@/components/common/input';
-
-import AddUserIcon from '@/assets/img/AddUser.svg';
-import MicrophoneOn from '@/assets/img/MicrophoneOn.svg';
-import HeadphoneOn from '@/assets/img/HeadphoneOn.svg';
-import MicrophoneOffRed from '@/assets/img/MicrophoneOffRed.svg';
-import HeadphoneOffRed from '@/assets/img/HeadphoneOffRed.svg';
-import { memberListTest } from '@/assets/data/memberListTest';
-
 import {
   Container,
   UserList,
@@ -17,7 +10,14 @@ import {
   JoinButton,
 } from './index.css';
 import { SidebarType } from '@/types/enums/SidebarType';
-import { useState } from 'react';
+import { ProfileType } from '@/types/enums/ProfileType';
+
+import AddUserIcon from '@/assets/img/AddUser.svg';
+import MicrophoneOn from '@/assets/img/MicrophoneOn.svg';
+import HeadphoneOn from '@/assets/img/HeadphoneOn.svg';
+import MicrophoneOffRed from '@/assets/img/MicrophoneOffRed.svg';
+import HeadphoneOffRed from '@/assets/img/HeadphoneOffRed.svg';
+import { memberListTest } from '@/assets/data/memberListTest';
 
 interface IMemberListProps {
   sidebarType?: SidebarType;
@@ -67,7 +67,9 @@ export const MemberList = ({ sidebarType }: IMemberListProps) => {
           .sort((a, b) => a.role - b.role)
           .map(member => (
             <SmallProfile
-              type={sidebarType === SidebarType.VoiceChat ? 1 : 0}
+              type={
+                sidebarType === SidebarType.VoiceChat ? ProfileType.VOICECHAT : ProfileType.MEMBER
+              }
               key={member.id}
               role={member.role}
               nickname={member.nickname}

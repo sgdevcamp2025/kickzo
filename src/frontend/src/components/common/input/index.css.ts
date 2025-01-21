@@ -26,7 +26,7 @@ export const Wrapper = styled.div<{ design: InputDesign }>`
 `;
 
 /** Input 필드 스타일 */
-export const StyledInput = styled.input<{ hasError: boolean; design: InputDesign }>`
+export const StyledInput = styled.input<{ iserror: boolean; design: InputDesign }>`
   flex: 1;
   padding: 8px 12px;
   border: none;

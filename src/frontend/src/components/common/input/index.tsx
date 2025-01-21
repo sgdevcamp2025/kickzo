@@ -36,7 +36,7 @@ export const CommonInput = (props: IInput) => {
           value={props.value}
           onChange={props.onChange}
           disabled={props.disabled || false}
-          hasError={!!props.error}
+          iserror={!!props.error}
           design={props.design || InputDesign.INPUT}
         />
         {props.design === InputDesign.INPUT && props.buttonLabel && (

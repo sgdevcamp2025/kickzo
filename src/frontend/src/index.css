@@ -8,6 +8,7 @@
   overscroll-behavior-y: none;
   touch-action: none;
 }
+*,
 *::before,
 *::after {
   margin: 0;

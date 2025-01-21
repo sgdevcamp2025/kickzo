@@ -9,11 +9,11 @@ interface IButton {
   /** 버튼 색상 */
   color: ButtonColor;
   /** 글자 색상 (기본값: 흰색) */
-  textColor?: string;
+  textcolor?: string;
   /** 버튼 내부 패딩 */
   padding?: string;
   /** 버튼의 border-radius 값 (기본값: 5px) */
-  borderRadius?: string;
+  borderradius?: string;
   /** 버튼의 border */
   border?: string;
   /** 버튼 클릭 핸들러 */
@@ -22,18 +22,24 @@ interface IButton {
   children?: React.ReactNode;
   /** 버튼 비활성화 상태 */
   disabled?: boolean;
+  /** 버튼의 넓이 */
+  width?: string;
+  /** 버튼의 높이 */
+  height?: string;
 }
 
 export const CommonButton = (props: IButton) => {
   return (
     <StyledButton
       color={props.color}
-      textColor={props.textColor || 'white'}
+      textcolor={props.textcolor || 'white'}
       padding={props.padding || '0px'}
-      borderRadius={props.borderRadius || '4px'}
+      borderradius={props.borderradius || '4px'}
       border={props.border || 'none'}
       onClick={props.disabled ? undefined : props.onClick}
       disabled={props.disabled || false}
+      width={props.width || 'auto'}
+      height={props.height || 'auto'}
     >
       {props.children}
     </StyledButton>

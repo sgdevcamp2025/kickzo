@@ -4,22 +4,26 @@ import { ButtonColor } from '@/types/enums/ButtonColor';
 /** 버튼 스타일 */
 export const StyledButton = styled.button<{
   color: ButtonColor;
-  textColor: string;
-  borderRadius: string;
+  textcolor: string;
+  borderradius: string;
   padding: string;
   border: string;
   disabled: boolean;
+  width: string;
+  height: string;
 }>`
+  width: ${({ width }) => width};
+  height: ${({ height }) => height};
   display: flex;
   align-items: center;
   justify-content: center;
   padding: ${({ padding }) => padding};
   background-color: ${({ color }) => color};
-  color: ${({ textColor }) => textColor};
+  color: ${({ textcolor }) => textcolor};
   font-weight: bold;
   font-size: 14px;
   border: ${({ border }) => border};
-  border-radius: ${({ borderRadius }) => borderRadius};
+  border-radius: ${({ borderradius }) => borderradius};
   cursor: pointer;
   transition:
     background-color 0.3s,

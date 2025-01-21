@@ -220,7 +220,7 @@ const VideoWrapper = styled.div`
 `;
 
 interface VideoItemProps {
-  $active?: boolean;
+  active?: boolean;
 }
 
 const VideoItem = styled.div<VideoItemProps>`
@@ -230,6 +230,6 @@ const VideoItem = styled.div<VideoItemProps>`
   cursor: pointer;
   padding: 10px;
   border-radius: 5px;
-  background-color: ${({ $active }) => ($active ? '#f8d7da' : '#fff')};
-  border: ${({ $active }) => ($active ? '2px solid #ff0000' : '1px solid #ddd')};
+  background-color: ${({ active }) => (active ? '#f8d7da' : '#fff')};
+  border: ${({ active }) => (active ? '2px solid #ff0000' : '1px solid #ddd')};
 `;
