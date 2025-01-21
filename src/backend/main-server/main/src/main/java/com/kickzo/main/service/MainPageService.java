@@ -1,16 +1,22 @@
 package com.kickzo.main.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kickzo.main.dto.CreateRoomRequestDto;
 import com.kickzo.main.dto.RoomResponseDto;
 import com.kickzo.main.entity.Room;
+import com.kickzo.main.entity.RoomUser;
+import com.kickzo.main.entity.RoomUserId;
 import com.kickzo.main.repository.PlaylistRepository;
 import com.kickzo.main.repository.RoomRepository;
 import com.kickzo.main.repository.RoomUserRepository;
@@ -19,6 +25,7 @@ import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
+@Transactional
 public class MainPageService {
 
 	private final RoomRepository roomRepository;
@@ -44,6 +51,15 @@ public class MainPageService {
 	}
 
 	// 방 만들기
+	public String createRoom(Long userId, String creatorNickname, CreateRoomRequestDto requestDto) {
+
+		String randomCode = generateRandomCode();
+
+		Room newRoom = saveNewRoom(requestDto, creatorNickname, randomCode);
+		saveRoomUser(newRoom.getId(), userId);
+
+		return randomCode; // 생성된 방 코드를 반환
+	}
 
 	/**
 	 * 메인 페이지에서 방 list 제공
@@ -83,5 +99,38 @@ public class MainPageService {
 			.userCount(room.getUserCount())
 			.playlistUrl(playlistUrl)
 			.build();
+	}
+
+	/**
+	 * 새로운 방 만들기
+	 * 1. 임의의 roomcode 생성 : generateRandomCode
+	 * 2. Room에 저장 : saveNewRoom
+	 * 3. RoomUser에 저장 : saveRoomUser
+	 */
+	private String generateRandomCode() {
+		return UUID.randomUUID().toString().replaceAll("-", "").substring(0, 8).toUpperCase();
+	}
+
+	private Room saveNewRoom(CreateRoomRequestDto requestDto, String creatorNickname, String randomCode) {
+		Room newRoom = Room.builder()
+			.title(requestDto.getTitle())
+			.isPublic(requestDto.getIsPublic())
+			.code(randomCode)
+			.creator(creatorNickname)
+			.userCount(1)
+			.createdAt(LocalDateTime.now())
+			.build();
+
+		return roomRepository.save(newRoom);
+	}
+
+	private void saveRoomUser(Long roomId, Long userId) {
+		RoomUser roomUser = RoomUser.builder()
+			.id(new RoomUserId(roomId, userId))
+			.role(0) // 0: creator 역할
+			.joinedAt(LocalDateTime.now())
+			.build();
+
+		roomUserRepository.save(roomUser);
 	}
 }

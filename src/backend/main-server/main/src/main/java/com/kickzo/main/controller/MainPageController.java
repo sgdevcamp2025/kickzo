@@ -6,10 +6,13 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kickzo.main.dto.CreateRoomRequestDto;
 import com.kickzo.main.dto.RoomResponseDto;
 import com.kickzo.main.service.MainPageService;
 
@@ -38,6 +41,12 @@ public class MainPageController {
 		return ResponseEntity.ok(rooms);
 	}
 
-	//@PostMapping("/v1/create-room")
-
+	@PostMapping("/v1/create-room")
+	public ResponseEntity<String> createRoom(
+		@RequestParam Long userId,
+		@RequestParam String creatorNickname,
+		@RequestBody CreateRoomRequestDto requestDto) {
+		String roomCode = mainpageService.createRoom(userId, creatorNickname, requestDto);
+		return ResponseEntity.ok(roomCode);
+	}
 }
