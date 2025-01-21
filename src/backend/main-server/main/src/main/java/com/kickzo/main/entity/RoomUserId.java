@@ -23,12 +23,14 @@ public class RoomUserId {
 	private Long userId;
 
 	@Override
-	public boolean equals(Object o) {
-		if (this == o)
+	public boolean equals(Object object) {
+		if (this == object) {
 			return true;
-		if (o == null || getClass() != o.getClass())
+		}
+		if (object == null || getClass() != object.getClass()) {
 			return false;
-		RoomUserId that = (RoomUserId)o;
+		}
+		RoomUserId that = (RoomUserId)object;
 		return Objects.equals(roomId, that.roomId) && Objects.equals(userId, that.userId);
 	}
 
