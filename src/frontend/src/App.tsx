@@ -1,7 +1,12 @@
-import "./App.css";
+import './App.css';
+import { Room } from './pages/room';
 
 function App() {
-  return <></>;
+  return (
+    <>
+      <Room />
+    </>
+  );
 }
 
 export default App;

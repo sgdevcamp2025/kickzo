@@ -1,12 +1,6 @@
 import { ChangeEvent } from 'react';
-import {
-  Container,
-  Container__Wrapper,
-  Container__Wrapper__Input,
-  Container__Wrapper__Btn,
-  Container__ErrorMessage,
-  Design,
-} from './index.css';
+import { Container, Wrapper, StyledInput, Btn, ErrorMessage } from './index.css';
+import { InputDesign } from '@/types/enums/InputDesign';
 
 /**
  * Input 컴포넌트의 Props 인터페이스
@@ -29,29 +23,29 @@ interface IInput {
   /** 버튼 클릭 이벤트 핸들러 */
   onButtonClick?: () => void;
   /** Input 디자인 선택 (INPUT 또는 SEARCH) */
-  design?: Design;
+  design?: InputDesign;
 }
 
-export const Input = (props: IInput) => {
+export const CommonInput = (props: IInput) => {
   return (
     <Container>
-      <Container__Wrapper design={props.design || Design.INPUT}>
-        <Container__Wrapper__Input
+      <Wrapper design={props.design || InputDesign.INPUT}>
+        <StyledInput
           type={props.type || 'text'}
           placeholder={props.placeholder}
           value={props.value}
           onChange={props.onChange}
           disabled={props.disabled || false}
-          hasError={!!props.error}
-          design={props.design || Design.INPUT}
+          iserror={!!props.error}
+          design={props.design || InputDesign.INPUT}
         />
-        {props.design === Design.INPUT && props.buttonLabel && (
-          <Container__Wrapper__Btn onClick={props.onButtonClick} disabled={props.disabled || false}>
+        {props.design === InputDesign.INPUT && props.buttonLabel && (
+          <Btn onClick={props.onButtonClick} disabled={props.disabled || false}>
             {props.buttonLabel}
-          </Container__Wrapper__Btn>
+          </Btn>
         )}
-      </Container__Wrapper>
-      {props.error && <Container__ErrorMessage>{props.error}</Container__ErrorMessage>}
+      </Wrapper>
+      {props.error && <ErrorMessage>{props.error}</ErrorMessage>}
     </Container>
   );
 };

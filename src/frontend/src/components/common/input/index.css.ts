@@ -1,10 +1,5 @@
 import styled, { css } from 'styled-components';
-
-/** Input의 디자인 타입 */
-export enum Design {
-  INPUT = 0,
-  SEARCH = 1,
-}
+import { InputDesign } from '@/types/enums/InputDesign';
 
 /** 컨테이너 스타일 */
 export const Container = styled.div`
@@ -15,7 +10,7 @@ export const Container = styled.div`
 `;
 
 /** Input Wrapper 스타일 */
-export const Container__Wrapper = styled.div<{ design: Design }>`
+export const Wrapper = styled.div<{ design: InputDesign }>`
   display: flex;
   align-items: center;
   border: 1px solid #d4d4d4;
@@ -23,7 +18,7 @@ export const Container__Wrapper = styled.div<{ design: Design }>`
   padding: 2px;
 
   ${({ design }) =>
-    design === Design.SEARCH &&
+    design === InputDesign.SEARCH &&
     css`
       background-color: #f5f5f5;
       border: none;
@@ -31,7 +26,7 @@ export const Container__Wrapper = styled.div<{ design: Design }>`
 `;
 
 /** Input 필드 스타일 */
-export const Container__Wrapper__Input = styled.input<{ hasError: boolean; design: Design }>`
+export const StyledInput = styled.input<{ iserror: boolean; design: InputDesign }>`
   flex: 1;
   padding: 8px 12px;
   border: none;
@@ -41,7 +36,7 @@ export const Container__Wrapper__Input = styled.input<{ hasError: boolean; desig
   border-radius: 4px;
 
   ${({ design }) =>
-    design === Design.SEARCH &&
+    design === InputDesign.SEARCH &&
     css`
       background-color: #f5f5f5;
       font-size: 14px;
@@ -55,7 +50,7 @@ export const Container__Wrapper__Input = styled.input<{ hasError: boolean; desig
 `;
 
 /** 버튼 스타일 */
-export const Container__Wrapper__Btn = styled.button`
+export const Btn = styled.button`
   background: none;
   color: #007bff;
   font-size: 14px;
@@ -75,7 +70,7 @@ export const Container__Wrapper__Btn = styled.button`
 `;
 
 /** 에러 메시지 스타일 */
-export const Container__ErrorMessage = styled.span`
+export const ErrorMessage = styled.span`
   color: red;
   font-size: 12px;
 `;
