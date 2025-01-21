@@ -12,7 +12,10 @@ import com.kickzo.main.entity.Room;
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Long> {
 	// 메인 페이지에 제공하는 방
-	@Query("SELECT r FROM Room r LEFT JOIN FETCH r.playlist WHERE r.userCount > 0 ORDER BY r.userCount DESC")
+	@Query("SELECT r "
+		+ "FROM Room r LEFT JOIN FETCH r.playlist "
+		+ "WHERE r.userCount > 0 AND r.isPublic "
+		+ "ORDER BY r.userCount DESC")
 	List<Room> findAllByUserCountDesc(Pageable pageable);
 }
 
