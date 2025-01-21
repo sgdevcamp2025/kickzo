@@ -44,8 +44,9 @@ public class MainPageService {
 	 * 2. Room 엔티티를 DTO로 변환 : convertToDto
 	 */
 	private String extractPlaylistUrl(String orderJson) {
-		if (orderJson == null)
+		if (orderJson == null) {
 			return null;
+		}
 
 		ObjectMapper objectMapper = new ObjectMapper();
 		try {
