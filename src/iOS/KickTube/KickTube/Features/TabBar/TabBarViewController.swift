@@ -16,7 +16,7 @@ final class TabBarViewController: UITabBarController {
         let nav2VC = UIViewController()
         let nav3VC = UIViewController()
         let nav4VC = UIViewController()
-        let nav5VC = UIViewController()
+        let nav5VC = LoginViewController(LoginReactor())
         
         let nav1 = UINavigationController(rootViewController: nav1VC)
         nav1.tabBarItem = UITabBarItem(title: nil, image: UIImage.playlist.resize(to: CGSize(width: ComponentSize.navigationItem.size.width, height: ComponentSize.navigationItem.size.height)), tag: 0)
@@ -35,7 +35,7 @@ final class TabBarViewController: UITabBarController {
         
         setViewControllers([nav1, nav2, nav3, nav4, nav5], animated: false)
         
-        selectedIndex = 2
+        selectedIndex = 4
         tabBar.tintColor = .primary
     }
 }

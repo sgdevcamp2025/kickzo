@@ -13,6 +13,7 @@
 		532F31862D364BC200D2C67E /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 532F31852D364BC200D2C67E /* RxSwift */; };
 		532F31892D364BCE00D2C67E /* ReactorKit in Frameworks */ = {isa = PBXBuildFile; productRef = 532F31882D364BCE00D2C67E /* ReactorKit */; };
 		532F318B2D364C2E00D2C67E /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 532F318A2D364C2E00D2C67E /* .gitignore */; };
+		53C9559A2D40BC23004D4DA2 /* ManipulateDataModel in Frameworks */ = {isa = PBXBuildFile; productRef = 53C955992D40BC23004D4DA2 /* ManipulateDataModel */; };
 		53FDEFDD2D3E12C400825962 /* ManipulateDataModel in Frameworks */ = {isa = PBXBuildFile; productRef = 5351F2E02D392C600093EB87 /* ManipulateDataModel */; };
 /* End PBXBuildFile section */
 
@@ -93,6 +94,7 @@
 				532F31862D364BC200D2C67E /* RxSwift in Frameworks */,
 				532F31842D364BC200D2C67E /* RxCocoa in Frameworks */,
 				532F31892D364BCE00D2C67E /* ReactorKit in Frameworks */,
+				53C9559A2D40BC23004D4DA2 /* ManipulateDataModel in Frameworks */,
 				532F31812D364BB200D2C67E /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -159,6 +161,7 @@
 				532F31852D364BC200D2C67E /* RxSwift */,
 				532F31882D364BCE00D2C67E /* ReactorKit */,
 				5351F2E02D392C600093EB87 /* ManipulateDataModel */,
+				53C955992D40BC23004D4DA2 /* ManipulateDataModel */,
 			);
 			productName = KickTube;
 			productReference = 532F31322D3649CA00D2C67E /* KickTube.app */;
@@ -240,7 +243,7 @@
 				532F317F2D364BB200D2C67E /* XCRemoteSwiftPackageReference "SnapKit" */,
 				532F31822D364BC200D2C67E /* XCRemoteSwiftPackageReference "RxSwift" */,
 				532F31872D364BCE00D2C67E /* XCRemoteSwiftPackageReference "ReactorKit" */,
-				531399852D393085002F4E5E /* XCLocalSwiftPackageReference "../ManipulateDataModel" */,
+				53C955982D40BC23004D4DA2 /* XCLocalSwiftPackageReference "../ManipulateDataModel" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 532F31332D3649CA00D2C67E /* Products */;
@@ -609,7 +612,7 @@
 /* End XCConfigurationList section */
 
 /* Begin XCLocalSwiftPackageReference section */
-		531399852D393085002F4E5E /* XCLocalSwiftPackageReference "../ManipulateDataModel" */ = {
+		53C955982D40BC23004D4DA2 /* XCLocalSwiftPackageReference "../ManipulateDataModel" */ = {
 			isa = XCLocalSwiftPackageReference;
 			relativePath = ../ManipulateDataModel;
 		};
@@ -664,6 +667,10 @@
 			productName = ReactorKit;
 		};
 		5351F2E02D392C600093EB87 /* ManipulateDataModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			productName = ManipulateDataModel;
+		};
+		53C955992D40BC23004D4DA2 /* ManipulateDataModel */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ManipulateDataModel;
 		};
