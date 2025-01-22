@@ -1,10 +1,24 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Trashcan from '@/assets/img/Trashcan.svg';
 import ArrowUp from '@/assets/img/ArrowUp.svg';
 import ArrowDown from '@/assets/img/ArrowDown.svg';
 import { CommonButton } from '@/components/common/button';
-import { Container, Wrapper, VideoItem, Thumbnail, InputContainer, SearchInput } from './index.css';
+import {
+  Container,
+  Wrapper,
+  VideoItem,
+  Thumbnail,
+  InputContainer,
+  SearchInput,
+  PreviewContainer,
+  PreviewImg,
+  PreviewInfo,
+  PreviewInfo__Title,
+  PreviewInfo__Youtuber,
+  Overlay,
+} from './index.css';
 import { ButtonColor } from '@/types/enums/ButtonColor';
+import { useDebounce } from '@/hooks/useDebounce';
 
 interface VideoItem {
   id: string;
@@ -21,7 +35,9 @@ interface IPlaylist {
 
 export const Playlist = (props: IPlaylist) => {
   const [inputUrl, setInputUrl] = useState<string>('');
+  const [thumbnailPreview, setThumbnailPreview] = useState<string>('');
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const debouncedInputUrl = useDebounce(inputUrl, 1000);
 
   const extractVideoIdAndStartTime = (url: string) => {
     const regex =
@@ -32,6 +48,17 @@ export const Playlist = (props: IPlaylist) => {
       startTime: match && match[2] ? parseInt(match[2], 10) : 0,
     };
   };
+
+  useEffect(() => {
+    if (debouncedInputUrl) {
+      const { videoId } = extractVideoIdAndStartTime(debouncedInputUrl);
+      if (videoId) {
+        setThumbnailPreview(`https://img.youtube.com/vi/${videoId}/0.jpg`);
+      } else {
+        setThumbnailPreview('');
+      }
+    }
+  }, [debouncedInputUrl]);
 
   const handleAddVideo = () => {
     const { videoId, startTime } = extractVideoIdAndStartTime(inputUrl);
@@ -45,10 +72,11 @@ export const Playlist = (props: IPlaylist) => {
       {
         id: videoId,
         start: startTime,
-        thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`,
+        thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`, // NOTE - 유튜브 썸네일
       },
     ]);
     setInputUrl('');
+    setThumbnailPreview('');
   };
 
   const handleRemove = (index: number) => {
@@ -165,17 +193,35 @@ export const Playlist = (props: IPlaylist) => {
           </VideoItem>
         ))}
       </Wrapper>
-      <InputContainer>
-        <SearchInput
-          type="text"
-          placeholder="URL을 입력하세요"
-          value={inputUrl}
-          onChange={e => setInputUrl(e.target.value)}
-        />
-        <CommonButton color={ButtonColor.DARKGRAY} onClick={handleAddVideo} padding="5px 10px">
-          +
-        </CommonButton>
-      </InputContainer>
+      <div>
+        {thumbnailPreview && (
+          <PreviewContainer>
+            <Overlay className="overlay" onClick={handleAddVideo}>
+              추가하기
+            </Overlay>
+            <CommonButton onClick={handleAddVideo} color={ButtonColor.SEMIBLACK} padding="10px">
+              <PreviewImg src={thumbnailPreview} />
+              <PreviewInfo>
+                <PreviewInfo__Title>
+                  [playlist]너무 조용하지도, 너무 들뜨지 않아 듣기 좋은 재즈 | Cozi
+                </PreviewInfo__Title>
+                <PreviewInfo__Youtuber>Sweet Melody</PreviewInfo__Youtuber>
+              </PreviewInfo>
+            </CommonButton>
+          </PreviewContainer>
+        )}
+        <InputContainer>
+          <SearchInput
+            type="text"
+            placeholder="URL을 입력하세요"
+            value={inputUrl}
+            onChange={e => setInputUrl(e.target.value)}
+          />
+          {/* <CommonButton color={ButtonColor.DARKGRAY} onClick={handleAddVideo} padding="5px 10px">
+            +
+          </CommonButton> */}
+        </InputContainer>
+      </div>
     </Container>
   );
 };
