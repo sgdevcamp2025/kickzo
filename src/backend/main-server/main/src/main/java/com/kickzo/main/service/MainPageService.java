@@ -22,7 +22,9 @@ import com.kickzo.main.repository.RoomRepository;
 import com.kickzo.main.repository.RoomUserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 @Transactional
@@ -80,6 +82,7 @@ public class MainPageService {
 				}
 			}
 		} catch (JsonProcessingException e) {
+			log.error("failed to extract playlist url from order json", e);
 			return null; // JSON 파싱 실패 시 null 반환
 		}
 		return null; // order == 0인 항목이 없는 경우

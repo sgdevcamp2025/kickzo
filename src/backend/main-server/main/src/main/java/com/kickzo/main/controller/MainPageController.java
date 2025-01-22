@@ -17,27 +17,31 @@ import com.kickzo.main.dto.RoomResponseDto;
 import com.kickzo.main.service.MainPageService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/rooms")
 @RequiredArgsConstructor
 public class MainPageController {
 
-	private final MainPageService mainpageService;
+	private final MainPageService mainPageService;
 
 	@GetMapping("/v1/list")
 	public ResponseEntity<List<RoomResponseDto>> getAllRooms(
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size) {
+		log.info("get all rooms. page: {}, size: {}", page, size);
 		Pageable pageable = PageRequest.of(page, size);
-		List<RoomResponseDto> rooms = mainpageService.getAllRooms(pageable);
+		List<RoomResponseDto> rooms = mainPageService.getAllRooms(pageable);
 		return ResponseEntity.ok(rooms);
 	}
 
 	// 추후 jwt 토큰 확인 작업 & userId 추출 작업 필요
 	@GetMapping("/v1/list/my")
 	public ResponseEntity<List<RoomResponseDto>> getUserRooms(@RequestParam Long userId) {
-		List<RoomResponseDto> rooms = mainpageService.getUserRooms(userId);
+		log.info("get user rooms. userId: {}", userId);
+		List<RoomResponseDto> rooms = mainPageService.getUserRooms(userId);
 		return ResponseEntity.ok(rooms);
 	}
 
@@ -46,7 +50,8 @@ public class MainPageController {
 		@RequestParam Long userId,
 		@RequestParam String creatorNickname,
 		@RequestBody CreateRoomRequestDto requestDto) {
-		String roomCode = mainpageService.createRoom(userId, creatorNickname, requestDto);
+		log.info("create room. userId: {}, creatorNickname: {}", userId, creatorNickname);
+		String roomCode = mainPageService.createRoom(userId, creatorNickname, requestDto);
 		return ResponseEntity.ok(roomCode);
 	}
 }
