@@ -28,4 +28,4 @@ services:
 
 networks:
   kafka-network:
-    driver: bridge
+    external: true
