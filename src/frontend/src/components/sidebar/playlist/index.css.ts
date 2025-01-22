@@ -77,6 +77,26 @@ export const PreviewInfo = styled.div`
   gap: 10px;
 `;
 
+export const Playlist__Title = styled.div`
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 14.52px;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  color: black;
+`;
+
+export const Playlist__Youtuber = styled.div`
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 14.52px;
+  text-align: left;
+  text-underline-position: from-font;
+  text-decoration-skip-ink: none;
+  color: #888888;
+`;
+
 export const PreviewInfo__Title = styled.div`
   font-size: 12px;
   font-weight: 700;

@@ -15,6 +15,8 @@ import {
   PreviewInfo,
   PreviewInfo__Title,
   PreviewInfo__Youtuber,
+  Playlist__Title,
+  Playlist__Youtuber,
   Overlay,
 } from './index.css';
 import { ButtonColor } from '@/types/enums/ButtonColor';
@@ -33,10 +35,14 @@ interface IPlaylist {
   setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 
+const API_KEY = '발급받은 API_KEY를 여기에 붙여넣어주세요';
+
 export const Playlist = (props: IPlaylist) => {
   const [inputUrl, setInputUrl] = useState<string>('');
   const [thumbnailPreview, setThumbnailPreview] = useState<string>('');
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [videoTitle, setVideoTitle] = useState<string>('');
+  const [videoYoutuber, setVideoYoutuber] = useState<string>('');
   const debouncedInputUrl = useDebounce(inputUrl, 1000);
 
   const extractVideoIdAndStartTime = (url: string) => {
@@ -50,12 +56,36 @@ export const Playlist = (props: IPlaylist) => {
   };
 
   useEffect(() => {
+    const fetchVideoDetails = async (videoId: string) => {
+      try {
+        const response = await fetch(
+          `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${API_KEY}&hl=ko`,
+        );
+        const data = await response.json();
+        if (data.items && data.items.length > 0) {
+          const { title, channelTitle } = data.items[0].snippet;
+          setVideoTitle(title);
+          setVideoYoutuber(channelTitle);
+        } else {
+          setVideoTitle('');
+          setVideoYoutuber('');
+        }
+      } catch (error) {
+        console.error('Failed to fetch video details:', error);
+        setVideoTitle('');
+        setVideoYoutuber('');
+      }
+    };
+
     if (debouncedInputUrl) {
       const { videoId } = extractVideoIdAndStartTime(debouncedInputUrl);
       if (videoId) {
         setThumbnailPreview(`https://img.youtube.com/vi/${videoId}/0.jpg`);
+        fetchVideoDetails(videoId);
       } else {
         setThumbnailPreview('');
+        setVideoTitle('');
+        setVideoYoutuber('');
       }
     }
   }, [debouncedInputUrl]);
@@ -73,10 +103,14 @@ export const Playlist = (props: IPlaylist) => {
         id: videoId,
         start: startTime,
         thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`, // NOTE - 유튜브 썸네일
+        title: videoTitle,
+        youtuber: videoYoutuber,
       },
     ]);
     setInputUrl('');
     setThumbnailPreview('');
+    setVideoTitle('');
+    setVideoYoutuber('');
   };
 
   const handleRemove = (index: number) => {
@@ -154,7 +188,12 @@ export const Playlist = (props: IPlaylist) => {
             onClick={() => props.setCurrentIndex(index)}
             active={index === props.currentIndex}
           >
+            {/* <Overlay className="overlay">aaa</Overlay> */}
             <Thumbnail src={video.thumbnail} alt={`Video ${video.id}`} />
+            <PreviewInfo>
+              <Playlist__Title>{video.title || '제목 없음'}</Playlist__Title>
+              <Playlist__Youtuber>{video.youtuber || '유튜버 정보 없음'}</Playlist__Youtuber>
+            </PreviewInfo>
             <div>
               <CommonButton
                 onClick={e => {
@@ -194,7 +233,7 @@ export const Playlist = (props: IPlaylist) => {
         ))}
       </Wrapper>
       <div>
-        {thumbnailPreview && (
+        {videoTitle && (
           <PreviewContainer>
             <Overlay className="overlay" onClick={handleAddVideo}>
               추가하기
@@ -202,10 +241,8 @@ export const Playlist = (props: IPlaylist) => {
             <CommonButton onClick={handleAddVideo} color={ButtonColor.SEMIBLACK} padding="10px">
               <PreviewImg src={thumbnailPreview} />
               <PreviewInfo>
-                <PreviewInfo__Title>
-                  [playlist]너무 조용하지도, 너무 들뜨지 않아 듣기 좋은 재즈 | Cozi
-                </PreviewInfo__Title>
-                <PreviewInfo__Youtuber>Sweet Melody</PreviewInfo__Youtuber>
+                <PreviewInfo__Title>{videoTitle || '제목 없음'}</PreviewInfo__Title>
+                <PreviewInfo__Youtuber>{videoYoutuber || '유튜버 정보 없음'}</PreviewInfo__Youtuber>
               </PreviewInfo>
             </CommonButton>
           </PreviewContainer>
