@@ -1,11 +1,33 @@
-import './App.css';
-import { Room } from './pages/room';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import * as Sentry from '@sentry/react';
+import '@/App.css';
+import { Layout } from '@/pages/layout';
+import { LoginPage } from '@/pages/loginPage';
+import { RegisterPage } from '@/pages/registerPage';
+import { NotFoundPage } from '@/pages/notFoundPage';
+import { HomePage } from '@/pages/homePage';
+import { Room } from '@/pages/room';
+import { FriendPage } from '@/pages/friendPage';
+import { SettingPage } from '@/pages/settingPage';
 
 function App() {
+  const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
+
   return (
-    <>
-      <Room />
-    </>
+    <BrowserRouter>
+      <SentryRoutes>
+        <Route path="/login" element={<LoginPage />} />
+        <Route path="/register" element={<RegisterPage />} />
+        <Route path="/" element={<Layout />}>
+          <Route path="home" element={<HomePage />} />
+          <Route path="room" element={<Room />} />
+          <Route path="friend" element={<FriendPage />} />
+          <Route path="setting" element={<SettingPage />} />
+        </Route>
+
+        <Route path="/*" element={<NotFoundPage />} />
+      </SentryRoutes>
+    </BrowserRouter>
   );
 }
 
