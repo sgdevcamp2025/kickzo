@@ -42,7 +42,9 @@ class BaseViewController<R: Reactor>: UIViewController, View {
     
     func configureLayout() {}
     
-    func configureUI() {}
+    func configureUI() {
+        view.backgroundColor = .white
+    }
 
     func bind(reactor: R) {
         bindAction(reactor: reactor)
