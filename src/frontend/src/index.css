@@ -155,3 +155,22 @@ img {
   -ms-user-select: none;
   user-select: none;
 }
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+a,
+a:visited {
+  color: inherit;
+  text-decoration: none;
+}
+
+img {
+  -webkit-user-drag: none;
+  max-width: 100%;
+  vertical-align: top;
+  object-fit: cover;
+}
