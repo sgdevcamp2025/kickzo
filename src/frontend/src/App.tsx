@@ -9,6 +9,7 @@ import { HomePage } from '@/pages/homePage';
 import { Room } from '@/pages/room';
 import { FriendPage } from '@/pages/friendPage';
 import { SettingPage } from '@/pages/settingPage';
+import { MyRoomPage } from '@/pages/myRoomPage';
 
 function App() {
   const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
@@ -19,7 +20,8 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/" element={<Layout />}>
-          <Route path="home" element={<HomePage />} />
+          <Route path="." element={<HomePage />} />
+          <Route path="my-room" element={<MyRoomPage />} />
           <Route path="room" element={<Room />} />
           <Route path="friend" element={<FriendPage />} />
           <Route path="setting" element={<SettingPage />} />

@@ -1,6 +1,6 @@
 import { styled } from 'styled-components';
 
-export const Container = styled.div`
+export const Wrapper = styled.div`
   width: 100%;
   height: 80px;
   display: flex;
@@ -21,7 +21,7 @@ export const LogoBox = styled.div`
   }
 `;
 
-export const ButtonWrapper = styled.div`
+export const ButtonContainer = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
@@ -35,6 +35,7 @@ export const ButtonBox = styled.div`
   align-items: center;
   border-radius: 0.5rem;
   cursor: pointer;
+  transition: background-color 0.3s;
   &:hover {
     background-color: var(--palette-line-solid-normal);
   }
@@ -46,6 +47,7 @@ export const LoginButton = styled.button`
   border-radius: 2rem;
   color: var(--palette-icon-normal);
   border: 1px solid var(--palette-interaction-inactive);
+  transition: background-color 0.3s;
   &:hover {
     background-color: var(--palette-line-solid-normal);
   }

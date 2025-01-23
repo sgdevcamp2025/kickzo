@@ -156,6 +156,12 @@ img {
   user-select: none;
 }
 
+html,
+body,
+#root {
+  height: 100%;
+}
+
 a,
 a:visited {
   color: inherit;
