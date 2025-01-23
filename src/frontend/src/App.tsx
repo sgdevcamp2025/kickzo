@@ -1,15 +1,15 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import * as Sentry from '@sentry/react';
 import '@/App.css';
-import { Layout } from '@/pages/Layout';
-import { LoginPage } from '@/pages/LoginPage';
-import { RegisterPage } from '@/pages/RegisterPage';
-import { NotFoundPage } from '@/pages/NotFoundPage';
-import { HomePage } from '@/pages/HomePage';
+import { Layout } from '@/pages/Layout1';
+import { LoginPage } from '@/pages/LoginPage1';
+import { RegisterPage } from '@/pages/RegisterPage1';
+import { NotFoundPage } from '@/pages/NotFoundPage1';
+import { HomePage } from '@/pages/HomePage1';
 import { Room } from '@/pages/room';
-import { FriendPage } from '@/pages/FriendPage';
-import { SettingPage } from '@/pages/SettingPage';
-import { MyRoomPage } from '@/pages/MyRoomPage';
+import { FriendPage } from '@/pages/FriendPage1';
+import { SettingPage } from '@/pages/SettingPage1';
+import { MyRoomPage } from '@/pages/MyRoomPage1';
 
 function App() {
   const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
