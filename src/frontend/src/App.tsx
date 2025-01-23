@@ -26,7 +26,6 @@ function App() {
           <Route path="friend" element={<FriendPage />} />
           <Route path="setting" element={<SettingPage />} />
         </Route>
-
         <Route path="/*" element={<NotFoundPage />} />
       </SentryRoutes>
     </BrowserRouter>
