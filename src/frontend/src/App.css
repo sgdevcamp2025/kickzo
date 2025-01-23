@@ -213,3 +213,7 @@
 :root {
   color: var(--palette-static-black);
 }
+
+input::placeholder {
+  color: var(--palette-label-assistive);
+}

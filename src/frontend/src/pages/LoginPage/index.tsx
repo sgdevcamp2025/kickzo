@@ -1,9 +1,9 @@
+import { useRef } from 'react';
 import { styled } from 'styled-components';
-import Logo from '@/assets/img/Logo.png';
 import { Link } from 'react-router-dom';
 import { ButtonColor } from '@/types/enums/ButtonColor';
 import { CommonButton } from '@/components/common/button';
-import { useRef } from 'react';
+import { LogoButton } from '@/components/common/LogoButton';
 
 export const LoginPage = () => {
   const emailRef = useRef<HTMLInputElement>(null);
@@ -18,25 +18,11 @@ export const LoginPage = () => {
 
   return (
     <Wrapper>
-      <Link to="/">
-        <img src={Logo} alt="Logo" />
-      </Link>
+      <LogoButton />
       <SubTitle>로그인 후 킥튜브를 즐겨보세요 :)</SubTitle>
       <form onSubmit={handleSubmit}>
-        <CommonInput
-          type="text"
-          placeholder="아이디"
-          // onChange={e => setEmail(e.target.value)}
-          ref={emailRef}
-          required
-        />
-        <CommonInput
-          type="password"
-          placeholder="비밀번호"
-          // onChange={e => setPassword(e.target.value)}
-          ref={passwordRef}
-          required
-        />
+        <CommonInput type="text" placeholder="이메일" ref={emailRef} required />
+        <CommonInput type="password" placeholder="비밀번호" ref={passwordRef} required />
         <IdSaveCheckBox>
           <input type="checkbox" />
           아이디 저장
@@ -84,9 +70,14 @@ const CommonInput = styled.input`
   height: 3rem;
   padding: 0.5rem;
   margin-bottom: 0.625rem;
-  border: 1px solid var(--palette-interaction-inactive);
+  border: 1px solid var(--palette-line-normal-normal);
   border-radius: 0.5rem;
   font-size: 1rem;
+  outline: none;
+
+  &:focus-within {
+    border: 1px solid var(--palette-interaction-inactive);
+  }
 `;
 
 const IdSaveCheckBox = styled.label`
