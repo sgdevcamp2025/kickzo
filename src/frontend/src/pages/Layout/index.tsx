@@ -1,5 +1,5 @@
-import { TopNavBar } from '@/components/TopNavBar1';
-import { LeftNavBar } from '@/components/LeftNavBar1';
+import { TopNavBar } from '@/components/TopNavBar';
+import { LeftNavBar } from '@/components/LeftNavBar';
 import { Link, Outlet } from 'react-router-dom';
 import { Wrapper, Container, LinkContainer } from './index.css';
 
