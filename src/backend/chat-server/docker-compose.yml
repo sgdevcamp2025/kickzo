@@ -1,0 +1,25 @@
+version: '3.8'
+
+services:
+  spring-app:
+    build: .
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker  # Docker 환경에서 실행 시 'docker' 프로파일 사용
+    ports:
+      - "8080:8080"
+    networks:
+      - kafka-network
+
+  spring-app2:
+    build: .
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker  # Docker 환경에서 실행 시 'docker' 프로파일 사용
+      - SERVER_PORT=8081               # server.port 설정
+    ports:
+      - "8081:8081"
+    networks:
+      - kafka-network
+
+networks:
+  kafka-network:
+    external: true
