@@ -1,4 +1,4 @@
-import { useRef } from 'react';
+import { useRef, useState } from 'react';
 import { styled } from 'styled-components';
 import { ButtonColor } from '@/types/enums/ButtonColor';
 import { CommonButton } from '@/components/common/button';
@@ -7,12 +7,23 @@ import { LogoButton } from '@/components/common/LogoButton';
 export const PasswordResetPage = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const [isEmailValid, setIsEmailValid] = useState(false);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log('submit');
     console.log('Email:', emailRef.current?.value);
     console.log('Password:', passwordRef.current?.value);
+  };
+
+  const handleEmailChange = () => {
+    const email = emailRef.current?.value || '';
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+    const isFilled = email.trim() !== '';
+    const isValid = emailRegex.test(email);
+
+    setIsEmailValid(isFilled && isValid);
   };
 
   return (
@@ -30,6 +41,7 @@ export const PasswordResetPage = () => {
             placeholder="이메일을 입력해주세요."
             autoComplete="new-password"
             ref={emailRef}
+            onChange={handleEmailChange}
             required
           />
         </div>
@@ -38,6 +50,7 @@ export const PasswordResetPage = () => {
           width="300px"
           height="3rem"
           borderradius="0.625rem"
+          disabled={!isEmailValid}
         >
           이메일 보내기
         </CommonButton>
