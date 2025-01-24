@@ -12,6 +12,8 @@ export const RegisterPage = () => {
 
   const [isEmailValid, setIsEmailValid] = useState(false);
   const [isNicknameFilled, setIsNicknameFilled] = useState(false);
+  const [isPasswordFilled, setIsPasswordFilled] = useState(false);
+  const [isPasswordCheckFilled, setIsPasswordCheckFilled] = useState(false);
   const [isPasswordMatched, setIsPasswordMatched] = useState(true);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -20,8 +22,6 @@ export const RegisterPage = () => {
     console.log('Email:', emailRef.current?.value);
     console.log('Password:', passwordRef.current?.value);
     console.log('Password:', passwordCheckRef.current?.value);
-
-    setIsPasswordMatched(passwordRef.current?.value === passwordCheckRef.current?.value);
   };
 
   const handleEmailCheck = () => {
@@ -47,6 +47,21 @@ export const RegisterPage = () => {
     const isFilled = nickname.trim() !== '';
 
     setIsNicknameFilled(isFilled);
+  };
+
+  const handlePassword = () => {
+    const password = passwordRef.current?.value || '';
+    const isFilled = password.trim() !== '';
+
+    setIsPasswordFilled(isFilled);
+  };
+
+  const handlePasswordCheck = () => {
+    const passwordCheck = passwordCheckRef.current?.value || '';
+    const isFilled = passwordCheck.trim() !== '';
+
+    setIsPasswordCheckFilled(isFilled);
+    setIsPasswordMatched(passwordRef.current?.value === passwordCheck);
   };
 
   return (
@@ -92,8 +107,10 @@ export const RegisterPage = () => {
             id="password"
             type="password"
             placeholder="비밀번호를 입력해주세요."
+            autoComplete="new-password"
             ref={passwordRef}
             $isValid={isPasswordMatched}
+            onChange={handlePassword}
             required
           />
         </div>
@@ -103,8 +120,10 @@ export const RegisterPage = () => {
             id="passwordCheck"
             type="password"
             placeholder="비밀번호 다시 한번 입력해주세요."
+            autoComplete="new-password"
             ref={passwordCheckRef}
             $isValid={isPasswordMatched}
+            onChange={handlePasswordCheck}
             required
           />
           <WarningMessage $isVisible={!isPasswordMatched}>
@@ -117,11 +136,21 @@ export const RegisterPage = () => {
         </IdSaveCheckBox>
         <CommonButton
           color={ButtonColor.ORANGE}
+          textcolor="var(--palette-static-white)"
           width="300px"
           height="3rem"
           borderradius="0.625rem"
+          disabled={
+            !(
+              isEmailValid &&
+              isNicknameFilled &&
+              isPasswordFilled &&
+              isPasswordCheckFilled &&
+              isPasswordMatched
+            )
+          }
         >
-          로그인
+          가입하기
         </CommonButton>
       </form>
     </Wrapper>

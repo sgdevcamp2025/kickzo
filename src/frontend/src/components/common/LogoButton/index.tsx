@@ -1,4 +1,4 @@
-import Logo from '@/assets/img/Logo.png';
+import Logo from '@/assets/img/Logo.svg';
 import { Link } from 'react-router-dom';
 
 export const LogoButton = () => {

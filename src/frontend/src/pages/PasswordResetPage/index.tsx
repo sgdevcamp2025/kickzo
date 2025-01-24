@@ -1,11 +1,10 @@
 import { useRef } from 'react';
 import { styled } from 'styled-components';
-import { Link } from 'react-router-dom';
 import { ButtonColor } from '@/types/enums/ButtonColor';
 import { CommonButton } from '@/components/common/button';
 import { LogoButton } from '@/components/common/LogoButton';
 
-export const LoginPage = () => {
+export const PasswordResetPage = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
 
@@ -19,39 +18,29 @@ export const LoginPage = () => {
   return (
     <Wrapper>
       <LogoButton />
-      <SubTitle>로그인 후 킥튜브를 즐겨보세요 :)</SubTitle>
+      <TitleBox>
+        <Title>비밀번호 재설정</Title>
+        <SubTitle>비밀번호 재설정을 위해 이메일 입력이 필요해요.</SubTitle>
+      </TitleBox>
       <form onSubmit={handleSubmit}>
-        <CommonInput
-          type="text"
-          placeholder="이메일"
-          ref={emailRef}
-          autoComplete="new-password"
-          required
-        />
-        <CommonInput
-          type="password"
-          placeholder="비밀번호"
-          ref={passwordRef}
-          autoComplete="new-password"
-          required
-        />
-        <IdSaveCheckBox>
-          <input type="checkbox" />
-          아이디 저장
-        </IdSaveCheckBox>
+        <div>
+          <CommonLabel htmlFor="email">이메일</CommonLabel>
+          <CommonInput
+            type="text"
+            placeholder="이메일을 입력해주세요."
+            autoComplete="new-password"
+            ref={emailRef}
+            required
+          />
+        </div>
         <CommonButton
           color={ButtonColor.ORANGE}
           width="300px"
           height="3rem"
           borderradius="0.625rem"
         >
-          로그인
+          이메일 보내기
         </CommonButton>
-
-        <LinkBox>
-          <Link to="/register">회원가입</Link>
-          <Link to="/password-reset">비밀번호 재설정</Link>
-        </LinkBox>
       </form>
     </Wrapper>
   );
@@ -64,6 +53,8 @@ const Wrapper = styled.div`
   justify-content: center;
   align-items: center;
   flex-direction: column;
+  gap: 20px;
+
   & > form {
     display: flex;
     flex-direction: column;
@@ -71,9 +62,30 @@ const Wrapper = styled.div`
   }
 `;
 
+const TitleBox = styled.div`
+  margin: 2rem 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  gap: 20px;
+`;
+
+const Title = styled.h1`
+  font-size: 2rem;
+  font-weight: 600;
+`;
+
 const SubTitle = styled.p`
   font-size: 1.125rem;
-  margin: 1.875rem 0;
+  color: var(--palette-interaction-inactive);
+`;
+
+const CommonLabel = styled.label`
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
 `;
 
 const CommonInput = styled.input`
@@ -81,7 +93,7 @@ const CommonInput = styled.input`
   width: 300px;
   height: 3rem;
   padding: 0.5rem;
-  margin-bottom: 0.625rem;
+  margin-bottom: 2rem;
   border: 1px solid var(--palette-line-normal-normal);
   border-radius: 0.5rem;
   font-size: 1rem;
@@ -89,35 +101,5 @@ const CommonInput = styled.input`
 
   &:focus-within {
     border: 1px solid var(--palette-interaction-inactive);
-  }
-`;
-
-const IdSaveCheckBox = styled.label`
-  margin: 10px 0 30px;
-  display: flex;
-  gap: 4px;
-  cursor: pointer;
-`;
-
-const LinkBox = styled.div`
-  display: flex;
-  gap: 20px;
-  margin-top: 2rem;
-
-  & > a {
-    position: relative;
-    cursor: pointer;
-    font-size: 0.875rem;
-  }
-
-  & > a:first-child::after {
-    content: '';
-    position: absolute;
-    right: -12px;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 1px;
-    height: 0.75rem;
-    background-color: var(--palette-line-normal-normal);
   }
 `;

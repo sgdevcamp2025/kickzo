@@ -40,7 +40,7 @@ export const StyledButton = styled.button<{
     disabled &&
     css`
       background-color: #ccc;
-      color: #d4d4d4;
+      color: #eee;
       cursor: not-allowed;
     `}
 `;
