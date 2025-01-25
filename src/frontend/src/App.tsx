@@ -10,6 +10,7 @@ import { Room } from '@/pages/room';
 import { FriendPage } from '@/pages/FriendPage';
 import { SettingPage } from '@/pages/SettingPage';
 import { MyRoomPage } from '@/pages/MyRoomPage';
+import { PasswordResetPage } from '@/pages/PasswordResetPage';
 
 function App() {
   const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
@@ -19,6 +20,7 @@ function App() {
       <SentryRoutes>
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
+        <Route path="/password-reset" element={<PasswordResetPage />} />
         <Route path="/" element={<Layout />}>
           <Route path="." element={<HomePage />} />
           <Route path="my-room" element={<MyRoomPage />} />

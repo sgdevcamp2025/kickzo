@@ -160,7 +160,7 @@
   --palette-redOrange-95: #feeee5;
   --palette-redOrange-99: #fffaf7;
   --palette-static-white: #fff;
-  --palette-static-black: #000;
+  --palette-static-black: #222;
   --palette-icon-normal: #444;
   --palette-primary-normal: #06f;
   --palette-primary-strong: #005eeb;
@@ -208,4 +208,12 @@
     0px 4px 8px 0px rgba(0, 0, 0, 0.08), 0px 6px 12px 0px rgba(0, 0, 0, 0.12);
   --palette-elevation-shadow-heavy: 0px 0px 8px 0px rgba(0, 0, 0, 0.08),
     0px 8px 16px 0px rgba(0, 0, 0, 0.08), 0px 16px 20px 0px rgba(0, 0, 0, 0.12);
+}
+
+:root {
+  color: var(--palette-static-black);
+}
+
+input::placeholder {
+  color: var(--palette-label-assistive);
 }

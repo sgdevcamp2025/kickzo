@@ -1,0 +1,9 @@
+node_modules
+dist
+.storybook
+src/stories/*.mdx
+tsconfig.json
+README.md
+Prettier.config.mjs
+pnpm-lock.yaml
+eslint.config.js
