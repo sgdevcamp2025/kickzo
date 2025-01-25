@@ -1,9 +1,9 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Input } from '@/components/common/input';
+import { CommonInput } from '@/components/common/input';
 
 const meta = {
   title: 'Components/Common/Input',
-  component: Input,
+  component: CommonInput,
   parameters: {
     layout: 'centered',
   },
@@ -44,7 +44,7 @@ const meta = {
     buttonLabel: '',
     design: 0,
   },
-} satisfies Meta<typeof Input>;
+} satisfies Meta<typeof oninput>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;

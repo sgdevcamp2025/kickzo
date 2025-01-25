@@ -1,13 +1,13 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { Button } from '@/components/common/button';
-import { ButtonColor } from '@/components/common/button/index.css';
+import { CommonButton } from '@/components/common/button';
+import { ButtonColor } from '@/types/enums/ButtonColor';
 import MicrophoneOn from '@/assets/img/MicrophoneOn.svg';
 import Add from '@/assets/img/Add.svg';
 import Check from '@/assets/img/Check.svg';
 
 const meta = {
   title: 'Components/Common/Button',
-  component: Button,
+  component: CommonButton,
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
@@ -18,7 +18,7 @@ const meta = {
       options: Object.values(ButtonColor),
       description: '버튼 색상',
     },
-    textColor: {
+    textcolor: {
       control: 'color',
       description: '버튼 글자 색상',
     },
@@ -26,7 +26,7 @@ const meta = {
       control: 'text',
       description: '버튼 내부 패딩',
     },
-    borderRadius: {
+    borderradius: {
       control: 'text',
       description: '버튼의 border-radius 값',
     },
@@ -49,14 +49,14 @@ const meta = {
   },
   args: {
     color: ButtonColor.ORANGE,
-    textColor: 'white',
+    textcolor: 'white',
     padding: '10px 20px',
-    borderRadius: '5px',
+    borderradius: '5px',
     border: 'none',
     children: '입장',
     disabled: false,
   },
-} satisfies Meta<typeof Button>;
+} satisfies Meta<typeof CommonButton>;
 
 export default meta;
 type Story = StoryObj<typeof meta>;
@@ -79,7 +79,7 @@ export const withImage: Story = {
     children: <img src={MicrophoneOn} />,
     color: ButtonColor.LIGHTGRAY,
     padding: '8px',
-    borderRadius: '100px',
+    borderradius: '100px',
   },
 };
 
@@ -105,6 +105,6 @@ export const TransparentButton: Story = {
     children: <img src={Add} />,
     color: ButtonColor.TRANSPARENT,
     padding: '8px',
-    borderRadius: '100px',
+    borderradius: '100px',
   },
 };

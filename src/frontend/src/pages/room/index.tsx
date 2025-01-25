@@ -4,7 +4,7 @@ import styled from 'styled-components';
 import { Sidebar } from '@/components/sidebar';
 import { YouTubePlayer } from '@/components/youtubePlayer';
 
-interface VideoItem {
+export interface VideoItem {
   id: string;
   start: number;
   thumbnail: string;

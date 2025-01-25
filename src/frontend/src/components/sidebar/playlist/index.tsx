@@ -3,6 +3,7 @@ import Trashcan from '@/assets/img/Trashcan.svg';
 import ArrowUp from '@/assets/img/ArrowUp.svg';
 import ArrowDown from '@/assets/img/ArrowDown.svg';
 import { CommonButton } from '@/components/common/button';
+
 import {
   Container,
   Wrapper,
@@ -26,6 +27,8 @@ interface VideoItem {
   id: string;
   start: number;
   thumbnail: string;
+  title: string;
+  youtuber: string;
 }
 
 interface IPlaylist {
@@ -35,16 +38,18 @@ interface IPlaylist {
   setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
 }
 
-const API_KEY = '발급받은 API_KEY를 여기에 붙여넣어주세요';
+// const API_KEY = 'AIzaSyDK12psipbT4AjPHNhDDr1WPN_3owoZn_M';
+const API_KEY = 'AIzaSyDK12psipbT4AjPHNhDDr1WPN_3owoZn_M';
 
 export const Playlist = (props: IPlaylist) => {
-  const [inputUrl, setInputUrl] = useState<string>('');
-  const [thumbnailPreview, setThumbnailPreview] = useState<string>('');
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [videoTitle, setVideoTitle] = useState<string>('');
-  const [videoYoutuber, setVideoYoutuber] = useState<string>('');
-  const debouncedInputUrl = useDebounce(inputUrl, 1000);
+  const [inputUrl, setInputUrl] = useState<string>(''); // input창에 사용자가 입력한 URL
+  const [thumbnailPreview, setThumbnailPreview] = useState<string>(''); // Input창에 사용자가 URL을 입력했을때 미리보기 위한 썸네일
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null); // 플레이리스트 요소에 대해 드래그중인 index
+  const [videoTitle, setVideoTitle] = useState<string>(''); // 입력한 URL에 대한 영상의 제목
+  const [videoYoutuber, setVideoYoutuber] = useState<string>(''); // 입력한 URL에 대한 영상의 유튜버
+  const debouncedInputUrl = useDebounce(inputUrl, 1000); // input창에 입력중인 URL에 대해서 디바운스
 
+  // 사용자가 입력한 URL로부터 영상의 ID와 시간을 받아온다.
   const extractVideoIdAndStartTime = (url: string) => {
     const regex =
       /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([^&?/]+)(?:.*[?&]t=(\d+))?/;
@@ -55,6 +60,7 @@ export const Playlist = (props: IPlaylist) => {
     };
   };
 
+  // 디바운스된 URL이 바뀔때마다
   useEffect(() => {
     const fetchVideoDetails = async (videoId: string) => {
       try {
@@ -188,7 +194,6 @@ export const Playlist = (props: IPlaylist) => {
             onClick={() => props.setCurrentIndex(index)}
             active={index === props.currentIndex}
           >
-            {/* <Overlay className="overlay">aaa</Overlay> */}
             <Thumbnail src={video.thumbnail} alt={`Video ${video.id}`} />
             <PreviewInfo>
               <Playlist__Title>{video.title || '제목 없음'}</Playlist__Title>
@@ -254,9 +259,6 @@ export const Playlist = (props: IPlaylist) => {
             value={inputUrl}
             onChange={e => setInputUrl(e.target.value)}
           />
-          {/* <CommonButton color={ButtonColor.DARKGRAY} onClick={handleAddVideo} padding="5px 10px">
-            +
-          </CommonButton> */}
         </InputContainer>
       </div>
     </Container>
