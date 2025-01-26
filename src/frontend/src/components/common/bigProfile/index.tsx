@@ -10,10 +10,9 @@ import {
 import { UserRole } from '@/types/enums/UserRole';
 import { ButtonColor } from '@/types/enums/ButtonColor';
 import { SidebarType } from '@/types/enums/SidebarType';
-
-import { RoleChangeButton } from '@/components/roleChangeButton';
-import { CommonButton } from '@/components/common/button';
-import { IconButton } from '@/components/iconButton';
+import { RoleChangeButton } from '@/components/RoleChangeButton';
+import { CommonButton } from '@/components/Common/Button';
+import { IconButton } from '@/components/IconButton';
 
 import MicrophoneOn from '@/assets/img/MicrophoneOn.svg';
 import MicrophoneOffRed from '@/assets/img/MicrophoneOffRed.svg';

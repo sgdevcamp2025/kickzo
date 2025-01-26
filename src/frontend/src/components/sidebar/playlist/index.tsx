@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import Trashcan from '@/assets/img/Trashcan.svg';
 import ArrowUp from '@/assets/img/ArrowUp.svg';
 import ArrowDown from '@/assets/img/ArrowDown.svg';
-import { CommonButton } from '@/components/common/button';
+import { CommonButton } from '@/components/Common/Button';
 
 import {
   Container,
