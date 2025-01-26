@@ -5,7 +5,7 @@ export default {
 
   // 여러 줄 객체나 배열에서 마지막 요소 뒤에 콤마를 추가합니다.
   // Airbnb에서는 모든 경우에 trailing commas를 허용합니다.
-  trailingComma: "all",
+  trailingComma: 'all',
 
   // JSX에서는 큰따옴표를 사용하도록 설정합니다. (Airbnb 가이드에서 따름)
   jsxSingleQuote: false,
@@ -31,13 +31,13 @@ export default {
 
   // 화살표 함수의 매개변수가 하나일 경우 괄호를 생략합니다.
   // ex) x => x + 1
-  arrowParens: "avoid",
+  arrowParens: 'avoid',
 
   // 파일의 끝에 자동으로 줄바꿈을 추가합니다.
-  endOfLine: "lf",
+  endOfLine: 'lf',
 
   // HTML 파일, JSX, Vue 파일에서는 줄 바꿈을 그대로 유지합니다.
-  htmlWhitespaceSensitivity: "css",
+  htmlWhitespaceSensitivity: 'css',
 
   // 최종 줄 바꿈을 추가하여 POSIX 호환성을 유지합니다.
   // 모든 파일의 끝에 빈 줄을 추가합니다.
@@ -45,7 +45,7 @@ export default {
 
   // Markdown과 같은 파일에서 wrapping을 허용하지 않습니다.
   // 이는 README 등의 문서에 적용되며, 가독성을 높입니다.
-  proseWrap: "always",
+  proseWrap: 'always',
 
   // Vue 파일의 들여쓰기를 설정합니다.
   vueIndentScriptAndStyle: false,

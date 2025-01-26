@@ -1,4 +1,4 @@
-import { ChatNickname } from './chatNickname';
+import { ChatNickname } from './ChatNickname';
 import ProfileImg from '@/assets/img/ProfileImg.svg';
 import { Wrapper, Profile, ChatContainer, Title, Title__Time, ChatText } from './index.css';
 import { UserRole } from '@/types/enums/UserRole';
