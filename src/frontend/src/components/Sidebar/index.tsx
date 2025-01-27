@@ -73,7 +73,7 @@ export const Sidebar = ({ videoQueue, setVideoQueue, currentIndex, setCurrentInd
           <NavButton
             key={button.type}
             onClick={() => setInterfaceType(button.type)}
-            active={interfaceType === button.type}
+            $active={interfaceType === button.type}
           >
             <img src={button.icon} alt={`Sidebar ${button.type}`} />
           </NavButton>

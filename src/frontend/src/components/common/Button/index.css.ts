@@ -3,43 +3,43 @@ import { ButtonColor } from '@/types/enums/ButtonColor';
 
 /** 버튼 스타일 */
 export const StyledButton = styled.button<{
-  color: ButtonColor;
-  textcolor: string;
-  borderradius: string;
-  padding: string;
-  border: string;
-  disabled: boolean;
-  width: string;
-  height: string;
-  justifycontent: string;
+  $color: ButtonColor;
+  $textColor: string;
+  $borderRadius: string;
+  $padding: string;
+  $border: string;
+  $disabled: boolean;
+  $width: string;
+  $height: string;
+  $justifyContent: string;
 }>`
-  width: ${({ width }) => width};
-  height: ${({ height }) => height};
+  width: ${({ $width }) => $width};
+  height: ${({ $height }) => $height};
   display: flex;
   align-items: center;
   justify-content: center;
-  padding: ${({ padding }) => padding};
-  background-color: ${({ color }) => color};
-  color: ${({ textcolor }) => textcolor};
+  padding: ${({ $padding }) => $padding};
+  background-color: ${({ $color }) => $color};
+  color: ${({ $textColor }) => $textColor};
   font-weight: bold;
   font-size: 14px;
-  border: ${({ border }) => border};
-  border-radius: ${({ borderradius }) => borderradius};
-  justify-content: ${({ justifycontent }) => justifycontent};
+  border: ${({ $border }) => $border};
+  border-radius: ${({ $borderRadius }) => $borderRadius};
+  justify-content: ${({ $justifyContent }) => $justifyContent};
   cursor: pointer;
   transition:
     background-color 0.3s,
     color 0.3s;
 
   &:hover {
-    background-color: ${({ color, disabled }) =>
+    background-color: ${({ color = ButtonColor.ORANGE, disabled }) =>
       disabled || color === ButtonColor.TRANSPARENT ? color : darkenColor(color)};
     opacity: ${({ color }) =>
       color === ButtonColor.TRANSPARENT ? 0.8 : 1}; /* 투명일 때 hover 효과 */
   }
 
-  ${({ disabled }) =>
-    disabled &&
+  ${({ $disabled }) =>
+    $disabled &&
     css`
       background-color: #ccc;
       color: #eee;

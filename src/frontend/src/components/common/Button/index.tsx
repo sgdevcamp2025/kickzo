@@ -33,16 +33,16 @@ interface IButton {
 export const CommonButton = (props: IButton) => {
   return (
     <StyledButton
-      color={props.color || ButtonColor.LIGHTGRAY}
-      textcolor={props.textcolor || 'white'}
-      padding={props.padding || '0px'}
-      borderradius={props.borderradius || '4px'}
-      border={props.border || 'none'}
       onClick={props.disabled ? undefined : props.onClick}
-      disabled={props.disabled || false}
-      width={props.width || 'auto'}
-      height={props.height || 'auto'}
-      justifycontent={props.justifycontent || 'center'}
+      $color={props.color || ButtonColor.LIGHTGRAY}
+      $textColor={props.textcolor || 'white'}
+      $padding={props.padding || '0px'}
+      $borderRadius={props.borderradius || '4px'}
+      $border={props.border || 'none'}
+      $disabled={props.disabled || false}
+      $width={props.width || 'auto'}
+      $height={props.height || 'auto'}
+      $justifyContent={props.justifycontent || 'center'}
     >
       {props.children}
     </StyledButton>

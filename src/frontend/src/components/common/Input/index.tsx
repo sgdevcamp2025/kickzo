@@ -29,15 +29,15 @@ interface IInput {
 export const CommonInput = (props: IInput) => {
   return (
     <Container>
-      <Wrapper design={props.design || InputDesign.INPUT}>
+      <Wrapper $design={props.design || InputDesign.INPUT}>
         <StyledInput
           type={props.type || 'text'}
           placeholder={props.placeholder}
           value={props.value}
           onChange={props.onChange}
           disabled={props.disabled || false}
-          iserror={!!props.error}
-          design={props.design || InputDesign.INPUT}
+          $isError={!!props.error}
+          $design={props.design || InputDesign.INPUT}
         />
         {props.design === InputDesign.INPUT && props.buttonLabel && (
           <Btn onClick={props.onButtonClick} disabled={props.disabled || false}>

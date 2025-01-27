@@ -100,6 +100,7 @@ export const RegisterPage = () => {
               id="nickname"
               type="text"
               placeholder="닉네임"
+              autoComplete="username"
               ref={nicknameRef}
               onChange={handleNicknameChange}
               required

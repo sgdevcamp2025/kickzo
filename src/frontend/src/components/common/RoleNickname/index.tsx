@@ -26,7 +26,7 @@ export const RoleNickname = (props: IRoleNickname) => {
         ''
       )}
 
-      <Nickname role={props.role}>{props.nickname}</Nickname>
+      <Nickname $role={props.role}>{props.nickname}</Nickname>
     </Wrapper>
   );
 };

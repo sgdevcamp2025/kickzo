@@ -12,8 +12,8 @@ export const Img = styled.img`
   height: 25px;
 `;
 
-export const Nickname = styled.div<{ role: UserRole }>`
-  color: ${({ role }) =>
-    role === UserRole.OWNER ? '#FF9100' : role === UserRole.MANAGER ? '#4D94E1' : '#000000'};
+export const Nickname = styled.div<{ $role: UserRole }>`
+  color: ${({ $role }) =>
+    $role === UserRole.OWNER ? '#FF9100' : $role === UserRole.MANAGER ? '#4D94E1' : '#000000'};
   font-weight: bold;
 `;

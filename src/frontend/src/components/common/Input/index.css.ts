@@ -10,15 +10,15 @@ export const Container = styled.div`
 `;
 
 /** Input Wrapper 스타일 */
-export const Wrapper = styled.div<{ design: InputDesign }>`
+export const Wrapper = styled.div<{ $design: InputDesign }>`
   display: flex;
   align-items: center;
   border: 1px solid #d4d4d4;
   border-radius: 4px;
   padding: 2px;
 
-  ${({ design }) =>
-    design === InputDesign.SEARCH &&
+  ${({ $design }) =>
+    $design === InputDesign.SEARCH &&
     css`
       background-color: #f5f5f5;
       border: none;
@@ -26,7 +26,7 @@ export const Wrapper = styled.div<{ design: InputDesign }>`
 `;
 
 /** Input 필드 스타일 */
-export const StyledInput = styled.input<{ iserror: boolean; design: InputDesign }>`
+export const StyledInput = styled.input<{ $isError: boolean; $design: InputDesign }>`
   flex: 1;
   padding: 8px 12px;
   border: none;
@@ -35,8 +35,8 @@ export const StyledInput = styled.input<{ iserror: boolean; design: InputDesign 
   font-size: 16px;
   border-radius: 4px;
 
-  ${({ design }) =>
-    design === InputDesign.SEARCH &&
+  ${({ $design }) =>
+    $design === InputDesign.SEARCH &&
     css`
       background-color: #f5f5f5;
       font-size: 14px;

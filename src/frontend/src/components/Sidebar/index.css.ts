@@ -17,10 +17,10 @@ export const Content = styled.div`
   height: calc(100% - 40px);
 `;
 
-export const NavButton = styled.button<{ active: boolean }>`
+export const NavButton = styled.button<{ $active: boolean }>`
   width: 83px;
   padding: 10px;
-  background-color: ${({ active }) => (active ? '#ddd' : '#f0f0f0')};
+  background-color: ${({ $active }) => ($active ? '#ddd' : '#f0f0f0')};
   border: none;
   cursor: pointer;
 

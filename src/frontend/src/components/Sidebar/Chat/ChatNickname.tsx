@@ -26,7 +26,7 @@ export const ChatNickname = (props: IChatNickname) => {
         ''
       )}
 
-      <Nickname role={props.role}>{props.nickname}</Nickname>
+      <Nickname $role={props.role}>{props.nickname}</Nickname>
     </Wrapper>
   );
 };
@@ -39,8 +39,8 @@ const Wrapper = styled.div`
 
 const Img = styled.img``;
 
-const Nickname = styled.div<{ role: UserRole }>`
-  color: ${({ role }) =>
-    role === UserRole.OWNER ? '#FF9100' : role === UserRole.MANAGER ? '#4D94E1' : '#000000'};
+const Nickname = styled.div<{ $role: UserRole }>`
+  color: ${({ $role }) =>
+    $role === UserRole.OWNER ? '#FF9100' : $role === UserRole.MANAGER ? '#4D94E1' : '#000000'};
   font-weight: bold;
 `;
