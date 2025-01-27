@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { LogoButton } from '@/components/common/LogoButton';
 import { ButtonColor } from '@/types/enums/ButtonColor';
-import { CommonButton } from '@/components/common/button';
+import { CommonButton } from '@/components/common/Button';
 import {
   CommonInput,
   CommonLabel,
@@ -100,6 +100,7 @@ export const RegisterPage = () => {
               id="nickname"
               type="text"
               placeholder="닉네임"
+              autoComplete="username"
               ref={nicknameRef}
               onChange={handleNicknameChange}
               required
