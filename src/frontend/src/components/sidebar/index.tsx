@@ -100,7 +100,7 @@ const ChatMessages = () => (
 // 채팅 입력
 const ChatInput = () => (
   <InputContainer>
-    <CommonButton color={ButtonColor.TRANSPARENT} borderRadius="20px">
+    <CommonButton color={ButtonColor.TRANSPARENT} borderradius="20px">
       <img src={Add} alt="Add" />
     </CommonButton>
     <CommonInput placeholder="메시지 보내기" design={1} />

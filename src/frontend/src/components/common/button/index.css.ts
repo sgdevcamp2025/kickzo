@@ -11,6 +11,7 @@ export const StyledButton = styled.button<{
   disabled: boolean;
   width: string;
   height: string;
+  justifycontent: string;
 }>`
   width: ${({ width }) => width};
   height: ${({ height }) => height};
@@ -24,6 +25,7 @@ export const StyledButton = styled.button<{
   font-size: 14px;
   border: ${({ border }) => border};
   border-radius: ${({ borderradius }) => borderradius};
+  justify-content:${({ justifycontent }) => justifycontent};
   cursor: pointer;
   transition:
     background-color 0.3s,
@@ -35,7 +37,7 @@ export const StyledButton = styled.button<{
     opacity: ${({ color }) =>
       color === ButtonColor.TRANSPARENT ? 0.8 : 1}; /* 투명일 때 hover 효과 */
   }
-
+\
   ${({ disabled }) =>
     disabled &&
     css`
