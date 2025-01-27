@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import axios from 'axios';
 import Trashcan from '@/assets/img/Trashcan.svg';
 import ArrowUp from '@/assets/img/ArrowUp.svg';
 import ArrowDown from '@/assets/img/ArrowDown.svg';
@@ -64,10 +65,15 @@ export const Playlist = (props: IPlaylist) => {
   useEffect(() => {
     const fetchVideoDetails = async (videoId: string) => {
       try {
-        const response = await fetch(
-          `https://www.googleapis.com/youtube/v3/videos?part=snippet&id=${videoId}&key=${API_KEY}&hl=ko`,
-        );
-        const data = await response.json();
+        const response = await axios.get(`https://www.googleapis.com/youtube/v3/videos`, {
+          params: {
+            part: 'snippet',
+            id: videoId,
+            key: API_KEY,
+            hl: 'ko',
+          },
+        });
+        const data = response.data;
         if (data.items && data.items.length > 0) {
           const { title, channelTitle } = data.items[0].snippet;
           setVideoTitle(title);
