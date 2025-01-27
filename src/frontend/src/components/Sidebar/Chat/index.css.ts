@@ -21,7 +21,7 @@ export const Title = styled.div`
 `;
 export const Title__Time = styled.div`
   font-size: 12px;
-  font-color: #888888;
+  color: #888888;
   margin-left: 4px;
 `;
 export const ChatText = styled.div``;

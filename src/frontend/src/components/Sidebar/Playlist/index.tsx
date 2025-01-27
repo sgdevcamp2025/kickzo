@@ -3,7 +3,7 @@ import axios from 'axios';
 import Trashcan from '@/assets/img/Trashcan.svg';
 import ArrowUp from '@/assets/img/ArrowUp.svg';
 import ArrowDown from '@/assets/img/ArrowDown.svg';
-import { CommonButton } from '@/components/Common/Button';
+import { CommonButton } from '@/components/common/Button';
 
 import {
   Container,
@@ -210,6 +210,7 @@ export const Playlist = (props: IPlaylist) => {
                   e.stopPropagation();
                   handleMoveUp(index);
                 }}
+                width="24px"
                 color={ButtonColor.DARKGRAY}
                 borderradius="100px"
                 padding="5px"
@@ -221,6 +222,7 @@ export const Playlist = (props: IPlaylist) => {
                   e.stopPropagation();
                   handleMoveDown(index);
                 }}
+                width="24px"
                 color={ButtonColor.DARKGRAY}
                 borderradius="100px"
                 padding="5px"
@@ -232,6 +234,7 @@ export const Playlist = (props: IPlaylist) => {
                   e.stopPropagation();
                   handleRemove(index);
                 }}
+                width="24px"
                 color={ButtonColor.DARKGRAY}
                 borderradius="100px"
                 padding="5px"
@@ -248,7 +251,7 @@ export const Playlist = (props: IPlaylist) => {
             <Overlay className="overlay" onClick={handleAddVideo}>
               추가하기
             </Overlay>
-            <CommonButton onClick={handleAddVideo} color={ButtonColor.SEMIBLACK} padding="10px">
+            <CommonButton onClick={handleAddVideo} color={ButtonColor.DARKGRAY} padding="10px">
               <PreviewImg src={thumbnailPreview} />
               <PreviewInfo>
                 <PreviewInfo__Title>{videoTitle || '제목 없음'}</PreviewInfo__Title>

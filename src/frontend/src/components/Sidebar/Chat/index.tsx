@@ -1,7 +1,8 @@
-import { ChatNickname } from './chatNickname';
+
 import ProfileImg from '@/assets/img/ProfileImg.svg';
 import { Wrapper, Profile, ChatContainer, Title, Title__Time, ChatText } from './index.css';
 import { UserRole } from '@/types/enums/UserRole';
+import { ChatNickname } from './ChatNickname';
 
 interface IChat {
   role: UserRole;

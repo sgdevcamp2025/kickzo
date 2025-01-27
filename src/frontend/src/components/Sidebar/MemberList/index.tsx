@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { SmallProfile } from '@/components/common/smallProfile';
-import { CommonInput } from '@/components/common/input';
+import { SmallProfile } from '@/components/common/SmallProfile';
+import { CommonInput } from '@/components/common/Input';
 import {
   Container,
   UserList,

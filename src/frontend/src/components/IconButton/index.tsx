@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { CommonButton } from '@/components/common/button';
+import { CommonButton } from '@/components/common/Button';
 
 interface IconButtonProps {
   beforeImgUrl: string;

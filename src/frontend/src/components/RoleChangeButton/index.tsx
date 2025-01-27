@@ -1,4 +1,4 @@
-import { CommonButton } from '@/components/common/button';
+import { CommonButton } from '@/components/common/Button';
 import { ButtonColor } from '@/types/enums/ButtonColor';
 import { UserRole } from '@/types/enums/UserRole';
 import { useState } from 'react';

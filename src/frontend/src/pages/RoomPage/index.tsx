@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import styled from 'styled-components';
 
-import { Sidebar } from '@/components/sidebar';
-import { YouTubePlayer } from '@/components/youtubePlayer';
+import { Sidebar } from '@/components/Sidebar';
+import { YouTubePlayer } from '@/components/YoutubePlayer';
 
 export interface VideoItem {
   id: string;

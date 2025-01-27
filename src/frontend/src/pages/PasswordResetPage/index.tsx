@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { ButtonColor } from '@/types/enums/ButtonColor';
-import { CommonButton } from '@/components/common/button';
+import { CommonButton } from '@/components/common/Button';
 import { LogoButton } from '@/components/common/LogoButton';
 import { CommonInput, CommonLabel, SubTitle, Title, TitleBox, Wrapper } from './index.css';
 

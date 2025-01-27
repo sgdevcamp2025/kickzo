@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ButtonColor } from '@/types/enums/ButtonColor';
-import { CommonButton } from '@/components/common/button';
+import { CommonButton } from '@/components/common/Button';
 import { LogoButton } from '@/components/common/LogoButton';
 import { Wrapper, CommonInput, IdSaveCheckBox, LinkBox, SubTitle } from './index.css';
 

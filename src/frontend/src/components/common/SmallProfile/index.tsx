@@ -1,4 +1,4 @@
-import { RoleNickname } from '../roleNickname';
+import { RoleNickname } from '../RoleNickname';
 import { Container, Profile, Profile__Img, ImgWrapper, ImgWrapper_Img } from './index.css';
 import MicrophoneOffRed from '@/assets/img/MicrophoneOffRed.svg';
 import HeadphoneOffRed from '@/assets/img/HeadphoneOffRed.svg';

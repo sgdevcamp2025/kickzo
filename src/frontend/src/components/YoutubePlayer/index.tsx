@@ -1,6 +1,12 @@
 import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 
+declare global {
+  interface Window {
+    onYouTubeIframeAPIReady: () => void;
+  }
+}
+
 interface VideoItem {
   id: string;
   start: number;
@@ -34,7 +40,7 @@ export const YouTubePlayer = (props: IYouTubePlayer) => {
       document.body.appendChild(script);
     }
 
-    (window as any).onYouTubeIframeAPIReady = () => {
+    window.onYouTubeIframeAPIReady = () => {
       console.log('YouTube API Ready');
     };
   }, []);
@@ -72,14 +78,14 @@ export const YouTubePlayer = (props: IYouTubePlayer) => {
 
   // 유튜브 플레이어 로드
   const loadPlayer = (id: string, startTime: number = 0) => {
-    if ((window as any).YT && id) {
+    if (window.YT && id) {
       if (playerRef.current) {
         playerRef.current.loadVideoById({
           videoId: id,
           startSeconds: startTime,
         });
       } else {
-        playerRef.current = new (window as any).YT.Player('youtube-player', {
+        playerRef.current = new window.YT.Player('youtube-player', {
           height: '100%',
           width: '100%',
           videoId: id,

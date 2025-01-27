@@ -6,7 +6,7 @@ import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { HomePage } from '@/pages/HomePage';
-import { Room } from '@/pages/room';
+import { Room } from '@/pages/RoomPage';
 import { FriendPage } from '@/pages/FriendPage';
 import { SettingPage } from '@/pages/SettingPage';
 import { MyRoomPage } from '@/pages/MyRoomPage';
