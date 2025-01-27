@@ -32,10 +32,10 @@ export const StyledButton = styled.button<{
     color 0.3s;
 
   &:hover {
-    background-color: ${({ color = ButtonColor.ORANGE, disabled }) =>
-      disabled || color === ButtonColor.TRANSPARENT ? color : darkenColor(color)};
-    opacity: ${({ color }) =>
-      color === ButtonColor.TRANSPARENT ? 0.8 : 1}; /* 투명일 때 hover 효과 */
+    background-color: ${({ $color, $disabled }) =>
+      $disabled || $color === ButtonColor.TRANSPARENT ? $color : darkenColor($color)};
+    opacity: ${({ $color }) =>
+      $color === ButtonColor.TRANSPARENT ? 0.8 : 1}; /* 투명일 때 hover 효과 */
   }
 
   ${({ $disabled }) =>

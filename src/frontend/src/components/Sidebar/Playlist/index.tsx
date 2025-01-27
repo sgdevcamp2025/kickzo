@@ -197,7 +197,7 @@ export const Playlist = (props: IPlaylist) => {
             onDragOver={handleDragOver}
             onDrop={() => handleDrop(index)}
             onClick={() => props.setCurrentIndex(index)}
-            active={index === props.currentIndex}
+            $active={index === props.currentIndex}
           >
             <Thumbnail src={video.thumbnail} alt={`Video ${video.id}`} />
             <PreviewInfo>
