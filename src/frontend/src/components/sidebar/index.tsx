@@ -18,6 +18,8 @@ interface VideoItem {
   id: string;
   start: number;
   thumbnail: string;
+  title: string;
+  youtuber: string;
 }
 
 interface ISidebar {

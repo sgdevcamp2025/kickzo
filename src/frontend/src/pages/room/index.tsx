@@ -4,10 +4,12 @@ import styled from 'styled-components';
 import { Sidebar } from '@/components/sidebar';
 import { YouTubePlayer } from '@/components/youtubePlayer';
 
-interface VideoItem {
+export interface VideoItem {
   id: string;
   start: number;
   thumbnail: string;
+  title: string;
+  youtuber: string;
 }
 
 export const Room = () => {
@@ -15,20 +17,28 @@ export const Room = () => {
   const [currentIndex, setCurrentIndex] = useState<number>(0);
 
   return (
-    <Wrapper>
-      <YouTubePlayer
-        videoQueue={videoQueue}
-        setVideoQueue={setVideoQueue}
-        currentIndex={currentIndex}
-        setCurrentIndex={setCurrentIndex}
-      />
-      <Sidebar
-        videoQueue={videoQueue}
-        setVideoQueue={setVideoQueue}
-        currentIndex={currentIndex}
-        setCurrentIndex={setCurrentIndex}
-      />
-    </Wrapper>
+    <>
+      {/* <BigProfile
+        userId="test1"
+        userRole={UserRole.USER}
+        myRole={UserRole.OWNER}
+        sidebarType={SidebarType.VoiceChat}
+      /> */}
+      <Wrapper>
+        <YouTubePlayer
+          videoQueue={videoQueue}
+          setVideoQueue={setVideoQueue}
+          currentIndex={currentIndex}
+          setCurrentIndex={setCurrentIndex}
+        />
+        <Sidebar
+          videoQueue={videoQueue}
+          setVideoQueue={setVideoQueue}
+          currentIndex={currentIndex}
+          setCurrentIndex={setCurrentIndex}
+        />
+      </Wrapper>
+    </>
   );
 };
 
