@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { SmallProfile } from '@/components/Common/Smallprofile';
+import { SmallProfile } from '@/components/Smallprofile';
 import { CommonInput } from '@/components/Common/Input';
 import {
   Container,

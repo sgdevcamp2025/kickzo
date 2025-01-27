@@ -83,7 +83,7 @@ export const Playlist = (props: IPlaylist) => {
           setVideoYoutuber('');
         }
       } catch (error) {
-        console.error('Failed to fetch video details:', error);
+        console.error(error);
         setVideoTitle('');
         setVideoYoutuber('');
       }

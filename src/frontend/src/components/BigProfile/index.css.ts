@@ -20,7 +20,6 @@ export const Profile = styled.div`
 
 export const Profile__Header = styled.div`
   display: flex;
-
   justify-content: space-between;
 `;
 
