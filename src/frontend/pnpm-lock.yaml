@@ -17,9 +17,6 @@ importers:
       '@tanstack/react-query':
         specifier: ^5.64.1
         version: 5.64.1(react@18.3.1)
-      '@types/youtube':
-        specifier: ^0.1.0
-        version: 0.1.0
       axios:
         specifier: ^1.7.9
         version: 1.7.9
@@ -90,6 +87,9 @@ importers:
       '@types/styled-components':
         specifier: ^5.1.34
         version: 5.1.34
+      '@types/youtube':
+        specifier: ^0.1.0
+        version: 0.1.0
       '@vitejs/plugin-react':
         specifier: ^4.3.4
         version: 4.3.4(vite@6.0.7(@types/node@22.10.6))
