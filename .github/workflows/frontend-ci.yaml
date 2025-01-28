@@ -1,0 +1,40 @@
+name: CI
+on:
+  push:
+    paths:
+      - "frontend/**"
+  workflow_dispatch:
+
+jobs:
+  frontend-ci:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Setup Node.js 18.x
+        uses: actions/setup-node@v2
+        with:
+          node-version: 18.x
+
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      - name: Cache dependencies
+        id: cache
+        uses: actions/cache@v3
+        with:
+          path: src/frontend/node_modules
+          key: pnpm-cache-${{ hashFiles('src/frontend/pnpm-lock.yaml') }}
+          restore-keys: |
+            pnpm-cache-
+
+      - name: Install dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: pnpm install --prefix src/frontend
+
+      - name: Run Lint
+        run: pnpm lint --prefix src/frontend
+
+      - name: Run Build
+        run: pnpm build --prefix src/frontend
