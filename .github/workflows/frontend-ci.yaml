@@ -31,10 +31,13 @@ jobs:
 
       - name: Install dependencies
         if: steps.cache.outputs.cache-hit != 'true'
-        run: pnpm install --prefix src/frontend
+        run: pnpm install
+        working-directory: src/frontend
 
       - name: Run Lint
-        run: pnpm run lint --prefix src/frontend
+        run: pnpm run lint
+        working-directory: src/frontend
 
       - name: Run Build
-        run: pnpm run build --prefix src/frontend
+        run: pnpm run build
+        working-directory: src/frontend
