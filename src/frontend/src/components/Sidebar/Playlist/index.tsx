@@ -1,15 +1,10 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
-import Trashcan from '@/assets/img/Trashcan.svg';
-import ArrowUp from '@/assets/img/ArrowUp.svg';
-import ArrowDown from '@/assets/img/ArrowDown.svg';
 import { CommonButton } from '@/components/common/Button';
 
 import {
   Container,
   Wrapper,
-  VideoItem,
-  Thumbnail,
   InputContainer,
   SearchInput,
   PreviewContainer,
@@ -17,12 +12,11 @@ import {
   PreviewInfo,
   PreviewInfo__Title,
   PreviewInfo__Youtuber,
-  Playlist__Title,
-  Playlist__Youtuber,
   Overlay,
 } from './index.css';
 import { ButtonColor } from '@/types/enums/ButtonColor';
 import { useDebounce } from '@/hooks/useDebounce';
+import { PlaylistItem } from './PlaylistItem';
 
 interface VideoItem {
   id: string;
@@ -190,59 +184,19 @@ export const Playlist = (props: IPlaylist) => {
     <Container>
       <Wrapper>
         {props.videoQueue.map((video, index) => (
-          <VideoItem
+          <PlaylistItem
             key={`${video.id}-${index}`}
-            draggable
-            onDragStart={() => handleDragStart(index)}
+            video={video}
+            index={index}
+            active={index === props.currentIndex}
+            onDragStart={handleDragStart}
             onDragOver={handleDragOver}
-            onDrop={() => handleDrop(index)}
-            onClick={() => props.setCurrentIndex(index)}
-            $active={index === props.currentIndex}
-          >
-            <Thumbnail src={video.thumbnail} alt={`Video ${video.id}`} />
-            <PreviewInfo>
-              <Playlist__Title>{video.title || '제목 없음'}</Playlist__Title>
-              <Playlist__Youtuber>{video.youtuber || '유튜버 정보 없음'}</Playlist__Youtuber>
-            </PreviewInfo>
-            <div>
-              <CommonButton
-                onClick={e => {
-                  e.stopPropagation();
-                  handleMoveUp(index);
-                }}
-                width="24px"
-                color={ButtonColor.DARKGRAY}
-                borderradius="100px"
-                padding="5px"
-              >
-                <img src={ArrowUp} alt="Move Up" />
-              </CommonButton>
-              <CommonButton
-                onClick={e => {
-                  e.stopPropagation();
-                  handleMoveDown(index);
-                }}
-                width="24px"
-                color={ButtonColor.DARKGRAY}
-                borderradius="100px"
-                padding="5px"
-              >
-                <img src={ArrowDown} alt="Move Down" />
-              </CommonButton>
-              <CommonButton
-                onClick={e => {
-                  e.stopPropagation();
-                  handleRemove(index);
-                }}
-                width="24px"
-                color={ButtonColor.DARKGRAY}
-                borderradius="100px"
-                padding="5px"
-              >
-                <img src={Trashcan} alt="Remove" />
-              </CommonButton>
-            </div>
-          </VideoItem>
+            onDrop={handleDrop}
+            onClick={props.setCurrentIndex}
+            onMoveUp={handleMoveUp}
+            onMoveDown={handleMoveDown}
+            onRemove={handleRemove}
+          />
         ))}
       </Wrapper>
       <div>
