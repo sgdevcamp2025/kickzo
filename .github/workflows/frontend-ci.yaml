@@ -2,7 +2,7 @@ name: CI
 on:
   push:
     paths:
-      - "frontend/**"
+      - "src/frontend/**"
   workflow_dispatch:
 
 jobs:
