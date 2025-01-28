@@ -34,7 +34,7 @@ jobs:
         run: pnpm install --prefix src/frontend
 
       - name: Run Lint
-        run: pnpm lint --prefix src/frontend
+        run: pnpm run lint --prefix src/frontend
 
       - name: Run Build
-        run: pnpm build --prefix src/frontend
+        run: pnpm run build --prefix src/frontend
