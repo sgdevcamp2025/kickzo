@@ -14,7 +14,7 @@ final class TabBarViewController: UITabBarController {
         
         let nav1VC = UIViewController()
         let nav2VC = UIViewController()
-        let nav3VC = UIViewController()
+        let nav3VC = HomeViewController(HomeReactor())
         let nav4VC = UIViewController()
         let nav5VC = LoginViewController(LoginReactor())
         
@@ -35,7 +35,7 @@ final class TabBarViewController: UITabBarController {
         
         setViewControllers([nav1, nav2, nav3, nav4, nav5], animated: false)
         
-        selectedIndex = 4
+        selectedIndex = 2
         tabBar.tintColor = .primary
     }
 }
