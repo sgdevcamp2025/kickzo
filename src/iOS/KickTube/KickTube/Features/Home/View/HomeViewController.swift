@@ -15,7 +15,14 @@ import RxSwift
 final class HomeViewController: BaseViewController<HomeReactor> {
     private let logoImageView = UIImageView().then {
         $0.image = UIImage.logoSmall
+    }
+    private let createButton = UIButton().then {
+        var config = UIButton.Configuration.plain()
+        config.image = UIImage(systemName: "plus.circle")
+        config.baseForegroundColor = .black
         
+        $0.configuration = config
+        $0.setPreferredSymbolConfiguration(UIImage.SymbolConfiguration(weight: .bold), forImageIn: .normal)
     }
     private let searchButton = UIButton().then {
         var config = UIButton.Configuration.plain()
@@ -60,6 +67,20 @@ final class HomeViewController: BaseViewController<HomeReactor> {
             .disposed(by: disposeBag)
     }
     
+    @objc
+    private func createButtonTapped() {
+        let vc = CreateRoomViewController(CreateRoomReactor())
+        
+        vc.modalPresentationStyle = .overFullScreen
+        
+        self.present(vc, animated: false)
+    }
+    
+    @objc
+    private func searchButtonTapped() {
+        
+    }
+    
     
     // MARK: - configure UI
     
@@ -77,7 +98,12 @@ final class HomeViewController: BaseViewController<HomeReactor> {
     }
     
     override func configureUI() {
+        super.configureUI()
+        
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: logoImageView)
-        navigationItem.rightBarButtonItem = UIBarButtonItem(customView: searchButton)
+        navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: searchButton), UIBarButtonItem(customView: createButton)]
+        
+        createButton.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)
+        searchButton.addTarget(self, action: #selector(searchButtonTapped), for: .touchUpInside)
     }
 }
