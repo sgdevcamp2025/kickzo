@@ -6,8 +6,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.socket.messaging.SessionConnectEvent;
 import org.springframework.web.socket.messaging.SessionDisconnectEvent;
 
+import com.kickzo.signaling.model.UserSession;
 import com.kickzo.signaling.service.RoomManager;
-import com.kickzo.signaling.service.UserRegistry;
+import com.kickzo.signaling.service.UserSessionManager;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +18,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class WebSocketEventListener {
 
-	private final UserRegistry userRegistry;
+	private final UserSessionManager userRegistry;
 	private final RoomManager roomManager;
 
 	@EventListener
@@ -32,5 +33,8 @@ public class WebSocketEventListener {
 		StompHeaderAccessor headerAccessor = StompHeaderAccessor.wrap(event.getMessage());
 		String sessionId = headerAccessor.getSessionId();
 		log.info("WebSocket disconnected with session ID {}", sessionId);
+
+		UserSession user = userRegistry.removeBySessionId(sessionId);
+		roomManager.getRoom(user.getRoomCode()).leave(user);
 	}
 }
