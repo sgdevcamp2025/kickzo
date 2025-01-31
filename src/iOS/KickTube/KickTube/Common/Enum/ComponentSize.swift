@@ -26,6 +26,7 @@ enum ComponentSize {
     case homeCollectionViewCell
     case homeProfileImage
     case createRoomModal
+    case alertModal
 }
 
 extension ComponentSize {
@@ -44,6 +45,11 @@ extension ComponentSize {
                 return CGSize(width: ComponentSize.screenWidth / 4 * 3.5, height: ComponentSize.screenHeight / 7 * 5.5)
             }
             return CGSize(width: ComponentSize.screenWidth / 4 * 3, height: ComponentSize.screenHeight / 7 * 4)
+        case .alertModal:
+            if ComponentSize.screenHeight <= 667 {
+                return CGSize(width: ComponentSize.screenWidth / 4 * 3.5, height: ComponentSize.screenHeight / 7 * 3)
+            }
+            return CGSize(width: ComponentSize.screenWidth / 4 * 3, height: ComponentSize.screenHeight / 7 * 3)
         }
     }
     

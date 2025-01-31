@@ -15,21 +15,28 @@ final class CreateRoomReactor: Reactor {
         case writeDescription(_ text: String?)
         case publicButtonTapped
         case privateButtonTapped
+        case createButtonTapped
     }
     
     enum Mutation {
         case setTitle(_ text: String?)
         case setDescription(_ text: String?)
         case setRoomMode(_ isPublic: Bool)
+        case checkForm
     }
     
     struct State {
         var title: String?
         var description: String?
         var publicRoomMode: Bool
+        var createResult: Bool
     }
     
-    var initialState: State = State(title: "", publicRoomMode: true)
+    var initialState: State = State(
+        title: nil,
+        publicRoomMode: true,
+        createResult: false
+    )
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
@@ -41,6 +48,8 @@ final class CreateRoomReactor: Reactor {
             return .just(Mutation.setRoomMode(true))
         case .privateButtonTapped:
             return .just(Mutation.setRoomMode(false))
+        case .createButtonTapped:
+            return .just(Mutation.checkForm)
         }
     }
     
@@ -54,6 +63,12 @@ final class CreateRoomReactor: Reactor {
             newState.description = description
         case .setRoomMode(let isPublic):
             newState.publicRoomMode = isPublic
+        case .checkForm:
+            if newState.title != "" {
+                newState.createResult = true
+            } else {
+                newState.createResult = false
+            }
         }
         
         return newState

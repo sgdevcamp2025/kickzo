@@ -25,9 +25,7 @@ final class RoundButton: UIButton {
         
         if let image {
             config.image = image
-            config.baseForegroundColor = titleColor
             config.imagePadding = 6
-            config.title = title
         }
         
         var titleAttributes = AttributedString(title)
@@ -35,6 +33,8 @@ final class RoundButton: UIButton {
         titleAttributes.font = KFont.bold19
         titleAttributes.foregroundColor = titleColor
         
+        config.title = title
+        config.baseForegroundColor = titleColor
         config.attributedTitle = titleAttributes
         config.background.backgroundColor = bgColor
         config.background.cornerRadius = 15
@@ -67,6 +67,15 @@ final class RoundButton: UIButton {
         layer.borderWidth = width
         layer.borderColor = color.cgColor
         layer.cornerRadius = 15
+    }
+    
+    func setTitle(_ title: String, font: UIFont = KFont.bold19) {
+        guard var config = configuration else { return }
+        
+        config.title = title
+        config.attributedTitle?.font = font
+        
+        configuration = config
     }
     
     func toggleButtonStatus(_ isDefault: Bool) {

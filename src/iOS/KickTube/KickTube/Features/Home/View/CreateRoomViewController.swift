@@ -75,6 +75,10 @@ final class CreateRoomViewController: BaseViewController<CreateRoomReactor> {
             .map { Reactor.Action.privateButtonTapped }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        createButton.rx.tap
+            .map { Reactor.Action.createButtonTapped }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     override func bindState(reactor: CreateRoomReactor) {
@@ -100,6 +104,26 @@ final class CreateRoomViewController: BaseViewController<CreateRoomReactor> {
                 owner.togglepublicStatus(value)
             }
             .disposed(by: disposeBag)
+        reactor.state
+            .map { $0.createResult }
+            .distinctUntilChanged()
+            .filter { $0 }
+            .asDriver(onErrorJustReturn: true)
+            .drive(with: self) { owner, value in
+                guard let pvc = owner.presentingViewController else { return }
+                
+                owner.dismiss(animated: false) {
+                    let vc = AlertViewController(.createLimit)
+                    
+                    vc.acceptAction = {
+                        owner.changeRootViewController()
+                    }
+                    vc.modalPresentationStyle = .overFullScreen
+                    
+                    pvc.present(vc, animated: false)
+                }
+            }
+            .disposed(by: disposeBag)
     }
     
     
@@ -108,6 +132,16 @@ final class CreateRoomViewController: BaseViewController<CreateRoomReactor> {
     private func togglepublicStatus(_ isPublic: Bool) {
         publicButton.toggleButtonStatus(isPublic)
         privateButton.toggleButtonStatus(isPublic)
+    }
+    
+    private func changeRootViewController() {
+        let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+        let sceneDelegate = windowScene?.delegate as? SceneDelegate
+        let rootviewController = TabBarViewController()
+        
+        rootviewController.selectedIndex = 0
+        sceneDelegate?.window?.rootViewController = rootviewController
+        sceneDelegate?.window?.makeKeyAndVisible()
     }
     
     
