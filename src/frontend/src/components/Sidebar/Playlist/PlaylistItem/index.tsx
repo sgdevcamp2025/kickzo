@@ -1,8 +1,9 @@
+import { CommonButton } from '@/components/common/Button';
+import { ButtonColor } from '@/types/enums/ButtonColor';
+
 import Trashcan from '@/assets/img/Trashcan.svg';
 import ArrowUp from '@/assets/img/ArrowUp.svg';
 import ArrowDown from '@/assets/img/ArrowDown.svg';
-import { CommonButton } from '@/components/common/Button';
-import { ButtonColor } from '@/types/enums/ButtonColor';
 
 interface IPlaylistItem {
   video: {
