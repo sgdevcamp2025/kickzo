@@ -1,0 +1,27 @@
+name: kickzo
+
+services:
+  auth:
+    container_name: auth
+    build:
+      context: .
+    command: pnpm run start:dev auth
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "${AUTH_PORT}:${AUTH_PORT}"
+    environment:
+      AUTH_PORT: ${AUTH_PORT}
+      HASH_ROUNDS: ${HASH_ROUNDS}
+      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET}
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - kickzo-network
+
+networks:
+  kickzo-network:
+    driver: bridge
