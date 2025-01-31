@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import axios from 'axios';
 import { CommonButton } from '@/components/common/Button';
 import { useVideoStore } from '@/stores/useVideoStore';
@@ -177,26 +177,49 @@ export const Playlist = () => {
   //   }
   // };
 
-  const handleDragStart = (index: number) => {
+  // const handleDragStart = (index: number) => {
+  //   setDraggedIndex(index);
+  // };
+
+  // const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  //   e.preventDefault();
+  // };
+
+  // const handleDrop = (index: number) => {
+  //   if (draggedIndex === null || draggedIndex === index) return;
+
+  //   const updatedQueue = [...videoQueue];
+  //   const [draggedItem] = updatedQueue.splice(draggedIndex, 1);
+  //   updatedQueue.splice(index, 0, draggedItem);
+
+  //   // setVideoQueue(updatedQueue);
+  //   useVideoStore.setState({ videoQueue: updatedQueue });
+
+  //   setDraggedIndex(null);
+  // };
+
+  const handleDragStart = useCallback((index: number) => {
     setDraggedIndex(index);
-  };
+  }, []);
 
-  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
-  };
+  }, []);
 
-  const handleDrop = (index: number) => {
-    if (draggedIndex === null || draggedIndex === index) return;
+  const handleDrop = useCallback(
+    (index: number) => {
+      if (draggedIndex === null || draggedIndex === index) return;
 
-    const updatedQueue = [...videoQueue];
-    const [draggedItem] = updatedQueue.splice(draggedIndex, 1);
-    updatedQueue.splice(index, 0, draggedItem);
+      const updatedQueue = [...videoQueue];
+      const [draggedItem] = updatedQueue.splice(draggedIndex, 1);
+      updatedQueue.splice(index, 0, draggedItem);
 
-    // setVideoQueue(updatedQueue);
-    useVideoStore.setState({ videoQueue: updatedQueue });
+      useVideoStore.setState({ videoQueue: updatedQueue });
 
-    setDraggedIndex(null);
-  };
+      setDraggedIndex(null);
+    },
+    [draggedIndex, videoQueue],
+  );
 
   return (
     <Container>
