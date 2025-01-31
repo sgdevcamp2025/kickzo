@@ -9,8 +9,10 @@ import UIKit
 
 final class LightStrokeTextField: UIView {
     private(set) var textfield = UITextField()
+    private var maxLength: Int
     
-    override init(frame: CGRect) {
+    init(frame: CGRect = .zero, maxLength: Int = Int.max) {
+        self.maxLength = maxLength
         super.init(frame: frame)
         
         configureHierarchy()
@@ -36,6 +38,16 @@ final class LightStrokeTextField: UIView {
     func setPWStyle() {
         textfield.isSecureTextEntry = true
     }
+
+    func setStyle(_ backgroundColor: UIColor, strokeColor: UIColor? = nil) {
+        textfield.backgroundColor = backgroundColor
+        self.backgroundColor = backgroundColor
+        
+        if let strokeColor {
+            layer.borderWidth = 1
+            layer.borderColor = strokeColor.cgColor
+        }
+    }
     
     // MARK: - configure UI
     
@@ -56,6 +68,21 @@ final class LightStrokeTextField: UIView {
         layer.cornerRadius = 8
         layer.masksToBounds = true
         
-        setAlighment(.left)
+        setAlignment(.left)
+        
+        textfield.delegate = self
+    }
+}
+
+extension LightStrokeTextField: UITextFieldDelegate {
+    func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        let currentText = textField.text ?? ""
+        guard let stringRange = Range(range, in: currentText) else {
+            return false
+        }
+        
+        let updatedText = currentText.replacingCharacters(in: stringRange, with: string)
+        
+        return updatedText.count <= maxLength
     }
 }
