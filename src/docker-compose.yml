@@ -1,0 +1,13 @@
+name: kickzo
+
+include:
+  - ./infra/docker-compose.yml
+  - ./backend/mongo-db/docker-compose.yml
+  - ./backend/mysql-db/docker-compose.yml
+  - ./backend/kafka/docker-compose.yml
+  - ./backend/kafka/docker-compose-kafkaui.yml
+  - ./backend/chat-server/docker-compose.yml
+
+networks:
+  kickzo-network:
+    driver: bridge
