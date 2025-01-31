@@ -79,6 +79,7 @@ export const PlaylistItem = (props: IPlaylistItem) => {
           color={ButtonColor.DARKGRAY}
           borderradius="100px"
           padding="5px"
+          height="24px"
         >
           <img src={Trashcan} alt="Remove" />
         </CommonButton>

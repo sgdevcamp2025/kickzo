@@ -57,9 +57,12 @@ export const Playlist__Youtuber = styled.div`
 
 export const ButtonContainer = styled.div`
   width: 300px;
+  height: 100%;
   display: flex;
   gap: 5px;
   justify-content: space-between;
+  padding: 10px 0;
+  align-items: end;
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
@@ -68,4 +71,12 @@ export const ButtonContainer = styled.div`
   transition:
     opacity 0.3s ease,
     visibility 0.3s ease;
+
+  & > div {
+    height: 100%;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
 `;
