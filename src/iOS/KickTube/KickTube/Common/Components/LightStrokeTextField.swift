@@ -29,7 +29,7 @@ final class LightStrokeTextField: UIView {
         textfield.placeholder = text
     }
     
-    func setAlighment(_ alignment: NSTextAlignment) {
+    func setAlignment(_ alignment: NSTextAlignment) {
         textfield.textAlignment = alignment
     }
     
@@ -51,7 +51,7 @@ final class LightStrokeTextField: UIView {
     }
     
     private func configureUI() {
-        layer.borderColor = UIColor.kLightgary.cgColor
+        layer.borderColor = UIColor.kLightgray2.cgColor
         layer.borderWidth = 1
         layer.cornerRadius = 8
         layer.masksToBounds = true

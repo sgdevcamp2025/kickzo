@@ -14,7 +14,7 @@ final class CheckBoxView: UIView {
     private(set) var checkbox = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.image = UIImage(systemName: "square")
-        config.baseForegroundColor = .kLightgary
+        config.baseForegroundColor = .kLightgray2
         config.imagePadding = 6
         
         $0.configuration = config
@@ -63,7 +63,7 @@ final class CheckBoxView: UIView {
     private func setImage(_ check: Bool) {
         var config = UIButton.Configuration.plain()
         config.image = UIImage(systemName: isChecked.value == true ? "checkmark.square" : "square")
-        config.baseForegroundColor = isChecked.value == true ? .black : UIColor.kLightgary
+        config.baseForegroundColor = isChecked.value == true ? .black : UIColor.kLightgray2
         config.imagePadding = 6
         
         checkbox.configuration = config
