@@ -23,6 +23,8 @@ enum ComponentSize {
     
     case navigationItem
     case alarmNavigtionItem
+    case homeCollectionViewCell
+    case homeProfileImage
 }
 
 extension ComponentSize {
@@ -32,11 +34,17 @@ extension ComponentSize {
             return CGSize(width: ComponentSize.screenWidth / 17, height: ComponentSize.screenWidth / 17)
         case .alarmNavigtionItem:
             return CGSize(width: ComponentSize.screenWidth / 15, height: ComponentSize.screenWidth / 15)
+        case .homeCollectionViewCell:
+            return CGSize(width: ComponentSize.screenWidth - 24, height: (ComponentSize.screenWidth - 24) * 9 / 16 + 90)
+        case .homeProfileImage:
+            return CGSize(width: ComponentSize.homeCollectionViewCell.size.width / 10, height: ComponentSize.homeCollectionViewCell.size.width / 10)
         }
     }
     
     var radius: CGFloat {
         switch self {
+        case .homeProfileImage:
+            return ComponentSize.homeProfileImage.size.width * 2 / 9
         default:
             return 0
         }
