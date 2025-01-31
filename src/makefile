@@ -1,7 +1,7 @@
 # Makefile for Docker Compose
 
 # Docker Compose 파일 경로
-DOCKER_COMPOSE_FILE = ./infra/docker-compose.yml
+DOCKER_COMPOSE_FILE = ./docker-compose.yml
 PROFILES = --profile mock \
 
 # 전체 프로파일 목록

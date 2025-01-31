@@ -1,4 +1,5 @@
-version: '3.8'
+name: kickzo
+
 services:
   zookeeper:
     image: wurstmeister/zookeeper:latest
@@ -6,17 +7,17 @@ services:
     ports:
       - "2181:2181"
     networks:
-      - kafka-network
+      - kickzo-network
 
   kafka:
     image: wurstmeister/kafka:latest
     container_name: kafka
     ports:
-      - "9092:9092"
-      - "19092:19092"
+      - "${KAFKA_INTERNAL_PORT}:${KAFKA_INTERNAL_PORT}"
+      - "${KAFKA_EXTERNAL_PORT}:${KAFKA_EXTERNAL_PORT}"
     environment:
-      KAFKA_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://kafka:19092
-      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:9092,EXTERNAL://localhost:19092
+      KAFKA_LISTENERS: INTERNAL://kafka:${KAFKA_INTERNAL_PORT},EXTERNAL://kafka:${KAFKA_EXTERNAL_PORT}
+      KAFKA_ADVERTISED_LISTENERS: INTERNAL://kafka:${KAFKA_INTERNAL_PORT},EXTERNAL://localhost:${KAFKA_EXTERNAL_PORT}
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: INTERNAL:PLAINTEXT,EXTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: INTERNAL
       KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
@@ -24,8 +25,8 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
     networks:
-      - kafka-network
+      - kickzo-network
 
 networks:
-  kafka-network:
-    external: true
+  kickzo-network:
+    driver: bridge

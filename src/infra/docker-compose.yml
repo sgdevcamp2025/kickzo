@@ -1,28 +1,14 @@
-version: "3.9"
-
 name: kickzo
 
 services:
-  # Chat Service
-  chat-service:
-    build:
-      context: ../backend/chat-service
-    container_name: chat-service
-    ports:
-      - "${CHAT_PORT}:${CHAT_PORT}"
-    environment:
-      - CHAT_PORT=${CHAT_PORT}
-    volumes:
-      - ../backend/chat-service:/usr/src/app
-      - /usr/src/app/node_modules
-    networks:
-      - kickzo-network
-
   # Kong API Gateway
   kong:
     build:
       context: ./kong
     container_name: kong
+    environment:
+      - KONGADMIN_LISTEN=0.0.0.:${KONG_ADMIN_HTTP_PORT}
+      - KONG_ADMIN_GUI_URL=http://localhost:${KONG_ADMIN_GUI_PORT}
     ports:
       - "${KONG_PROXY_HTTP_PORT}:${KONG_PROXY_HTTP_PORT}"
       - "${KONG_PROXY_SSL_PORT}:${KONG_PROXY_SSL_PORT}"

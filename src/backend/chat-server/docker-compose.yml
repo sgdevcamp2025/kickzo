@@ -1,25 +1,30 @@
-version: '3.8'
+name: kickzo
 
 services:
-  spring-app:
-    build: .
+  chat-1:
+    build:
+      context: .
+    container_name: chat-1
     environment:
-      - SPRING_PROFILES_ACTIVE=docker  # Docker 환경에서 실행 시 'docker' 프로파일 사용
+      - SPRING_PROFILES_ACTIVE=docker # Docker 환경에서 실행 시 'docker' 프로파일 사용
+      - SERVER_PORT=${CHAT_PORT_1} # server.port 설정
     ports:
-      - "8080:8080"
+      - "${CHAT_PORT_1}:${CHAT_PORT_1}"
     networks:
-      - kafka-network
+      - kickzo-network
 
-  spring-app2:
-    build: .
+  chat-2:
+    build:
+      context: .
+    container_name: chat-2
     environment:
-      - SPRING_PROFILES_ACTIVE=docker  # Docker 환경에서 실행 시 'docker' 프로파일 사용
-      - SERVER_PORT=8081               # server.port 설정
+      - SPRING_PROFILES_ACTIVE=docker # Docker 환경에서 실행 시 'docker' 프로파일 사용
+      - SERVER_PORT=${CHAT_PORT_2} # server.port 설정
     ports:
-      - "8081:8081"
+      - "${CHAT_PORT_2}:${CHAT_PORT_2}"
     networks:
-      - kafka-network
+      - kickzo-network
 
 networks:
-  kafka-network:
-    external: true
+  kickzo-network:
+    driver: bridge
