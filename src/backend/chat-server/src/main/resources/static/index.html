@@ -50,7 +50,7 @@
     let roomId = '1'; // 테스트용 단일 방 ID
 
     function connect() {
-        const socket = new SockJS('/ws');
+        const socket = new SockJS('/api/chat/ws');
         stompClient = Stomp.over(socket);
         stompClient.connect({}, () => {
             console.log('Connected');
