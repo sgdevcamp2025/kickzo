@@ -1,0 +1,17 @@
+name: kickzo
+
+services:
+  history:
+    build:
+      context: .
+    container_name: history
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker  # Docker 환경에서 실행 시 'docker' 프로파일 사용
+    ports:
+      - "${HISTORY_PORT}:${HISTORY_PORT}"
+    networks:
+      - kickzo-network
+
+networks:
+  kickzo-network:
+    driver: bridge

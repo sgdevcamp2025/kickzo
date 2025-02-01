@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Room</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f9f9f9;
+        }
+
+        #header {
+            width: 100%;
+            padding: 10px 0;
+            text-align: center;
+            background-color: #4caf50;
+            color: white;
+            font-size: 20px;
+            font-weight: bold;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        #chatContainer {
+            margin-top: 20px;
+            width: 400px;
+            height: 600px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            background-color: white;
+            overflow-y: auto;
+            padding: 10px;
+            display: flex;
+            flex-direction: column; /* 최신 메시지가 아래로 가도록 수정 */
+        }
+
+        .message {
+            padding: 8px 10px;
+            margin: 5px 0;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            background-color: #f1f1f1;
+            font-size: 14px;
+        }
+
+        .message.system {
+            background-color: #e3e3ff;
+            text-align: center;
+        }
+
+        #emptyMessage {
+            color: #aaa;
+            font-size: 14px;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        #loadMoreBtn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            background-color: #4caf50;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        #loadMoreBtn:hover {
+            background-color: #45a049;
+        }
+    </style>
+</head>
+<body>
+<div id="header">Chat Room</div>
+
+<div id="chatContainer">
+    <div id="emptyMessage">No messages yet. Start the conversation!</div>
+</div>
+
+<button id="loadMoreBtn">더 받아오기</button>
+
+<script>
+    const chatContainer = document.getElementById("chatContainer");
+    const emptyMessage = document.getElementById("emptyMessage");
+    const loadMoreBtn = document.getElementById("loadMoreBtn");
+
+    // 전역 변수로 cursor를 관리
+    let cursor = null; // 마지막 메시지의 timestamp
+    const roomId = "1"; // roomId를 1로 설정
+    const initialLimit = 5; // 처음 로드할 메시지 수
+    const loadMoreLimit = 2; // "더 받아오기" 버튼을 눌렀을 때 로드할 메시지 수
+    let cursor2 = null;
+    // 메시지 API 호출
+    async function fetchMessages(cursor, limit) {
+        try {
+            cursor = cursor2;
+            console.log("1: Current cursor value:", cursor);
+            const url = `/api/messages/${roomId}?${cursor ? `cursor=${cursor}&` : ""}limit=${limit}`;
+            const response = await fetch(url);
+            const messages = await response.json();
+
+            if (messages.length > 0) {
+                console.log(messages);
+                // 가장 오래된 메시지의 timestamp를 업데이트
+                cursor2 = messages[messages.length - 1].timestamp;
+                console.log("2: Current cursor value:", cursor2);
+
+                // 중복된 메시지 제거
+                const newMessages = filterDuplicateMessages(messages);
+
+                // UI에 새로운 메시지 추가
+                appendMessagesToUI(newMessages);
+
+                // 안내 메시지 제거
+                emptyMessage.style.display = "none";
+            } else if (!cursor) {
+                // 처음 로드 시 메시지가 없으면 안내 메시지를 표시
+                emptyMessage.style.display = "block";
+            } else {
+                console.log("No more messages to load.");
+            }
+        } catch (error) {
+            console.error("Error fetching messages:", error);
+        }
+    }
+
+    // 메시지 UI에 추가
+    function appendMessagesToUI(messages) {
+        const fragment = document.createDocumentFragment();
+
+        messages.forEach((message) => {
+            const messageElement = document.createElement("div");
+            messageElement.className = `message ${message.type || ""}`;
+            messageElement.textContent = `${message.userId || "System"}: ${message.content}`;
+            fragment.prepend(messageElement); // 메시지를 위쪽에 추가
+        });
+
+        // 기존 메시지 위에 새로운 메시지들을 추가
+        chatContainer.prepend(fragment);
+
+        // 스크롤을 맨 아래로 이동하지 않도록 처리
+        chatContainer.scrollTop = chatContainer.scrollHeight - fragment.scrollHeight;
+    }
+
+    // 기존 메시지들과 중복되지 않도록 새로 받은 메시지들 필터링
+    function filterDuplicateMessages(newMessages) {
+        const existingMessages = Array.from(chatContainer.getElementsByClassName('message'));
+        const existingTimestamps = existingMessages.map(msg => msg.textContent.split(":")[0].trim());
+
+        // 중복 메시지 제외
+        return newMessages.filter(msg => !existingTimestamps.includes(msg.timestamp));
+    }
+
+    // 초기 데이터 로드
+    fetchMessages(cursor, initialLimit);
+
+    // "더 받아오기" 버튼 클릭 시 메시지 추가 로드
+    loadMoreBtn.addEventListener("click", () => {
+        fetchMessages(cursor, loadMoreLimit); // 30개씩 로드
+    });
+</script>
+</body>
+</html>
