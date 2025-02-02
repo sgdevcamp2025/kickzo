@@ -80,6 +80,11 @@ public class UserSession {
 		log.debug("PARTICIPANT {}: canceling video reception from {}", this.name, senderName);
 		final WebRtcEndpoint incoming = incomingMedia.remove(senderName);
 
+		if (incoming == null) {
+			log.warn("PARTICIPANT {}: No WebRtcEndpoint found for sender {}", this.name, senderName);
+			return; // 오류 추가
+		}
+
 		log.debug("PARTICIPANT {}: removing endpoint for {}", this.name, senderName);
 		incoming.release(new Continuation<Void>() {
 			@Override

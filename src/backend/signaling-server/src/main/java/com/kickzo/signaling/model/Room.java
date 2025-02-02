@@ -28,7 +28,7 @@ public class Room implements Closeable {
 	@Getter
 	private final String roomCode;
 	private final MediaPipeline pipeline;
-	private SimpMessagingTemplate messagingTemplate;
+	private final SimpMessagingTemplate messagingTemplate;
 	private final ConcurrentMap<String, UserSession> participants = new ConcurrentHashMap<>();
 
 	public Room(String roomName, MediaPipeline pipeline, SimpMessagingTemplate messagingTemplate) {
@@ -127,19 +127,16 @@ public class Room implements Closeable {
 
 		log.debug("ROOM {}: notifying all users that {} is leaving the room", this.roomCode, name);
 
-		final List<String> unnotifiedParticipants = new ArrayList<>();
 		final JsonObject participantLeftJson = new JsonObject();
 		participantLeftJson.addProperty("id", "participantLeft");
 		participantLeftJson.addProperty("name", name);
 		for (final UserSession participant : participants.values()) {
-			participant.cancelAudioFrom(name);
-			participant.sendMessage(participantLeftJson);
+			if (participant != null) {
+				participant.cancelAudioFrom(name);
+				participant.sendMessage(participantLeftJson);
+			} else {
+				log.warn("ROOM {}: Tried to notify a null participant about {} leaving", this.roomCode, name);
+			}
 		}
-
-		if (!unnotifiedParticipants.isEmpty()) {
-			log.debug("ROOM {}: The users {} could not be notified that {} left the room", this.roomCode,
-				unnotifiedParticipants, name);
-		}
-
 	}
 }
