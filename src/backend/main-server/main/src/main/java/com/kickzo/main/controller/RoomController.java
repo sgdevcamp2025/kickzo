@@ -18,7 +18,6 @@ import lombok.RequiredArgsConstructor;
 public class RoomController {
 
 	private final RoomService roomService;
-	private final WebSocketController webSocketController;
 
 	/**
 	 * 방 입장 로직 (WebSocket + STOMP)
@@ -42,7 +41,6 @@ public class RoomController {
 		RoomDetailsDto roomDetails = roomService.getRoomDetails(roomCode);
 
 		RoomEntryResponseDto response = new RoomEntryResponseDto(myRole, roomDetails);
-		webSocketController.broadcastUserEntry(roomCode, userId);
 		return ResponseEntity.ok(response);
 	}
 }
