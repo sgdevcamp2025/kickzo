@@ -12,13 +12,5 @@ export const Container = styled.div`
   height: 100%;
   display: flex;
   flex-direction: column;
-`;
-
-export const LinkContainer = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: space-around;
-  align-items: center;
-  gap: 20px;
-  padding: 20px;
+  overflow-y: auto;
 `;
