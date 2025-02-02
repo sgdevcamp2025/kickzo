@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  signaling-server:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: signaling-server
+    ports:
+      - "8080:8080"
+    environment:
+      - SPRING_PROFILES_ACTIVE=prod
+      - KURENTO_URI=ws://kms:8888/kurento
+    depends_on:
+      - kurento
+    networks:
+      - webrtc-network
+
+  kurento:
+    image: kurento/kurento-media-server:latest
+    container_name: kms
+    ports:
+      - "8888:8888"
+      - "5000-5050:5000-5050/udp"
+    environment:
+      - KMS_STUN_IP=192.168.218.186
+      - KMS_STUN_PORT=3478
+      - KMS_TURN_URL=webrtcuser:webrtcpass@192.168.218.186:3478
+      - KMS_MIN_PORT=5000
+      - KMS_MAX_PORT=5050
+    networks:
+      - webrtc-network
+
+  coturn:
+    image: coturn/coturn:latest
+    container_name: coturn
+    network_mode: "host"
+    command: >
+      -n --log-file=stdout
+      --min-port=49152 --max-port=65535
+      --lt-cred-mech --fingerprint
+      --no-multicast-peers --no-cli
+      --no-tlsv1 --no-tlsv1_1
+      --realm=kurento.local
+      --listening-port=3478
+      --tls-listening-port=5349
+      --relay-ip=192.168.218.186
+      --listening-ip=0.0.0.0
+      --user=webrtcuser:webrtcpass
+      --verbose
+
+networks:
+  webrtc-network:
+    driver: bridge
