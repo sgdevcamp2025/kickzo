@@ -28,7 +28,7 @@ public class RoomService {
 	private final RoomUserRepository roomUserRepository;
 	private final PlaylistRepository playlistRepository;
 	private final UserRepository userRepository;
-	
+
 	// roomCode에 따른 방의 정보와 유저 list 전달
 	public RoomDetailsDto getRoomDetails(String roomCode) {
 		// Step 1: RoomCode로 RoomID 검색
@@ -118,7 +118,7 @@ public class RoomService {
 	private void saveNewRoomUser(Long roomId, Long userId) {
 		RoomUser roomUser = RoomUser.builder()
 			.id(new RoomUserId(roomId, userId))
-			.role(2) // 0: creator 역할
+			.role(2) // 2: member 역할
 			.joinedAt(LocalDateTime.now())
 			.build();
 
