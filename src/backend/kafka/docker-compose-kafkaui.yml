@@ -1,0 +1,19 @@
+name: kickzo
+
+services:
+  kafka-ui:
+    image: provectuslabs/kafka-ui
+    container_name: kafka-ui
+    ports:
+      - "${KAFKA_UI_HOST_PORT}:${KAFKA_UI_CONTAINER_PORT}"
+    restart: always
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+      - KAFKA_CLUSTERS_0_ZOOKEEPER=zookeeper:2181
+    networks:
+      - kickzo-network
+
+networks:
+  kickzo-network:
+    driver: bridge

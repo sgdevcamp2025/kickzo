@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Group Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        #messages {
+            border: 1px solid #ccc;
+            padding: 10px;
+            height: 300px;
+            overflow-y: auto;
+            margin-bottom: 10px;
+        }
+        #messageInput {
+            width: 300px;
+            padding: 10px;
+            margin-right: 10px;
+        }
+        button {
+            padding: 10px;
+            margin-right: 5px;
+        }
+        #status {
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<h1>Group Chat</h1>
+
+<div id="messages"></div>
+
+<div>
+    <input type="text" id="messageInput" placeholder="Enter your message" />
+    <button onclick="sendMessage()">Send</button>
+</div>
+
+<div>
+    <button onclick="connect()">Connect</button>
+    <button onclick="disconnect()">Disconnect</button>
+</div>
+
+<div id="status">Status: Disconnected</div>
+
+<script>
+    let stompClient = null;
+    let userId = 'user' + Math.floor(Math.random() * 1000); // 랜덤 사용자 ID 생성
+    let roomId = '1'; // 테스트용 단일 방 ID
+
+    function connect() {
+        const socket = new SockJS('/api/chat/ws');
+        stompClient = Stomp.over(socket);
+        stompClient.connect({}, () => {
+            console.log('Connected');
+            document.getElementById('status').textContent = 'Status: Connected';
+
+
+            stompClient.subscribe(`/topic/${roomId}`, (message) => {
+                console.log('Received WebSocket message:', message.body); // 추가
+                const payload = JSON.parse(message.body);
+
+                if (typeof payload === 'string') {
+                    showMessage(payload, 'system');
+                } else {
+                    showMessage(payload.content, payload.userId);
+                }
+
+            });
+
+
+            // 방 참여 메시지 전송
+            stompClient.send('/app/joinRoom', {}, JSON.stringify({
+                roomId: roomId,
+                userId: userId
+            }));
+        }, (error) => {
+            console.error('Connection error:', error);
+            document.getElementById('status').textContent = 'Status: Connection Failed';
+        });
+    }
+
+    function disconnect() {
+        if (stompClient !== null) {
+            stompClient.disconnect();
+        }
+        document.getElementById('status').textContent = 'Status: Disconnected';
+        console.log('Disconnected');
+    }
+
+    function sendMessage() {
+        const message = document.getElementById('messageInput').value;
+        if (message.trim() === '') {
+            return; // 빈 메시지 전송 방지
+        }
+
+        stompClient.send('/app/sendMessage', {}, JSON.stringify({
+            roomId: roomId,
+            message: message
+        }));
+
+        // 메시지 전송 후 입력 필드 비우기
+        document.getElementById('messageInput').value = '';
+        document.getElementById('messageInput').focus(); // 입력 필드 포커스 유지
+    }
+
+    function showMessage(message, sender) {
+        const messagesDiv = document.getElementById('messages');
+        const messageElement = document.createElement('div');
+
+        if (sender === userId) {
+            messageElement.textContent = `${sender}: ${message}`;
+            messageElement.style.color = 'blue';
+        } else if (sender === 'system') {
+            messageElement.textContent = `System: ${message}`;
+            messageElement.style.color = 'gray';
+        } else {
+            messageElement.textContent = `${sender}: ${message}`;
+            messageElement.style.color = 'green';
+        }
+
+        messagesDiv.appendChild(messageElement);
+        messagesDiv.scrollTop = messagesDiv.scrollHeight;
+    }
+
+</script>
+</body>
+</html>
