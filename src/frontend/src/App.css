@@ -161,6 +161,7 @@
   --palette-redOrange-99: #fffaf7;
   --palette-static-white: #fff;
   --palette-static-black: #222;
+  --palette-font-gray: #a4a4a4;
   --palette-icon-normal: #444;
   --palette-primary-normal: #06f;
   --palette-primary-strong: #005eeb;
@@ -216,4 +217,26 @@
 
 input::placeholder {
   color: var(--palette-label-assistive);
+}
+
+/* line clamp */
+
+.clamp-1 {
+  display: -webkit-box;
+  line-clamp: 1;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
+}
+
+.clamp-2 {
+  display: -webkit-box;
+  line-clamp: 2;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: normal;
 }
