@@ -35,3 +35,17 @@ out/
 
 ### VS Code ###
 .vscode/
+
+# Docker 관련 파일
+*.log
+*.pid
+*.out
+docker-compose.override.yml
+
+# 환경 변수 파일 (보안 이슈 방지)
+.env
+secrets/
+
+# 빌드된 JAR 파일
+*.jar
+*.war
