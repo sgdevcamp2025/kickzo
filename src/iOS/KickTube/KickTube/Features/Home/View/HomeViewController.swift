@@ -93,7 +93,7 @@ final class HomeViewController: BaseViewController<HomeReactor> {
         
         homeCollectionView.snp.makeConstraints { make in
             make.verticalEdges.equalTo(safeArea)
-            make.horizontalEdges.equalToSuperview().offset(12)
+            make.horizontalEdges.equalToSuperview().inset(12)
         }
     }
     

@@ -1,5 +1,5 @@
 //
-//  UICollectionView+Extnesions.swift
+//  UICollectionView+Extensions.swift
 //  KickTube
 //
 //  Created by 김수경 on 1/22/25.

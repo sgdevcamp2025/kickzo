@@ -49,7 +49,7 @@ extension ComponentSize {
             if ComponentSize.screenHeight <= 667 {
                 return CGSize(width: ComponentSize.screenWidth / 4 * 3.5, height: ComponentSize.screenHeight / 7 * 3)
             }
-            return CGSize(width: ComponentSize.screenWidth / 4 * 3, height: ComponentSize.screenHeight / 7 * 3)
+            return CGSize(width: ComponentSize.screenWidth / 4 * 3, height: ComponentSize.screenHeight / 7 * 2.2)
         }
     }
     
