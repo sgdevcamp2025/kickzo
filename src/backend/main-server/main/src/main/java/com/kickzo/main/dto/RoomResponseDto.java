@@ -12,9 +12,12 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 public class RoomResponseDto {
+	private Long id;
+	private String code;
 	private String title;
 	private String description;
 	private String creator;
+	private String profileImageUrl;
 	private int userCount;
 	private String playlistUrl;
 }
