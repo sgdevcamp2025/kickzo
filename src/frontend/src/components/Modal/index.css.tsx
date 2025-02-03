@@ -1,12 +1,14 @@
 import { styled } from 'styled-components';
 
-export const Background = styled.div`
+export const Background = styled.div<{ $hasBackground?: boolean }>`
   position: fixed;
   top: 0;
   left: 0;
   right: 0;
   bottom: 0;
-  background-color: rgba(0, 0, 0, 0.5);
+  cursor: default;
+  background: ${({ $hasBackground = true }) =>
+    $hasBackground ? 'rgba(0, 0, 0, 0.5)' : 'transparent'};
   animation: fadeInBg 0.5s;
   @keyframes fadeInBg {
     0% {
@@ -16,7 +18,7 @@ export const Background = styled.div`
       opacity: 1;
     }
   }
-  z-index: 1000;
+  z-index: 999;
 `;
 
 export const ModalContainer = styled.div`
@@ -33,6 +35,34 @@ export const ModalContainer = styled.div`
   padding: 20px;
   background: var(--palette-static-white);
   z-index: 1000;
+  cursor: default;
+  box-shadow: var(--palette-elevation-shadow-heavy);
+  animation: fadeInModal 0.5s;
+  @keyframes fadeInModal {
+    0% {
+      opacity: 0;
+    }
+    100% {
+      opacity: 1.5;
+    }
+  }
+`;
+
+export const RelativeModalContainer = styled.div`
+  position: absolute;
+  top: 50px;
+  right: 0;
+  width: 300px;
+  border-radius: 10px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 20px 20px 0px 20px;
+  background: var(--palette-static-white);
+  z-index: 1000;
+  cursor: default;
   box-shadow: var(--palette-elevation-shadow-heavy);
   animation: fadeInModal 0.5s;
   @keyframes fadeInModal {
