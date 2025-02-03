@@ -23,7 +23,7 @@ import {
   ButtonContainer,
 } from './index.css';
 
-interface IBigProfile {
+interface IProfileDetail {
   userId: number;
   userRole: UserRole;
   myRole: UserRole;
@@ -38,7 +38,7 @@ const detailProfile = {
   introduce: '저는 이제 집으로 갑니다',
 };
 
-export const BigProfile = (props: IBigProfile) => {
+export const ProfileDetail = (props: IProfileDetail) => {
   const renderBtnContainer = () => {
     if (
       props.myRole === UserRole.OWNER &&

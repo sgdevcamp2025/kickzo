@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { SmallProfile } from '@/components/common/SmallProfile';
 import { CommonInput } from '@/components/common/Input';
-import { BigProfile } from '@/components/common/BigProfile';
+import { ProfileDetail } from '@/components/common/ProfileDetail';
 
 import { SidebarType } from '@/types/enums/SidebarType';
 import { ProfileType } from '@/types/enums/ProfileType';
@@ -87,7 +87,7 @@ export const MemberList = ({ sidebarType }: IMemberListProps) => {
               </div>
               {activeProfile === member.id ? (
                 <div className={`big-profile ${activeProfile === member.id ? 'active' : ''}`}>
-                  <BigProfile
+                  <ProfileDetail
                     userId={member.id}
                     userRole={member.role}
                     myRole={UserRole.OWNER}
