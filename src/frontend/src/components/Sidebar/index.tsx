@@ -14,22 +14,7 @@ import { Wrapper, Nav, Content, NavButton, InputContainer, ChatContainer } from 
 import { SidebarType } from '@/types/enums/SidebarType';
 import { ButtonColor } from '@/types/enums/ButtonColor';
 
-interface VideoItem {
-  id: string;
-  start: number;
-  thumbnail: string;
-  title: string;
-  youtuber: string;
-}
-
-interface ISidebar {
-  videoQueue: VideoItem[];
-  setVideoQueue: React.Dispatch<React.SetStateAction<VideoItem[]>>;
-  currentIndex: number;
-  setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
-}
-
-export const Sidebar = ({ videoQueue, setVideoQueue, currentIndex, setCurrentIndex }: ISidebar) => {
+export const Sidebar = () => {
   const [interfaceType, setInterfaceType] = useState<SidebarType>(SidebarType.Chat);
 
   const renderContent = () => {
@@ -42,14 +27,7 @@ export const Sidebar = ({ videoQueue, setVideoQueue, currentIndex, setCurrentInd
           </ChatContainer>
         );
       case SidebarType.Playlist:
-        return (
-          <Playlist
-            videoQueue={videoQueue}
-            setVideoQueue={setVideoQueue}
-            currentIndex={currentIndex}
-            setCurrentIndex={setCurrentIndex}
-          />
-        );
+        return <Playlist />;
       case SidebarType.VoiceChat:
         return <MemberList sidebarType={SidebarType.VoiceChat} />;
       case SidebarType.Member:
