@@ -8,19 +8,17 @@ export const Container = styled.div`
   box-shadow: 10px 10px 40px 0px #00000040;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
-  gap: 20px;
 `;
 
 export const Profile = styled.div`
   display: flex;
   flex-direction: column;
+  justify-content: space-between;
   gap: 8px;
 `;
 
 export const Profile__Header = styled.div`
   display: flex;
-
   justify-content: space-between;
 `;
 
@@ -44,4 +42,5 @@ export const ButtonContainer = styled.div`
   display: flex;
   flex-direction: column;
   gap: 10px;
+  margin-top: 10px;
 `;

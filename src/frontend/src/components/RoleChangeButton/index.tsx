@@ -1,7 +1,9 @@
+import { useState } from 'react';
+
 import { CommonButton } from '@/components/common/Button';
+
 import { ButtonColor } from '@/types/enums/ButtonColor';
 import { UserRole } from '@/types/enums/UserRole';
-import { useState } from 'react';
 
 interface IRoleChangeButton {
   myRole: UserRole;
@@ -10,7 +12,7 @@ interface IRoleChangeButton {
 }
 
 export const RoleChangeButton = (props: IRoleChangeButton) => {
-  const [role, setRole] = useState(1);
+  const [role, setRole] = useState(props.userRole);
 
   const getRole: { [key: number]: string } = {
     0: '방장',

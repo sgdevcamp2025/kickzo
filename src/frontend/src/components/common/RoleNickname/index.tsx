@@ -11,7 +11,7 @@ interface IRoleNickname {
 export const RoleNickname = (props: IRoleNickname) => {
   return (
     <Wrapper>
-      {props.role !== UserRole.USER ? (
+      {props.role !== UserRole.MEMBER ? (
         <Img
           src={
             props.role === UserRole.OWNER
