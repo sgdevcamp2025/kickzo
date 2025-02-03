@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 
-interface VideoItem {
+interface IVideoItem {
   id: string;
   start: number;
   thumbnail: string;
@@ -8,27 +8,27 @@ interface VideoItem {
   youtuber: string;
 }
 
-interface VideoStore {
-  videoQueue: VideoItem[];
+interface IVideoStore {
+  videoQueue: IVideoItem[];
   currentIndex: number;
-  addVideo: (video: VideoItem) => void;
+  addVideo: (video: IVideoItem) => void;
   removeVideo: (index: number) => void;
   moveVideoUp: (index: number) => void;
   moveVideoDown: (index: number) => void;
   setCurrentIndex: (index: number) => void;
 }
 
-export const useVideoStore = create<VideoStore>(set => ({
+export const useVideoStore = create<IVideoStore>(set => ({
   videoQueue: [],
   currentIndex: 0,
 
-  addVideo: (video: VideoItem) =>
-    set((state: VideoStore) => ({
+  addVideo: (video: IVideoItem) =>
+    set((state: IVideoStore) => ({
       videoQueue: [...state.videoQueue, video],
     })),
 
   removeVideo: (index: number) =>
-    set((state: VideoStore) => {
+    set((state: IVideoStore) => {
       const updatedQueue = state.videoQueue.filter((_, i) => i !== index);
       return {
         videoQueue: updatedQueue,
@@ -37,7 +37,7 @@ export const useVideoStore = create<VideoStore>(set => ({
     }),
 
   moveVideoUp: (index: number) =>
-    set((state: VideoStore) => {
+    set((state: IVideoStore) => {
       if (index === 0) return state;
       const videoQueue = [...state.videoQueue];
       [videoQueue[index], videoQueue[index - 1]] = [videoQueue[index - 1], videoQueue[index]];
@@ -45,7 +45,7 @@ export const useVideoStore = create<VideoStore>(set => ({
     }),
 
   moveVideoDown: (index: number) =>
-    set((state: VideoStore) => {
+    set((state: IVideoStore) => {
       if (index >= state.videoQueue.length - 1) return state;
       const videoQueue = [...state.videoQueue];
       [videoQueue[index], videoQueue[index + 1]] = [videoQueue[index + 1], videoQueue[index]];
@@ -53,7 +53,7 @@ export const useVideoStore = create<VideoStore>(set => ({
     }),
 
   setCurrentIndex: (index: number) =>
-    set((state: VideoStore) => ({
+    set((state: IVideoStore) => ({
       currentIndex: index >= 0 && index < state.videoQueue.length ? index : state.currentIndex,
     })),
 }));

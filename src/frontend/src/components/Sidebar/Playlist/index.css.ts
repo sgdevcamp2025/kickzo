@@ -58,7 +58,7 @@ export const PreviewInfo = styled.div`
 export const PreviewInfo__Title = styled.div`
   font-size: 12px;
   font-weight: 700;
-  line-height: 14.52px;
+  line-height: 15px;
   text-align: left;
   text-underline-position: from-font;
   text-decoration-skip-ink: none;

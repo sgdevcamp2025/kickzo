@@ -5,6 +5,15 @@ import Trashcan from '@/assets/img/Trashcan.svg';
 import ArrowUp from '@/assets/img/ArrowUp.svg';
 import ArrowDown from '@/assets/img/ArrowDown.svg';
 
+import {
+  Container,
+  Thumbnail,
+  PreviewInfo,
+  Playlist__Title,
+  Playlist__Youtuber,
+  ButtonContainer,
+} from './index.css';
+
 interface IPlaylistItem {
   video: {
     id: string;
@@ -22,15 +31,6 @@ interface IPlaylistItem {
   onMoveDown: (index: number) => void;
   onRemove: (index: number) => void;
 }
-
-import {
-  Container,
-  Thumbnail,
-  PreviewInfo,
-  Playlist__Title,
-  Playlist__Youtuber,
-  ButtonContainer,
-} from './index.css';
 
 export const PlaylistItem = (props: IPlaylistItem) => {
   return (
