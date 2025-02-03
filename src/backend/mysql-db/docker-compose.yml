@@ -14,6 +14,14 @@ services:
       - "${MYSQL_HOST_PORT}:${MYSQL_CONTAINER_PORT}"
     volumes:
       - mysql:/var/lib/mysql
+    networks:
+      - kickzo-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
 
 volumes:
   mysql:
