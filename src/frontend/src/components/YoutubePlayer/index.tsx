@@ -209,17 +209,17 @@ const VideoWrapper = styled.div`
   justify-content: center;
 `;
 
-interface VideoItemProps {
-  $active?: boolean;
-}
+// interface VideoItemCSS {
+//   $active?: boolean;
+// }
 
-const VideoItem = styled.div<VideoItemProps>`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  padding: 10px;
-  border-radius: 5px;
-  background-color: ${({ $active }) => ($active ? '#f8d7da' : '#fff')};
-  border: ${({ $active }) => ($active ? '2px solid #ff0000' : '1px solid #ddd')};
-`;
+// const VideoItem = styled.div<VideoItemCSS>`
+//   display: flex;
+//   align-items: center;
+//   gap: 10px;
+//   cursor: pointer;
+//   padding: 10px;
+//   border-radius: 5px;
+//   background-color: ${({ $active }) => ($active ? '#f8d7da' : '#fff')};
+//   border: ${({ $active }) => ($active ? '2px solid #ff0000' : '1px solid #ddd')};
+// `;
