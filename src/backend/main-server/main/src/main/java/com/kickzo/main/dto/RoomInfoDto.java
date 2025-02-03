@@ -8,9 +8,11 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder
 public class RoomInfoDto {
-	private Long roomId;
+	private Long id;
+	private String code;
 	private String title;
 	private String description;
 	private int userCount;
 	private String creator;
+	private String profileImageUrl;
 }

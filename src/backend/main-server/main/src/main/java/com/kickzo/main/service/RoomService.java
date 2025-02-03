@@ -2,6 +2,7 @@ package com.kickzo.main.service;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.springframework.stereotype.Service;
@@ -94,11 +95,13 @@ public class RoomService {
 		return roomRepository.findRoomById(roomId)
 			.stream()
 			.map(room -> RoomInfoDto.builder()
-				.roomId(room.getId())
+				.id(room.getId())
+				.code(room.getCode())
 				.title(room.getTitle())
 				.description(room.getDescription())
 				.userCount(room.getUserCount())
 				.creator(room.getCreator())
+				.profileImageUrl(getCreatorProfileImage(room.getCreator()))
 				.build())
 			.collect(Collectors.toList());
 	}
@@ -110,6 +113,11 @@ public class RoomService {
 				.order(playlist.getOrder())
 				.build())
 			.collect(Collectors.toList());
+	}
+
+	private String getCreatorProfileImage(String creator) {
+		return Optional.ofNullable(userRepository.findProfileImageUrlByNickname(creator))
+			.orElse("default-profile-image-url"); // 기본 이미지 설정
 	}
 
 	/**
