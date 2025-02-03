@@ -41,8 +41,11 @@ final class LoginViewController: BaseViewController<LoginReactor> {
     }
     private let registerButton = BlackTextButton("회원가입")
     private let pwResettingButton = BlackTextButton("비밀번호 재설정")
-    private let divideView = DivideLineView(size: CGSize(width: 1.0, height: 8.0), color: UIColor.kLightgary)
+    private let divideView = DivideLineView(size: CGSize(width: 1.0, height: 8.0), color: UIColor.kLightgray2)
     
+    override func viewWillAppear(_ animated: Bool) {
+        navigationController?.setNavigationBarHidden(true, animated: animated)
+    }
     
     // MARK: - configure UI
     
@@ -129,4 +132,3 @@ final class LoginViewController: BaseViewController<LoginReactor> {
             .disposed(by: disposeBag)
     }
 }
-

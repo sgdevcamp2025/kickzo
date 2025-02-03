@@ -1,0 +1,30 @@
+name: kickzo
+
+services:
+  chat-1:
+    build:
+      context: .
+    container_name: chat-1
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker # Docker 환경에서 실행 시 'docker' 프로파일 사용
+      - SERVER_PORT=${CHAT_PORT_1} # server.port 설정
+    ports:
+      - "${CHAT_PORT_1}:${CHAT_PORT_1}"
+    networks:
+      - kickzo-network
+
+  chat-2:
+    build:
+      context: .
+    container_name: chat-2
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker # Docker 환경에서 실행 시 'docker' 프로파일 사용
+      - SERVER_PORT=${CHAT_PORT_2} # server.port 설정
+    ports:
+      - "${CHAT_PORT_2}:${CHAT_PORT_2}"
+    networks:
+      - kickzo-network
+
+networks:
+  kickzo-network:
+    driver: bridge
