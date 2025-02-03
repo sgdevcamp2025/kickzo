@@ -1,4 +1,4 @@
-export interface IVideoCard {
+export interface VideoCardDto {
   id: number;
   thumbnail: string;
   profile: string;

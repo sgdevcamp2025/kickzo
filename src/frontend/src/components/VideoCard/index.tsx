@@ -7,14 +7,14 @@ import {
   Nickname,
   UserCount,
 } from './index.css';
-import { IVideoCard } from '@/types/dto/VideoCard.dto';
+import { VideoCardDto } from '@/types/dto/VideoCard.dto';
 
-interface VideoCardProps {
-  video: IVideoCard;
+interface IVideoCard {
+  video: VideoCardDto;
   onClick?: () => void;
 }
 
-export const VideoCard = ({ video, onClick }: VideoCardProps) => {
+export const VideoCard = ({ video, onClick }: IVideoCard) => {
   return (
     <VideoCardContainer onClick={onClick}>
       <Thumbnail>
