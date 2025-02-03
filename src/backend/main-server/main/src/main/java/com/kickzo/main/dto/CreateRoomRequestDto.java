@@ -11,5 +11,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CreateRoomRequestDto {
 	private String title;
+	private String description;
 	private Boolean isPublic;
 }
