@@ -1,6 +1,6 @@
-import { IVideoCard } from '@/types/dto/VideoCard.dto';
+import { VideoCardDto } from '@/types/dto/VideoCard.dto';
 
-export const videoListTest: IVideoCard[] = [
+export const videoListTest: VideoCardDto[] = [
   {
     id: 1,
     thumbnail: 'https://picsum.photos/720/404?random=1',
