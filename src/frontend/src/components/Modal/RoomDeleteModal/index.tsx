@@ -4,12 +4,13 @@ import { ModalPortal } from '@/components/Modal/ModalPortal';
 import { IModal } from '@/components/Modal';
 
 interface IRoomDeleteModal {
+  roomId: number;
   onCancel: () => void;
 }
 
-export const RoomDeleteModal = ({ onCancel }: IRoomDeleteModal) => {
+export const RoomDeleteModal = ({ roomId, onCancel }: IRoomDeleteModal) => {
   const handleDelete = () => {
-    console.log('삭제');
+    console.log(roomId, '삭제');
     onCancel();
   };
 

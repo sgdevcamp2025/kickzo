@@ -9,7 +9,7 @@ import { NotificationModal } from '@/components/Modal/NotificationModal';
 
 export const TopNavBar = () => {
   const [isRoomCreateModalOpen, setIsRoomCreateModalOpen] = useState(false);
-  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(true);
+  const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
 
   const clickNotification = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
