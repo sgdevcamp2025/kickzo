@@ -135,13 +135,13 @@ export const YouTubePlayer = () => {
 
   // //   이전 영상 재생
   // const handlePrevVideo = () => {
-  //   if ( currentIndex > 0)  setCurrentIndex(prev => prev - 1);
+  //   if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
   // };
 
   //   다음 영상 재생
-  const handleNextVideo = () => {
-    if (currentIndex < videoQueue.length - 1) setCurrentIndex(prev => prev + 1);
-  };
+  // const handleNextVideo = () => {
+  //   if (currentIndex < videoQueue.length - 1) setCurrentIndex(prev => prev + 1);
+  // };
 
   // // input창에 숫자를 입력하면 해당 초로 이동
   // // TODO - 나중에 싱크 맞출때 소켓으로 시간 받아오면 해당 시간으로 유튜브 영상 변경

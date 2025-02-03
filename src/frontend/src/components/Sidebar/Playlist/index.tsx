@@ -124,15 +124,17 @@ export const Playlist = () => {
     (index: number) => {
       if (draggedIndex === null || draggedIndex === index) return;
 
-      const updatedQueue = [...videoQueue];
-      const [draggedItem] = updatedQueue.splice(draggedIndex, 1);
-      updatedQueue.splice(index, 0, draggedItem);
+      useVideoStore.setState(state => {
+        const updatedQueue = [...state.videoQueue];
+        const [draggedItem] = updatedQueue.splice(draggedIndex, 1);
+        updatedQueue.splice(index, 0, draggedItem);
 
-      useVideoStore.setState({ videoQueue: updatedQueue });
+        return { videoQueue: updatedQueue };
+      });
 
       setDraggedIndex(null);
     },
-    [draggedIndex, videoQueue],
+    [draggedIndex],
   );
 
   return (
