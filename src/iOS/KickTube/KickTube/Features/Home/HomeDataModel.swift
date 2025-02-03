@@ -28,7 +28,7 @@ struct HomeRoomDomainModel: DTOMappable {
     let userName: String
     
     func toViewModel() -> HomeRoomViewModel {
-        let videoID = videoURL.youTubeId
+        let videoID = videoURL.youTubeID
         let pURL = URL(string: self.userProfileURL)
         
         return .init(videoID: videoID,
