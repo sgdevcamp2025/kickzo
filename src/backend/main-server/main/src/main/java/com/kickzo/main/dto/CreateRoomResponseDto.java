@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 @AllArgsConstructor
-public class RoomRequestDto {
-	private String roomCode;
+public class CreateRoomResponseDto {
+	private String code;
 }
