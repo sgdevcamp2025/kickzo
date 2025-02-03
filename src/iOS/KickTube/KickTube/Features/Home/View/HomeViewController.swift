@@ -13,9 +13,6 @@ import RxCocoa
 import RxSwift
 
 final class HomeViewController: BaseViewController<HomeReactor> {
-    private let logoImageView = UIImageView().then {
-        $0.image = UIImage.logoSmall
-    }
     private let createButton = UIButton().then {
         var config = UIButton.Configuration.plain()
         config.image = UIImage(systemName: "plus.circle")
@@ -53,7 +50,6 @@ final class HomeViewController: BaseViewController<HomeReactor> {
                 cellIdentifier: HomeVideoCollectionViewCell.reuseIdentifier,
                 cellType: HomeVideoCollectionViewCell.self
             )) { row, element, cell in
-                
                 if let videoID = element.videoID,
                    element.videoThumbnail == nil {
                     reactor.action.onNext(.getVideoThumbnail(idx: row, id: videoID))
@@ -62,7 +58,6 @@ final class HomeViewController: BaseViewController<HomeReactor> {
                 DispatchQueue.main.async {
                     cell.setContent(element)
                 }
-                
             }
             .disposed(by: disposeBag)
     }
@@ -100,7 +95,7 @@ final class HomeViewController: BaseViewController<HomeReactor> {
     override func configureUI() {
         super.configureUI()
         
-        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: logoImageView)
+        navigationItem.leftBarButtonItem = UIBarButtonItem(customView: UIImageView(image: .logoSmall))
         navigationItem.rightBarButtonItems = [UIBarButtonItem(customView: searchButton), UIBarButtonItem(customView: createButton)]
         
         createButton.addTarget(self, action: #selector(createButtonTapped), for: .touchUpInside)

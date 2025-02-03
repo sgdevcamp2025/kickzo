@@ -12,7 +12,7 @@ final class TabBarViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let nav1VC = UIViewController()
+        let nav1VC = MyRoomViewController(MyRoomReactor())
         let nav2VC = UIViewController()
         let nav3VC = HomeViewController(HomeReactor())
         let nav4VC = UIViewController()

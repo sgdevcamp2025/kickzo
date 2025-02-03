@@ -78,7 +78,7 @@ final class HomeReactor: Reactor {
     
     func getYoutubeThumbnail(_ id: String) async throws -> Data? {
         do {
-            let url = try YoutubeRouter.youtubeThumbnail(id: id).makeURL()
+            let url = try YoutubeRouter.youtubeThumbnailHigh(id: id).makeURL()
             return try await networkManager.getCachingDataFromURL(url)
         } catch {
             throw error
