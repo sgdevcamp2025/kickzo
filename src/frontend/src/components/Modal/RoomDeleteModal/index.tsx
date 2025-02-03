@@ -1,6 +1,6 @@
 import { Modal } from '@/components/Modal';
 import { ButtonColor } from '@/types/enums/ButtonColor';
-import { ModalPortal } from '../ModalPortal';
+import { ModalPortal } from '@/components/Modal/ModalPortal';
 import { IModal } from '@/components/Modal';
 
 interface IRoomDeleteModal {
