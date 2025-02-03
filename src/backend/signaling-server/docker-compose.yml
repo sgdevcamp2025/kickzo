@@ -47,6 +47,8 @@ services:
       --listening-ip=0.0.0.0
       --user=webrtcuser:webrtcpass
       --verbose
+    networks:
+      - webrtc-network
 
 networks:
   webrtc-network:

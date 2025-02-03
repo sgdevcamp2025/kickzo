@@ -8,6 +8,7 @@ WORKDIR /app
 COPY . .
 
 # 4️⃣ Gradle 빌드 수행
+RUN chmod +x gradlew
 RUN ./gradlew build -x test
 
 # 5️⃣ 실행을 위한 Java 21 런타임 이미지
