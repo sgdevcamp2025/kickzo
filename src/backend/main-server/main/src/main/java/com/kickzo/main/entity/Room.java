@@ -62,4 +62,16 @@ public class Room {
 
 	@OneToOne(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
 	private Playlist playlist;
+
+	// 사용자 수 증가 메서드
+	public void incrementUserCount() {
+		this.userCount++;
+	}
+
+	// 사용자 수 감소 메서드
+	public void decrementUserCount() {
+		if (this.userCount > 0) {
+			this.userCount--;
+		}
+	}
 }

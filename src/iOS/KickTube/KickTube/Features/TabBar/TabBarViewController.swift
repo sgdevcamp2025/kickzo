@@ -12,9 +12,9 @@ final class TabBarViewController: UITabBarController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let nav1VC = UIViewController()
+        let nav1VC = MyRoomViewController(MyRoomReactor())
         let nav2VC = UIViewController()
-        let nav3VC = UIViewController()
+        let nav3VC = HomeViewController(HomeReactor())
         let nav4VC = UIViewController()
         let nav5VC = LoginViewController(LoginReactor())
         
@@ -34,8 +34,7 @@ final class TabBarViewController: UITabBarController {
         nav5.tabBarItem = UITabBarItem(title: nil, image: UIImage.profile.resize(to: CGSize(width: ComponentSize.navigationItem.size.width, height: ComponentSize.navigationItem.size.height)), tag: 4)
         
         setViewControllers([nav1, nav2, nav3, nav4, nav5], animated: false)
-        
-        selectedIndex = 4
+       
         tabBar.tintColor = .primary
     }
 }

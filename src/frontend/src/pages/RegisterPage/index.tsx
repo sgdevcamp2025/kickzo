@@ -32,11 +32,13 @@ export const RegisterPage = () => {
     console.log('Password:', passwordCheckRef.current?.value);
   };
 
-  const handleEmailCheck = () => {
+  const handleEmailCheck = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     console.log('email check:', emailRef.current?.value);
   };
 
-  const handleNicknameCheck = () => {
+  const handleNicknameCheck = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
     console.log('nickname check:', nicknameRef.current?.value);
   };
 

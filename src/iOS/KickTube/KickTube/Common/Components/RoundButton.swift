@@ -8,14 +8,38 @@
 import UIKit
 
 final class RoundButton: UIButton {
-    init(_ title: String, bgColor: UIColor = .primary, titleColor: UIColor = .white) {
+    private let mainBackgroundColor: UIColor
+    private let mainTitleColor: UIColor
+    private let toggleBackgroundColor: UIColor?
+    private let toggleTitleColor: UIColor?
+    
+    init(_ title: String, image: UIImage? = nil, bgColor: UIColor = .primary, titleColor: UIColor = .white, toggleBackgroundColor: UIColor? = nil, toggleTitleColor: UIColor? = nil) {
+        self.mainBackgroundColor = bgColor
+        self.mainTitleColor = titleColor
+        self.toggleBackgroundColor = toggleBackgroundColor
+        self.toggleTitleColor = toggleTitleColor
+        
         super.init(frame: .zero)
         
-        setTitle(title, for: .normal)
-        titleLabel?.font = KFont.bold19
-        setTitleColor(titleColor, for: .normal)
-        backgroundColor = bgColor
-        layer.cornerRadius = 10
+        var config = UIButton.Configuration.plain()
+        
+        if let image {
+            config.image = image
+            config.imagePadding = 6
+        }
+        
+        var titleAttributes = AttributedString(title)
+        
+        titleAttributes.font = KFont.bold19
+        titleAttributes.foregroundColor = titleColor
+        
+        config.title = title
+        config.baseForegroundColor = titleColor
+        config.attributedTitle = titleAttributes
+        config.background.backgroundColor = bgColor
+        config.background.cornerRadius = 15
+        
+        configuration = config
     }
     
     required init?(coder: NSCoder) {
@@ -37,5 +61,40 @@ final class RoundButton: UIButton {
     
     func setStyle(_ font: UIFont) {
         titleLabel?.font = font
+    }
+    
+    func setStroke(_ color: UIColor, width: CGFloat = 1.0) {
+        layer.borderWidth = width
+        layer.borderColor = color.cgColor
+        layer.cornerRadius = 15
+    }
+    
+    func setTitle(_ title: String, font: UIFont = KFont.bold19) {
+        guard var config = configuration else { return }
+        
+        config.title = title
+        config.attributedTitle?.font = font
+        
+        configuration = config
+    }
+    
+    func toggleButtonStatus(_ isDefault: Bool) {
+        var config = configuration
+        if isDefault {
+            config?.baseForegroundColor = mainTitleColor
+            config?.background.backgroundColor = mainBackgroundColor
+            config?.attributedTitle?.foregroundColor = mainTitleColor
+            
+            configuration = config
+        } else {
+            if let tt = toggleTitleColor,
+               let tb = toggleBackgroundColor {
+                config?.baseForegroundColor = tt
+                config?.background.backgroundColor = tb
+                config?.attributedTitle?.foregroundColor = tt
+                configuration = config
+                setStroke(tt)
+            }
+        }
     }
 }

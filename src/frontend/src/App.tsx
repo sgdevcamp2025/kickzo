@@ -22,7 +22,7 @@ function App() {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/password-reset" element={<PasswordResetPage />} />
         <Route path="/" element={<Layout />}>
-          <Route path="." element={<HomePage />} />
+          <Route index element={<HomePage />} />
           <Route path="my-room" element={<MyRoomPage />} />
           <Route path="room" element={<Room />} />
           <Route path="friend" element={<FriendPage />} />

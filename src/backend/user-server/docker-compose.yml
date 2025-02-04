@@ -1,0 +1,32 @@
+name: kickzo
+
+services:
+  user:
+    container_name: user
+    build:
+      context: .
+    command: pnpm run start:dev user
+    depends_on:
+      mysql:
+        condition: service_healthy
+    ports:
+      - "${USER_PORT}:${USER_PORT}"
+    environment:
+      USER_PORT: ${USER_PORT}
+      MYSQL_HOST: ${MYSQL_HOST}
+      MYSQL_CONTAINER_PORT: ${MYSQL_CONTAINER_PORT}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      HASH_ROUNDS: ${HASH_ROUNDS}
+      ACCESS_TOKEN_SECRET: ${ACCESS_TOKEN_SECRET}
+      REFRESH_TOKEN_SECRET: ${REFRESH_TOKEN_SECRET}
+    volumes:
+      - .:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - kickzo-network
+
+networks:
+  kickzo-network:
+    driver: bridge

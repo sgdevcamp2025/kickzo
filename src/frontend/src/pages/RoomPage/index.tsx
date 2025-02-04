@@ -1,4 +1,3 @@
-import { useState } from 'react';
 import styled from 'styled-components';
 
 import { Sidebar } from '@/components/Sidebar';
@@ -13,9 +12,6 @@ export interface VideoItem {
 }
 
 export const Room = () => {
-  const [videoQueue, setVideoQueue] = useState<VideoItem[]>([]);
-  const [currentIndex, setCurrentIndex] = useState<number>(0);
-
   return (
     <>
       {/* <BigProfile
@@ -25,18 +21,8 @@ export const Room = () => {
         sidebarType={SidebarType.VoiceChat}
       /> */}
       <Wrapper>
-        <YouTubePlayer
-          videoQueue={videoQueue}
-          setVideoQueue={setVideoQueue}
-          currentIndex={currentIndex}
-          setCurrentIndex={setCurrentIndex}
-        />
-        <Sidebar
-          videoQueue={videoQueue}
-          setVideoQueue={setVideoQueue}
-          currentIndex={currentIndex}
-          setCurrentIndex={setCurrentIndex}
-        />
+        <YouTubePlayer />
+        <Sidebar />
       </Wrapper>
     </>
   );

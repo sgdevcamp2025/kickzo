@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
+import { useVideoStore } from '@/stores/useVideoStore';
 
 declare global {
   interface Window {
@@ -7,26 +8,13 @@ declare global {
   }
 }
 
-interface VideoItem {
-  id: string;
-  start: number;
-  thumbnail: string;
-  title: string;
-  youtuber: string;
-}
-
-interface IYouTubePlayer {
-  videoQueue: VideoItem[];
-  setVideoQueue: React.Dispatch<React.SetStateAction<VideoItem[]>>;
-  currentIndex: number;
-  setCurrentIndex: React.Dispatch<React.SetStateAction<number>>;
-}
-
-export const YouTubePlayer = (props: IYouTubePlayer) => {
+export const YouTubePlayer = () => {
   // const [videoQueue, setVideoQueue] = useState<VideoItem[]>([]); // 재생 목록
-  // const [currentIndex, props.setCurrentIndex] = useState<number>(0); // 현재 재생 중인 비디오의 인덱스
+  // const [currentIndex,  setCurrentIndex] = useState<number>(0); // 현재 재생 중인 비디오의 인덱스
   // const [inputUrl, setInputUrl] = useState<string>(''); // 사용자가 입력한 유튜브 URL
   // const [seekTime, setSeekTime] = useState<string>(''); // 사용자가 입력한 이동 시간
+
+  const { videoQueue, currentIndex, setCurrentIndex } = useVideoStore();
 
   const playerRef = useRef<YT.Player | null>(null); // 유튜브 플레이어 객체
   const lastKnownTimeRef = useRef<number>(0); // 마지막으로 기록된 재생 시간
@@ -65,7 +53,7 @@ export const YouTubePlayer = (props: IYouTubePlayer) => {
   //     return;
   //   }
 
-  //   props.setVideoQueue(prevQueue => [
+  //    setVideoQueue(prevQueue => [
   //     ...prevQueue,
   //     {
   //       id: videoId,
@@ -134,32 +122,26 @@ export const YouTubePlayer = (props: IYouTubePlayer) => {
   // video목록에 영상이 추가되었는데 이게 유일한 영상이라 바로 재생해야한다면,
   // 유튜브 영상을 재생한다
   useEffect(() => {
-    if (props.videoQueue.length > 0) {
-      loadPlayer(
-        props.videoQueue[props.currentIndex].id,
-        props.videoQueue[props.currentIndex].start,
-      );
+    if (videoQueue.length > 0) {
+      loadPlayer(videoQueue[currentIndex].id, videoQueue[currentIndex].start);
     }
-  }, [props.currentIndex]);
+  }, [currentIndex]);
 
   useEffect(() => {
-    if (props.videoQueue.length === 1) {
-      loadPlayer(
-        props.videoQueue[props.currentIndex].id,
-        props.videoQueue[props.currentIndex].start,
-      );
+    if (videoQueue.length === 1) {
+      loadPlayer(videoQueue[currentIndex].id, videoQueue[currentIndex].start);
     }
-  }, [props.videoQueue]);
+  }, [videoQueue]);
 
   // //   이전 영상 재생
   // const handlePrevVideo = () => {
-  //   if (props.currentIndex > 0) props.setCurrentIndex(prev => prev - 1);
+  //   if (currentIndex > 0) setCurrentIndex(prev => prev - 1);
   // };
 
   //   다음 영상 재생
-  const handleNextVideo = () => {
-    if (props.currentIndex < props.videoQueue.length - 1) props.setCurrentIndex(prev => prev + 1);
-  };
+  // const handleNextVideo = () => {
+  //   if (currentIndex < videoQueue.length - 1) setCurrentIndex(prev => prev + 1);
+  // };
 
   // // input창에 숫자를 입력하면 해당 초로 이동
   // // TODO - 나중에 싱크 맞출때 소켓으로 시간 받아오면 해당 시간으로 유튜브 영상 변경
@@ -227,17 +209,17 @@ const VideoWrapper = styled.div`
   justify-content: center;
 `;
 
-interface VideoItemProps {
-  $active?: boolean;
-}
+// interface VideoItemCSS {
+//   $active?: boolean;
+// }
 
-const VideoItem = styled.div<VideoItemProps>`
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  cursor: pointer;
-  padding: 10px;
-  border-radius: 5px;
-  background-color: ${({ $active }) => ($active ? '#f8d7da' : '#fff')};
-  border: ${({ $active }) => ($active ? '2px solid #ff0000' : '1px solid #ddd')};
-`;
+// const VideoItem = styled.div<VideoItemCSS>`
+//   display: flex;
+//   align-items: center;
+//   gap: 10px;
+//   cursor: pointer;
+//   padding: 10px;
+//   border-radius: 5px;
+//   background-color: ${({ $active }) => ($active ? '#f8d7da' : '#fff')};
+//   border: ${({ $active }) => ($active ? '2px solid #ff0000' : '1px solid #ddd')};
+// `;

@@ -8,6 +8,8 @@ include:
   - ./backend/kafka/docker-compose-kafkaui.yml
   - ./backend/chat-server/docker-compose.yml
   - ./backend/history-server/docker-compose.yml
+  - ./backend/auth-server/docker-compose.yml
+  - ./backend/user-server/docker-compose.yml
 
 networks:
   kickzo-network:
