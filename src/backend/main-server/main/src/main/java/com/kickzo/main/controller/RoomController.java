@@ -2,22 +2,29 @@ package com.kickzo.main.controller;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kickzo.main.dto.RoomDetailsDto;
 import com.kickzo.main.dto.RoomEntryResponseDto;
+import com.kickzo.main.dto.RoomUpdateRequestDto;
+import com.kickzo.main.service.PlaylistService;
 import com.kickzo.main.service.RoomService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @RestController
 @RequestMapping("/api/rooms")
 @RequiredArgsConstructor
 public class RoomController {
 
 	private final RoomService roomService;
+	private final PlaylistService playlistService;
 
 	/**
 	 * 방 입장 로직 (WebSocket + STOMP)
@@ -42,5 +49,17 @@ public class RoomController {
 
 		RoomEntryResponseDto response = new RoomEntryResponseDto(myRole, roomDetails);
 		return ResponseEntity.ok(response);
+	}
+
+	/**
+	 * 방 Info(제목 or 설명 or 공개여부) 변경
+	 * @param userId, requestDto
+	 */
+	@PostMapping("/v1/update")
+	public ResponseEntity<?> updateRoomInfo(@RequestParam Long userId,
+		@Valid @RequestBody RoomUpdateRequestDto requestDto) {
+		// 유효한 accestoken 여부 검증 로직
+		roomService.updateRoomInfo(requestDto);
+		return ResponseEntity.ok("Room updated successfully");
 	}
 }

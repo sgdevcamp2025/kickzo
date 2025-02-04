@@ -5,22 +5,32 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kickzo.main.dto.PlaylistDto;
 import com.kickzo.main.dto.RoomDetailsDto;
 import com.kickzo.main.dto.RoomInfoDto;
+import com.kickzo.main.dto.RoomUpdateEvent;
+import com.kickzo.main.dto.RoomUpdateRequestDto;
 import com.kickzo.main.dto.UserListDto;
 import com.kickzo.main.entity.Room;
 import com.kickzo.main.entity.RoomUser;
 import com.kickzo.main.entity.RoomUserId;
+import com.kickzo.main.exception.CustomErrorCode;
+import com.kickzo.main.exception.CustomException;
 import com.kickzo.main.repository.PlaylistRepository;
 import com.kickzo.main.repository.RoomRepository;
 import com.kickzo.main.repository.RoomUserRepository;
 import com.kickzo.main.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class RoomService {
@@ -29,9 +39,15 @@ public class RoomService {
 	private final RoomUserRepository roomUserRepository;
 	private final PlaylistRepository playlistRepository;
 	private final UserRepository userRepository;
+	private final KafkaProducerService kafkaProducerService;
+	private final ObjectMapper objectMapper;
 
 	// roomCode에 따른 방의 정보와 유저 list 전달
 	public RoomDetailsDto getRoomDetails(String roomCode) {
+		System.out.println("RoomCode : " + roomCode);
+		if (roomCode == null || roomCode.isBlank()) {
+			throw new CustomException(CustomErrorCode.INVALID_ROOM_CODE);
+		}
 		// Step 1: RoomCode로 RoomID 검색
 		Long roomId = getRoomId(roomCode);
 
@@ -61,10 +77,39 @@ public class RoomService {
 			// Step 3: 역할(Role)이 존재하지 않으면 새 사용자 추가
 			saveNewRoomUser(roomId, userId);
 			Room room = roomRepository.findById(roomId)
-				.orElseThrow(() -> new IllegalArgumentException("Room not found"));
+				.orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
 			room.incrementUserCount();
 			return 2;
 		}
+	}
+
+	@Transactional
+	public void updateRoomInfo(RoomUpdateRequestDto updateRequestDto) {
+		Long roomId = updateRequestDto.getId();
+		Room room = roomRepository.findById(roomId)
+			.orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
+		// update 할 내용이 title, description, isPublic 인지 확인
+		boolean updated = false;
+
+		if (updateRequestDto.getTitle() != null) {
+			room.setTitle(updateRequestDto.getTitle());
+			updated = true;
+		}
+		if (updateRequestDto.getDescription() != null) {
+			room.setDescription(updateRequestDto.getDescription());
+			updated = true;
+		}
+		if (updateRequestDto.getIsPublic() != null) {
+			room.setIsPublic(updateRequestDto.getIsPublic());
+			updated = true;
+		}
+
+		if (!updated) {
+			throw new CustomException(CustomErrorCode.REQUIRED_UPDATE_FIELDS_MISSING);
+		}
+
+		roomRepository.save(room);
+		sendRoomUpdateEvent(roomId, updateRequestDto);
 	}
 
 	/**
@@ -75,7 +120,8 @@ public class RoomService {
 	 * 4. playlist 테이블에서 받아온 data를 dto로 변환 : getPlaylistByRoomId
 	 */
 	private Long getRoomId(String roomCode) {
-		return roomRepository.findRoomIdByRoomCode(roomCode);
+		return Optional.ofNullable(roomRepository.findRoomIdByRoomCode(roomCode))
+			.orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
 	}
 
 	private List<UserListDto> mapNicknames(List<Object[]> userIdRoles) {
@@ -124,17 +170,33 @@ public class RoomService {
 	 * 새로 들어온 user -> room_user DB에 저장
 	 */
 	private void saveNewRoomUser(Long roomId, Long userId) {
-		RoomUser roomUser = RoomUser.builder()
-			.id(new RoomUserId(roomId, userId))
-			.role(2) // 2: member 역할
-			.joinedAt(LocalDateTime.now())
-			.build();
+		try {
+			RoomUser roomUser = RoomUser.builder()
+				.id(new RoomUserId(roomId, userId))
+				.role(2) // 2: member 역할
+				.joinedAt(LocalDateTime.now())
+				.build();
 
-		roomUserRepository.save(roomUser);
+			roomUserRepository.save(roomUser);
+		} catch (DataIntegrityViolationException e) {
+			throw new CustomException(CustomErrorCode.FOREIGN_KEY_VIOLATION);
+		}
 	}
 
-	// 방 정보 수정 (방 제목, 설명, 플레이리스트 추가/수정/삭제, 권한 변경)
-	// 방 안에서 친구 혹은 유저 초대하기 (초대 알림은 /queue로)
-	// 받은 userId에서 이 방에 소속되지 않은 친구, 유저 찾아서 보내주기
-
+	/**
+	 * Kafka "room" topic으로 produce
+	 */
+	private void sendRoomUpdateEvent(Long roomId, RoomUpdateRequestDto updateRequestDto) {
+		try {
+			RoomUpdateEvent event = RoomUpdateEvent.from(roomId, updateRequestDto);
+			String message = objectMapper.writeValueAsString(event);
+			kafkaProducerService.sendRoomUpdateMessage(message);
+		} catch (JsonProcessingException e) {
+			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR); // JSON 변환 실패 예외 처리
+		}
+	}
 }
+
+// 방 정보 수정 (방 제목, 설명, 플레이리스트 추가/수정/삭제, 권한 변경)
+// 방 안에서 친구 혹은 유저 초대하기 (초대 알림은 /queue로)
+// 받은 userId에서 이 방에 소속되지 않은 친구, 유저 찾아서 보내주기
