@@ -29,17 +29,25 @@ final class AlertViewController: UIViewController {
     private let cancelButton = RoundButton("", bgColor: .white, titleColor: .primary).then {
         $0.setStroke(.kLightgray2)
     }
-    
+        
     var acceptAction: (() -> Void)?
     var cancelAction: (() -> Void)?
+
+    private var disposeBag = DisposeBag()
     
     init(_ alert: AlertMessage) {
         super.init(nibName: nil, bundle: nil)
         
         titleLabel.text = alert.title
-        contentsLabel.text = alert.contents
-        acceptButton.setTitle(alert.accept)
-        cancelButton.setTitle(alert.cancel)
+        if let contents = alert.contents {
+            contentsLabel.text = contents
+        }
+        if let accept = alert.accept {
+            acceptButton.setTitle(accept)
+        }
+        if let cancel = alert.cancel {
+            cancelButton.setTitle(cancel)
+        }
     }
     
     required init?(coder: NSCoder) {
@@ -52,23 +60,28 @@ final class AlertViewController: UIViewController {
         configureHierarchy()
         configureLayout()
         configureUI()
+        
+        bindAction()
     }
     
 
     // MARK: - button method
     
-    @objc
-    private func setAcceptButton() {
-        dismiss(animated: true) { [weak self] in
-            self?.acceptAction?()
-        }
-    }
-    
-    @objc
-    private func setCancelButton() {
-        dismiss(animated: true) { [weak self] in
-            self?.cancelAction?()
-        }
+    private func bindAction() {
+        acceptButton.rx.tap
+            .bind(with: self) { owner, _ in
+                owner.dismiss(animated: true) {
+                    owner.acceptAction?()
+                }
+            }
+            .disposed(by: disposeBag)
+        cancelButton.rx.tap
+            .bind(with: self) { owner, _ in
+                owner.dismiss(animated: true) {
+                    owner.cancelAction?()
+                }
+            }
+            .disposed(by: disposeBag)
     }
 
     
@@ -107,8 +120,15 @@ final class AlertViewController: UIViewController {
     
     private func configureUI() {
         view.backgroundColor = UIColor.black.withAlphaComponent(0.5)
-        
-        acceptButton.addTarget(self, action: #selector(setAcceptButton), for: .touchUpInside)
-        cancelButton.addTarget(self, action: #selector(setCancelButton), for: .touchUpInside)
+    }
+    
+    override func touchesBegan(_ touches: Set<UITouch>, with event: UIEvent?) {
+        if let touch = touches.first {
+            let location = touch.location(in: view)
+            let popupView = view.subviews.first { $0 != self.view }
+            if let popupView = popupView, !popupView.frame.contains(location) {
+                dismiss(animated: true, completion: nil)
+            }
+        }
     }
 }

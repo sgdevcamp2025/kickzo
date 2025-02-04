@@ -13,6 +13,7 @@
 		532F31862D364BC200D2C67E /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 532F31852D364BC200D2C67E /* RxSwift */; };
 		532F31892D364BCE00D2C67E /* ReactorKit in Frameworks */ = {isa = PBXBuildFile; productRef = 532F31882D364BCE00D2C67E /* ReactorKit */; };
 		532F318B2D364C2E00D2C67E /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 532F318A2D364C2E00D2C67E /* .gitignore */; };
+		53A863DC2D4FB72E009FF8E2 /* RxDataSources in Frameworks */ = {isa = PBXBuildFile; productRef = 53A863DB2D4FB72E009FF8E2 /* RxDataSources */; };
 		53C9559A2D40BC23004D4DA2 /* ManipulateDataModel in Frameworks */ = {isa = PBXBuildFile; productRef = 53C955992D40BC23004D4DA2 /* ManipulateDataModel */; };
 		53FDEFDD2D3E12C400825962 /* ManipulateDataModel in Frameworks */ = {isa = PBXBuildFile; productRef = 5351F2E02D392C600093EB87 /* ManipulateDataModel */; };
 /* End PBXBuildFile section */
@@ -94,6 +95,7 @@
 				532F31862D364BC200D2C67E /* RxSwift in Frameworks */,
 				532F31842D364BC200D2C67E /* RxCocoa in Frameworks */,
 				532F31892D364BCE00D2C67E /* ReactorKit in Frameworks */,
+				53A863DC2D4FB72E009FF8E2 /* RxDataSources in Frameworks */,
 				53C9559A2D40BC23004D4DA2 /* ManipulateDataModel in Frameworks */,
 				532F31812D364BB200D2C67E /* SnapKit in Frameworks */,
 			);
@@ -162,6 +164,7 @@
 				532F31882D364BCE00D2C67E /* ReactorKit */,
 				5351F2E02D392C600093EB87 /* ManipulateDataModel */,
 				53C955992D40BC23004D4DA2 /* ManipulateDataModel */,
+				53A863DB2D4FB72E009FF8E2 /* RxDataSources */,
 			);
 			productName = KickTube;
 			productReference = 532F31322D3649CA00D2C67E /* KickTube.app */;
@@ -244,6 +247,7 @@
 				532F31822D364BC200D2C67E /* XCRemoteSwiftPackageReference "RxSwift" */,
 				532F31872D364BCE00D2C67E /* XCRemoteSwiftPackageReference "ReactorKit" */,
 				53C955982D40BC23004D4DA2 /* XCLocalSwiftPackageReference "../ManipulateDataModel" */,
+				53A863DA2D4FB72E009FF8E2 /* XCRemoteSwiftPackageReference "RxDataSources" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 532F31332D3649CA00D2C67E /* Products */;
@@ -643,6 +647,14 @@
 				minimumVersion = 3.2.0;
 			};
 		};
+		53A863DA2D4FB72E009FF8E2 /* XCRemoteSwiftPackageReference "RxDataSources" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/RxSwiftCommunity/RxDataSources.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 5.0.2;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -669,6 +681,11 @@
 		5351F2E02D392C600093EB87 /* ManipulateDataModel */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ManipulateDataModel;
+		};
+		53A863DB2D4FB72E009FF8E2 /* RxDataSources */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 53A863DA2D4FB72E009FF8E2 /* XCRemoteSwiftPackageReference "RxDataSources" */;
+			productName = RxDataSources;
 		};
 		53C955992D40BC23004D4DA2 /* ManipulateDataModel */ = {
 			isa = XCSwiftPackageProductDependency;

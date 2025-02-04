@@ -8,14 +8,17 @@
 import Foundation
 
 enum YoutubeRouter {
-    case youtubeThumbnail(id: String)
+    case youtubeThumbnailLow(id: String)
+    case youtubeThumbnailHigh(id: String)
 }
 
 extension YoutubeRouter {
     func makeURL() throws -> URL {
         switch self {
-        case .youtubeThumbnail(let id):
-            return try YoutubeEndPoint(method: .get, path: ["vi", id, "default.jpg"]).asURL()
+        case .youtubeThumbnailLow(let id):
+            return try YoutubeEndPoint(method: .get, path: ["vi", id, "mqdefault.jpg"]).asURL()
+        case .youtubeThumbnailHigh(let id):
+            return try YoutubeEndPoint(method: .get, path: ["vi", id, "maxresdefault.jpg"]).asURL()
         }
     }
 }

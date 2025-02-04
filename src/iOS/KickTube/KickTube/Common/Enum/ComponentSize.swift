@@ -24,9 +24,11 @@ enum ComponentSize {
     case navigationItem
     case alarmNavigtionItem
     case homeCollectionViewCell
+    case roomCollectionViewCell
     case homeProfileImage
     case createRoomModal
     case alertModal
+    case optionButton
 }
 
 extension ComponentSize {
@@ -38,6 +40,8 @@ extension ComponentSize {
             return CGSize(width: ComponentSize.screenWidth / 15, height: ComponentSize.screenWidth / 15)
         case .homeCollectionViewCell:
             return CGSize(width: ComponentSize.screenWidth - 24, height: (ComponentSize.screenWidth - 24) * 9 / 16 + 90)
+        case .roomCollectionViewCell:
+            return CGSize(width: ComponentSize.screenWidth - 24, height: (ComponentSize.screenWidth - 24) / 7 * 2)
         case .homeProfileImage:
             return CGSize(width: ComponentSize.homeCollectionViewCell.size.width / 10, height: ComponentSize.homeCollectionViewCell.size.width / 10)
         case .createRoomModal:
@@ -50,6 +54,8 @@ extension ComponentSize {
                 return CGSize(width: ComponentSize.screenWidth / 4 * 3.5, height: ComponentSize.screenHeight / 7 * 3)
             }
             return CGSize(width: ComponentSize.screenWidth / 4 * 3, height: ComponentSize.screenHeight / 7 * 2.2)
+        case .optionButton:
+            return CGSize(width: ComponentSize.screenWidth - 24, height: 48)
         }
     }
     
@@ -57,6 +63,8 @@ extension ComponentSize {
         switch self {
         case .homeProfileImage:
             return ComponentSize.homeProfileImage.size.width * 2 / 9
+        case .optionButton:
+            return 12
         default:
             return 0
         }
