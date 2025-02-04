@@ -49,3 +49,26 @@ export const JoinButton = styled.button`
   border-radius: 5px;
   cursor: pointer;
 `;
+
+export const ProfileWrapper = styled.div`
+  position: relative;
+  cursor: pointer;
+
+  & .profile-detail {
+    position: absolute;
+    top: 0px;
+    right: 60%;
+    transform: translateX(-50%);
+    opacity: 0;
+    visibility: hidden;
+    transition:
+      opacity 0.3s ease,
+      visibility 0.3s ease;
+    z-index: 10;
+  }
+
+  .profile-detail.active {
+    opacity: 1;
+    visibility: visible;
+  }
+`;

@@ -1,6 +1,6 @@
 export enum SidebarType {
-  Chat = 0,
-  Playlist = 1,
-  VoiceChat = 2,
-  Member = 3,
+  CHAT = 0,
+  PLAYLIST = 1,
+  VOICECHAT = 2,
+  MEMBER = 3,
 }

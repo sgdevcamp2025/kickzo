@@ -14,7 +14,7 @@ export const ChatNickname = (props: IChatNickname) => {
       {props.role !== UserRole.USER ? (
         <Img
           src={
-            props.role === UserRole.OWNER
+            props.role === UserRole.CREATOR
               ? RoleOwner
               : props.role === UserRole.MANAGER
                 ? RoleManager
@@ -41,6 +41,6 @@ const Img = styled.img``;
 
 const Nickname = styled.div<{ $role: UserRole }>`
   color: ${({ $role }) =>
-    $role === UserRole.OWNER ? '#FF9100' : $role === UserRole.MANAGER ? '#4D94E1' : '#000000'};
+    $role === UserRole.CREATOR ? '#FF9100' : $role === UserRole.MANAGER ? '#4D94E1' : '#000000'};
   font-weight: bold;
 `;
