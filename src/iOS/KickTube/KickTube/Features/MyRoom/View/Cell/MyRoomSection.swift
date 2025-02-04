@@ -15,7 +15,7 @@ struct MyRoomSection {
 }
 
 extension MyRoomSection: SectionModelType {
-    typealias Item = MyRoomsSectionItem
+    typealias Item = MyRoomSectionItem
     
     init(original: MyRoomSection, items: [Item]) {
         self = original
@@ -23,24 +23,18 @@ extension MyRoomSection: SectionModelType {
     }
 }
 
-enum MyRoomsSectionItem {
+enum MyRoomSectionItem {
     case created(MyRoomViewModel)
     case participated(MyRoomViewModel)
 }
 
-enum MyRoomSectionInformation {
-    case section0
-    case section1
-}
-
-extension MyRoomSectionInformation {
+extension MyRoomSectionItem {
     var title: String {
         switch self {
-        case .section0:
+        case .created:
             return "내가 생성한 Kick 방"
-        case .section1:
+        case .participated:
             return "내가 참여 중인 Kick 방"
         }
     }
 }
-

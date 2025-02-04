@@ -40,14 +40,16 @@ final class MyRoomCollectionViewCell: UICollectionViewCell {
         $0.textColor = .kDarkgray
         $0.font = KFont.light14
     }
-    var disposeBag = DisposeBag()
+
+    var moveToOptionVC: (() -> Void)?
+    
+    private var disposeBag = DisposeBag()
     
     override init(frame: CGRect) {
         super.init(frame: frame)
         
         configureHierarchy()
         configureLayout()
-        configureUI()
     }
 
     required init?(coder: NSCoder) {
@@ -56,6 +58,9 @@ final class MyRoomCollectionViewCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
+        
+        clearContent()
+        
         disposeBag = DisposeBag()
     }
   
@@ -72,9 +77,21 @@ final class MyRoomCollectionViewCell: UICollectionViewCell {
         titleLabel.text = room.title
         usernameLabel.text = room.creator
         participatingCountLabel.text = room.userCount
+
+        optionButton.rx.tap
+            .subscribe(with: self) { owner, _ in
+                owner.moveToOptionVC?()
+            }
+            .disposed(by: disposeBag)
     }
     
-
+    func clearContent() {
+        videoThumbnailView.image = nil
+        titleLabel.text = nil
+        usernameLabel.text = nil
+        participatingCountLabel.text = nil
+    }
+    
     // MARK: - configure UI
     
     private func configureHierarchy() {
@@ -111,57 +128,4 @@ final class MyRoomCollectionViewCell: UICollectionViewCell {
             make.centerY.equalTo(participaingIconImageView.snp.centerY)
         }
     }
-    
-    private func configureUI() {
-        
-    }
-}
-
-import ManipulateDataModel
-
-
-@DecodeDTO
-@ConvertToDomainModel<MyRoomDomainModel>
-struct MyRoomDTO {
-    let id: Int
-    let code: String
-    let title: String
-    let description: String
-    let creator: String
-    @Key("profileImageUrl") let profileImageURL: String
-    let userCount: Int
-    @Key("playlistUrl") let playlistURL: String
-}
-
-
-struct MyRoomDomainModel: DTOMappable {
-    let id: Int
-    let code: String
-    let title: String
-    let description: String
-    let creator: String
-    let profileImageURL: String
-    let userCount: Int
-    let playlistURL: String
-    
-    func toViewModel() -> MyRoomViewModel {
-        .init(id: self.id,
-              code: self.code,
-              title: self.title,
-              creator: self.creator,
-              userCount: String(self.userCount),
-              videoID: playlistURL.youTubeID
-        )
-    }
-}
-
-struct MyRoomViewModel {
-    let id: Int
-    let code: String
-    let title: String
-    let creator: String
-    let userCount: String
-    let videoID: String?
-    var videoThumbnail: Data? = nil
-    var userProfileThumbnail: Data? = nil
 }

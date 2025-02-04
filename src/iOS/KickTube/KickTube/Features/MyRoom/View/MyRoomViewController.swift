@@ -13,7 +13,7 @@ import RxDataSources
 import RxSwift
 
 final class MyRoomViewController: BaseViewController<MyRoomReactor> {
-    private lazy var myRoomsCoollectionView = UICollectionView(frame: .zero, collectionViewLayout: .myRoomCollectionViewLayout()).then {
+    private lazy var myRoomCollectionView = UICollectionView(frame: .zero, collectionViewLayout: .myRoomCollectionViewLayout()).then {
         $0.register(MyRoomCollectionViewCell.self, forCellWithReuseIdentifier: MyRoomCollectionViewCell.reuseIdentifier)
         $0.register(UICollectionReusableView.self, forSupplementaryViewOfKind: UICollectionView.elementKindSectionHeader, withReuseIdentifier: "Header")
         $0.showsVerticalScrollIndicator = false
@@ -21,28 +21,48 @@ final class MyRoomViewController: BaseViewController<MyRoomReactor> {
     private lazy var dataSource = RxCollectionViewSectionedReloadDataSource<MyRoomSection>(configureCell: { _, collecitonView, indexPath, item in
         switch item {
         case let .created(room):
-            guard let cell = self.myRoomsCoollectionView.dequeueReusableCell(withReuseIdentifier: MyRoomCollectionViewCell.reuseIdentifier, for: indexPath) as? MyRoomCollectionViewCell else {
+            guard let cell = self.myRoomCollectionView.dequeueReusableCell(withReuseIdentifier: MyRoomCollectionViewCell.reuseIdentifier, for: indexPath) as? MyRoomCollectionViewCell else {
                 return UICollectionViewCell()
             }
-            if let videoID = room.videoID, room.videoThumbnail == nil {
+            
+            if let videoID = room.videoID,
+               room.videoThumbnail == nil {
                 self.reactor.action.onNext(.getVideoThumbnail(idx: indexPath, id: videoID))
             }
             
             DispatchQueue.main.async {
                 cell.setContent(room)
+                cell.moveToOptionVC = {
+                    let vc = OptionButtonViewController(option: .deleteCreatedRoom, reactor: OptionButtonReactor(id: room.id, indexPath: indexPath))
+                    
+                    vc.delegate = self
+                    vc.modalPresentationStyle = .overFullScreen
+                    
+                    self.present(vc, animated: false)
+                }
             }
             
             return cell
         case let .participated(room):
-            guard let cell = self.myRoomsCoollectionView.dequeueReusableCell(withReuseIdentifier: MyRoomCollectionViewCell.reuseIdentifier, for: indexPath) as? MyRoomCollectionViewCell else {
+            guard let cell = self.myRoomCollectionView.dequeueReusableCell(withReuseIdentifier: MyRoomCollectionViewCell.reuseIdentifier, for: indexPath) as? MyRoomCollectionViewCell else {
                 return UICollectionViewCell()
             }
-            if let videoID = room.videoID, room.videoThumbnail == nil {
+            
+            if let videoID = room.videoID,
+               room.videoThumbnail == nil {
                 self.reactor.action.onNext(.getVideoThumbnail(idx: indexPath, id: videoID))
             }
             
             DispatchQueue.main.async {
                 cell.setContent(room)
+                cell.moveToOptionVC = {
+                    let vc = OptionButtonViewController(option: .leaveParticipatedRoom, reactor: OptionButtonReactor(id: room.id, indexPath: indexPath))
+                    
+                    vc.delegate = self
+                    vc.modalPresentationStyle = .overFullScreen
+                    
+                    self.present(vc, animated: false)
+                }
             }
             
             return cell
@@ -78,7 +98,7 @@ final class MyRoomViewController: BaseViewController<MyRoomReactor> {
     
     override func bindState(reactor: MyRoomReactor) {
         reactor.state.map { $0.sections }
-            .bind(to: myRoomsCoollectionView.rx.items(dataSource: dataSource))
+            .bind(to: myRoomCollectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
     }
     
@@ -86,16 +106,16 @@ final class MyRoomViewController: BaseViewController<MyRoomReactor> {
     // MARK: - configure UI
     
     override func configureHierarchy() {
-        view.addSubview(myRoomsCoollectionView)
+        view.addSubview(myRoomCollectionView)
     }
     
     override func configureLayout() {
         let safeArea = view.safeAreaLayoutGuide
         
-        myRoomsCoollectionView.snp.makeConstraints { make in
+        myRoomCollectionView.snp.makeConstraints { make in
             make.verticalEdges.equalTo(safeArea)
-             make.centerX.equalTo(safeArea.snp.centerX)
-             make.width.equalTo(ComponentSize.roomCollectionViewCell.size.width)
+            make.centerX.equalTo(safeArea.snp.centerX)
+            make.width.equalTo(ComponentSize.roomCollectionViewCell.size.width)
         }
     }
     
@@ -105,4 +125,22 @@ final class MyRoomViewController: BaseViewController<MyRoomReactor> {
         navigationItem.leftBarButtonItem = UIBarButtonItem(customView: UIImageView(image: .logoSmall))
     }
     
+}
+
+extension MyRoomViewController: MyRoomDelegate {
+    func deleteRoom(idx: IndexPath, result: Bool) {
+        if result {
+            Observable.just(MyRoomReactor.Action.deleteButtonTapped(idx: idx))
+                .bind(to: reactor.action)
+                .disposed(by: disposeBag)
+        }
+    }
+    
+    func leaveRoom(idx: IndexPath, result: Bool) {
+        if result {
+            Observable.just(MyRoomReactor.Action.leaveButtonTapped(idx: idx))
+                .bind(to: reactor.action)
+                .disposed(by: disposeBag)
+        }
+    }
 }

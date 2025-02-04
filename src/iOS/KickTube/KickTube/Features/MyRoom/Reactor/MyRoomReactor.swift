@@ -16,12 +16,16 @@ final class MyRoomReactor: Reactor {
     enum Action {
         case viewDidLoad
         case getVideoThumbnail(idx: IndexPath, id: String)
+        case deleteButtonTapped(idx: IndexPath)
+        case leaveButtonTapped(idx: IndexPath)
     }
     
     enum Mutation {
         case setRooms([MyRoomSection])
         case setThunmbnailImage(data: Data, idx: IndexPath)
         case setImageError(error: Error, idx: IndexPath)
+        case deleteRoom(_ idx: IndexPath)
+        case leaveRoom(_ idx: IndexPath)
     }
     
     struct State {
@@ -45,7 +49,7 @@ final class MyRoomReactor: Reactor {
                     return  Disposables.create()
                 }
                 
-                Task {
+                let task = Task {
                     do {
                         if let thumbnailData = try await self.getYoutubeThumbnail(id) {
                             observer.onNext(.setThunmbnailImage(data: thumbnailData, idx: idx))
@@ -54,12 +58,19 @@ final class MyRoomReactor: Reactor {
                     } catch {
                         print("Error fetching thumbnail: \(error)")
                         observer.onNext(.setImageError(error: NetworkError.urlBuild, idx: idx))
+                        
                         observer.onCompleted()
                     }
                 }
                 
-                return Disposables.create()
+                return Disposables.create {
+                    task.cancel()
+                }
             }
+        case .deleteButtonTapped(let idx):
+            return .just(.deleteRoom(idx))
+        case .leaveButtonTapped(let idx):
+            return .just(.leaveRoom(idx))
         }
     }
     
@@ -107,8 +118,20 @@ final class MyRoomReactor: Reactor {
             }
             
             newState.sections[idx.section] = updateSection
+        case .deleteRoom(let idx):
+            var updateSection = newState.sections[idx.section]
+          
+            updateSection.items.remove(at: idx.row)
+            
+            newState.sections[idx.section] = updateSection
+        case .leaveRoom(let idx):
+            var updateSection = newState.sections[idx.section]
+            
+            updateSection.items.remove(at: idx.row)
+            
+            newState.sections[idx.section] = updateSection
         }
-        
+  
         return newState
     }
     
@@ -118,6 +141,7 @@ final class MyRoomReactor: Reactor {
     private func getYoutubeThumbnail(_ id: String) async throws -> Data? {
         do {
             let url = try YoutubeRouter.youtubeThumbnailLow(id: id).makeURL()
+            
             return try await networkManager.getCachingDataFromURL(url)
         } catch {
             throw error
@@ -125,27 +149,36 @@ final class MyRoomReactor: Reactor {
     }
     
     private func classifyRoom(_ rooms: [MyRoomViewModel]) -> [MyRoomSection] {
-        var created = [MyRoomsSectionItem]()
-        var participated = [MyRoomsSectionItem]()
+        var created = [MyRoomSectionItem]()
+        var participated = [MyRoomSectionItem]()
         
         rooms.forEach {
-            if $0.creator == "userDefaultsProfilename" {
-                created.append(MyRoomsSectionItem.created($0))
+            if $0.creator == SampleTest.userDefaultsProfilename {
+                created.append(MyRoomSectionItem.created($0))
             } else {
-                participated.append(MyRoomsSectionItem.participated($0))
+                participated.append(MyRoomSectionItem.participated($0))
             }
         }
         
-        let sections = [
-            MyRoomSection(
-                header: MyRoomSectionInformation.section0.title,
-                items: created
-            ),
-            MyRoomSection(
-                header: MyRoomSectionInformation.section1.title,
-                items: participated
+        var sections = [MyRoomSection]()
+        
+        if !created.isEmpty {
+            sections.append(
+                MyRoomSection(
+                    header: created.first?.title ?? "",
+                    items: created
+                )
             )
-        ]
+        }
+        
+        if !participated.isEmpty {
+            sections.append(
+                MyRoomSection(
+                    header: participated.first?.title ?? "",
+                    items: participated
+                )
+            )
+        }
         
         return sections
     }
