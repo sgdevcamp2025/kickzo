@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react';
-import { BigProfile } from '@/components/common/BigProfile';
+import { ProfileDetail } from '@/components/common/ProfileDetail';
 import { UserRole } from '@/types/enums/UserRole';
 import { SidebarType } from '@/types/enums/SidebarType';
 
-const meta: Meta<typeof BigProfile> = {
-  title: 'Components/BigProfile',
-  component: BigProfile,
+const meta: Meta<typeof ProfileDetail> = {
+  title: 'Components/ProfileDetail',
+  component: ProfileDetail,
   tags: ['autodocs'],
   parameters: {
     layout: 'centered',
@@ -14,39 +14,39 @@ const meta: Meta<typeof BigProfile> = {
     userId: { control: 'number' },
     userRole: {
       control: { type: 'select' },
-      options: [UserRole.OWNER, UserRole.MANAGER, UserRole.MEMBER],
+      options: [UserRole.CREATOR, UserRole.MANAGER, UserRole.MEMBER],
     },
     myRole: {
       control: { type: 'select' },
-      options: [UserRole.OWNER, UserRole.MANAGER, UserRole.MEMBER],
+      options: [UserRole.CREATOR, UserRole.MANAGER, UserRole.MEMBER],
     },
     sidebarType: {
       control: { type: 'select' },
-      options: [SidebarType.Chat, SidebarType.Playlist, SidebarType.VoiceChat, SidebarType.Member],
+      options: [SidebarType.CHAT, SidebarType.PLAYLIST, SidebarType.VOICECHAT, SidebarType.MEMBER],
     },
   },
 };
 
 export default meta;
-type Story = StoryObj<typeof BigProfile>;
+type Story = StoryObj<typeof ProfileDetail>;
 
-/** 채팅 또는 유저리스트에서 멤버의 프로필을 조회하는 경우 BigProfile */
+/** 채팅 또는 유저리스트에서 멤버의 프로필을 조회하는 경우 ProfileDetail */
 export const MemberList: Story = {
   args: {
     userId: 1,
     userRole: UserRole.MEMBER,
     myRole: UserRole.MEMBER,
-    sidebarType: SidebarType.Chat,
+    sidebarType: SidebarType.CHAT,
   },
 };
 
-/** 음성채팅에서 멤버의 프로필을 조회하는 경우 BigProfile */
+/** 음성채팅에서 멤버의 프로필을 조회하는 경우 ProfileDetail */
 export const VoiceChat: Story = {
   args: {
     userId: 1,
     userRole: UserRole.MEMBER,
     myRole: UserRole.MEMBER,
-    sidebarType: SidebarType.VoiceChat,
+    sidebarType: SidebarType.VOICECHAT,
   },
 };
 
@@ -55,8 +55,8 @@ export const OwnerManagingMember: Story = {
   args: {
     userId: 2,
     userRole: UserRole.MEMBER,
-    myRole: UserRole.OWNER,
-    sidebarType: SidebarType.VoiceChat,
+    myRole: UserRole.CREATOR,
+    sidebarType: SidebarType.VOICECHAT,
   },
 };
 
@@ -65,8 +65,8 @@ export const OwnerManagingManager: Story = {
   args: {
     userId: 3,
     userRole: UserRole.MANAGER,
-    myRole: UserRole.OWNER,
-    sidebarType: SidebarType.VoiceChat,
+    myRole: UserRole.CREATOR,
+    sidebarType: SidebarType.VOICECHAT,
   },
 };
 
@@ -76,7 +76,7 @@ export const ManagerManagingUser: Story = {
     userId: 4,
     userRole: UserRole.MEMBER,
     myRole: UserRole.MANAGER,
-    sidebarType: SidebarType.Chat,
+    sidebarType: SidebarType.CHAT,
   },
 };
 
@@ -86,6 +86,6 @@ export const MemberManagingUser: Story = {
     userId: 4,
     userRole: UserRole.MEMBER,
     myRole: UserRole.MEMBER,
-    sidebarType: SidebarType.Chat,
+    sidebarType: SidebarType.CHAT,
   },
 };

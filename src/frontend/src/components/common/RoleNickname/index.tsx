@@ -14,7 +14,7 @@ export const RoleNickname = (props: IRoleNickname) => {
       {props.role !== UserRole.MEMBER ? (
         <Img
           src={
-            props.role === UserRole.OWNER
+            props.role === UserRole.CREATOR
               ? RoleOwner
               : props.role === UserRole.MANAGER
                 ? RoleManager

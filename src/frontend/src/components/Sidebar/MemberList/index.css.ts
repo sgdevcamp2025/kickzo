@@ -54,7 +54,7 @@ export const ProfileWrapper = styled.div`
   position: relative;
   cursor: pointer;
 
-  & .big-profile {
+  & .profile-detail {
     position: absolute;
     top: 0px;
     right: 60%;
@@ -67,7 +67,7 @@ export const ProfileWrapper = styled.div`
     z-index: 10;
   }
 
-  .big-profile.active {
+  .profile-detail.active {
     opacity: 1;
     visibility: visible;
   }

@@ -41,9 +41,9 @@ const detailProfile = {
 export const ProfileDetail = (props: IProfileDetail) => {
   const renderBtnContainer = () => {
     if (
-      props.myRole === UserRole.OWNER &&
-      props.userRole !== UserRole.OWNER &&
-      props.sidebarType === SidebarType.VoiceChat
+      props.myRole === UserRole.CREATOR &&
+      props.userRole !== UserRole.CREATOR &&
+      props.sidebarType === SidebarType.VOICECHAT
     ) {
       return (
         <>
@@ -78,7 +78,7 @@ export const ProfileDetail = (props: IProfileDetail) => {
         </>
       );
     }
-    if (props.myRole === UserRole.OWNER && props.userRole !== UserRole.OWNER) {
+    if (props.myRole === UserRole.CREATOR && props.userRole !== UserRole.CREATOR) {
       return (
         <>
           <RoleChangeButton myRole={props.myRole} userRole={props.userRole} text="권한" />
@@ -106,7 +106,7 @@ export const ProfileDetail = (props: IProfileDetail) => {
         <Profile__Header>
           <Profile__Header__Img src={detailProfile.imgUrl} />
           <Profile__Header__ButtonContainer>
-            {props.sidebarType === SidebarType.VoiceChat ? (
+            {props.sidebarType === SidebarType.VOICECHAT ? (
               <>
                 <IconButton beforeImgUrl={MicrophoneOn} afterImgUrl={MicrophoneOffRed} />
                 <IconButton beforeImgUrl={HeadphoneOn} afterImgUrl={HeadphoneOffRed} />

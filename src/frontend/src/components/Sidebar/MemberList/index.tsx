@@ -41,7 +41,7 @@ export const MemberList = ({ sidebarType }: IMemberListProps) => {
   };
 
   const renderFooter = () => {
-    if (sidebarType === SidebarType.Member) {
+    if (sidebarType === SidebarType.MEMBER) {
       return (
         <MemberFooter>
           <img src={AddUserIcon} alt="Add User" />
@@ -50,7 +50,7 @@ export const MemberList = ({ sidebarType }: IMemberListProps) => {
       );
     }
 
-    if (sidebarType === SidebarType.VoiceChat) {
+    if (sidebarType === SidebarType.VOICECHAT) {
       return (
         <VoiceChatFooter>
           <ActionButton onClick={handleMicrophone}>
@@ -76,7 +76,7 @@ export const MemberList = ({ sidebarType }: IMemberListProps) => {
               <div onClick={() => handleProfileClick(member.id)}>
                 <SmallProfile
                   type={
-                    sidebarType === SidebarType.VoiceChat
+                    sidebarType === SidebarType.VOICECHAT
                       ? ProfileType.VOICECHAT
                       : ProfileType.MEMBER
                   }
@@ -86,12 +86,12 @@ export const MemberList = ({ sidebarType }: IMemberListProps) => {
                 />
               </div>
               {activeProfile === member.id ? (
-                <div className={`big-profile ${activeProfile === member.id ? 'active' : ''}`}>
+                <div className={`profile-detail ${activeProfile === member.id ? 'active' : ''}`}>
                   <ProfileDetail
                     userId={member.id}
                     userRole={member.role}
-                    myRole={UserRole.OWNER}
-                    sidebarType={sidebarType || SidebarType.Member}
+                    myRole={UserRole.CREATOR}
+                    sidebarType={sidebarType || SidebarType.MEMBER}
                   />
                 </div>
               ) : (
