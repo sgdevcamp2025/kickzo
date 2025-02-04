@@ -1,0 +1,30 @@
+name: kickzo
+
+services:
+  redis:
+    image: redis:latest
+    container_name: redis
+    ports:
+      - "${REDIS_HOST_PORT}:${REDIS_CONTAINER_PORT}"
+    networks:
+      - kickzo-network
+    volumes:
+      - redis:/data
+
+  redis-insight:
+    image: redis/redisinsight:latest
+    container_name: redis_insight
+    ports:
+      - "${REDIS_INSIGHT_PORT}:${REDIS_INSIGHT_CONTAINER_PORT}"
+    volumes:
+      - redisinsight:/db
+    networks:
+      - kickzo-network
+
+volumes:
+  redis:
+  redisinsight:
+
+networks:
+  kickzo-network:
+    driver: bridge
