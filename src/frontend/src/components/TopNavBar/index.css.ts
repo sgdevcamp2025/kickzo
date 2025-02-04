@@ -28,6 +28,7 @@ export const ButtonContainer = styled.div`
 `;
 
 export const ButtonBox = styled.div`
+  position: relative;
   width: 40px;
   height: 40px;
   display: flex;
