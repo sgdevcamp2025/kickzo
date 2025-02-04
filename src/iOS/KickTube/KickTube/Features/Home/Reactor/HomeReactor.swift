@@ -15,20 +15,24 @@ final class HomeReactor: Reactor {
     enum Action {
         case viewDidLoad
         case getVideoThumbnail(idx: Int, id: String)
+        case homeCellTapped(idx: IndexPath)
     }
     
     enum Mutation {
         case getRoomList([HomeRoomDomainModel])
         case setVideoImage(data: Data, idx: Int)
         case setImageError(error: Error, idx: Int)
+        case enterRoom(KickRoomViewModel)
     }
     
     struct State {
         var rooms: [HomeRoomViewModel]
+        var enterRoom: KickRoomViewModel?
     }
     
     let initialState: State = State(
-        rooms: []
+        rooms: [],
+        enterRoom: nil
     )
     
     func mutate(action: Action) -> Observable<Mutation> {
@@ -58,6 +62,11 @@ final class HomeReactor: Reactor {
                 
                 return Disposables.create()
             }
+        case .homeCellTapped:
+            // 방 입장 네트워크 통신 후
+            let roomInformation = SampleTest.createdRoom.toModel()
+            
+            return .just(.enterRoom(roomInformation))
         }
     }
     
@@ -71,6 +80,8 @@ final class HomeReactor: Reactor {
             newState.rooms[idx].videoThumbnail = data
         case .setImageError(_, let idx):
             newState.rooms[idx].videoThumbnail = nil
+        case .enterRoom(let room):
+            newState.enterRoom = room
         }
         
         return newState
@@ -85,3 +96,5 @@ final class HomeReactor: Reactor {
         }
     }
 }
+
+
