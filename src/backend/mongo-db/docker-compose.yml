@@ -13,6 +13,8 @@ services:
     volumes:
       - mongo:/data/db
       - ./mongo-init.js:/docker-entrypoint-initdb.d/mongo-init.js:ro
+    networks:
+      - kickzo-network
 
 volumes:
   mongo:
