@@ -8,7 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import com.kickzo.main.dto.PlaylistDto;
+import com.kickzo.main.dto.response.PlaylistDto;
 import com.kickzo.main.entity.Playlist;
 
 @Repository

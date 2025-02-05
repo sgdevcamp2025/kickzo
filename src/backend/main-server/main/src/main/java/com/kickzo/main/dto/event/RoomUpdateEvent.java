@@ -1,7 +1,9 @@
-package com.kickzo.main.dto;
+package com.kickzo.main.dto.event;
 
 import java.util.HashMap;
 import java.util.Map;
+
+import com.kickzo.main.dto.request.RoomUpdateRequestDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

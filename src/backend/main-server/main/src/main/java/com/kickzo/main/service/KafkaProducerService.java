@@ -8,8 +8,8 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kickzo.main.dto.PlaylistUpdateEvent;
-import com.kickzo.main.dto.RoleChangeEvent;
+import com.kickzo.main.dto.event.PlaylistUpdateEvent;
+import com.kickzo.main.dto.event.RoleChangeEvent;
 import com.kickzo.main.exception.CustomErrorCode;
 import com.kickzo.main.exception.CustomException;
 

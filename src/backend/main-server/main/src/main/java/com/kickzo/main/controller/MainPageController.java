@@ -12,9 +12,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kickzo.main.dto.CreateRoomRequestDto;
-import com.kickzo.main.dto.CreateRoomResponseDto;
-import com.kickzo.main.dto.RoomResponseDto;
+import com.kickzo.main.dto.request.CreateRoomRequestDto;
+import com.kickzo.main.dto.response.CreateRoomResponseDto;
+import com.kickzo.main.dto.response.RoomResponseDto;
 import com.kickzo.main.service.MainPageService;
 
 import jakarta.validation.Valid;

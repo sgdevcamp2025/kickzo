@@ -8,9 +8,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.kickzo.main.dto.RoomDetailsDto;
-import com.kickzo.main.dto.RoomEntryResponseDto;
-import com.kickzo.main.dto.RoomUpdateRequestDto;
+import com.kickzo.main.dto.request.RoomUpdateRequestDto;
+import com.kickzo.main.dto.response.RoomDetailsDto;
+import com.kickzo.main.dto.response.RoomEntryResponseDto;
 import com.kickzo.main.service.PlaylistService;
 import com.kickzo.main.service.RoomService;
 import com.kickzo.main.service.RoomUserService;

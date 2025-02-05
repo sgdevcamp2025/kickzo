@@ -1,24 +1,18 @@
-package com.kickzo.main.dto;
+package com.kickzo.main.dto.response;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.Data;
 
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
-@NoArgsConstructor
 @Builder
-public class RoomResponseDto {
+public class RoomInfoDto {
 	private Long id;
 	private String code;
 	private String title;
 	private String description;
+	private int userCount;
 	private String creator;
 	private String profileImageUrl;
-	private int userCount;
-	private String playlistUrl;
 }
-

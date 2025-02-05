@@ -1,4 +1,4 @@
-package com.kickzo.main.dto;
+package com.kickzo.main.dto.event;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

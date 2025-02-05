@@ -11,12 +11,12 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.kickzo.main.dto.PlaylistDto;
-import com.kickzo.main.dto.RoomDetailsDto;
-import com.kickzo.main.dto.RoomInfoDto;
-import com.kickzo.main.dto.RoomUpdateEvent;
-import com.kickzo.main.dto.RoomUpdateRequestDto;
-import com.kickzo.main.dto.UserListDto;
+import com.kickzo.main.dto.event.RoomUpdateEvent;
+import com.kickzo.main.dto.request.RoomUpdateRequestDto;
+import com.kickzo.main.dto.response.PlaylistDto;
+import com.kickzo.main.dto.response.RoomDetailsDto;
+import com.kickzo.main.dto.response.RoomInfoDto;
+import com.kickzo.main.dto.response.UserListDto;
 import com.kickzo.main.entity.Room;
 import com.kickzo.main.entity.RoomUser;
 import com.kickzo.main.entity.RoomUserId;
