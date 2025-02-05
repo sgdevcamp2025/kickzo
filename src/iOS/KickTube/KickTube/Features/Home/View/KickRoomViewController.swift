@@ -48,7 +48,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         reactor.state
             .map { $0.roomInfo }
             .bind(with: self) { owner, value in
-                owner.setRoomInformationSection(value.roomInfo)
+                owner.setRoomInformationSection(value.roomDetail.roomInfo)
                 switch value.myRole {
                 case .member:
                     owner.playerView.isUserInteractionEnabled = false

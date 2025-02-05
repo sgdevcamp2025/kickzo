@@ -37,8 +37,8 @@ final class KickRoomReactor: Reactor {
             playFirst: false
         )
         
-        if roomInfo.playlist.order.count > 0 {
-            initialState.youtubeID = roomInfo.playlist.order.first?.url.youTubeID
+        if roomInfo.roomDetail.playlist.order.count > 0 {
+            initialState.youtubeID = roomInfo.roomDetail.playlist.order.first?.url.youTubeID
         }
         
         if roomInfo.myRole == .member {

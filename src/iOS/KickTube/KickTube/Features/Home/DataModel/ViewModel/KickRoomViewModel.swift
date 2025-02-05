@@ -9,6 +9,10 @@ import Foundation
 
 struct KickRoomViewModel {
     var myRole: UserRole
+    var roomDetail: KickRoomDetailViewModel
+}
+
+struct KickRoomDetailViewModel {
     var userList: [KickRoomUserViewModel]
     var roomInfo: KickRoomInfoViewModel
     var playlist: KickRoomPlaylistViewModel

@@ -13,36 +13,61 @@ import ManipulateDataModel
 // MARK: - 추후 분리 및 위치 변경 예정
 
 struct HomeRoomViewModel: Equatable {
-    let videoID: String?
-    let userProfileURL: URL?
-    let roomTitle: String
-    let userName: String
-    var videoThumbnail: Data? = nil
-    var userProfileThumbnail: Data? = nil
+    let roomID: String
+    let code: String
+    var title: String
+    var description: String?
+    let creatorName: String
+    var profileImageURL: URL?
+    var userCount: Int
+    var playlistURL: String?
+    
+    var videoID: String? {
+        playlistURL?.youTubeID
+    }
+    var videoThumbnail: Data?
+    var participatedUserCount: String {
+        "\(userCount)"
+    }
 }
 
 struct HomeRoomDomainModel: DTOMappable {
-    let videoURL: String
-    let userProfileURL: String
-    let roomTitle: String
-    let userName: String
+    let roomID: Int
+    let code: String
+    let title: String
+    let description: String?
+    let creator: String
+    let profileImageURL: String?
+    let userCount: Int
+    let playlistURL: String?
     
-    func toViewModel() -> HomeRoomViewModel {
-        let videoID = videoURL.youTubeID
-        let pURL = URL(string: self.userProfileURL)
+    func toModel() -> HomeRoomViewModel {
+        var pURL: URL?
         
-        return .init(videoID: videoID,
-                     userProfileURL: pURL,
-                     roomTitle: self.roomTitle,
-                     userName: self.userName)
+        if let url = self.profileImageURL {
+            pURL = URL(string: url)
+        }
+        
+        return .init(roomID: String(self.roomID),
+                     code: self.code,
+                     title: self.title,
+                     description: self.description,
+                     creatorName: self.creator,
+                     profileImageURL: pURL,
+                     userCount: self.userCount,
+                     playlistURL: self.playlistURL)
     }
 }
 
 @DecodeDTO
 @ConvertToDomainModel<HomeRoomDomainModel>
-struct HomeRoomDTO {
-    @Key("video_url") let videoURL: String
-    @Key("user_profile_url")let userProfileURL: String
-    @Key("room_title") let roomTitle: String
-    @Key("user_name") let userName: String
+struct HomeRoomResponse {
+    @Key("id") let roomID: Int
+    let code: String
+    let title: String
+    let description: String?
+    let creator: String
+    @Key("profileImageUrl") let profileImageURL: String
+    let userCount: Int
+    @Key("playlistUrl") let playlistURL: String?
 }

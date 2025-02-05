@@ -11,13 +11,20 @@ import ManipulateDataModel
 
 struct KickRoomDomainModel {
     var myRole: UserRole
+    var roomDetail: KickRoomDetailDomainModel
+    
+    func toModel() -> KickRoomViewModel {
+        .init(myRole: self.myRole, roomDetail: self.roomDetail.toModel())
+    }
+}
+
+struct KickRoomDetailDomainModel {
     var userList: [KickRoomUserDomainModel]
     var roomInfo: KickRoomInfoDomainModel
     var playlist: KickRoomPlaylistDomainModel
     
-    func toModel() -> KickRoomViewModel {
-        .init(myRole: self.myRole,
-              userList: self.userList.map { $0.toModel() },
+    func toModel() -> KickRoomDetailViewModel {
+        .init(userList: self.userList.map { $0.toModel() },
               roomInfo: self.roomInfo.toModel(),
               playlist: self.playlist.toModel())
     }

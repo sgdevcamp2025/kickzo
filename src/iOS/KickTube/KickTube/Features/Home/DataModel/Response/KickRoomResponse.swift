@@ -12,13 +12,22 @@ import ManipulateDataModel
 @DecodeDTO
 struct KickRoomResponse {
     let myRole: Int
+    @Key("roomDetails") var roomDetail: KickRoomDetailResponse
+    
+    func toModel() -> KickRoomDomainModel {
+        .init(myRole: UserRole(rawValue: self.myRole) ?? .member,
+              roomDetail: self.roomDetail.toModel())
+    }
+}
+
+@DecodeDTO
+struct KickRoomDetailResponse {
     let userList: [KickRoomUserResponse]
     let roomInfo: [KickRoomInfoResponse]
     let playlist: [KickRoomPlaylistResponse]
     
-    func toModel() -> KickRoomDomainModel {
-        .init(myRole: UserRole(rawValue: self.myRole) ?? .member,
-              userList: self.userList.map { $0.toModel() },
+    func toModel() -> KickRoomDetailDomainModel {
+        .init(userList: self.userList.map { $0.toModel() },
               roomInfo: self.roomInfo.map { $0.toModel() }[0],
               playlist: self.playlist.map { $0.toModel() }[0])
     }
