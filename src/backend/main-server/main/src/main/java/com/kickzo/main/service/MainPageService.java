@@ -19,6 +19,8 @@ import com.kickzo.main.dto.RoomResponseDto;
 import com.kickzo.main.entity.Room;
 import com.kickzo.main.entity.RoomUser;
 import com.kickzo.main.entity.RoomUserId;
+import com.kickzo.main.exception.CustomErrorCode;
+import com.kickzo.main.exception.CustomException;
 import com.kickzo.main.repository.RoomRepository;
 import com.kickzo.main.repository.RoomUserRepository;
 import com.kickzo.main.repository.UserRepository;
@@ -35,6 +37,10 @@ public class MainPageService {
 	private final RoomRepository roomRepository;
 	private final RoomUserRepository roomUserRepository;
 	private final UserRepository userRepository;
+
+	private static final int MAX_ROOMS_PER_USER = 5;
+
+	static final ObjectMapper objectMapper = new ObjectMapper();
 
 	// 메인 페이지 방 list 제공
 	public List<RoomResponseDto> getAllRooms(Pageable pageable) {
@@ -54,11 +60,11 @@ public class MainPageService {
 	}
 
 	// 방 만들기
-	public CreateRoomResponseDto createRoom(Long userId, String creatorNickname, CreateRoomRequestDto requestDto) {
+	public CreateRoomResponseDto createRoom(Long userId, CreateRoomRequestDto requestDto) {
 
 		String randomCode = generateRandomCode();
 
-		Room newRoom = saveNewRoom(requestDto, creatorNickname, randomCode);
+		Room newRoom = saveNewRoom(requestDto, randomCode);
 		saveRoomUser(newRoom.getId(), userId);
 
 		return new CreateRoomResponseDto(randomCode);
@@ -71,7 +77,6 @@ public class MainPageService {
 	 * 3. Room 엔티티를 DTO로 변환 : convertToDto
 	 * 4. getCreatorProfileImage : 생성자의 profileImageUrl 받아오기
 	 */
-	private static final ObjectMapper objectMapper = new ObjectMapper(); // 재사용
 
 	private String extractPlaylistUrl(String orderJson) {
 		if (orderJson == null || orderJson.isBlank()) {
@@ -85,8 +90,7 @@ public class MainPageService {
 				}
 			}
 		} catch (JsonProcessingException e) {
-			log.error("failed to extract playlist url from order json", e);
-			return null; // JSON 파싱 실패 시 null 반환
+			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
 		}
 		return null; // order == 0인 항목이 없는 경우
 	}
@@ -124,7 +128,15 @@ public class MainPageService {
 		return UUID.randomUUID().toString().replaceAll("-", "").substring(0, 8).toUpperCase();
 	}
 
-	private Room saveNewRoom(CreateRoomRequestDto requestDto, String creatorNickname, String randomCode) {
+	private Room saveNewRoom(CreateRoomRequestDto requestDto, String randomCode) {
+
+		String creatorNickname = requestDto.getCreator();
+		int roomCount = roomRepository.findAllByCreator(creatorNickname).size();
+
+		if (roomCount >= MAX_ROOMS_PER_USER) {
+			throw new CustomException(CustomErrorCode.ROOM_LIMIT_EXCEEDED);
+		}
+
 		Room newRoom = Room.builder()
 			.title(requestDto.getTitle())
 			.description(requestDto.getDescription())

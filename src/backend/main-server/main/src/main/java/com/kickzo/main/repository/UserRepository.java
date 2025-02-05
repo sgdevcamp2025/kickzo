@@ -1,8 +1,12 @@
 package com.kickzo.main.repository;
 
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
+
+import com.kickzo.main.exception.CustomErrorCode;
+import com.kickzo.main.exception.CustomException;
 
 import lombok.RequiredArgsConstructor;
 
@@ -15,7 +19,13 @@ public class UserRepository {
 		String sql = "SELECT u.nickname FROM user u WHERE u.id = :userId";
 		MapSqlParameterSource params = new MapSqlParameterSource()
 			.addValue("userId", userId);
-		return jdbcTemplate.queryForObject(sql, params, String.class);
+		try {
+			return jdbcTemplate.queryForObject(sql, params, String.class);
+		} catch (EmptyResultDataAccessException e) {
+			throw new CustomException(CustomErrorCode.USER_NOT_FOUND);
+		} catch (Exception e) {
+			throw new CustomException(CustomErrorCode.DATABASE_ERROR);
+		}
 	}
 
 	public String findProfileImageUrlByNickname(String nickname) {
