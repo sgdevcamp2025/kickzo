@@ -28,6 +28,10 @@ struct KickRoomInfoViewModel {
     var userCount: Int
     let creator: String
     var profileImageURL: URL?
+    
+    var participatedUserCount: String {
+        "\(self.userCount) / 1000"
+    }
 }
 
 struct KickRoomPlaylistViewModel {

@@ -14,6 +14,29 @@ import YouTubeiOSPlayerHelper
 
 final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     private let playerView = YTPlayerView()
+    private let titleLabel = UILabel().then {
+        $0.font = KFont.middle16
+        $0.numberOfLines = 2
+    }
+    private let creatorImage = UIImageView().then {
+        $0.layer.cornerRadius = 8
+        $0.contentMode = .scaleAspectFit
+    }
+    private let creatorNameLabel = UILabel().then {
+        $0.font = KFont.middle14
+        $0.textColor = .kDarkgray
+    }
+    private let participatedCountLabel = UIButton().then {
+        var config = UIButton.Configuration.filled()
+        
+        config.image = UIImage.reddot
+        config.imagePadding = 6
+        config.background.backgroundColor = .kDarkgray.withAlphaComponent(0.4)
+        config.background.cornerRadius = 10
+        config.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 6, bottom: 4, trailing: 6)
+        
+        $0.configuration = config
+    }
     
     private var previousTime: TimeInterval = 0
     private var timeTrackingTimer: Timer?
@@ -23,9 +46,10 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     
     override func bindState(reactor: KickRoomReactor) {
         reactor.state
-            .map { $0.roomInfo.myRole }
+            .map { $0.roomInfo }
             .bind(with: self) { owner, value in
-                switch value {
+                owner.setRoomInformationSection(value.roomInfo)
+                switch value.myRole {
                 case .member:
                     owner.playerView.isUserInteractionEnabled = false
                 default:
@@ -57,11 +81,32 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             .disposed(by: disposeBag)
     }
     
+    // MARK: - private method
+    
+    func setRoomInformationSection(_ info: KickRoomInfoViewModel) {
+        titleLabel.text = info.title
+        creatorImage.image = .logo
+        creatorNameLabel.text = info.creator
+        
+        var titleAttributes = AttributedString(info.participatedUserCount)
+        
+        titleAttributes.font = KFont.middle12
+        titleAttributes.foregroundColor = .white
+        
+        var config = participatedCountLabel.configuration
+        
+        config?.attributedTitle = titleAttributes
+        
+        participatedCountLabel.configuration = config
+    }
+
     
     // MARK: - configure UI
     
     override func configureHierarchy() {
-        view.addSubview(playerView)
+        [playerView, titleLabel, creatorImage, creatorNameLabel, participatedCountLabel].forEach {
+            view.addSubview($0)
+        }
     }
     
     override func configureLayout() {
@@ -70,6 +115,23 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         playerView.snp.makeConstraints { make in
             make.top.horizontalEdges.equalTo(safeArea)
             make.height.equalTo(ComponentSize.youtubePlayer.size.height)
+        }
+        titleLabel.snp.makeConstraints { make in
+            make.top.equalTo(playerView.snp.bottom).offset(8)
+            make.horizontalEdges.equalToSuperview().inset(12)
+        }
+        creatorImage.snp.makeConstraints { make in
+            make.size.equalTo(ComponentSize.homeProfileImage.size).dividedBy(2)
+            make.leading.equalTo(titleLabel.snp.leading)
+            make.top.equalTo(titleLabel.snp.bottom).offset(8)
+        }
+        creatorNameLabel.snp.makeConstraints { make in
+            make.leading.equalTo(creatorImage.snp.trailing).offset(8)
+            make.centerY.equalTo(creatorImage.snp.centerY)
+        }
+        participatedCountLabel.snp.makeConstraints { make in
+            make.bottom.equalTo(creatorImage.snp.bottom)
+            make.trailing.equalToSuperview().offset(-12)
         }
     }
     
