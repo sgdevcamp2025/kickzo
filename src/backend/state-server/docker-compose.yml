@@ -1,0 +1,18 @@
+name: kickzo
+
+services:
+  state:
+    build:
+      context: .
+    container_name: state
+    environment:
+      - SPRING_PROFILES_ACTIVE=docker # Docker 환경에서 실행 시 'docker' 프로파일 사용
+      - SERVER_PORT=${STATE_PORT} # server.port 설정
+    ports:
+      - "${STATE_PORT}:${STATE_PORT}"
+    networks:
+      - kickzo-network
+
+networks:
+  kickzo-network:
+    driver: bridge

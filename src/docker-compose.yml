@@ -11,6 +11,7 @@ include:
   - ./backend/history-server/docker-compose.yml
   - ./backend/auth-server/docker-compose.yml
   - ./backend/user-server/docker-compose.yml
+  - ./backend/state-server/docker-compose.yml
 
 networks:
   kickzo-network:
