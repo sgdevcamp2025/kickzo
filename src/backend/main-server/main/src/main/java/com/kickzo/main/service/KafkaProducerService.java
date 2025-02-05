@@ -29,7 +29,7 @@ public class KafkaProducerService {
 	public void sendRoomUpdateMessage(String message) {
 		CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(TOPIC_ROOM, message);
 
-		CompletableFuture<Void> exceptionally = future.thenAccept(result -> {
+		future.thenAccept(result -> {
 			log.info("Produced message to Kafka: {}", message);
 		}).exceptionally(ex -> {
 			log.error("Failed to send Kafka message: {}", ex.getMessage());
