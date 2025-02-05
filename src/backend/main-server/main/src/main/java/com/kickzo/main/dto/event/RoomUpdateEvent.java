@@ -1,30 +1,36 @@
 package com.kickzo.main.dto.event;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.kickzo.main.dto.request.RoomUpdateRequestDto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.Setter;
 
 @Getter
+@Setter
 @AllArgsConstructor
 public class RoomUpdateEvent {
 	private Long roomId;
-	private Map<String, Object> updatedFields;  // 변경된 값만 포함
+	private String title;
+	private String description;
+	private Boolean isPublic;
 
-	public static RoomUpdateEvent from(Long roomId, RoomUpdateRequestDto requestDto) {
-		Map<String, Object> updates = new HashMap<>();
+	public RoomUpdateEvent(Long roomId) {
+		this.roomId = roomId;
+		this.title = null;
+		this.description = null;
+		this.isPublic = null;
+	}
+
+	public void setUpdatedFields(RoomUpdateRequestDto requestDto) {
 		if (requestDto.getTitle() != null) {
-			updates.put("title", requestDto.getTitle());
+			this.title = requestDto.getTitle();
 		}
 		if (requestDto.getDescription() != null) {
-			updates.put("description", requestDto.getDescription());
+			this.description = requestDto.getDescription();
 		}
 		if (requestDto.getIsPublic() != null) {
-			updates.put("isPublic", requestDto.getIsPublic());
+			this.isPublic = requestDto.getIsPublic();
 		}
-		return new RoomUpdateEvent(roomId, updates);
 	}
 }

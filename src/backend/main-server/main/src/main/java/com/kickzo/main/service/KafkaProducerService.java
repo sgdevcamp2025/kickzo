@@ -1,15 +1,13 @@
 package com.kickzo.main.service;
 
-import java.util.concurrent.CompletableFuture;
-
 import org.springframework.kafka.core.KafkaTemplate;
-import org.springframework.kafka.support.SendResult;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kickzo.main.dto.event.PlaylistUpdateEvent;
 import com.kickzo.main.dto.event.RoleChangeEvent;
+import com.kickzo.main.dto.event.RoomEvent;
 import com.kickzo.main.exception.CustomErrorCode;
 import com.kickzo.main.exception.CustomException;
 
@@ -26,24 +24,23 @@ public class KafkaProducerService {
 	private static final String TOPIC_ROOM = "room";
 	private static final String TOPIC_PLAYLIST = "playlist";
 
-	public void sendRoomUpdateMessage(String message) {
-		CompletableFuture<SendResult<String, String>> future = kafkaTemplate.send(TOPIC_ROOM, message);
+	public void sendRoomUpdateMessage(Object eventData) {
 
-		future.thenAccept(result -> {
-			log.info("Produced message to Kafka: {}", message);
-		}).exceptionally(ex -> {
-			log.error("Failed to send Kafka message: {}", ex.getMessage());
-			throw new CustomException(CustomErrorCode.KAFKA_MESSAGE_SEND_FAILED);
-		});
-
-		future.join(); // 동기 호출하여 트랜잭션 내에서 예외 발생
+		try {
+			RoomEvent roomEvent = new RoomEvent("room-update", eventData);
+			String message = objectMapper.writeValueAsString(roomEvent);
+			kafkaTemplate.send(TOPIC_ROOM, message);
+			log.info("Kafka Room Update Event Sent: {}", message);
+		} catch (JsonProcessingException e) {
+			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
+		}
 	}
 
 	public void sendRoleChangeEvent(Long roomId, Long targetUserId, int newRole) {
 		RoleChangeEvent event = new RoleChangeEvent(roomId, targetUserId, newRole);
-
+		RoomEvent roomEvent = new RoomEvent("role-change", event);
 		try {
-			String message = objectMapper.writeValueAsString(event);
+			String message = objectMapper.writeValueAsString(roomEvent);
 			kafkaTemplate.send(TOPIC_ROOM, message);
 			log.info("Kafka Role Change Event Sent: {}", message);
 		} catch (JsonProcessingException e) {

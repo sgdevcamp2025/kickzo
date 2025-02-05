@@ -9,7 +9,6 @@ import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kickzo.main.dto.event.RoomUpdateEvent;
 import com.kickzo.main.dto.request.RoomUpdateRequestDto;
@@ -88,6 +87,7 @@ public class RoomService {
 		Long roomId = updateRequestDto.getId();
 		Room room = roomRepository.findById(roomId)
 			.orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
+		room.setId(roomId);
 		// update 할 내용이 title, description, isPublic 인지 확인
 		boolean updated = false;
 
@@ -109,7 +109,10 @@ public class RoomService {
 		}
 
 		roomRepository.save(room);
-		sendRoomUpdateEvent(roomId, updateRequestDto);
+		RoomUpdateEvent event = new RoomUpdateEvent(roomId);
+		event.setUpdatedFields(updateRequestDto);
+
+		kafkaProducerService.sendRoomUpdateMessage(event);
 	}
 
 	/**
@@ -180,19 +183,6 @@ public class RoomService {
 			roomUserRepository.save(roomUser);
 		} catch (DataIntegrityViolationException e) {
 			throw new CustomException(CustomErrorCode.FOREIGN_KEY_VIOLATION);
-		}
-	}
-
-	/**
-	 * Kafka "room" topic으로 produce
-	 */
-	private void sendRoomUpdateEvent(Long roomId, RoomUpdateRequestDto updateRequestDto) {
-		try {
-			RoomUpdateEvent event = RoomUpdateEvent.from(roomId, updateRequestDto);
-			String message = objectMapper.writeValueAsString(event);
-			kafkaProducerService.sendRoomUpdateMessage(message);
-		} catch (JsonProcessingException e) {
-			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR); // JSON 변환 실패 예외 처리
 		}
 	}
 }
