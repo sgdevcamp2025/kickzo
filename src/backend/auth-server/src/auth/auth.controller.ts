@@ -1,5 +1,7 @@
 import {
+  Body,
   Controller,
+  HttpCode,
   Post,
   UnauthorizedException,
   UsePipes,
@@ -9,6 +11,8 @@ import { AuthService } from "./auth.service";
 import { Authorization } from "./decorator/authorization.decorator";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { ParseBearerTokenDto } from "./dto/parse-bearer-token.dto";
+import { DeviceTypeDto } from "./dto/device-type.dto";
+import { DeviceType } from "./enum/device-type.enum";
 
 @Controller("auth")
 export class AuthController {
@@ -16,26 +20,40 @@ export class AuthController {
 
   @Post("v1/login")
   @UsePipes(ValidationPipe)
-  loginUser(@Authorization() token: string) {
+  async loginUser(
+    @Authorization() token: string,
+    @Body() deviceDto: DeviceTypeDto,
+  ) {
     if (!token) {
       throw new UnauthorizedException("토큰이 없습니다.");
     }
-    return this.authService.login(token); // TODO: 쿠키로 전달하기
+    return await this.authService.login(token, deviceDto.device); // TODO: 쿠키로 전달하기
   }
 
-  @Post("v1/token/refresh") /// TODO: Refresh Token도 같이 갱신하기
-  async rotateAccessToken(@Authorization() token: string) {
-    const payload = await this.authService.parseBearerToken(token, true);
-
-    return { acceessToken: await this.authService.issueToken(payload, false) };
+  @Post("v1/logout")
+  @HttpCode(200)
+  async logout(@Authorization() accessToken: string) {
+    if (!accessToken) {
+      throw new UnauthorizedException("토큰이 없습니다.");
+    }
+    return await this.authService.logout(accessToken);
   }
 
-  // @Post('v1/token/refresh')
-  // async rotateRefreshToken(@Authorization() token: string) {
-  //   const payload = await this.authService.parseBearerToken(token, true);
+  @Post("v1/token/refresh")
+  async rotateAccessToken(@Authorization() refreshToken: string) {
+    if (!refreshToken) {
+      throw new UnauthorizedException("토큰이 없습니다.");
+    }
+    const payload = await this.authService.parseBearerToken(refreshToken, true);
 
-  //   return { refreshToken: await this.authService.issueToken(payload, true) };
-  // }
+    const device = payload.device as DeviceType;
+
+    if (device !== DeviceType.WEB && device !== DeviceType.MOBILE) {
+      throw new UnauthorizedException("유효하지 않은 device입니다.");
+    }
+
+    return await this.authService.sendTokens(payload, device);
+  }
 
   @MessagePattern({
     cmd: "parse_bearer_token",

@@ -3,6 +3,7 @@ import { ConfigModule } from "@nestjs/config";
 import * as Joi from "joi";
 import { AuthModule } from "./auth/auth.module";
 import { ClientsModule, Transport } from "@nestjs/microservices";
+import { RedisModule } from "@liaoliaots/nestjs-redis";
 
 @Module({
   imports: [
@@ -29,6 +30,13 @@ import { ClientsModule, Transport } from "@nestjs/microservices";
         },
       ],
       isGlobal: true, // NOTE: 꼭 적어야 내부에서 TCP 통신할 수 있음
+    }),
+    RedisModule.forRoot({
+      readyLog: true,
+      config: {
+        host: process.env.REDIS_HOST ?? "redis",
+        port: parseInt(process.env.REDIS_CONTAINER_PORT ?? "6379"),
+      },
     }),
     AuthModule,
   ],

@@ -1,7 +1,10 @@
+import { DeviceType } from "../enum/device-type.enum";
+
 export interface TokenPayload {
   id: number;
   email: string;
   role: number;
+  device?: DeviceType;
   // access 토큰인지 refresh 토큰인지 구분하기 위한 필드
   type?: "access" | "refresh";
 
