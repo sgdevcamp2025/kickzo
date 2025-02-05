@@ -40,6 +40,10 @@ final class HomeViewController: BaseViewController<HomeReactor> {
         Observable.just(HomeReactor.Action.viewDidLoad)
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+        homeCollectionView.rx.itemSelected
+            .map { Reactor.Action.homeCellTapped(idx: $0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     override func bindState(reactor: HomeReactor) {
@@ -58,6 +62,16 @@ final class HomeViewController: BaseViewController<HomeReactor> {
                 DispatchQueue.main.async {
                     cell.setContent(element)
                 }
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.enterRoom }
+            .compactMap { $0 }
+            .bind(with: self) { owner, value in
+                let vc = KickRoomViewController(KickRoomReactor(value))
+                
+                owner.navigationController?.pushViewController(vc, animated: false)
             }
             .disposed(by: disposeBag)
     }

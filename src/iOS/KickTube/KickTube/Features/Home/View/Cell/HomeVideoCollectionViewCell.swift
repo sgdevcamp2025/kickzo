@@ -58,8 +58,8 @@ final class HomeVideoCollectionViewCell: UICollectionViewCell {
             videoThumbnailView.backgroundColor = .darkGray
         }
         userProfileThumbnailView.image = UIImage.defaultProfile
-        titleLabel.text = room.roomTitle
-        usernameLabel.text = room.userName
+        titleLabel.text = room.title
+        usernameLabel.text = room.creatorName
     }
     
 
@@ -87,9 +87,8 @@ final class HomeVideoCollectionViewCell: UICollectionViewCell {
             make.trailing.equalToSuperview()
         }
         usernameLabel.snp.makeConstraints { make in
-            make.top.equalTo(titleLabel.snp.bottom).offset(6)
+            make.top.equalTo(titleLabel.snp.bottom).offset(2)
             make.leading.equalTo(userProfileThumbnailView.snp.trailing).offset(10)
-            make.trailing.bottom.equalToSuperview()
         }
     }
     

@@ -55,5 +55,37 @@
       "content": "Looking forward to more!",
       "userId": 1
     }
+  ],
+  "rooms": [
+    {
+      "id": 1,
+      "code": "ABCD5678",
+      "title": "Room 1",
+      "description": "This is the 1 room.",
+      "creator": "User1",
+      "profileImageUrl": "default-profile-image-url",
+      "userCount": 7,
+      "playlistUrl": "https://youtu.be/xBMPb77coYI"
+    },
+    {
+      "id": 3,
+      "code": "DK25KV47",
+      "title": "Room 3",
+      "description": "This is the 3 room.",
+      "creator": "User2",
+      "profileImageUrl": "default-profile-image-url",
+      "userCount": 5,
+      "playlistUrl": "https://youtu.be/xBMPb77coYI"
+    },
+    {
+      "id": 5,
+      "code": "F48633E2",
+      "title": "내가 만든 방222",
+      "description": null,
+      "creator": "User3",
+      "profileImageUrl": "default-profile-image-url",
+      "userCount": 1,
+      "playlistUrl": null
+    }
   ]
 }

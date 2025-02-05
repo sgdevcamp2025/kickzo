@@ -29,6 +29,7 @@ enum ComponentSize {
     case createRoomModal
     case alertModal
     case optionButton
+    case youtubePlayer
 }
 
 extension ComponentSize {
@@ -56,6 +57,8 @@ extension ComponentSize {
             return CGSize(width: ComponentSize.screenWidth / 4 * 3, height: ComponentSize.screenHeight / 7 * 2.2)
         case .optionButton:
             return CGSize(width: ComponentSize.screenWidth - 24, height: 48)
+        case .youtubePlayer:
+            return CGSize(width: ComponentSize.screenWidth, height: ComponentSize.screenWidth / 16 * 9)
         }
     }
     
