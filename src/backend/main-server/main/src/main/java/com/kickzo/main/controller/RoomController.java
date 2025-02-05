@@ -1,6 +1,7 @@
 package com.kickzo.main.controller;
 
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -12,6 +13,7 @@ import com.kickzo.main.dto.RoomEntryResponseDto;
 import com.kickzo.main.dto.RoomUpdateRequestDto;
 import com.kickzo.main.service.PlaylistService;
 import com.kickzo.main.service.RoomService;
+import com.kickzo.main.service.RoomUserService;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +27,7 @@ public class RoomController {
 
 	private final RoomService roomService;
 	private final PlaylistService playlistService;
+	private final RoomUserService roomUserService;
 
 	/**
 	 * 방 입장 로직 (WebSocket + STOMP)
@@ -61,5 +64,30 @@ public class RoomController {
 		// 유효한 accestoken 여부 검증 로직
 		roomService.updateRoomInfo(requestDto);
 		return ResponseEntity.ok("Room updated successfully");
+	}
+
+	@PostMapping("/v1/playlist")
+	public ResponseEntity<String> savePlaylist(
+		@RequestParam Long userId,
+		@RequestParam Long roomId,
+		@RequestBody String playlistJson) {
+		// 유효한 accestoken 여부 검증 로직
+		log.info("Saving playlist for room: {}", roomId);
+		log.info("Playlist: {}", playlistJson);
+
+		playlistService.savePlaylist(roomId, playlistJson);
+
+		return ResponseEntity.ok("Playlist saved successfully");
+	}
+
+	@PatchMapping("/v1/change-role")
+	public ResponseEntity<String> changeUserRole(
+		@RequestParam Long userId,
+		@RequestParam Long roomId,
+		@RequestParam Long targetUserId,
+		@RequestParam int newRole) {
+
+		roomUserService.changeUserRole(userId, roomId, targetUserId, newRole);
+		return ResponseEntity.ok("User role updated successfully.");
 	}
 }
