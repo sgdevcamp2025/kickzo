@@ -8,6 +8,7 @@
 import Foundation
 
 enum UserRole: Int {
+    case none = -1
     case creator = 0
     case manager
     case member

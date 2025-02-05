@@ -9,7 +9,6 @@ import Foundation
 
 import ManipulateDataModel
 
-
 struct KickRoomDomainModel {
     var myRole: UserRole
     var userList: [KickRoomUserDomainModel]
