@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kickzo.main.dto.CreateRoomRequestDto;
+import com.kickzo.main.dto.CreateRoomResponseDto;
 import com.kickzo.main.dto.RoomResponseDto;
 import com.kickzo.main.service.MainPageService;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -46,12 +48,10 @@ public class MainPageController {
 	}
 
 	@PostMapping("/v1/create-room")
-	public ResponseEntity<String> createRoom(
+	public ResponseEntity<?> createRoom(
 		@RequestParam Long userId,
-		@RequestParam String creatorNickname,
-		@RequestBody CreateRoomRequestDto requestDto) {
-		log.info("create room. userId: {}, creatorNickname: {}", userId, creatorNickname);
-		String roomCode = mainPageService.createRoom(userId, creatorNickname, requestDto);
+		@Valid @RequestBody CreateRoomRequestDto requestDto) {
+		CreateRoomResponseDto roomCode = mainPageService.createRoom(userId, requestDto);
 		return ResponseEntity.ok(roomCode);
 	}
 }
