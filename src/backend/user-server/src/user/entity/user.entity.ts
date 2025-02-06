@@ -32,7 +32,7 @@ export class User {
   @Column({ type: "json", nullable: true })
   profileImages: string[]; // 프로필 이미지 배열
 
-  @Column({ type: "char", length: 64 })
+  @Column({ type: "char", length: 64, select: false })
   @Exclude()
   salt: string; // 솔트값
 
