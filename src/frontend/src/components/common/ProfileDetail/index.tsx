@@ -56,6 +56,7 @@ export const ProfileDetail = (props: IProfileDetail) => {
         afterImgUrl={isEditing ? Check : Edit}
         onClick={() => {
           if (isEditing) {
+            // TODO - 성공시 비밀번호 변경
             handleSave();
           } else {
             setIsEditing(true);
@@ -71,7 +72,7 @@ export const ProfileDetail = (props: IProfileDetail) => {
             setNickname(detailProfile.nickname);
             setIntroduce(detailProfile.introduce);
           } else {
-            // setIsEditing(true);
+            // TODO - 환경설정 페이지로 넘어감
           }
         }}
       />
