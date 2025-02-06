@@ -4,12 +4,14 @@ include:
   - ./infra/docker-compose.yml
   - ./backend/mongo-db/docker-compose.yml
   - ./backend/mysql-db/docker-compose.yml
+  - ./backend/redis/docker-compose.yml
   - ./backend/kafka/docker-compose.yml
   - ./backend/kafka/docker-compose-kafkaui.yml
   - ./backend/chat-server/docker-compose.yml
   - ./backend/history-server/docker-compose.yml
   - ./backend/auth-server/docker-compose.yml
   - ./backend/user-server/docker-compose.yml
+  - ./backend/state-server/docker-compose.yml
 
 networks:
   kickzo-network:

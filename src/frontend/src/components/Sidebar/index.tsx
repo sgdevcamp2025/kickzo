@@ -15,33 +15,33 @@ import { SidebarType } from '@/types/enums/SidebarType';
 import { ButtonColor } from '@/types/enums/ButtonColor';
 
 export const Sidebar = () => {
-  const [interfaceType, setInterfaceType] = useState<SidebarType>(SidebarType.Chat);
+  const [interfaceType, setInterfaceType] = useState<SidebarType>(SidebarType.CHAT);
 
   const renderContent = () => {
     switch (interfaceType) {
-      case SidebarType.Chat:
+      case SidebarType.CHAT:
         return (
           <ChatContainer>
             <ChatMessages />
             <ChatInput />
           </ChatContainer>
         );
-      case SidebarType.Playlist:
+      case SidebarType.PLAYLIST:
         return <Playlist />;
-      case SidebarType.VoiceChat:
-        return <MemberList sidebarType={SidebarType.VoiceChat} />;
-      case SidebarType.Member:
-        return <MemberList sidebarType={SidebarType.Member} />;
+      case SidebarType.VOICECHAT:
+        return <MemberList sidebarType={SidebarType.VOICECHAT} />;
+      case SidebarType.MEMBER:
+        return <MemberList sidebarType={SidebarType.MEMBER} />;
       default:
         return null;
     }
   };
 
   const navButtons = [
-    { type: SidebarType.Chat, icon: SidebarChat },
-    { type: SidebarType.Playlist, icon: SidebarPlaylist },
-    { type: SidebarType.VoiceChat, icon: SidebarVoicechat },
-    { type: SidebarType.Member, icon: SidebarMember },
+    { type: SidebarType.CHAT, icon: SidebarChat },
+    { type: SidebarType.PLAYLIST, icon: SidebarPlaylist },
+    { type: SidebarType.VOICECHAT, icon: SidebarVoicechat },
+    { type: SidebarType.MEMBER, icon: SidebarMember },
   ];
 
   return (

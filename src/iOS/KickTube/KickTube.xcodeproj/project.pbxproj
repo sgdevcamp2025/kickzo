@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5320CF812D5206BB00EF722E /* YouTubeiOSPlayerHelper in Frameworks */ = {isa = PBXBuildFile; productRef = 5320CF802D5206BB00EF722E /* YouTubeiOSPlayerHelper */; };
 		532D560A2D37BBC300B78EA6 /* SampleTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 532D56092D37BBC300B78EA6 /* SampleTest.swift */; };
 		532F31812D364BB200D2C67E /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 532F31802D364BB200D2C67E /* SnapKit */; };
 		532F31842D364BC200D2C67E /* RxCocoa in Frameworks */ = {isa = PBXBuildFile; productRef = 532F31832D364BC200D2C67E /* RxCocoa */; };
@@ -94,6 +95,7 @@
 				53FDEFDD2D3E12C400825962 /* ManipulateDataModel in Frameworks */,
 				532F31862D364BC200D2C67E /* RxSwift in Frameworks */,
 				532F31842D364BC200D2C67E /* RxCocoa in Frameworks */,
+				5320CF812D5206BB00EF722E /* YouTubeiOSPlayerHelper in Frameworks */,
 				532F31892D364BCE00D2C67E /* ReactorKit in Frameworks */,
 				53A863DC2D4FB72E009FF8E2 /* RxDataSources in Frameworks */,
 				53C9559A2D40BC23004D4DA2 /* ManipulateDataModel in Frameworks */,
@@ -165,6 +167,7 @@
 				5351F2E02D392C600093EB87 /* ManipulateDataModel */,
 				53C955992D40BC23004D4DA2 /* ManipulateDataModel */,
 				53A863DB2D4FB72E009FF8E2 /* RxDataSources */,
+				5320CF802D5206BB00EF722E /* YouTubeiOSPlayerHelper */,
 			);
 			productName = KickTube;
 			productReference = 532F31322D3649CA00D2C67E /* KickTube.app */;
@@ -248,6 +251,7 @@
 				532F31872D364BCE00D2C67E /* XCRemoteSwiftPackageReference "ReactorKit" */,
 				53C955982D40BC23004D4DA2 /* XCLocalSwiftPackageReference "../ManipulateDataModel" */,
 				53A863DA2D4FB72E009FF8E2 /* XCRemoteSwiftPackageReference "RxDataSources" */,
+				5320CF7F2D5206BB00EF722E /* XCRemoteSwiftPackageReference "youtube-ios-player-helper" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 532F31332D3649CA00D2C67E /* Products */;
@@ -385,6 +389,8 @@
 		};
 		532F315E2D3649CC00D2C67E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReferenceAnchor = 532F31342D3649CA00D2C67E /* KickTube */;
+			baseConfigurationReferenceRelativePath = Config/Secrets.xcconfig;
 			buildSettings = {
 				ALWAYS_SEARCH_USER_PATHS = NO;
 				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
@@ -623,6 +629,14 @@
 /* End XCLocalSwiftPackageReference section */
 
 /* Begin XCRemoteSwiftPackageReference section */
+		5320CF7F2D5206BB00EF722E /* XCRemoteSwiftPackageReference "youtube-ios-player-helper" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/youtube/youtube-ios-player-helper.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.4;
+			};
+		};
 		532F317F2D364BB200D2C67E /* XCRemoteSwiftPackageReference "SnapKit" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/SnapKit/SnapKit.git";
@@ -658,6 +672,11 @@
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
+		5320CF802D5206BB00EF722E /* YouTubeiOSPlayerHelper */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 5320CF7F2D5206BB00EF722E /* XCRemoteSwiftPackageReference "youtube-ios-player-helper" */;
+			productName = YouTubeiOSPlayerHelper;
+		};
 		532F31802D364BB200D2C67E /* SnapKit */ = {
 			isa = XCSwiftPackageProductDependency;
 			package = 532F317F2D364BB200D2C67E /* XCRemoteSwiftPackageReference "SnapKit" */;

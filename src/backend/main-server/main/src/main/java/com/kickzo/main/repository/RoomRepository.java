@@ -15,7 +15,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 	// 메인 페이지에 제공하는 방
 	@Query("SELECT r "
 		+ "FROM Room r LEFT JOIN FETCH r.playlist "
-		+ "WHERE r.userCount > 0 AND r.isPublic "
+		+ "WHERE r.isPublic "
 		+ "ORDER BY r.userCount DESC")
 	List<Room> findAllByUserCountDesc(Pageable pageable);
 
@@ -25,5 +25,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
 	@Query(value = "SELECT id FROM room WHERE code = :roomCode", nativeQuery = true)
 	Long findRoomIdByRoomCode(@Param("roomCode") String roomCode);
+
+	List<Room> findAllByCreator(String creatorNickname);
 }
 

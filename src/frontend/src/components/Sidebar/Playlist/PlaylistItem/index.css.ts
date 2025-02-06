@@ -1,10 +1,10 @@
 import styled from 'styled-components';
 
-interface IVideoItemContainer {
+interface VideoItemContainerProps {
   $active?: boolean;
 }
 
-export const Container = styled.div<IVideoItemContainer>`
+export const Container = styled.div<VideoItemContainerProps>`
   display: flex;
   align-items: center;
   gap: 5px;
