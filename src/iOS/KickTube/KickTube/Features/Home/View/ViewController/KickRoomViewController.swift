@@ -37,10 +37,49 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         
         $0.configuration = config
     }
-    
+    private let menuSegmentedControl: UISegmentedControl = {
+        let items: [UIImage] = [.chat, .playlist, .voice, .friend]
+        let segmented = UISegmentedControl(items: items)
+        
+        segmented.backgroundColor = .lightGray
+        segmented.layer.backgroundColor = UIColor.white.cgColor
+  
+        segmented.selectedSegmentTintColor = UIColor.kDarkgray
+        segmented.setTitleTextAttributes([.foregroundColor: UIColor.black], for: .normal)
+        segmented.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
+        
+        segmented.layer.borderWidth = 1
+        segmented.layer.borderColor = UIColor.kGray.cgColor
+        
+        segmented.selectedSegmentIndex = 1
+        
+        return segmented
+    }()
+    private let mainScrollView = KickRoomMainScrollView()
     private var previousTime: TimeInterval = 0
     private var timeTrackingTimer: Timer?
     
+    
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        tabBarController?.tabBar.isHidden = true
+        navigationController?.setNavigationBarHidden(true, animated: false)
+    }
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
+        
+        navigationController?.interactivePopGestureRecognizer?.delegate = self
+        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+    }
+          
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        
+        tabBarController?.tabBar.isHidden = false
+        navigationController?.setNavigationBarHidden(false, animated: false)
+    }
     
     // MARK: - configure Reactor
     
@@ -83,7 +122,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     
     // MARK: - private method
     
-    func setRoomInformationSection(_ info: KickRoomInfoViewModel) {
+    private func setRoomInformationSection(_ info: KickRoomInfoViewModel) {
         titleLabel.text = info.title
         creatorImage.image = .logo
         creatorNameLabel.text = info.creator
@@ -99,12 +138,34 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         
         participatedCountLabel.configuration = config
     }
-
+    
+    private func setupSegmentedControl() {
+        menuSegmentedControl.rx.selectedSegmentIndex
+            .subscribe(with: self, onNext: { owner, index in
+                owner.mainScrollView.setPageIndex(index)
+                
+                switch index {
+                case 0:
+                    print("Search selected")
+                case 1:
+                    print("Feed selected")
+                    
+                case 2:
+                    print("Sound selected")
+                case 3:
+                    print("Profile selected")
+                default:
+                    break
+                }
+            })
+            .disposed(by: disposeBag)
+    }
+    
     
     // MARK: - configure UI
     
     override func configureHierarchy() {
-        [playerView, titleLabel, creatorImage, creatorNameLabel, participatedCountLabel].forEach {
+        [playerView, titleLabel, creatorImage, creatorNameLabel, participatedCountLabel, menuSegmentedControl, mainScrollView].forEach {
             view.addSubview($0)
         }
     }
@@ -133,22 +194,30 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             make.bottom.equalTo(creatorImage.snp.bottom)
             make.trailing.equalToSuperview().offset(-12)
         }
+        menuSegmentedControl.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview().inset(16)
+            make.bottom.equalTo(safeArea)
+            make.height.equalTo(50)
+        }
+        mainScrollView.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview()
+            make.top.equalTo(creatorImage.snp.bottom).offset(12)
+            make.bottom.equalTo(menuSegmentedControl.snp.top).offset(-12)
+        }
+      
     }
     
     override func configureUI() {
         playerView.delegate = self
-    }
-    
-    override func viewWillAppear(_ animated: Bool) {
-        navigationController?.setNavigationBarHidden(true, animated: animated)
+        setupSegmentedControl()
     }
 }
+
 
 extension KickRoomViewController: YTPlayerViewDelegate {
     func playerView(_ playerView: YTPlayerView, didChangeTo state: YTPlayerState) {
         switch state {
         case .paused:
-            
             startTrackingTime()
         case .playing:
             stopTrackingTime()
@@ -186,3 +255,5 @@ extension KickRoomViewController: YTPlayerViewDelegate {
         timeTrackingTimer = nil
     }
 }
+
+extension KickRoomViewController: UIGestureRecognizerDelegate {}
