@@ -1,14 +1,95 @@
 _format_version: "3.0"
 
-routes:
-  - name: chat-route
-    paths:
-      - /api/chat
-    service: chat-service
-
 services:
+  # Auth Service
+  - name: auth-service
+    url: http://auth:8101 # AUTH_PORT=8101
+    routes:
+      - name: auth-route
+        paths:
+          - /api/auth
+        strip_path: false
+        protocols:
+          - http
+          - https
+
+  # User Service (보호된 서비스 예시)
+  - name: user-service
+    url: http://user:8102 # USER_PORT=8102
+    routes:
+      - name: user-route
+        paths:
+          - /api/users
+        strip_path: false
+        protocols:
+          - http
+          - https
+        plugins:
+          - name: jwt
+            config:
+              key_claim_name: kid
+              claims_to_verify:
+                - exp
+              secret_is_base64: false
+              anonymous: null
+              header_names:
+                - Authorization
+              cookie_names: []
+              uri_param_names: []
+          - name: custom-jwt-header
+
+      - name: user-public-route
+        methods:
+          - GET
+        paths:
+          - /api/users/profile/{user_id}
+        strip_path: false
+        protocols:
+          - http
+          - https
+        plugins:
+          - name: jwt
+            config:
+              key_claim_name: kid
+              anonymous: 12345678-90ab-cdef-1234-567890abcdef # 안됨. 삭제해야 함.
+              claims_to_verify:
+                - exp
+              secret_is_base64: false
+              header_names:
+                - Authorization
+              cookie_names: []
+              uri_param_names: []
+
+  # # Main Service (보호된 서비스 예시)
+  # - name: main-service
+  #   url: http://main:8103 # MAIN_PORT=8103
+  #   routes:
+  #     - name: main-route
+  #       paths:
+  #         - /api/main
+  #       strip_path: false
+  #       protocols:
+  #         - http
+  #         - https
+  #       plugins:
+  #         - name: jwt
+  #           config:
+  #             key_claim_name: kid
+  #             claims_to_verify:
+  #               - exp
+  #             secret_is_base64: false
+  #             anonymous: null
+  #             header_names:
+  #               - Authorization
+  #             cookie_names: []
+  #             uri_param_names: []
+
   - name: chat-service
     url: http://chat-service-upstream # upstream 이름
+    routes:
+      - name: chat-route
+        paths:
+          - /api/chat
 
   # JSON Mock Server
   - name: mock-service
@@ -28,3 +109,55 @@ upstreams:
     healthchecks:
       active:
         http_path: /health
+
+consumers:
+  - username: api-consumer
+    jwt_secrets:
+      - key: "kicktube-jwt" # Auth issueToken() kid와 일치
+        secret: "kickzo_access_token_secret" # ACCESS_TOKEN_SECRET from .env
+        algorithm: HS256
+  - username: anonymous-user
+    id: 12345678-90ab-cdef-1234-567890abcdef
+
+plugins:
+  # Global rate limiting plugin
+  - name: rate-limiting
+    config:
+      minute: 60
+      hour: 1000
+
+      # Redis 사용 (분산 환경)
+      policy: redis
+      redis_host: "redis"
+      redis_port: 6379
+      redis_timeout: 2000 # 연결 타임아웃 (ms)
+      redis_database: 2
+
+      # 제한 기준
+      limit_by: ip # consumer, credential, ip, service, header
+
+      # 헤더 및 오류 처리
+      fault_tolerant: true
+      hide_client_headers: false
+
+  # Global CORS plugin
+  - name: cors
+    config:
+      origins:
+        - "*"
+      methods:
+        - GET
+        - POST
+        - PUT
+        - PATCH
+        - DELETE
+        - OPTIONS
+      headers:
+        - Accept
+        - Accept-Version
+        - Content-Type
+        - Authorization
+      exposed_headers: []
+      credentials: true
+      max_age: 3600
+      preflight_continue: false
