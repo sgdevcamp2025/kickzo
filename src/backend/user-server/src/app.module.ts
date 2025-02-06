@@ -4,7 +4,6 @@ import { ConfigModule, ConfigService } from "@nestjs/config";
 import * as Joi from "joi";
 import { TypeOrmModule } from "@nestjs/typeorm";
 import { SnakeNamingStrategy } from "typeorm-naming-strategies";
-import { RedisModule } from "@liaoliaots/nestjs-redis";
 
 @Module({
   imports: [
@@ -35,13 +34,6 @@ import { RedisModule } from "@liaoliaots/nestjs-redis";
         namingStrategy: new SnakeNamingStrategy(),
       }),
       inject: [ConfigService],
-    }),
-    RedisModule.forRoot({
-      readyLog: true,
-      config: {
-        host: process.env.REDIS_HOST ?? "redis",
-        port: parseInt(process.env.REDIS_CONTAINER_PORT ?? "6379"),
-      },
     }),
     UserModule,
   ],
