@@ -3,4 +3,5 @@ export enum SidebarType {
   PLAYLIST = 1,
   VOICECHAT = 2,
   MEMBER = 3,
+  EDIT = 4,
 }
