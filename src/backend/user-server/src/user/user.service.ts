@@ -109,7 +109,10 @@ export class UserService {
   }
 
   async checkNicknameExists(nickname: string) {
-    const user = await this.userRepository.findOne({ where: { nickname } });
+    const user = await this.userRepository.findOne({
+      where: { nickname },
+      withDeleted: true,
+    });
     return {
       status: 200,
       message: user
@@ -124,7 +127,10 @@ export class UserService {
   }
 
   async checkEmailExists(email: string) {
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.userRepository.findOne({
+      where: { email },
+      withDeleted: true,
+    });
     return {
       status: 200,
       message: user
