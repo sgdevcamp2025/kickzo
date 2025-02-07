@@ -12,6 +12,7 @@ import {
   ValidationPipe,
   Query,
   BadRequestException,
+  Delete,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -28,6 +29,15 @@ export class UserController {
   @UseInterceptors(ClassSerializerInterceptor)
   registerUser(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
+  }
+
+  @Delete("unregister")
+  async deleteUser(@Req() req: Request) {
+    const userId = req.headers["x-user-id"];
+    if (!userId) {
+      throw new UnauthorizedException("헤더에 유저정보가 없습니다.");
+    }
+    return await this.userService.delete(+userId);
   }
 
   @Get()

@@ -1,6 +1,7 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
@@ -10,14 +11,21 @@ import { CreateUserDto } from "./dto/create-user.dto";
 import * as bcrypt from "bcryptjs";
 import { ConfigService } from "@nestjs/config";
 import { UpdateUserDto } from "./dto/update-user.dto";
+import { RedisService } from "@liaoliaots/nestjs-redis";
+import Redis from "ioredis";
 
 @Injectable()
 export class UserService {
+  private readonly redis: Redis;
+
   constructor(
     @InjectRepository(User)
     private readonly userRepository: Repository<User>,
     private readonly configService: ConfigService,
-  ) {}
+    private readonly redisService: RedisService,
+  ) {
+    this.redis = this.redisService.getOrThrow();
+  }
 
   async create(createUserDto: CreateUserDto) {
     const { email, nickname, password } = createUserDto;
@@ -99,7 +107,33 @@ export class UserService {
   }
 
   async delete(id: number) {
-    await this.userRepository.softDelete(id);
+    try {
+      const user = await this.userRepository.findOne({ where: { id } });
+      if (!user) {
+        throw new NotFoundException("사용자를 찾을 수 없습니다.");
+      }
+
+      // 유저의 모든 토큰 삭제
+      await this.redis.del(`refresh_token:${id}:web`);
+      await this.redis.del(`refresh_token:${id}:mobile`);
+
+      await this.redis.del(`access_token:${id}:web`);
+      await this.redis.del(`access_token:${id}:mobile`);
+
+      await this.userRepository.softDelete(id);
+
+      return {
+        message: "회원 탈퇴가 완료되었습니다.",
+        userId: id,
+      };
+    } catch (error) {
+      if (error instanceof NotFoundException) {
+        throw error;
+      }
+      throw new InternalServerErrorException(
+        "회원 탈퇴 처리 중 오류가 발생했습니다.",
+      );
+    }
   }
 
   // 관리자 권한이 있는 경우에만 사용
@@ -118,15 +152,12 @@ export class UserService {
       withDeleted: true,
     });
     return {
-      status: 200,
       message: user
         ? "이미 사용 중인 닉네임입니다."
         : "사용 가능한 닉네임입니다.",
-      data: {
-        isAvailable: !user,
-        field: "nickname",
-        value: nickname,
-      },
+      isAvailable: !user,
+      field: "nickname",
+      value: nickname,
     };
   }
 
@@ -136,15 +167,12 @@ export class UserService {
       withDeleted: true,
     });
     return {
-      status: 200,
       message: user
         ? "이미 사용 중인 이메일입니다."
         : "사용 가능한 이메일입니다.",
-      data: {
-        isAvailable: !user,
-        field: "email",
-        value: email,
-      },
+      isAvailable: !user,
+      field: "email",
+      value: email,
     };
   }
 }
