@@ -8,9 +8,8 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import jakarta.annotation.PostConstruct;
-import kickzo.stomp_chat.event.PlaylistUpdateEvent;
-import kickzo.stomp_chat.event.RoleChangeEvent;
-import kickzo.stomp_chat.event.RoomEvent;
+import kickzo.stomp_chat.dto.PlaylistUpdateEvent;
+import kickzo.stomp_chat.dto.RoomEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,6 +19,8 @@ import lombok.extern.slf4j.Slf4j;
 public class KafkaConsumerService {
 
 	private final ObjectMapper objectMapper;
+	private final RoomEventHandler roomEventHandler;
+	private final PlaylistEventHandler playlistEventHandler;
 
 	@Value("${server.port}")
 	private String serverPort;
@@ -36,53 +37,25 @@ public class KafkaConsumerService {
 		groupId = "my-group-" + serverPort; // 서버 포트에 따라 groupId 설정
 	}
 
+	@KafkaListener(topics = "playlist")
+	public void consumePlaylistEvents(ConsumerRecord<String, String> record) {
+		try {
+			PlaylistUpdateEvent event = objectMapper.readValue(record.value(), PlaylistUpdateEvent.class);
+			log.info("Received Playlist Update Event: {}", event);
+			playlistEventHandler.handleEvent(event);
+		} catch (Exception e) {
+			log.error("Error processing playlist event", e);
+		}
+	}
 
 	@KafkaListener(topics = "room")
 	public void consumeRoomEvents(ConsumerRecord<String, String> record) {
 		try {
 			RoomEvent event = objectMapper.readValue(record.value(), RoomEvent.class);
 			log.info("Received Room Event: {}", event);
-
-			switch (event.getEventType()) {
-				case "room-update":
-					handleRoomUpdate(event);
-					break;
-				case "role-change":
-					handleRoleChange(event);
-					break;
-				default:
-					log.warn("Unknown event type: {}", event.getEventType());
-			}
-
+			roomEventHandler.handleEvent(event);
 		} catch (Exception e) {
 			log.error("Error processing room event", e);
 		}
-	}
-
-	@KafkaListener(topics = "playlist")
-	public void consumePlaylistEvents(ConsumerRecord<String, String> record) {
-		try {
-			PlaylistUpdateEvent event = objectMapper.readValue(record.value(), PlaylistUpdateEvent.class);
-			log.info("Received Playlist Update Event: {}", event);
-			handlePlaylistUpdate(event);
-		} catch (Exception e) {
-			log.error("Error processing playlist event", e);
-		}
-	}
-
-	private void handleRoomUpdate(RoomEvent event) {
-		log.info("Handling Room Update: {}", event);
-		// 실제 로직 추가
-	}
-
-	private void handleRoleChange(RoomEvent event) {
-		log.info("Handling Role Change: {}", event);
-		RoleChangeEvent roleChange = objectMapper.convertValue(event.getData(), RoleChangeEvent.class);
-		log.info("Received Role Change Event: {}", roleChange);
-	}
-
-	private void handlePlaylistUpdate(PlaylistUpdateEvent event) {
-		log.info("Handling Playlist Update: {}", event);
-		// 실제 로직 추가
 	}
 }
