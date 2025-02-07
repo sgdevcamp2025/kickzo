@@ -1,5 +1,5 @@
 enum UserRole {
-  OWNER,
+  CREATOR,
   MANAGER,
   USER,
 }

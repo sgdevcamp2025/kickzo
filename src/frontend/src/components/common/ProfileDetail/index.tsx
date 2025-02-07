@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 
 import { RoleChangeButton } from '@/components/RoleChangeButton';
 import { CommonButton } from '@/components/common/Button';
