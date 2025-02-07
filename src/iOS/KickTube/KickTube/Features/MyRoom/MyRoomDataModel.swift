@@ -9,7 +9,6 @@ import Foundation
 
 import ManipulateDataModel
 
-
 @DecodeDTO
 @ConvertToDomainModel<MyRoomDomainModel>
 struct MyRoomDTO {
@@ -39,7 +38,7 @@ struct MyRoomDomainModel: DTOMappable {
               title: self.title,
               creator: self.creator,
               userCount: String(self.userCount),
-              videoID: playlistURL.youTubeID
+              videoID: playlistURL.youtubeID
         )
     }
 }

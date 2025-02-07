@@ -65,7 +65,7 @@ final class HomeReactor: Reactor {
                 
                 Task {
                     do {
-                        if let thumbnailData = try await self.getYoutubeThumbnail(id) {
+                        if let thumbnailData = try await self.networkManager.getYoutubeThumbnail(.youtubeThumbnailHigh(id: id)) {
                             observer.onNext(.setVideoImage(data: thumbnailData, idx: idx))
                             observer.onCompleted()
                         }
@@ -99,14 +99,5 @@ final class HomeReactor: Reactor {
         }
         
         return newState
-    }
-    
-    func getYoutubeThumbnail(_ id: String) async throws -> Data? {
-        do {
-            let url = try YoutubeRouter.youtubeThumbnailHigh(id: id).makeURL()
-            return try await networkManager.getCachingDataFromURL(url)
-        } catch {
-            throw error
-        }
     }
 }

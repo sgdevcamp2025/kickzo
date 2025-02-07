@@ -60,4 +60,23 @@ final class NetworkManager {
         
         return try decoder.decode(model.self, from: data)
     }
+    
+    func getYoutubeThumbnail(_ quality: YoutubeRouter) async throws -> Data? {
+        do {
+            var url: URL
+            
+            switch quality {
+            case .youtubeThumbnailHigh(let id):
+                url = try YoutubeRouter.youtubeThumbnailHigh(id: id).makeURL()
+            case .youtubeThumbnailLow(let id):
+                url = try YoutubeRouter.youtubeThumbnailLow(id: id).makeURL()
+            default:
+                return nil
+            }
+            
+            return try await getCachingDataFromURL(url)
+        } catch {
+            throw error
+        }
+    }
 }

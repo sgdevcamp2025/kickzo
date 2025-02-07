@@ -8,7 +8,7 @@
 import Foundation
 
 extension String {
-    var youTubeID: String? {
+    var youtubeID: String? {
         let typePattern = "(?:(?:\\.be\\/|embed\\/|v\\/|\\?v=|\\&v=|\\/videos\\/)|(?:[\\w+]+#\\w\\/\\w(?:\\/[\\w]+)?\\/\\w\\/))([\\w-_]+)"
         let regex = try? NSRegularExpression(pattern: typePattern, options: .caseInsensitive)
         return regex
