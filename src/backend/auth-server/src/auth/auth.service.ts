@@ -38,12 +38,10 @@ export class AuthService {
   }
 
   async logout(rawToken: string) {
-    const token = this.divideRawToken(rawToken, "bearer");
-
     const payload = await this.parseBearerToken(rawToken, false);
 
     await this.redis.del(`refresh_token:${payload.id}:${payload.device}`);
-    await this.redis.del(`access_token:${token}`);
+    await this.redis.del(`access_token:${payload.id}:${payload.device}`);
 
     return { message: "로그아웃 되었습니다." };
   }
@@ -75,13 +73,12 @@ export class AuthService {
     if (this.redis) {
       try {
         await this.redis.set(
-          `access_token:${accessToken}`,
-          JSON.stringify(payload),
+          `access_token:${payload.id}:${device}`,
+          accessToken,
           "EX",
           300, // 5분
         );
 
-        await this.redis.del(`refresh_token:${payload.id}:${device}`);
         await this.redis.set(
           `refresh_token:${payload.id}:${device}`,
           refreshToken,
@@ -222,14 +219,24 @@ export class AuthService {
 
   async validateStoredToken(rawToken: string) {
     const token = this.divideRawToken(rawToken, "bearer");
-    const payloadStr = await this.redis.get(`access_token:${token}`);
+    const payload = await this.parseBearerToken(rawToken, false);
+    const storedToken = await this.redis.get(
+      `access_token:${payload.id}:${payload.device}`,
+    );
 
-    if (!payloadStr) {
+    if (!storedToken) {
       throw new UnauthorizedException("만료된 토큰입니다.");
     }
 
-    const payload = JSON.parse(payloadStr) as TokenPayload;
+    if (storedToken !== token) {
+      throw new UnauthorizedException("유효하지 않은 토큰입니다.");
+    }
 
-    return payload;
+    return {
+      message: "토큰이 유효합니다.",
+      userId: payload.id,
+      email: payload.email,
+      role: payload.role,
+    };
   }
 }
