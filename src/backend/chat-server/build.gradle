@@ -22,6 +22,7 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
 	implementation 'org.springframework.kafka:spring-kafka'
 	implementation 'org.projectlombok:lombok'
+	implementation 'org.webjars:stomp-websocket:2.3.3'
 	implementation 'org.webjars:sockjs-client:1.5.1'
 	compileOnly 'org.projectlombok:lombok'
 	annotationProcessor 'org.projectlombok:lombok'
