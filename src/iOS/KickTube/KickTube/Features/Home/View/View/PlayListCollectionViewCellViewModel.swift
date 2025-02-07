@@ -12,6 +12,7 @@ import RxSwift
 
 final class PlayListViewModel {
     private let networkManager = NetworkManager()
+    private(set) var playlist = [YoutubeVideoViewModel]()
     
     private var disposeBag = DisposeBag()
     
@@ -20,6 +21,7 @@ final class PlayListViewModel {
         let emptyThumbnailImage: PublishRelay<Int>
         let editingTextInput: PublishRelay<String>
         let addButtonTapped: PublishRelay<Void>
+        let orderChanged: PublishRelay<(from: IndexPath, to: IndexPath)>
     }
     
     struct Output {
@@ -30,16 +32,15 @@ final class PlayListViewModel {
     func transform(_ input: Input) -> Output {
         let playlistSubject = PublishSubject<[YoutubeVideoViewModel]>()
         let validVideo = PublishSubject<YoutubeVideoViewModel?>()
-        var playlist = [YoutubeVideoViewModel]()
-        
+      
         input.loadView
             .compactMap { _  in
                 let value = [YouTubeVideoDomainModel]().map { $0.toModel() }
                 return value
             }
             .subscribe(with: self) { owner, value in
-                playlist = value
-                playlistSubject.onNext(playlist)
+                owner.playlist = value
+                playlistSubject.onNext(owner.playlist)
             }
             .disposed(by: disposeBag)
         
@@ -50,7 +51,7 @@ final class PlayListViewModel {
                 return Single.create { single in
                     Task {
                         do {
-                            let youtubeID = playlist[row].id
+                            let youtubeID = self.playlist[row].id
                             let data = try await self.networkManager.getYoutubeThumbnail(.youtubeThumbnailLow(id: youtubeID))
                             
                             single(.success((row, data)))
@@ -64,8 +65,8 @@ final class PlayListViewModel {
             .subscribe(with: self, onNext: { owner, value in
                 let (row, thumbnailData) = value
                 
-                playlist[row].thumbnailData = thumbnailData
-                playlistSubject.onNext(playlist)
+                owner.playlist[row].thumbnailData = thumbnailData
+                playlistSubject.onNext(owner.playlist)
             }, onError: { owner, error in
                 print(error)
             })
@@ -110,10 +111,20 @@ final class PlayListViewModel {
         input.addButtonTapped
             .withLatestFrom(validVideo)
             .compactMap { $0 }
-            .subscribe { value in
-                playlist.append(value)
-                playlistSubject.onNext(playlist)
+            .subscribe(with: self, onNext: { owner, value in
+                owner.playlist.append(value)
+                playlistSubject.onNext(owner.playlist)
                 validVideo.onNext(nil)
+            })
+            .disposed(by: disposeBag)
+        
+        input.orderChanged
+            .subscribe(with: self) { owner, value in
+                let (from, to) = value
+                let data = owner.playlist.remove(at: from.row)
+                
+                owner.playlist.insert(data, at: to.row)
+                playlistSubject.onNext(owner.playlist)
             }
             .disposed(by: disposeBag)
         

@@ -29,6 +29,8 @@ final class PlaylistView: UIView {
     }
     
     private let viewModel = PlayListViewModel()
+    private let orderChanged = PublishRelay<(from: IndexPath, to: IndexPath)>()
+    
     
     private var disposeBag = DisposeBag()
     
@@ -48,16 +50,15 @@ final class PlaylistView: UIView {
     
     
     // MARK: - configure bind input, output
-
+    
     private func bind() {
         let load = BehaviorRelay<Void>(value: ())
         let searchLink = PublishRelay<String>()
         let emptyThumbnail = PublishRelay<Int>()
         let addAction = PublishRelay<Void>()
         
-        let input = PlayListViewModel.Input(loadView: load, emptyThumbnailImage: emptyThumbnail, editingTextInput: searchLink, addButtonTapped: addAction)
+        let input = PlayListViewModel.Input(loadView: load, emptyThumbnailImage: emptyThumbnail, editingTextInput: searchLink, addButtonTapped: addAction, orderChanged: self.orderChanged)
         let output = viewModel.transform(input)
-        
         
         // MARK: - input
         
@@ -68,22 +69,20 @@ final class PlaylistView: UIView {
             .distinctUntilChanged()
             .subscribe(with: self) { owner, value in
                 searchLink.accept(value)
-                print(value)
             }
             .disposed(by: disposeBag)
-
+        
         searchResultView.addButton.rx.tap
             .bind(with: self, onNext: { owner, _ in
                 addAction.accept(())
                 owner.searchResultView.isHidden = true
                 owner.searchVideoTextField.textfield.text = ""
-                print(owner.searchVideoTextField.textfield.rx.text)
             })
             .disposed(by: disposeBag)
         
         
         // MARK: - output
-
+        
         output.playlist
             .asDriver(onErrorJustReturn: [])
             .drive(playlistCollectionView.rx.items(cellIdentifier: PlayListCollectionViewCell.reuseIdentifier, cellType: PlayListCollectionViewCell.self)) { (item, element, cell) in
@@ -139,5 +138,49 @@ final class PlaylistView: UIView {
         backgroundView.layer.cornerRadius = 8
         backgroundView.layer.borderWidth = 1
         backgroundView.layer.borderColor = UIColor.kGray.cgColor
+        
+        setupDragAndDrop()
+    }
+}
+
+extension PlaylistView: UICollectionViewDragDelegate, UICollectionViewDropDelegate {
+    func setupDragAndDrop() {
+        playlistCollectionView.dragDelegate = self
+        playlistCollectionView.dropDelegate = self
+        playlistCollectionView.dragInteractionEnabled = true
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, canHandle session: any UIDropSession) -> Bool {
+        true
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: any UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
+        let item = viewModel.playlist[indexPath.item]
+        let itemProvider = NSItemProvider(object: item.title as NSString)
+        let dragItem = UIDragItem(itemProvider: itemProvider)
+        dragItem.localObject = item
+        
+        return [dragItem]
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, dropSessionDidUpdate session: any UIDropSession, withDestinationIndexPath destinationIndexPath: IndexPath?) -> UICollectionViewDropProposal {
+        UICollectionViewDropProposal(operation: .move, intent: .insertAtDestinationIndexPath)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, performDropWith coordinator: any UICollectionViewDropCoordinator) {
+        guard let destinationIndexPath = coordinator.destinationIndexPath else { return }
+        
+        coordinator.items.forEach { dropItem in
+            guard let sourceIndexPath = dropItem.sourceIndexPath else { return }
+            
+            collectionView.performBatchUpdates {
+                collectionView.deleteItems(at: [sourceIndexPath])
+                collectionView.insertItems(at: [destinationIndexPath])
+                
+                self.orderChanged.accept((sourceIndexPath, destinationIndexPath))
+            } completion: { _ in
+                coordinator.drop(dropItem.dragItem, toItemAt: destinationIndexPath)
+            }
+        }
     }
 }
