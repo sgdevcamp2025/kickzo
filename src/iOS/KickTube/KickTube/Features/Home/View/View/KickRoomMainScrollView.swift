@@ -7,6 +7,9 @@
 
 import UIKit
 
+import RxSwift
+import RxCocoa
+
 class KickRoomMainScrollView: UIView {
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -14,7 +17,6 @@ class KickRoomMainScrollView: UIView {
         scrollView.isPagingEnabled = true
         return scrollView
     }()
-    
     private let stackView: UIStackView = {
         let stackView = UIStackView()
         stackView.axis = .horizontal
@@ -22,8 +24,7 @@ class KickRoomMainScrollView: UIView {
         stackView.distribution = .fill
         return stackView
     }()
-    
-    private let playlistView = UIView().then { $0.backgroundColor = .red }
+    private let playlistView = PlaylistView()
     private let voiceChatView = UIView().then { $0.backgroundColor = .blue }
     private let particiapteUserView = UIView().then { $0.backgroundColor = .green }
     
