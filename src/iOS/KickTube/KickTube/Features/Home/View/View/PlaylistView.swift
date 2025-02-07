@@ -14,15 +14,15 @@ final class PlaylistView: UIView {
     private let backgroundView = UIView().then {
         $0.clipsToBounds = true
     }
-    private let playlistCollectionView = UICollectionView(frame: .zero, collectionViewLayout: .myRoomCollectionViewLayout(false)).then {
-        $0.register(PlayListCollectionViewCell.self, forCellWithReuseIdentifier: PlayListCollectionViewCell.reuseIdentifier)
-        $0.showsVerticalScrollIndicator = false
-        $0.showsHorizontalScrollIndicator = false
-    }
     private let searchVideoTextField = LightStrokeTextField().then {
         $0.layer.cornerRadius = 0
         $0.backgroundColor = .white
         $0.textfield.placeholder = "공유하고 싶은 youtube url을 입력해주세요."
+    }
+    private let playlistCollectionView = UICollectionView(frame: .zero, collectionViewLayout: .myRoomCollectionViewLayout(false)).then {
+        $0.register(PlayListCollectionViewCell.self, forCellWithReuseIdentifier: PlayListCollectionViewCell.reuseIdentifier)
+        $0.showsVerticalScrollIndicator = false
+        $0.showsHorizontalScrollIndicator = false
     }
     private let searchResultView = YoutubeSearchResultView().then {
         $0.isHidden = true
@@ -30,7 +30,6 @@ final class PlaylistView: UIView {
     
     private let viewModel = PlayListViewModel()
     private let orderChanged = PublishRelay<(from: IndexPath, to: IndexPath)>()
-    
     
     private var disposeBag = DisposeBag()
     
@@ -59,6 +58,7 @@ final class PlaylistView: UIView {
         
         let input = PlayListViewModel.Input(loadView: load, emptyThumbnailImage: emptyThumbnail, editingTextInput: searchLink, addButtonTapped: addAction, orderChanged: self.orderChanged)
         let output = viewModel.transform(input)
+        
         
         // MARK: - input
         
@@ -111,7 +111,7 @@ final class PlaylistView: UIView {
     
     private func configureHierarchy() {
         addSubview(backgroundView)
-        [playlistCollectionView, searchVideoTextField, searchResultView].forEach {
+        [searchVideoTextField, playlistCollectionView, searchResultView].forEach {
             backgroundView.addSubview($0)
         }
     }
@@ -121,15 +121,16 @@ final class PlaylistView: UIView {
             make.edges.equalToSuperview().inset(12)
         }
         searchVideoTextField.snp.makeConstraints { make in
-            make.horizontalEdges.bottom.equalToSuperview()
+            make.horizontalEdges.top.equalToSuperview()
         }
         playlistCollectionView.snp.makeConstraints { make in
-            make.top.horizontalEdges.equalToSuperview().inset(8)
-            make.bottom.equalTo(searchVideoTextField.snp.top).offset(8)
+            make.top.equalTo(searchVideoTextField.snp.bottom).offset(8)
+            make.horizontalEdges.equalToSuperview().inset(8)
+            make.bottom.equalToSuperview().offset(-8)
         }
         searchResultView.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview()
-            make.bottom.equalTo(searchVideoTextField.snp.top)
+            make.top.equalTo(searchVideoTextField.snp.bottom)
             make.height.equalTo(ComponentSize.roomCollectionViewCell.size.height)
         }
     }
@@ -139,17 +140,20 @@ final class PlaylistView: UIView {
         backgroundView.layer.borderWidth = 1
         backgroundView.layer.borderColor = UIColor.kGray.cgColor
         
-        setupDragAndDrop()
+        setupDragAndDrop()        
     }
 }
 
 extension PlaylistView: UICollectionViewDragDelegate, UICollectionViewDropDelegate {
-    func setupDragAndDrop() {
+    private func setupDragAndDrop() {
         playlistCollectionView.dragDelegate = self
         playlistCollectionView.dropDelegate = self
         playlistCollectionView.dragInteractionEnabled = true
     }
     
+    
+    // MARK: - delegate method
+
     func collectionView(_ collectionView: UICollectionView, canHandle session: any UIDropSession) -> Bool {
         true
     }

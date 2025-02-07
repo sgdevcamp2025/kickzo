@@ -43,7 +43,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         
         segmented.backgroundColor = .lightGray
         segmented.layer.backgroundColor = UIColor.white.cgColor
-  
+        
         segmented.selectedSegmentTintColor = UIColor.kDarkgray
         segmented.setTitleTextAttributes([.foregroundColor: UIColor.black], for: .normal)
         segmented.setTitleTextAttributes([.foregroundColor: UIColor.white], for: .selected)
@@ -73,7 +73,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         navigationController?.interactivePopGestureRecognizer?.delegate = self
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
     }
-          
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
@@ -189,7 +189,6 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             make.top.equalTo(creatorImage.snp.bottom).offset(12)
             make.bottom.equalTo(menuSegmentedControl.snp.top).offset(-12)
         }
-      
     }
     
     override func configureUI() {
@@ -204,7 +203,6 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         }
     }
 }
-
 
 extension KickRoomViewController: YTPlayerViewDelegate {
     func playerView(_ playerView: YTPlayerView, didChangeTo state: YTPlayerState) {
