@@ -22,7 +22,10 @@ export class UserService {
   async create(createUserDto: CreateUserDto) {
     const { email, nickname, password } = createUserDto;
 
-    const user = await this.userRepository.findOne({ where: { email } });
+    const user = await this.userRepository.findOne({
+      where: { email },
+      withDeleted: true,
+    });
     if (user) {
       throw new BadRequestException("이미 가입한 이메일입니다.");
     }
@@ -30,6 +33,7 @@ export class UserService {
     // 닉네임 중복 체크
     const userNickname = await this.userRepository.findOne({
       where: { nickname },
+      withDeleted: true,
     });
     if (userNickname) {
       throw new BadRequestException("이미 가입한 닉네임입니다.");
