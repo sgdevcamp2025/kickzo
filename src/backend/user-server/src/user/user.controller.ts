@@ -22,6 +22,7 @@ import { UnauthorizedException } from "@nestjs/common";
 import { CheckExistsDto } from "./dto/check-exists.dto";
 
 @Controller("api/users")
+@UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
@@ -74,8 +75,14 @@ export class UserController {
   async getUserWithPasswordByEmail(@Payload() payload: { email: string }) {
     console.log("getUserWithPasswordByEmail", payload);
     const user = await this.userService.getUserByEmail(payload.email, true);
-    console.log("user", user);
-    return user;
+    if (!user) {
+      return null;
+    }
+    const userWithPassword = {
+      ...user,
+      password: user.getPassword(),
+    };
+    return userWithPassword;
   }
 
   @Get("exists")
