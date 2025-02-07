@@ -72,6 +72,9 @@ export class UserController {
     if (!userId) {
       throw new UnauthorizedException("헤더에 유저정보가 없습니다.");
     }
+    if (Object.keys(updateUserDto).length === 0) {
+      throw new BadRequestException("업데이트할 정보가 없습니다.");
+    }
     return await this.userService.updateProfile(+userId, updateUserDto);
   }
 
