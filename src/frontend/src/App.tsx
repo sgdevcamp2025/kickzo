@@ -11,6 +11,7 @@ import { FriendPage } from '@/pages/FriendPage';
 import { SettingPage } from '@/pages/SettingPage';
 import { MyRoomPage } from '@/pages/MyRoomPage';
 import { PasswordResetPage } from '@/pages/PasswordResetPage';
+import { SearchPage } from '@/pages/SearchPage';
 
 function App() {
   const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
@@ -26,6 +27,7 @@ function App() {
           <Route path="my-room" element={<MyRoomPage />} />
           <Route path="room" element={<Room />} />
           <Route path="friend" element={<FriendPage />} />
+          <Route path="search" element={<SearchPage />} />
           <Route path="setting" element={<SettingPage />} />
         </Route>
         <Route path="/*" element={<NotFoundPage />} />

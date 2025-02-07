@@ -7,7 +7,6 @@ export const Wrapper = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0 30px;
-  background-color: #f0f0f0;
 `;
 
 export const LogoBox = styled.div`
@@ -48,6 +47,7 @@ export const LoginButton = styled.button`
   border-radius: 2rem;
   color: var(--palette-icon-normal);
   border: 1px solid var(--palette-interaction-inactive);
+  background: var(--palette-static-white);
   transition: background-color 0.3s;
   &:hover {
     background-color: var(--palette-line-solid-normal);

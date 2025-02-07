@@ -5,7 +5,16 @@ import TrashcanIcon from '@/assets/img/Trashcan.svg';
 import ShareIcon from '@/assets/img/ShareLink.svg';
 import { RoomDeleteModal } from '../Modal/RoomDeleteModal';
 import { useNavigate } from 'react-router-dom';
-import { ActionButton, ActionButtons, Card, Creator, Info, Thumbnail, Title, UserCount } from './index.css';
+import {
+  ActionButton,
+  ActionButtons,
+  Card,
+  Creator,
+  Info,
+  Thumbnail,
+  Title,
+  UserCount,
+} from './index.css';
 
 export const MyRoomCard = ({ room }: { room: MyRoomDto }) => {
   const [isHovered, setIsHovered] = useState(false);
@@ -60,7 +69,7 @@ export const MyRoomCard = ({ room }: { room: MyRoomDto }) => {
             {room.userCount}
           </UserCount>
         </Info>
-        <ActionButtons isHovered={isHovered}>
+        <ActionButtons $isHovered={isHovered}>
           <ActionButton onClick={handleShare}>
             <img src={ShareIcon} alt="공유하기" />
           </ActionButton>
@@ -73,4 +82,3 @@ export const MyRoomCard = ({ room }: { room: MyRoomDto }) => {
     </>
   );
 };
-
