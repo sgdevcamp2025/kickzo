@@ -10,12 +10,15 @@ import {
   UseInterceptors,
   UsePipes,
   ValidationPipe,
+  Query,
+  BadRequestException,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { Request } from "express";
 import { UnauthorizedException } from "@nestjs/common";
+import { CheckExistsDto } from "./dto/check-exists.dto";
 
 @Controller("api/users")
 export class UserController {
@@ -42,7 +45,7 @@ export class UserController {
     console.log("headers:", req.headers);
     const id = req.headers["x-user-id"];
     if (!id) {
-      throw new UnauthorizedException("헤더에 아이디가 없습니다.");
+      throw new UnauthorizedException("헤더에 유저정보가 없습니다.");
     }
     return this.userService.getUserById(+id);
   }
@@ -63,6 +66,27 @@ export class UserController {
     const user = await this.userService.getUserByEmail(payload.email, true);
     console.log("user", user);
     return user;
+  }
+
+  @Get("exists")
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async checkExists(@Query() query: CheckExistsDto) {
+    if (query.nickname && query.email) {
+      throw new BadRequestException("nickname과 email 중 하나만 전달해주세요.");
+    }
+
+    if (query.nickname) {
+      return this.userService.checkNicknameExists(query.nickname);
+    }
+    if (query.email) {
+      return this.userService.checkEmailExists(query.email);
+    }
+  }
+
+  // 이메일 검증을 위한 헬퍼 함수
+  private validateEmail(email: string): boolean {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   }
 }
 

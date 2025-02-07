@@ -107,4 +107,34 @@ export class UserService {
   async remove(id: number) {
     await this.userRepository.delete(id);
   }
+
+  async checkNicknameExists(nickname: string) {
+    const user = await this.userRepository.findOne({ where: { nickname } });
+    return {
+      status: 200,
+      message: user
+        ? "이미 사용 중인 닉네임입니다."
+        : "사용 가능한 닉네임입니다.",
+      data: {
+        isAvailable: !user,
+        field: "nickname",
+        value: nickname,
+      },
+    };
+  }
+
+  async checkEmailExists(email: string) {
+    const user = await this.userRepository.findOne({ where: { email } });
+    return {
+      status: 200,
+      message: user
+        ? "이미 사용 중인 이메일입니다."
+        : "사용 가능한 이메일입니다.",
+      data: {
+        isAvailable: !user,
+        field: "email",
+        value: email,
+      },
+    };
+  }
 }

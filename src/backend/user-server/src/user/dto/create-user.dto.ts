@@ -1,4 +1,4 @@
-import { IsEmail, IsNotEmpty, IsString } from "class-validator";
+import { IsEmail, IsNotEmpty, IsString, Matches } from "class-validator";
 
 export class CreateUserDto {
   @IsEmail()
@@ -7,6 +7,9 @@ export class CreateUserDto {
 
   @IsString()
   @IsNotEmpty()
+  @Matches(/^[가-힣a-zA-Z0-9]+$/, {
+    message: "닉네임은 한글, 영어, 숫자만 사용할 수 있습니다.",
+  })
   nickname: string;
 
   @IsString()
