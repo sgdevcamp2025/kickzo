@@ -94,16 +94,36 @@ export class UserService {
     return this.userRepository.findOne({ where: { email } });
   }
 
-  async update(id: number, updateUserDto: UpdateUserDto) {
-    const user = await this.userRepository.findOne({ where: { id } });
+  async updateProfile(userId: number, updateUserDto: UpdateUserDto) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
 
     if (!user) {
-      throw new NotFoundException("존재하지 않는 사용자입니다!");
+      throw new NotFoundException("사용자를 찾을 수 없습니다.");
     }
 
-    await this.userRepository.update({ id }, updateUserDto);
+    if (updateUserDto.nickname) {
+      const existingUser = await this.userRepository.findOne({
+        where: { nickname: updateUserDto.nickname },
+        withDeleted: true,
+      });
 
-    return this.userRepository.findOne({ where: { id } });
+      if (existingUser && existingUser.id !== userId) {
+        throw new BadRequestException("이미 사용 중인 닉네임입니다.");
+      }
+
+      user.nickname = updateUserDto.nickname;
+      user.nicknameUpdatedAt = new Date();
+    }
+
+    if (updateUserDto.stateMessage !== undefined) {
+      user.stateMessage =
+        updateUserDto.stateMessage.trim() === ""
+          ? null
+          : updateUserDto.stateMessage;
+    }
+
+    const updatedUser = await this.userRepository.save(user);
+    return updatedUser;
   }
 
   async delete(id: number) {

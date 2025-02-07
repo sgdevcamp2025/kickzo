@@ -46,7 +46,7 @@ export class User {
   passwordUpdatedAt: Date; // 비밀번호 변경 시각
 
   @Column({ type: "varchar", length: 100, nullable: true })
-  stateMessage: string; // 상태 메시지
+  stateMessage: string | null; // 상태 메시지
 
   @CreateDateColumn({ type: "timestamp" })
   @Exclude()

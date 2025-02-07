@@ -13,6 +13,7 @@ import {
   Query,
   BadRequestException,
   Delete,
+  Patch,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -20,6 +21,7 @@ import { MessagePattern, Payload } from "@nestjs/microservices";
 import { Request } from "express";
 import { UnauthorizedException } from "@nestjs/common";
 import { CheckExistsDto } from "./dto/check-exists.dto";
+import { UpdateUserDto } from "./dto/update-user.dto";
 
 @Controller("api/users")
 @UseInterceptors(ClassSerializerInterceptor)
@@ -61,6 +63,18 @@ export class UserController {
     return this.userService.getUserById(+id);
   }
 
+  @Patch("profile")
+  async updateProfile(
+    @Req() req: Request,
+    @Body() updateUserDto: UpdateUserDto,
+  ) {
+    const userId = req.headers["x-user-id"];
+    if (!userId) {
+      throw new UnauthorizedException("헤더에 유저정보가 없습니다.");
+    }
+    return await this.userService.updateProfile(+userId, updateUserDto);
+  }
+
   @MessagePattern({ cmd: "get_user_by_email" })
   @UsePipes(ValidationPipe)
   async getUserByEmail(@Payload() payload: { email: string }) {
@@ -98,12 +112,6 @@ export class UserController {
     if (query.email) {
       return this.userService.checkEmailExists(query.email);
     }
-  }
-
-  // 이메일 검증을 위한 헬퍼 함수
-  private validateEmail(email: string): boolean {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    return emailRegex.test(email);
   }
 }
 
