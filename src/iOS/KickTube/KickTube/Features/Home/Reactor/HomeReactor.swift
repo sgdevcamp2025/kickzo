@@ -15,28 +15,48 @@ final class HomeReactor: Reactor {
     enum Action {
         case viewDidLoad
         case getVideoThumbnail(idx: Int, id: String)
+        case homeCellTapped(idx: IndexPath)
     }
     
     enum Mutation {
         case getRoomList([HomeRoomDomainModel])
         case setVideoImage(data: Data, idx: Int)
         case setImageError(error: Error, idx: Int)
+        case enterRoom(KickRoomDomainModel)
     }
     
     struct State {
         var rooms: [HomeRoomViewModel]
+        var enterRoom: KickRoomViewModel?
     }
     
     let initialState: State = State(
-        rooms: []
+        rooms: [],
+        enterRoom: nil
     )
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewDidLoad:
-            let homeRoomList: [HomeRoomDomainModel] = SampleTest.homeViewList
-            
-            return .just(Mutation.getRoomList(homeRoomList))
+//            return Observable.create { [weak self] observer in
+//                guard let self else {
+//                    return  Disposables.create()
+//                }
+//                
+//                Task {
+//                    do {
+//                        let decoded = try await self.networkManager.getDecodedData(request: HomeRouter.getAllRooms.makeURLRequest(), to: [HomeRoomResponse].self)
+//                        observer.onNext(.getRoomList(decoded.map { $0.toModel() }))
+//                        observer.onCompleted()
+//                    } catch {
+//                        print("Error fetching thumbnail: \(error)")
+//                        observer.onCompleted()
+//                    }
+//                }
+//                
+//                return Disposables.create()
+//            }
+            return .just(Mutation.getRoomList(SampleTest.homeViewList))
         case .getVideoThumbnail(let idx, let id):
             return Observable.create { [weak self] observer in
                 guard let self else {
@@ -58,6 +78,9 @@ final class HomeReactor: Reactor {
                 
                 return Disposables.create()
             }
+        case .homeCellTapped(let idx):
+            let roomID = currentState.rooms[idx.item].roomID
+            return .just(.enterRoom(SampleTest.createdRoom))
         }
     }
     
@@ -66,11 +89,13 @@ final class HomeReactor: Reactor {
         
         switch mutation {
         case .getRoomList(let rooms):
-            newState.rooms = rooms.map { $0.toViewModel() }
+            newState.rooms = rooms.map { $0.toModel() }
         case .setVideoImage(let data, let idx):
             newState.rooms[idx].videoThumbnail = data
         case .setImageError(_, let idx):
             newState.rooms[idx].videoThumbnail = nil
+        case .enterRoom(let room):
+            newState.enterRoom = room.toModel()
         }
         
         return newState

@@ -14,6 +14,6 @@ export const Img = styled.img`
 
 export const Nickname = styled.div<{ $role: UserRole }>`
   color: ${({ $role }) =>
-    $role === UserRole.OWNER ? '#FF9100' : $role === UserRole.MANAGER ? '#4D94E1' : '#000000'};
+    $role === UserRole.CREATOR ? '#FF9100' : $role === UserRole.MANAGER ? '#4D94E1' : '#000000'};
   font-weight: bold;
 `;

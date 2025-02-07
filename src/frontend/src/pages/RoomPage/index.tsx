@@ -17,7 +17,7 @@ export const Room = () => {
       {/* <BigProfile
         userId="test1"
         userRole={UserRole.USER}
-        myRole={UserRole.OWNER}
+        myRole={UserRole.CREATOR}
         sidebarType={SidebarType.VoiceChat}
       /> */}
       <Wrapper>

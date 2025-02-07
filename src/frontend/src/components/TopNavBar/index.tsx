@@ -6,6 +6,7 @@ import { Wrapper, ButtonContainer, ButtonBox, LogoBox, LoginButton } from './ind
 import { LogoButton } from '@/components/common/LogoButton';
 import { RoomCreateModal } from '@/components/Modal/RoomCreateModal';
 import { NotificationModal } from '@/components/Modal/NotificationModal';
+import { SearchBar } from '@/components/Search/SearchBar';
 
 export const TopNavBar = () => {
   const [isRoomCreateModalOpen, setIsRoomCreateModalOpen] = useState(false);
@@ -27,7 +28,7 @@ export const TopNavBar = () => {
         <LogoBox>
           <LogoButton />
         </LogoBox>
-        <div>검색바</div>
+        <SearchBar />
         <ButtonContainer>
           <ButtonBox onClick={() => setIsRoomCreateModalOpen(true)}>
             <img src={AddCircleIcon} alt="Create Room" />

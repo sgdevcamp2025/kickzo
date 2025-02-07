@@ -6,7 +6,7 @@ enum UserRole {
 
 export const chatDataTest = [
   {
-    role: UserRole.OWNER,
+    role: UserRole.CREATOR,
     nickname: '이노',
     time: '오후 12시 13분',
     text: '이노바보야 이노바보야 이노바보야',

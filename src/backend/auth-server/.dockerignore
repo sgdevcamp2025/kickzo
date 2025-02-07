@@ -1,6 +1,9 @@
 node_modules
 Dockerfile
-.dockerignore
 .git
 .gitignore
+.dockerignore
 .DS_Store
+dist
+npm-debug.log
+README.md
