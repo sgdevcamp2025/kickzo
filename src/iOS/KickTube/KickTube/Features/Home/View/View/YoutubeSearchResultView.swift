@@ -7,6 +7,8 @@
 
 import UIKit
 
+import RxSwift
+
 final class YoutubeSearchResultView: UIView {
     private let videoThumbnailView = UIImageView().then {
         $0.layer.cornerRadius = 12

@@ -51,7 +51,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         segmented.layer.borderWidth = 1
         segmented.layer.borderColor = UIColor.kGray.cgColor
         
-        segmented.selectedSegmentIndex = 1
+        segmented.selectedSegmentIndex = 0
         
         return segmented
     }()
@@ -114,7 +114,6 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             .compactMap { $0 }
             .observe(on: MainScheduler.instance)
             .subscribe(with: self) { owner, value in
-                print(value)
                 owner.playerView.seek(toSeconds: value.time, allowSeekAhead: false)
             }
             .disposed(by: disposeBag)
@@ -143,20 +142,6 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         menuSegmentedControl.rx.selectedSegmentIndex
             .subscribe(with: self, onNext: { owner, index in
                 owner.mainScrollView.setPageIndex(index)
-                
-                switch index {
-                case 0:
-                    print("Search selected")
-                case 1:
-                    print("Feed selected")
-                    
-                case 2:
-                    print("Sound selected")
-                case 3:
-                    print("Profile selected")
-                default:
-                    break
-                }
             })
             .disposed(by: disposeBag)
     }
@@ -210,6 +195,13 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     override func configureUI() {
         playerView.delegate = self
         setupSegmentedControl()
+        mainScrollView.didUpdatePageIndex = { [weak self] pageIndex in
+            guard let self else { return }
+            
+            DispatchQueue.main.async {
+                self.menuSegmentedControl.selectedSegmentIndex = pageIndex
+            }
+        }
     }
 }
 

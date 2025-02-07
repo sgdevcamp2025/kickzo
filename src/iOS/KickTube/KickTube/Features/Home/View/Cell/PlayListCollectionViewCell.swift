@@ -7,6 +7,8 @@
 
 import UIKit
 
+import RxSwift
+
 final class PlayListCollectionViewCell: UICollectionViewCell {
     private let videoThumbnailView = UIImageView().then {
         $0.layer.cornerRadius = 12
