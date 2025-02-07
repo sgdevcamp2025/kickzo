@@ -29,7 +29,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post("register")
-  @UseInterceptors(ClassSerializerInterceptor)
+  @UsePipes(ValidationPipe)
   registerUser(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
