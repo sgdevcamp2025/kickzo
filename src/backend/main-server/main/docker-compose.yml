@@ -1,0 +1,22 @@
+name: kickzo
+
+services:
+  main:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: main
+    ports:
+      - "${MAIN_PORT}:${MAIN_PORT}"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      SPRING_DATASOURCE_URL: jdbc:mysql://${MYSQL_HOST}:${MYSQL_CONTAINER_PORT}/${MYSQL_DATABASE}
+      SPRING_DATASOURCE_USERNAME: ${MYSQL_USER}
+      SPRING_DATASOURCE_PASSWORD: ${MYSQL_PASSWORD}
+      SPRING_APPLICATION_NAME: main
+    networks:
+      - kickzo-network
+
+networks:
+  kickzo-network:
+    driver: bridge
