@@ -5,13 +5,16 @@ export const MESSAGES = {
   PASSWORD_FORMAT:
     "비밀번호는 영어, 숫자, 특수문자를 포함해야 합니다. 최소 8자 이상 최대 20자 이하여야 합니다.",
   STATE_MESSAGE_LENGTH: "상태 메시지는 0자 이상 100자 이하여야 합니다.",
-
+  DELETION_SUCCESS: "회원 탈퇴가 완료되었습니다.",
   EMAIL_IN_USE: "이미 사용 중인 이메일입니다.",
   NICKNAME_IN_USE: "이미 사용 중인 닉네임입니다.",
   USER_NOT_FOUND: "사용자를 찾을 수 없습니다.",
   DELETION_ERROR: "회원 탈퇴 처리 중 오류가 발생했습니다.",
   NICKNAME_AVAILABLE: "사용 가능한 닉네임입니다.",
   EMAIL_AVAILABLE: "사용 가능한 이메일입니다.",
+  UNAUTHORIZED_IN_HEADER: "헤더에 유저정보가 없습니다.",
+  NO_UPDATE_INFO: "수정할 정보가 없습니다.",
+  NICKNAME_AND_EMAIL: "닉네임과 이메일 중 하나만 전달해주세요.",
 };
 
 export const REGEX = {

@@ -16,7 +16,7 @@ import Redis from "ioredis";
 import { REDIS_KEY } from "./constants/redis-key.constant";
 import { DeviceType } from "./enum/device-type.enum";
 import { MESSAGES } from "./constants/constants";
-
+import { ENV_KEY } from "./constants/env-key.constants";
 @Injectable()
 export class UserService {
   private readonly redis: Redis;
@@ -51,7 +51,8 @@ export class UserService {
     }
 
     // 비밀번호 해싱
-    const hashRounds = this.configService.get<number>("HASH_ROUNDS") || 10;
+    const hashRounds =
+      this.configService.get<number>(ENV_KEY.HASH_ROUNDS) || 10;
     // salt 생성
     const salt = await bcrypt.genSalt(hashRounds);
     // salt를 이용해 비밀번호 해싱
@@ -146,7 +147,7 @@ export class UserService {
       await this.userRepository.softDelete(id);
 
       return {
-        message: "회원 탈퇴가 완료되었습니다.",
+        message: MESSAGES.DELETION_SUCCESS,
         userId: id,
       };
     } catch (error) {
