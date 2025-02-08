@@ -36,7 +36,8 @@ public class PlaylistService {
 
 	private List<PlaylistItem> parsePlaylistJson(String playlistJson) {
 		try {
-			return objectMapper.readValue(playlistJson, new TypeReference<List<PlaylistItem>>() {});
+			return objectMapper.readValue(playlistJson, new TypeReference<>() {
+			});
 		} catch (JsonProcessingException e) {
 			log.error("Failed to parse playlist JSON: {}", playlistJson, e);
 			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
