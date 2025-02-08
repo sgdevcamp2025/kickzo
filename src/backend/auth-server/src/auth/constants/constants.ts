@@ -12,8 +12,8 @@ export const MESSAGES = {
 };
 
 export const TOKEN_TYPE = {
-  ACCESS: "access",
-  REFRESH: "refresh",
+  ACCESS: "access_token",
+  REFRESH: "refresh_token",
 } as const;
 
 export const TOKEN_EXPIRATION_TIME = {

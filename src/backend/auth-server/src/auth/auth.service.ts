@@ -107,7 +107,10 @@ export class AuthService {
     };
   }
 
-  divideRawToken(rawToken: string, type: "basic" | "bearer") {
+  divideRawToken(
+    rawToken: string,
+    type: typeof RAW_TOKEN_TYPE.BASIC | typeof RAW_TOKEN_TYPE.BEARER,
+  ) {
     const basicSplit = rawToken.split(" ");
     if (basicSplit.length !== 2) {
       throw new BadRequestException(MESSAGES.INVALID_TOKEN_FORMAT);

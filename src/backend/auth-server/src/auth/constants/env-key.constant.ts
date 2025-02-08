@@ -1,4 +1,5 @@
 export const ENV_KEY = {
   REFRESH_TOKEN_SECRET: "REFRESH_TOKEN_SECRET",
   ACCESS_TOKEN_SECRET: "ACCESS_TOKEN_SECRET",
+  KONG_JWT_SECRET: "kicktube-jwt",
 } as const;
