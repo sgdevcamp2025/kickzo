@@ -49,7 +49,9 @@ class KickRoomMainScrollView: UIView {
     func setPageIndex(_ idx: Int) {
         let offset = CGPoint(x: ComponentSize.screenWidth * CGFloat(idx), y: 0)
 
-        scrollView.setContentOffset(offset, animated: true)
+        DispatchQueue.main.async {
+            self.scrollView.setContentOffset(offset, animated: true)
+        }
     }
 
     

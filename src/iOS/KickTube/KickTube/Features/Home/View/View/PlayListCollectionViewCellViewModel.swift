@@ -22,6 +22,7 @@ final class PlayListViewModel {
         let editingTextInput: PublishRelay<String>
         let addButtonTapped: PublishRelay<Void>
         let orderChanged: PublishRelay<(from: IndexPath, to: IndexPath)>
+        let deleteButtonTapped: PublishRelay<Int>
     }
     
     struct Output {
@@ -124,6 +125,13 @@ final class PlayListViewModel {
                 let data = owner.playlist.remove(at: from.row)
                 
                 owner.playlist.insert(data, at: to.row)
+                playlistSubject.onNext(owner.playlist)
+            }
+            .disposed(by: disposeBag)
+        
+        input.deleteButtonTapped
+            .subscribe(with: self) { owner, value in
+                owner.playlist.remove(at: value)
                 playlistSubject.onNext(owner.playlist)
             }
             .disposed(by: disposeBag)

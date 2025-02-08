@@ -51,7 +51,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         segmented.layer.borderWidth = 1
         segmented.layer.borderColor = UIColor.kGray.cgColor
         
-        segmented.selectedSegmentIndex = 0
+        segmented.selectedSegmentIndex = 1
         
         return segmented
     }()
@@ -144,6 +144,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
                 owner.mainScrollView.setPageIndex(index)
             })
             .disposed(by: disposeBag)
+        menuSegmentedControl.rx.selectedSegmentIndex.onNext(1)
     }
     
     
@@ -194,6 +195,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     override func configureUI() {
         playerView.delegate = self
         setupSegmentedControl()
+        
         mainScrollView.didUpdatePageIndex = { [weak self] pageIndex in
             guard let self else { return }
             

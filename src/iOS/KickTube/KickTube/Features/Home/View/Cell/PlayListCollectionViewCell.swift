@@ -23,6 +23,12 @@ final class PlayListCollectionViewCell: UICollectionViewCell {
         $0.font = KFont.light13
         $0.textColor = UIColor.kGray
     }
+    private let deleteButton = UIButton().then {
+        $0.setImage(.trash, for: .normal)
+        $0.tintColor = .kGray
+    }
+    
+    var deleteAction: (()->Void)?
     
     private var disposeBag = DisposeBag()
     
@@ -31,6 +37,7 @@ final class PlayListCollectionViewCell: UICollectionViewCell {
         
         configureHierarchy()
         configureLayout()
+        bind()
     }
     
     required init?(coder: NSCoder) {
@@ -45,6 +52,16 @@ final class PlayListCollectionViewCell: UICollectionViewCell {
         disposeBag = DisposeBag()
     }
     
+    
+    // MARK: - configure bind
+
+    private func bind() {
+        deleteButton.rx.tap
+            .bind(with: self) { owner, _ in
+                owner.deleteAction?()
+            }
+            .disposed(by: disposeBag)
+    }
     
     // MARK: - internal method
     
@@ -69,7 +86,7 @@ final class PlayListCollectionViewCell: UICollectionViewCell {
     // MARK: - configure UI
     
     private func configureHierarchy() {
-        [videoThumbnailView, titleLabel, usernameLabel].forEach {
+        [videoThumbnailView, titleLabel, usernameLabel, deleteButton].forEach {
             contentView.addSubview($0)
         }
     }
@@ -88,6 +105,11 @@ final class PlayListCollectionViewCell: UICollectionViewCell {
         usernameLabel.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(4)
             make.leading.equalTo(videoThumbnailView.snp.trailing).offset(12)
+        }
+        deleteButton.snp.makeConstraints { make in
+            make.bottom.equalToSuperview()
+            make.trailing.equalToSuperview().inset(15)
+            make.size.equalTo(CGSize(width: 30, height: 30))
         }
     }
 }

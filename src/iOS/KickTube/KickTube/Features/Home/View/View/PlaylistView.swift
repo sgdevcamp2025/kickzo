@@ -55,8 +55,9 @@ final class PlaylistView: UIView {
         let searchLink = PublishRelay<String>()
         let emptyThumbnail = PublishRelay<Int>()
         let addAction = PublishRelay<Void>()
+        let deleteACtion = PublishRelay<Int>()
         
-        let input = PlayListViewModel.Input(loadView: load, emptyThumbnailImage: emptyThumbnail, editingTextInput: searchLink, addButtonTapped: addAction, orderChanged: self.orderChanged)
+        let input = PlayListViewModel.Input(loadView: load, emptyThumbnailImage: emptyThumbnail, editingTextInput: searchLink, addButtonTapped: addAction, orderChanged: self.orderChanged, deleteButtonTapped: deleteACtion)
         let output = viewModel.transform(input)
         
         
@@ -90,6 +91,9 @@ final class PlaylistView: UIView {
                     input.emptyThumbnailImage.accept(item)
                 }
                 cell.setContent(element)
+                cell.deleteAction = {
+                    deleteACtion.accept(item)
+                }
             }
             .disposed(by: disposeBag)
         
