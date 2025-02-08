@@ -1,5 +1,6 @@
-import { IsEmail, IsString, Matches, ValidateIf } from "class-validator";
+import { IsEmail, IsString, ValidateIf } from "class-validator";
 import { Transform } from "class-transformer";
+import { IsNickname } from "../decorators/nickname.decorator";
 
 interface ICheckExists {
   nickname?: string;
@@ -9,9 +10,7 @@ interface ICheckExists {
 export class CheckExistsDto {
   @ValidateIf((o: ICheckExists) => !o.email)
   @IsString()
-  @Matches(/^[가-힣a-zA-Z0-9]+$/, {
-    message: "닉네임은 한글, 영어, 숫자만 사용할 수 있습니다.",
-  })
+  @IsNickname()
   @Transform(({ value }: { value: string }) => value?.trim())
   nickname?: string;
 

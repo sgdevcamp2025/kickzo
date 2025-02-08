@@ -53,18 +53,18 @@ export class AuthService {
   async updateTokens(rawToken: string) {
     const payload = await this.parseBearerToken(rawToken, true);
 
-    const payloadStr = await this.redis.get(
-      REDIS_KEY.REFRESH_TOKEN(payload.id, payload.device as DeviceType),
-    );
-
-    if (!payloadStr) {
-      throw new UnauthorizedException("만료된 토큰입니다.");
-    }
-
     const device = payload.device as DeviceType;
 
     if (device !== DeviceType.WEB && device !== DeviceType.MOBILE) {
       throw new UnauthorizedException("유효하지 않은 토큰입니다.");
+    }
+
+    const token = await this.redis.get(
+      REDIS_KEY.REFRESH_TOKEN(payload.id, device),
+    );
+
+    if (!token) {
+      throw new UnauthorizedException("만료된 토큰입니다.");
     }
 
     return await this.sendTokens(payload, device);

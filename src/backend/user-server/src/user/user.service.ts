@@ -14,6 +14,8 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { RedisService } from "@liaoliaots/nestjs-redis";
 import Redis from "ioredis";
 import { REDIS_KEY } from "./constants/redis-key.constant";
+import { DeviceType } from "./enum/device-type.enum";
+import { MESSAGES } from "./constants/constants";
 
 @Injectable()
 export class UserService {
@@ -36,7 +38,7 @@ export class UserService {
       withDeleted: true,
     });
     if (user) {
-      throw new BadRequestException("이미 가입한 이메일입니다.");
+      throw new BadRequestException(MESSAGES.EMAIL_IN_USE);
     }
 
     // 닉네임 중복 체크
@@ -45,7 +47,7 @@ export class UserService {
       withDeleted: true,
     });
     if (userNickname) {
-      throw new BadRequestException("이미 가입한 닉네임입니다.");
+      throw new BadRequestException(MESSAGES.NICKNAME_IN_USE);
     }
 
     // 비밀번호 해싱
@@ -73,7 +75,7 @@ export class UserService {
   async getUserById(id: number) {
     const user = await this.userRepository.findOne({ where: { id } });
     if (!user) {
-      throw new NotFoundException("존재하지 않는 사용자입니다!");
+      throw new NotFoundException(MESSAGES.USER_NOT_FOUND);
     }
     return user;
   }
@@ -99,7 +101,7 @@ export class UserService {
     const user = await this.userRepository.findOne({ where: { id: userId } });
 
     if (!user) {
-      throw new NotFoundException("사용자를 찾을 수 없습니다.");
+      throw new NotFoundException(MESSAGES.USER_NOT_FOUND);
     }
 
     if (updateUserDto.nickname) {
@@ -109,7 +111,7 @@ export class UserService {
       });
 
       if (existingUser && existingUser.id !== userId) {
-        throw new BadRequestException("이미 사용 중인 닉네임입니다.");
+        throw new BadRequestException(MESSAGES.NICKNAME_IN_USE);
       }
 
       user.nickname = updateUserDto.nickname;
@@ -131,15 +133,15 @@ export class UserService {
     try {
       const user = await this.userRepository.findOne({ where: { id } });
       if (!user) {
-        throw new NotFoundException("사용자를 찾을 수 없습니다.");
+        throw new NotFoundException(MESSAGES.USER_NOT_FOUND);
       }
 
       // 유저의 모든 토큰 삭제
-      await this.redis.del(REDIS_KEY.REFRESH_TOKEN(id, "web"));
-      await this.redis.del(REDIS_KEY.REFRESH_TOKEN(id, "mobile"));
+      await this.redis.del(REDIS_KEY.REFRESH_TOKEN(id, DeviceType.WEB));
+      await this.redis.del(REDIS_KEY.REFRESH_TOKEN(id, DeviceType.MOBILE));
 
-      await this.redis.del(REDIS_KEY.ACCESS_TOKEN(id, "web"));
-      await this.redis.del(REDIS_KEY.ACCESS_TOKEN(id, "mobile"));
+      await this.redis.del(REDIS_KEY.ACCESS_TOKEN(id, DeviceType.WEB));
+      await this.redis.del(REDIS_KEY.ACCESS_TOKEN(id, DeviceType.MOBILE));
 
       await this.userRepository.softDelete(id);
 
@@ -151,9 +153,7 @@ export class UserService {
       if (error instanceof NotFoundException) {
         throw error;
       }
-      throw new InternalServerErrorException(
-        "회원 탈퇴 처리 중 오류가 발생했습니다.",
-      );
+      throw new InternalServerErrorException(MESSAGES.DELETION_ERROR);
     }
   }
 
@@ -173,9 +173,7 @@ export class UserService {
       withDeleted: true,
     });
     return {
-      message: user
-        ? "이미 사용 중인 닉네임입니다."
-        : "사용 가능한 닉네임입니다.",
+      message: user ? MESSAGES.NICKNAME_IN_USE : MESSAGES.NICKNAME_AVAILABLE,
       isAvailable: !user,
       field: "nickname",
       value: nickname,
@@ -188,9 +186,7 @@ export class UserService {
       withDeleted: true,
     });
     return {
-      message: user
-        ? "이미 사용 중인 이메일입니다."
-        : "사용 가능한 이메일입니다.",
+      message: user ? MESSAGES.EMAIL_IN_USE : MESSAGES.EMAIL_AVAILABLE,
       isAvailable: !user,
       field: "email",
       value: email,
