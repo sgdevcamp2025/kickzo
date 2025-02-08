@@ -6,6 +6,7 @@ import {
   Param,
   ParseIntPipe,
   Post,
+  Req,
   UseInterceptors,
   UsePipes,
   ValidationPipe,
@@ -13,12 +14,14 @@ import {
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
 import { MessagePattern, Payload } from "@nestjs/microservices";
+import { Request } from "express";
+import { UnauthorizedException } from "@nestjs/common";
 
-@Controller("users")
+@Controller("api/users")
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
-  @Post("v1/register")
+  @Post("register")
   @UseInterceptors(ClassSerializerInterceptor)
   registerUser(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
@@ -34,14 +37,15 @@ export class UserController {
     return this.userService.getUserById(+id);
   }
 
-  // @Get('v1/profile')
-  // async getMyInfo(@Req() req: Request) {
-  // const token = req.cookies['accessToken'] as string | undefined;
-  // if (!token) {
-  //   throw new UnauthorizedException('엑세스 토큰이 필요합니다.');
-  // }
-  // return this.userService.getUserById(+id);
-  // }
+  @Get("profile")
+  async getMyInfo(@Req() req: Request) {
+    console.log("headers:", req.headers);
+    const id = req.headers["x-user-id"];
+    if (!id) {
+      throw new UnauthorizedException("헤더에 아이디가 없습니다.");
+    }
+    return this.userService.getUserById(+id);
+  }
 
   @MessagePattern({ cmd: "get_user_by_email" })
   @UsePipes(ValidationPipe)

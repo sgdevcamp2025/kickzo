@@ -1,48 +1,128 @@
-import { BadRequestException, Inject, Injectable } from "@nestjs/common";
-import { JwtService } from "@nestjs/jwt";
+import {
+  BadRequestException,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from "@nestjs/common";
+import { JwtService, TokenExpiredError } from "@nestjs/jwt";
 import * as bcrypt from "bcryptjs";
 import { ConfigService } from "@nestjs/config";
 import { TokenPayload } from "./interface/token-payload.interface";
 import { ClientProxy } from "@nestjs/microservices";
 import { lastValueFrom } from "rxjs";
 import { UserLoginDto } from "./dto/user-login.dto";
+import { RedisService } from "@liaoliaots/nestjs-redis";
+import Redis from "ioredis";
+import { DeviceType } from "./enum/device-type.enum";
 
 @Injectable()
 export class AuthService {
+  private readonly redis: Redis;
+
   constructor(
     private readonly configService: ConfigService,
     private readonly jwtService: JwtService,
+    private readonly redisService: RedisService,
     @Inject("USER_SERVICE")
     private readonly userService: ClientProxy,
-  ) {}
+  ) {
+    this.redis = this.redisService.getOrThrow();
+  }
 
-  async login(rawToken: string) {
+  async login(rawToken: string, device: DeviceType) {
     const { email, password } = this.parseBasicToken(rawToken);
 
-    const user = await this.authenticate(email, password);
+    const payload = await this.authenticate(email, password);
+
+    return await this.sendTokens(payload, device);
+  }
+
+  async logout(rawToken: string) {
+    const token = this.divideRawToken(rawToken, "bearer");
+
+    const payload = await this.parseBearerToken(rawToken, false);
+
+    await this.redis.del(`refresh_token:${payload.id}:${payload.device}`);
+    await this.redis.del(`access_token:${token}`);
+
+    return { message: "로그아웃 되었습니다." };
+  }
+
+  async updateTokens(rawToken: string) {
+    const payload = await this.parseBearerToken(rawToken, true);
+
+    const payloadStr = await this.redis.get(
+      `refresh_token:${payload.id}:${payload.device}`,
+    );
+
+    if (!payloadStr) {
+      throw new UnauthorizedException("만료된 토큰입니다.");
+    }
+
+    const device = payload.device as DeviceType;
+
+    if (device !== DeviceType.WEB && device !== DeviceType.MOBILE) {
+      throw new UnauthorizedException("유효하지 않은 토큰입니다.");
+    }
+
+    return await this.sendTokens(payload, device);
+  }
+
+  async sendTokens(payload: TokenPayload, device: DeviceType) {
+    const refreshToken = await this.issueToken(payload, device, true);
+    const accessToken = await this.issueToken(payload, device, false);
+
+    if (this.redis) {
+      try {
+        await this.redis.set(
+          `access_token:${accessToken}`,
+          JSON.stringify(payload),
+          "EX",
+          300, // 5분
+        );
+
+        await this.redis.del(`refresh_token:${payload.id}:${device}`);
+        await this.redis.set(
+          `refresh_token:${payload.id}:${device}`,
+          refreshToken,
+          "EX",
+          3600, // 1시간
+        );
+      } catch {
+        throw new BadRequestException(
+          "Redis에 토큰을 저장하는데 실패했습니다.",
+        );
+      }
+    }
 
     return {
-      refreshToken: await this.issueToken(user, true),
-      accessToken: await this.issueToken(user, false),
+      refreshToken: refreshToken,
+      accessToken: accessToken,
     };
   }
 
-  parseBasicToken(rawToken: string) {
+  divideRawToken(rawToken: string, type: "basic" | "bearer") {
     const basicSplit = rawToken.split(" ");
     if (basicSplit.length !== 2) {
-      throw new BadRequestException("토큰 포멧이 잘못됐습니다.");
+      throw new BadRequestException("토큰 포맷이 잘못됐습니다.");
     }
 
-    const [basic, token] = basicSplit;
-    if (basic.toLowerCase() !== "basic") {
-      throw new BadRequestException("토큰 포멧이 잘못됐습니다.");
+    const [_type, token] = basicSplit;
+    if (_type.toLowerCase() !== type) {
+      throw new BadRequestException("토큰 포맷이 잘못됐습니다.");
     }
+
+    return token;
+  }
+
+  parseBasicToken(rawToken: string) {
+    const token = this.divideRawToken(rawToken, "basic");
 
     const decoded = Buffer.from(token, "base64").toString("utf-8");
 
     const tokenSplit = decoded.split(":");
     if (tokenSplit.length !== 2) {
-      throw new BadRequestException("토큰 포멧이 잘못됐습니다.");
+      throw new BadRequestException("토큰 포맷이 잘못됐습니다.");
     }
 
     const [email, password] = tokenSplit;
@@ -51,15 +131,7 @@ export class AuthService {
   }
 
   async parseBearerToken(rawToken: string, isRefreshToken: boolean) {
-    const basicSplit = rawToken.split(" ");
-    if (basicSplit.length !== 2) {
-      throw new BadRequestException("토큰 포멧이 잘못됐습니다.");
-    }
-
-    const [bearer, token] = basicSplit;
-    if (bearer.toLowerCase() !== "bearer") {
-      throw new BadRequestException("토큰 포멧이 잘못됐습니다.");
-    }
+    const token = this.divideRawToken(rawToken, "bearer");
 
     try {
       const payload = await this.jwtService.verifyAsync<TokenPayload>(token, {
@@ -79,14 +151,16 @@ export class AuthService {
       }
 
       return payload;
-    } catch {
-      throw new BadRequestException("토큰 포멧이 잘못됐습니다.");
+    } catch (error) {
+      if (error instanceof TokenExpiredError) {
+        throw new BadRequestException("만료된 토큰입니다.");
+      }
+      throw new BadRequestException("토큰 포맷이 잘못됐습니다.");
     }
   }
 
   async authenticate(email: string, password: string) {
     const user = await this.getUserWithPasswordByEmail(email);
-    console.log("user!!", user);
     if (!user) {
       throw new BadRequestException("잘못된 로그인 정보입니다.");
     }
@@ -96,7 +170,9 @@ export class AuthService {
       throw new BadRequestException("잘못된 로그인 정보입니다.");
     }
 
-    return user;
+    const { password: _, ...withoutPassword } = user;
+
+    return withoutPassword;
   }
 
   async getUserByEmail(email: string) {
@@ -114,24 +190,46 @@ export class AuthService {
     );
   }
 
-  async issueToken(user: TokenPayload, isRefreshToken: boolean) {
-    const refreshTokenSecret = this.configService.getOrThrow<string>(
-      "REFRESH_TOKEN_SECRET",
-    );
-    const accessTokenSecret = this.configService.getOrThrow<string>(
-      "ACCESS_TOKEN_SECRET",
+  async issueToken(
+    user: TokenPayload,
+    device: DeviceType,
+    isRefreshToken: boolean,
+  ) {
+    const secret = this.configService.getOrThrow<string>(
+      isRefreshToken ? "REFRESH_TOKEN_SECRET" : "ACCESS_TOKEN_SECRET",
     );
 
     const payload: TokenPayload = {
       id: user.id,
       email: user.email,
       role: user.role,
+      device: device,
       type: isRefreshToken ? "refresh" : "access",
+      exp: Math.floor(Date.now() / 1000) + (isRefreshToken ? 3600 : 300), // refresh: 1시간, access: 5분
     };
 
-    return this.jwtService.signAsync(payload, {
-      secret: isRefreshToken ? refreshTokenSecret : accessTokenSecret,
-      expiresIn: isRefreshToken ? "1h" : "5m",
-    });
+    const options = {
+      secret: secret,
+      header: {
+        typ: "JWT",
+        alg: "HS256",
+        kid: "kicktube-jwt", // Kong에 설정한 key와 일치
+      },
+    };
+
+    return this.jwtService.signAsync(payload, options);
+  }
+
+  async validateStoredToken(rawToken: string) {
+    const token = this.divideRawToken(rawToken, "bearer");
+    const payloadStr = await this.redis.get(`access_token:${token}`);
+
+    if (!payloadStr) {
+      throw new UnauthorizedException("만료된 토큰입니다.");
+    }
+
+    const payload = JSON.parse(payloadStr) as TokenPayload;
+
+    return payload;
   }
 }

@@ -107,9 +107,4 @@ export class UserService {
   async remove(id: number) {
     await this.userRepository.delete(id);
   }
-
-  async getMyInfo() {
-    // NOTE: 현재 로그인한 사용자 정보를 가져오는 로직이 필요
-    return this.userRepository.findOne({ where: { id: 1 } });
-  }
 }

@@ -1,10 +1,13 @@
 package com.kickzo.main.service;
 
+import java.util.List;
+
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kickzo.main.dto.event.PlaylistItem;
 import com.kickzo.main.dto.event.PlaylistUpdateEvent;
 import com.kickzo.main.dto.event.RoleChangeEvent;
 import com.kickzo.main.dto.event.RoomEvent;
@@ -48,7 +51,7 @@ public class KafkaProducerService {
 		}
 	}
 
-	public void sendPlaylistUpdate(Long roomId, String playlistJson) {
+	public void sendPlaylistUpdate(Long roomId, List<PlaylistItem> playlistJson) {
 		PlaylistUpdateEvent event = new PlaylistUpdateEvent(roomId, playlistJson);
 		// Kafka 메시지 발행
 		try {

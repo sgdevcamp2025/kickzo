@@ -8,7 +8,6 @@ export const ButtonContainer = styled.div`
   align-items: center;
   flex-direction: column;
   gap: 20px;
-  background-color: #f0f0f0;
 `;
 
 export const ButtonWrapper = styled.div`

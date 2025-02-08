@@ -1,5 +1,7 @@
 import {
+  Body,
   Controller,
+  HttpCode,
   Post,
   UnauthorizedException,
   UsePipes,
@@ -9,33 +11,49 @@ import { AuthService } from "./auth.service";
 import { Authorization } from "./decorator/authorization.decorator";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { ParseBearerTokenDto } from "./dto/parse-bearer-token.dto";
+import { DeviceTypeDto } from "./dto/device-type.dto";
 
-@Controller("auth")
+@Controller("api/auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
-  @Post("v1/login")
+  @Post("login")
   @UsePipes(ValidationPipe)
-  loginUser(@Authorization() token: string) {
+  async loginUser(
+    @Authorization() token: string,
+    @Body() deviceDto: DeviceTypeDto,
+  ) {
     if (!token) {
       throw new UnauthorizedException("토큰이 없습니다.");
     }
-    return this.authService.login(token); // TODO: 쿠키로 전달하기
+    return await this.authService.login(token, deviceDto.device); // TODO: 쿠키로 전달하기
   }
 
-  @Post("v1/token/refresh") /// TODO: Refresh Token도 같이 갱신하기
-  async rotateAccessToken(@Authorization() token: string) {
-    const payload = await this.authService.parseBearerToken(token, true);
-
-    return { acceessToken: await this.authService.issueToken(payload, false) };
+  @Post("logout")
+  @HttpCode(200)
+  async logout(@Authorization() accessToken: string) {
+    if (!accessToken) {
+      throw new UnauthorizedException("토큰이 없습니다.");
+    }
+    return await this.authService.logout(accessToken);
   }
 
-  // @Post('v1/token/refresh')
-  // async rotateRefreshToken(@Authorization() token: string) {
-  //   const payload = await this.authService.parseBearerToken(token, true);
+  @Post("token/refresh")
+  async rotateAccessToken(@Authorization() refreshToken: string) {
+    if (!refreshToken) {
+      throw new UnauthorizedException("토큰이 없습니다.");
+    }
+    return await this.authService.updateTokens(refreshToken);
+  }
 
-  //   return { refreshToken: await this.authService.issueToken(payload, true) };
-  // }
+  @Post("verify")
+  @HttpCode(200)
+  async verifyAccessToken(@Authorization() accessToken: string) {
+    if (!accessToken) {
+      throw new UnauthorizedException("토큰이 없습니다.");
+    }
+    return await this.authService.validateStoredToken(accessToken);
+  }
 
   @MessagePattern({
     cmd: "parse_bearer_token",

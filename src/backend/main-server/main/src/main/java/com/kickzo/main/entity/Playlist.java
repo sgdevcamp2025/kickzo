@@ -4,7 +4,6 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.MapsId;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -24,7 +23,6 @@ public class Playlist {
 	private String order;
 
 	@OneToOne
-	@MapsId // room_id가 Room의 기본 키와 매핑됨
 	@JoinColumn(name = "room_id", insertable = false, updatable = false)
 	private Room room;
 }

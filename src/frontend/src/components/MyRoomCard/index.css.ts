@@ -53,7 +53,7 @@ export const UserCount = styled.p`
   }
 `;
 
-export const ActionButtons = styled.div<{ isHovered: boolean }>`
+export const ActionButtons = styled.div<{ $isHovered: boolean }>`
   position: absolute;
   top: 0px;
   right: 0px;
@@ -63,8 +63,8 @@ export const ActionButtons = styled.div<{ isHovered: boolean }>`
   flex-direction: column;
   justify-content: space-between;
   gap: 8px;
-  opacity: ${({ isHovered }) => (isHovered ? 1 : 0)};
-  visibility: ${({ isHovered }) => (isHovered ? 'visible' : 'hidden')};
+  opacity: ${({ $isHovered }) => ($isHovered ? 1 : 0)};
+  visibility: ${({ $isHovered }) => ($isHovered ? 'visible' : 'hidden')};
   transition:
     opacity 0.2s ease-in-out,
     visibility 0.2s ease-in-out;

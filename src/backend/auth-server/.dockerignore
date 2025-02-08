@@ -1,8 +1,9 @@
 node_modules
-dist
-npm-debug.log
-.dockerignore
+Dockerfile
 .git
 .gitignore
+.dockerignore
+.DS_Store
+dist
+npm-debug.log
 README.md
-
