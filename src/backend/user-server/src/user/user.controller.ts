@@ -64,6 +64,7 @@ export class UserController {
   }
 
   @Patch("profile")
+  @UsePipes(ValidationPipe)
   async updateProfile(
     @Req() req: Request,
     @Body() updateUserDto: UpdateUserDto,
