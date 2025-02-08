@@ -58,6 +58,7 @@ public class Room {
 	private String creator;
 
 	@OneToMany(mappedBy = "room", cascade = CascadeType.ALL)
+	@Builder.Default
 	private List<RoomUser> roomUsers = new ArrayList<>();
 
 	@OneToOne(mappedBy = "room", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
