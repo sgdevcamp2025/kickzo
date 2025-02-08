@@ -1,0 +1,25 @@
+package kickzo.stomp_chat.service;
+
+import org.springframework.messaging.simp.SimpMessagingTemplate;
+import org.springframework.stereotype.Service;
+
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
+@Service
+@RequiredArgsConstructor
+public class MessagingService {
+
+	private final SimpMessagingTemplate messagingTemplate;
+	private final ObjectMapper objectMapper;
+
+	public void sendMessage(String topic, Long roomId, Object data) throws JsonProcessingException {
+		String jsonResponse = objectMapper.writeValueAsString(data);
+		log.info("Sending message to /topic/{}/{}: {}", roomId, topic, jsonResponse);
+		messagingTemplate.convertAndSend("/topic/room/" + roomId + "/" + topic, data);
+	}
+}
