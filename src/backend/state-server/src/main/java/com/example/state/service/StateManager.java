@@ -32,6 +32,7 @@ public class StateManager {
                 redisService.saveUserState(userId, "online", serverPort, timestamp);
             } else {
                 //유저 상태 제거 ("LEAVE")
+                redisService.deleteUserState(userId);
             }
         } catch (Exception e) {
             e.printStackTrace();
