@@ -14,6 +14,7 @@ import { UserLoginDto } from "./dto/user-login.dto";
 import { RedisService } from "@liaoliaots/nestjs-redis";
 import Redis from "ioredis";
 import { DeviceType } from "./enum/device-type.enum";
+import { REDIS_KEY } from "./constants/redis-key.constant";
 
 @Injectable()
 export class AuthService {
@@ -39,9 +40,12 @@ export class AuthService {
 
   async logout(rawToken: string) {
     const payload = await this.parseBearerToken(rawToken, false);
+    if (!payload.device || !(payload.device in DeviceType)) {
+      throw new UnauthorizedException("유효하지 않은 디바이스 타입입니다.");
+    }
 
-    await this.redis.del(`refresh_token:${payload.id}:${payload.device}`);
-    await this.redis.del(`access_token:${payload.id}:${payload.device}`);
+    await this.redis.del(REDIS_KEY.REFRESH_TOKEN(payload.id, payload.device));
+    await this.redis.del(REDIS_KEY.ACCESS_TOKEN(payload.id, payload.device));
 
     return { message: "로그아웃 되었습니다." };
   }
@@ -50,7 +54,7 @@ export class AuthService {
     const payload = await this.parseBearerToken(rawToken, true);
 
     const payloadStr = await this.redis.get(
-      `refresh_token:${payload.id}:${payload.device}`,
+      REDIS_KEY.REFRESH_TOKEN(payload.id, payload.device as DeviceType),
     );
 
     if (!payloadStr) {
@@ -73,14 +77,14 @@ export class AuthService {
     if (this.redis) {
       try {
         await this.redis.set(
-          `access_token:${payload.id}:${device}`,
+          REDIS_KEY.ACCESS_TOKEN(payload.id, device),
           accessToken,
           "EX",
           300, // 5분
         );
 
         await this.redis.set(
-          `refresh_token:${payload.id}:${device}`,
+          REDIS_KEY.REFRESH_TOKEN(payload.id, device),
           refreshToken,
           "EX",
           3600, // 1시간
@@ -221,7 +225,7 @@ export class AuthService {
     const token = this.divideRawToken(rawToken, "bearer");
     const payload = await this.parseBearerToken(rawToken, false);
     const storedToken = await this.redis.get(
-      `access_token:${payload.id}:${payload.device}`,
+      REDIS_KEY.ACCESS_TOKEN(payload.id, payload.device as DeviceType),
     );
 
     if (!storedToken) {

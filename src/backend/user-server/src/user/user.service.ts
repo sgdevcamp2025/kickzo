@@ -13,6 +13,7 @@ import { ConfigService } from "@nestjs/config";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { RedisService } from "@liaoliaots/nestjs-redis";
 import Redis from "ioredis";
+import { REDIS_KEY } from "./constants/redis-key.constant";
 
 @Injectable()
 export class UserService {
@@ -134,11 +135,11 @@ export class UserService {
       }
 
       // 유저의 모든 토큰 삭제
-      await this.redis.del(`refresh_token:${id}:web`);
-      await this.redis.del(`refresh_token:${id}:mobile`);
+      await this.redis.del(REDIS_KEY.REFRESH_TOKEN(id, "web"));
+      await this.redis.del(REDIS_KEY.REFRESH_TOKEN(id, "mobile"));
 
-      await this.redis.del(`access_token:${id}:web`);
-      await this.redis.del(`access_token:${id}:mobile`);
+      await this.redis.del(REDIS_KEY.ACCESS_TOKEN(id, "web"));
+      await this.redis.del(REDIS_KEY.ACCESS_TOKEN(id, "mobile"));
 
       await this.userRepository.softDelete(id);
 
