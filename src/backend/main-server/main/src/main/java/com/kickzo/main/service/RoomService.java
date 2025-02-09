@@ -41,6 +41,8 @@ public class RoomService {
 	private final KafkaProducerService kafkaProducerService;
 	private final ObjectMapper objectMapper;
 
+	private static final int ROLE_MEMBER = 2;
+
 	// roomCode에 따른 방의 정보와 유저 list 전달
 	public RoomDetailsDto getRoomDetails(String roomCode) {
 		System.out.println("RoomCode : " + roomCode);
@@ -68,7 +70,7 @@ public class RoomService {
 	public int getUserRole(String roomCode, Long userId) {
 		Long roomId = getRoomId(roomCode);
 		// Step 1: 해당 방에서 유저의 역할(Role)을 찾음
-		Integer role = roomUserRepository.findRoleByUserIdAndRoomId(userId, roomId);
+		Integer role = roomUserRepository.findRoleByUserIdAndRoomId(roomId, userId);
 		if (role != null) {
 			// Step 2: 역할(Role)이 존재하면 반환
 			return role;
@@ -78,7 +80,7 @@ public class RoomService {
 			Room room = roomRepository.findById(roomId)
 				.orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
 			room.incrementUserCount();
-			return 2;
+			return ROLE_MEMBER;
 		}
 	}
 
@@ -176,7 +178,7 @@ public class RoomService {
 		try {
 			RoomUser roomUser = RoomUser.builder()
 				.id(new RoomUserId(roomId, userId))
-				.role(2) // 2: member 역할
+				.role(ROLE_MEMBER) // 2: member 역할
 				.joinedAt(LocalDateTime.now())
 				.build();
 
@@ -187,6 +189,3 @@ public class RoomService {
 	}
 }
 
-// 방 정보 수정 (방 제목, 설명, 플레이리스트 추가/수정/삭제, 권한 변경)
-// 방 안에서 친구 혹은 유저 초대하기 (초대 알림은 /queue로)
-// 받은 userId에서 이 방에 소속되지 않은 친구, 유저 찾아서 보내주기
