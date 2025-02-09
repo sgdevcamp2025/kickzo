@@ -20,7 +20,7 @@ public class GlobalExceptionHandler {
 			ex.getErrorCode().getMessage()
 		);
 
-		return ResponseEntity.status(ex.getErrorCode().getStatus()).body(errorResponse);
+		return ResponseEntity.status(ex.getErrorCode().getHttpStatus()).body(errorResponse);
 	}
 
 	@ExceptionHandler(Exception.class)
@@ -32,7 +32,7 @@ public class GlobalExceptionHandler {
 			CustomErrorCode.UNEXPECTED_ERROR.getMessage()
 		);
 
-		return ResponseEntity.status(CustomErrorCode.UNEXPECTED_ERROR.getStatus()).body(errorResponse);
+		return ResponseEntity.status(CustomErrorCode.UNEXPECTED_ERROR.getHttpStatus()).body(errorResponse);
 	}
 
 	// request에서 발생한 오류
@@ -50,6 +50,6 @@ public class GlobalExceptionHandler {
 			errorMessage
 		);
 
-		return ResponseEntity.status(CustomErrorCode.INVALID_INPUT.getStatus()).body(errorResponse);
+		return ResponseEntity.status(CustomErrorCode.INVALID_INPUT.getHttpStatus()).body(errorResponse);
 	}
 }

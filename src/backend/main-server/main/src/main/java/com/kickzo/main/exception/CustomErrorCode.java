@@ -32,5 +32,5 @@ public enum CustomErrorCode {
 
 	private final String code;
 	private final String message;
-	private final HttpStatus status;
+	private final HttpStatus httpStatus;
 }
