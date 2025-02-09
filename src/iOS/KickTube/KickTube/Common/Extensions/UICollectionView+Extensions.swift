@@ -25,7 +25,7 @@ extension UICollectionViewLayout {
         UICollectionViewCompositionalLayout(section: homeCollectionViewSection())
     }
     
-    static func myRoomCollectionViewSection() -> NSCollectionLayoutSection {
+    static func myRoomCollectionViewSection(_ isHeader: Bool = true) -> NSCollectionLayoutSection {
         let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
         let item = NSCollectionLayoutItem(layoutSize: size)
         item.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0)
@@ -33,16 +33,18 @@ extension UICollectionViewLayout {
         let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(ComponentSize.roomCollectionViewCell.size.width), heightDimension: .absolute(ComponentSize.roomCollectionViewCell.size.height))
         let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
         
-        let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(60))
-        let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
-        
         let section = NSCollectionLayoutSection(group: group)
-        section.boundarySupplementaryItems = [header]
+        
+        if isHeader {
+            let headerSize = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .absolute(60))
+            let header = NSCollectionLayoutBoundarySupplementaryItem(layoutSize: headerSize, elementKind: UICollectionView.elementKindSectionHeader, alignment: .top)
+            section.boundarySupplementaryItems = [header]
+        }
         
         return section
     }
     
-    static func myRoomCollectionViewLayout() -> UICollectionViewLayout {
-        UICollectionViewCompositionalLayout(section: myRoomCollectionViewSection())
+    static func myRoomCollectionViewLayout(_ isHeader: Bool = true) -> UICollectionViewLayout {
+        UICollectionViewCompositionalLayout(section: myRoomCollectionViewSection(isHeader))
     }
 }

@@ -11,6 +11,8 @@ enum NetworkError: Error {
     case urlBuild
     case notFoundBaseURL
     case nonHTTPResponse
+    case emptyYoutubeThumbnail
+    case emtpyThumbnail
 }
 
 extension NetworkError: CustomStringConvertible {
@@ -22,6 +24,10 @@ extension NetworkError: CustomStringConvertible {
             return "notFoundBaseURL: BaseURL을 찾을 수 없습니다."
         case .nonHTTPResponse:
             return "notFoundResponse: response를 찾을 수 없습니다."
+        case .emptyYoutubeThumbnail:
+            return "emptyYoutubeThumbnail: Youtube thumbnail이 없습니다."
+        case .emtpyThumbnail:
+            return "emptyThumbnail: thumbnail이 없습니다."
         }
     }
 }

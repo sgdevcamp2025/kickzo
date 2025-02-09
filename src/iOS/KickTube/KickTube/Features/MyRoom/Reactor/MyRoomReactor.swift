@@ -51,7 +51,7 @@ final class MyRoomReactor: Reactor {
                 
                 let task = Task {
                     do {
-                        if let thumbnailData = try await self.getYoutubeThumbnail(id) {
+                        if let thumbnailData = try await self.networkManager.getYoutubeThumbnail(.youtubeThumbnailLow(id: id)) {
                             observer.onNext(.setThunmbnailImage(data: thumbnailData, idx: idx))
                             observer.onCompleted()
                         }
@@ -137,16 +137,6 @@ final class MyRoomReactor: Reactor {
     
     
     // MARK: - private method
-    
-    private func getYoutubeThumbnail(_ id: String) async throws -> Data? {
-        do {
-            let url = try YoutubeRouter.youtubeThumbnailLow(id: id).makeURL()
-            
-            return try await networkManager.getCachingDataFromURL(url)
-        } catch {
-            throw error
-        }
-    }
     
     private func classifyRoom(_ rooms: [MyRoomViewModel]) -> [MyRoomSection] {
         var created = [MyRoomSectionItem]()

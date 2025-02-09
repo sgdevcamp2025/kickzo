@@ -67,7 +67,7 @@ final class HomeVideoCollectionViewCell: UICollectionViewCell {
     
     private func configureHierarchy() {
         [videoThumbnailView, userProfileThumbnailView, titleLabel, usernameLabel].forEach {
-            addSubview($0)
+            contentView.addSubview($0)
         }
     }
     
