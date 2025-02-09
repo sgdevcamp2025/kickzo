@@ -146,7 +146,7 @@ public class RoomService {
 		return roomRepository.findRoomById(roomId)
 			.stream()
 			.map(room -> RoomInfoDto.builder()
-				.id(room.getId())
+				.roomId(room.getId())
 				.code(room.getCode())
 				.title(room.getTitle())
 				.description(room.getDescription())

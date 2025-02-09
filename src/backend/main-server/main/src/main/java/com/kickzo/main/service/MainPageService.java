@@ -104,7 +104,7 @@ public class MainPageService {
 			.orElse(null);
 
 		return RoomResponseDto.builder()
-			.id(room.getId())
+			.roomId(room.getId())
 			.code(room.getCode())
 			.title(room.getTitle())
 			.description(room.getDescription())
