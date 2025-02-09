@@ -47,4 +47,21 @@ extension UICollectionViewLayout {
     static func myRoomCollectionViewLayout(_ isHeader: Bool = true) -> UICollectionViewLayout {
         UICollectionViewCompositionalLayout(section: myRoomCollectionViewSection(isHeader))
     }
+    
+    static func userCollectionViewSection() -> NSCollectionLayoutSection {
+        let size = NSCollectionLayoutSize(widthDimension: .fractionalWidth(1.0), heightDimension: .fractionalHeight(1.0))
+        let item = NSCollectionLayoutItem(layoutSize: size)
+        item.contentInsets = NSDirectionalEdgeInsets(top: 0, leading: 0, bottom: 0, trailing: 0)
+        
+        let groupSize = NSCollectionLayoutSize(widthDimension: .absolute(ComponentSize.userCollectionViewCell.size.width), heightDimension: .absolute(ComponentSize.userCollectionViewCell.size.height))
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+        
+        let section = NSCollectionLayoutSection(group: group)
+        
+        return section
+    }
+    
+    static func userCollectionViewLayout() -> UICollectionViewLayout {
+        UICollectionViewCompositionalLayout(section: userCollectionViewSection())
+    }
 }

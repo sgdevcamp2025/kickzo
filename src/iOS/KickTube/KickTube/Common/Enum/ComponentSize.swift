@@ -30,6 +30,7 @@ enum ComponentSize {
     case alertModal
     case optionButton
     case youtubePlayer
+    case userCollectionViewCell
 }
 
 extension ComponentSize {
@@ -59,6 +60,8 @@ extension ComponentSize {
             return CGSize(width: ComponentSize.screenWidth - 24, height: 48)
         case .youtubePlayer:
             return CGSize(width: ComponentSize.screenWidth, height: ComponentSize.screenWidth / 16 * 9)
+        case .userCollectionViewCell:
+            return CGSize(width: ComponentSize.screenWidth - 40, height: (ComponentSize.screenWidth - 40) / 7)
         }
     }
     
