@@ -13,11 +13,20 @@ services:
           - http
           - https
 
-  # User Service (보호된 서비스 예시)
+  # User Service
   - name: user-service
     url: http://user:8102 # USER_PORT=8102
     routes:
-      - name: user-route
+      - name: user-public-route
+        paths:
+          - /api/users/register
+          - /api/users/exists
+        strip_path: false
+        protocols:
+          - http
+          - https
+
+      - name: user-private-route
         paths:
           - /api/users
         strip_path: false
@@ -37,28 +46,6 @@ services:
               cookie_names: []
               uri_param_names: []
           - name: custom-jwt-header
-
-      - name: user-public-route
-        methods:
-          - GET
-        paths:
-          - /api/users/profile/{user_id}
-        strip_path: false
-        protocols:
-          - http
-          - https
-        plugins:
-          - name: jwt
-            config:
-              key_claim_name: kid
-              anonymous: 12345678-90ab-cdef-1234-567890abcdef # 안됨. 삭제해야 함.
-              claims_to_verify:
-                - exp
-              secret_is_base64: false
-              header_names:
-                - Authorization
-              cookie_names: []
-              uri_param_names: []
 
   # # Main Service (보호된 서비스 예시)
   # - name: main-service

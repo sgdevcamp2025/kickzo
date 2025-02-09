@@ -12,7 +12,7 @@ import { Authorization } from "./decorator/authorization.decorator";
 import { MessagePattern, Payload } from "@nestjs/microservices";
 import { ParseBearerTokenDto } from "./dto/parse-bearer-token.dto";
 import { DeviceTypeDto } from "./dto/device-type.dto";
-
+import { MESSAGES } from "./constants/constants";
 @Controller("api/auth")
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
@@ -24,7 +24,7 @@ export class AuthController {
     @Body() deviceDto: DeviceTypeDto,
   ) {
     if (!token) {
-      throw new UnauthorizedException("토큰이 없습니다.");
+      throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);
     }
     return await this.authService.login(token, deviceDto.device); // TODO: 쿠키로 전달하기
   }
@@ -33,7 +33,7 @@ export class AuthController {
   @HttpCode(200)
   async logout(@Authorization() accessToken: string) {
     if (!accessToken) {
-      throw new UnauthorizedException("토큰이 없습니다.");
+      throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);
     }
     return await this.authService.logout(accessToken);
   }
@@ -41,7 +41,7 @@ export class AuthController {
   @Post("token/refresh")
   async rotateAccessToken(@Authorization() refreshToken: string) {
     if (!refreshToken) {
-      throw new UnauthorizedException("토큰이 없습니다.");
+      throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);
     }
     return await this.authService.updateTokens(refreshToken);
   }
@@ -50,7 +50,7 @@ export class AuthController {
   @HttpCode(200)
   async verifyAccessToken(@Authorization() accessToken: string) {
     if (!accessToken) {
-      throw new UnauthorizedException("토큰이 없습니다.");
+      throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);
     }
     return await this.authService.validateStoredToken(accessToken);
   }
