@@ -47,5 +47,12 @@ public class RedisService {
 
     //사용자 상태 조회
 
-    //사용자 상태 삭제
+    // 사용자 상태 삭제 (case LEAVE)
+    public void deleteUserState(String userId) {
+        String key = "user:state:" + userId;
+        // 사용자 상태 삭제
+        redisTemplate.delete(key);
+        // 삭제 후 로그 출력
+        logger.info("Successfully deleted user state for userId: {}", userId);
+    }
 }
