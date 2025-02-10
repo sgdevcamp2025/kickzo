@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "headset_off.svg",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

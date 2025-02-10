@@ -17,12 +17,11 @@ final class UserDefaultsManager {
     
     private init() {}
     
-    @UserDefaultType(key: UserDefaultsKey.myProfile.rawValue, defaultValue: MyProfileViewModel(userID: -1, email: "", nickname: ""))
+    @UserDefaultType(key: UserDefaultsKey.myProfile.rawValue, defaultValue: MyProfileViewModel(userID: -1, email: "", nickname: "비회원"))
     var userProfile: MyProfileViewModel
     
     @UserDefaultType(key: UserDefaultsKey.myRole.rawValue, defaultValue: UserRole.none)
     var myRole: UserRole
-    
 }
 
 @propertyWrapper

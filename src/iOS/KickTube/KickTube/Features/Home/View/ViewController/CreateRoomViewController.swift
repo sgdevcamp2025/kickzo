@@ -46,8 +46,8 @@ final class CreateRoomViewController: BaseViewController<CreateRoomReactor> {
         $0.distribution = .fillEqually
         $0.spacing = 6
     }
-    private let publicButton = RoundButton("공개", image: .friend, bgColor: .kDarkgray, titleColor: .white, toggleBackgroundColor: .white, toggleTitleColor: .kDarkgray)
-    private let privateButton = RoundButton("비공개", image: .disableEye, bgColor: .white, titleColor: .kDarkgray, toggleBackgroundColor: .kDarkgray, toggleTitleColor: .white).then {
+    private let publicButton = RoundButton("공개", image: .friend, bgColor: .kDarkgray, titleColor: .white, toggleBgColor: .white, toggleTitleColor: .kDarkgray)
+    private let privateButton = RoundButton("비공개", image: .disableEye, bgColor: .white, titleColor: .kDarkgray, toggleBgColor: .kDarkgray, toggleTitleColor: .white).then {
         $0.setStroke(.kLightgray2)
     }
     private let createButton = RoundButton("생성")

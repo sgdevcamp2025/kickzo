@@ -13,10 +13,10 @@ final class RoundButton: UIButton {
     private let toggleBackgroundColor: UIColor?
     private let toggleTitleColor: UIColor?
     
-    init(_ title: String, image: UIImage? = nil, bgColor: UIColor = .primary, titleColor: UIColor = .white, toggleBackgroundColor: UIColor? = nil, toggleTitleColor: UIColor? = nil) {
+    init(_ title: String, image: UIImage? = nil, bgColor: UIColor = .primary, titleColor: UIColor = .white, toggleBgColor: UIColor? = nil, toggleTitleColor: UIColor? = nil) {
         self.mainBackgroundColor = bgColor
         self.mainTitleColor = titleColor
-        self.toggleBackgroundColor = toggleBackgroundColor
+        self.toggleBackgroundColor = toggleBgColor
         self.toggleTitleColor = toggleTitleColor
         
         super.init(frame: .zero)
