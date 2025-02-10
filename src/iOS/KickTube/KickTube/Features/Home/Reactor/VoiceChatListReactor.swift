@@ -28,7 +28,7 @@ final class VoiceChatListReactor: Reactor {
     
     struct State{
         var userList: [KickRoomVoiceUserViewModel]
-        var selectedCell: (id: Int, role: UserRole)?
+        var selectedCell: VoiceChatUserStateViewModel?
         var myMicState: Bool = false
         var myHeadsetState: Bool = false
         var myVoiceChattingState: Bool = false
@@ -60,29 +60,38 @@ final class VoiceChatListReactor: Reactor {
         switch mutation {
         case .setUserList(let user):
             var userList = user
+            
             if let myInformation = userList.enumerated().filter({ $0.element.userID == UserDefaultsManager.shared.userProfile.userID }).first {
                 userList.remove(at: myInformation.offset)
                 userList.insert(myInformation.element, at: 0)
                 newState.myMicState = myInformation.element.micStatus
                 newState.myHeadsetState = myInformation.element.headsetStatus
             }
+            
             newState.userList = userList
         case .userOverview(let idx):
             let user = newState.userList[idx.row]
             
-            newState.selectedCell = (id: user.userID, role: user.role)
+            newState.selectedCell = VoiceChatUserStateViewModel(userID: user.userID, role: user.role, micOn: user.micStatus, headsetOn: user.headsetStatus)
+        case .userOverview(let idx):
+            let user = newState.userList[idx.row]
+            
+            newState.selectedCell = VoiceChatUserStateViewModel(userID: user.userID, role: user.role, micOn: user.micStatus, headsetOn: user.headsetStatus)
         case .setMicState:
             if newState.myVoiceChattingState {
                 newState.myMicState.toggle()
                 newState.userList[0].micStatus = newState.myMicState
             }
+            newState.selectedCell = nil
         case .setHeadsetState:
             if newState.myVoiceChattingState {
                 newState.myHeadsetState.toggle()
                 newState.userList[0].headsetStatus = newState.myHeadsetState
             }
+            newState.selectedCell = nil
         case .setEntryState:
             newState.myVoiceChattingState.toggle()
+            
             if newState.myVoiceChattingState {
                 let myInfo = UserDefaultsManager.shared.userProfile
                 let myState = KickRoomVoiceUserViewModel(userID: myInfo.userID, role: UserDefaultsManager.shared.myRole, nickname: myInfo.nickname, micStatus: false, headsetStatus: false)
@@ -92,6 +101,7 @@ final class VoiceChatListReactor: Reactor {
                 newState.myMicState = false
                 newState.myHeadsetState = false
             }
+            newState.selectedCell = nil
         }
         
         return newState

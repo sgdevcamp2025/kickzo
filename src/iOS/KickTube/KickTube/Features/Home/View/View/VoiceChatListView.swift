@@ -43,7 +43,6 @@ final class VoiceChatListView: BaseView<VoiceChatListReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         userlistCollectionView.rx.itemSelected
-            .distinctUntilChanged()
             .map { Reactor.Action.profileCellTapped(idx: $0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -73,12 +72,12 @@ final class VoiceChatListView: BaseView<VoiceChatListReactor> {
             .map { $0.selectedCell }
             .compactMap { $0 }
             .subscribe(with: self) { owner, value in
-                
+                NotificationCenter.default.post(name: .presentVoiceUserOverview, object: nil, userInfo: ["voiceState": value])
             }
             .disposed(by: disposeBag)
         reactor.state
             .map { $0.myMicState }
-            .distinctUntilChanged()
+            .distinctUntilChanged { _, _ in false }
             .subscribe(with: self) { owner, value in
                 if value {
                     owner.micButton.setImage(.micOn, for: .normal)

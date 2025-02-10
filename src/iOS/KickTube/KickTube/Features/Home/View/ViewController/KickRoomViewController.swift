@@ -66,6 +66,9 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         NotificationCenter.default.removeObserver(self)
     }
     
+    
+    // MARK: - view life cycle
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -164,6 +167,12 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             name: .presentUserOverview,
             object: nil
         )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(presentVoiceUserOverviewVC),
+            name: .presentVoiceUserOverview,
+            object: nil
+        )
     }
     
     @objc
@@ -174,6 +183,20 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             let vc = UserOverviewViewController(UserOverviewReactor(id, role: role))
             if let sheet = vc.sheetPresentationController {
                 sheet.detents = [.custom(resolver: { _ in ComponentSize.userlistBottomSheet.size.height })]
+                sheet.prefersGrabberVisible = true
+            }
+            
+            self.present(vc, animated: false)
+        }
+    }
+    
+    @objc
+    private func presentVoiceUserOverviewVC(notification: Notification) {
+        if let userInfo = notification.userInfo,
+           let voiceState = userInfo["voiceState"] as? VoiceChatUserStateViewModel {
+            let vc = VoiceUserOverviewViewController(VoiceUserOverviewReactor(voiceState))
+            if let sheet = vc.sheetPresentationController {
+                sheet.detents = [.custom(resolver: { _ in ComponentSize.userlistBottomSheet.size.height + 50 })]
                 sheet.prefersGrabberVisible = true
             }
             
