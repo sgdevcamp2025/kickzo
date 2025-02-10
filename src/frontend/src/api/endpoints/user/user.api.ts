@@ -1,22 +1,22 @@
 import instance from '@/api/axios.instance';
-import { UpdateUserDto } from './user.interface';
+import { UpdateUserRequestDto, UserResponseDto } from './user.interface';
 
 export const userApi = {
   // 내 프로필 조회
   getMyProfile: async () => {
-    const { data } = await instance.get('users/profile');
+    const { data } = await instance.get<UserResponseDto>('users/profile');
     return data;
   },
 
   // 내 프로필 수정
-  updateMyProfile: async (updateUserDto: UpdateUserDto) => {
-    const { data } = await instance.patch(`users/profile`, updateUserDto);
+  updateMyProfile: async (updateUserRequestDto: UpdateUserRequestDto) => {
+    const { data } = await instance.patch(`users/profile`, updateUserRequestDto);
     return data;
   },
 
   // 프로필 조회
   getProfile: async (userId: string) => {
-    const { data } = await instance.get(`users/profile/${userId}`);
+    const { data } = await instance.get<UserResponseDto>(`users/profile/${userId}`);
     return data;
   },
 

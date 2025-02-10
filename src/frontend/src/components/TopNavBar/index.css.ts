@@ -61,3 +61,16 @@ export const LoginButton = styled.button`
     line-height: 32px;
   }
 `;
+
+export const ProfileButton = styled.div`
+  width: 40px;
+  height: 40px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  border-radius: 0.5rem;
+  background-color: var(--palette-static-white);
+  border: 1px solid var(--palette-interaction-inactive);
+  overflow: hidden;
+  cursor: pointer;
+`;
