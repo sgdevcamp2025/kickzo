@@ -2,7 +2,6 @@ package com.kickzo.main.exception;
 
 import lombok.Builder;
 import lombok.Getter;
-import lombok.Setter;
 
 @Getter
 @Builder
