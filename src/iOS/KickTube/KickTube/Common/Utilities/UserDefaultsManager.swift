@@ -11,6 +11,7 @@ final class UserDefaultsManager {
     
     enum UserDefaultsKey: String {
         case myProfile
+        case myRole
     }
     
     static let shared = UserDefaultsManager()
@@ -19,6 +20,9 @@ final class UserDefaultsManager {
     
     @UserDefaultType(key: UserDefaultsKey.myProfile.rawValue, defaultValue: MyProfileViewModel(userID: -1, email: "", nickname: ""))
     var userProfile: MyProfileViewModel
+    
+    @UserDefaultType(key: UserDefaultsKey.myRole.rawValue, defaultValue: UserRole.none)
+    var myRole: UserRole
     
 }
 
