@@ -114,8 +114,3 @@ export class UserController {
     }
   }
 }
-
-/* NOTE: 할 일 정리
-- [ ] 쿠피 파서 pnpm i cookie-parser
-- [ ] main.ts에 쿠키 파서 추가
-*/

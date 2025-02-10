@@ -47,7 +47,12 @@ export class AuthService {
 
   async logout(rawToken: string) {
     const payload = await this.parseBearerToken(rawToken, false);
-    if (!payload.device || !(payload.device in DeviceType)) {
+    console.log("payload:", payload);
+    if (
+      !payload.device ||
+      (payload.device !== DeviceType.WEB &&
+        payload.device !== DeviceType.MOBILE)
+    ) {
       throw new UnauthorizedException(MESSAGES.INVALID_DEVICE);
     }
 
@@ -117,7 +122,7 @@ export class AuthService {
     }
 
     const [_type, token] = basicSplit;
-    if (_type.toLowerCase() !== type) {
+    if (_type !== type) {
       throw new BadRequestException(MESSAGES.INVALID_TOKEN_FORMAT);
     }
 

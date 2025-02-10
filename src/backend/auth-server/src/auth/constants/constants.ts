@@ -24,6 +24,6 @@ export const TOKEN_EXPIRATION_TIME = {
 } as const;
 
 export const RAW_TOKEN_TYPE = {
-  BEARER: "bearer",
-  BASIC: "basic",
+  BEARER: "Bearer",
+  BASIC: "Basic",
 } as const;
