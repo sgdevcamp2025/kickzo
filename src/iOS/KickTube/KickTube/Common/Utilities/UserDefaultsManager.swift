@@ -8,7 +8,6 @@
 import Foundation
 
 final class UserDefaultsManager {
-    
     enum UserDefaultsKey: String {
         case myProfile
         case myRole

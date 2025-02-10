@@ -31,6 +31,7 @@ final class UserListCollectionViewCell: UICollectionViewCell {
         $0.textAlignment = .center
         $0.layer.cornerRadius = 9
         $0.clipsToBounds = true
+        $0.isHidden = true
     }
     
     private var disposeBag = DisposeBag()
