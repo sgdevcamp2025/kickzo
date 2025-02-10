@@ -10,20 +10,22 @@ import Foundation
 import ReactorKit
 
 final class UserListReactor: Reactor {
-    
     enum Action {
         case loadView
         case searchText(String)
+        case profileCellTapped(idx: IndexPath)
     }
     
     enum Mutation {
         case setUserList
         case searchUser(String)
+        case userOverview(_ idx: IndexPath)
     }
     
     struct State{
         var userList: [KickRoomUserViewModel]
         var searchUserResult: [KickRoomUserViewModel] = []
+        var selectedCell: (id: Int, role: UserRole)?
     }
     
     let initialState: State
@@ -40,6 +42,8 @@ final class UserListReactor: Reactor {
             return .just(.setUserList)
         case .searchText(let text):
             return .just(.searchUser(text))
+        case .profileCellTapped(let idx):
+            return .just(.userOverview(idx))
         }
     }
     
@@ -61,6 +65,10 @@ final class UserListReactor: Reactor {
                 
                 newState.searchUserResult = result
             }
+        case .userOverview(let idx):
+            let user = newState.userList[idx.row]
+            
+            newState.selectedCell = (id: user.userID, role: user.role)
         }
         
         return newState

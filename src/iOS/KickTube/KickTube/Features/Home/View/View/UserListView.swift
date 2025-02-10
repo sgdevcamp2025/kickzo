@@ -12,7 +12,6 @@ import RxSwift
 import RxCocoa
 
 final class UserListView: BaseView<UserListReactor> {
-    
     private let backgroundView = UIView().then {
         $0.clipsToBounds = true
     }
@@ -31,7 +30,7 @@ final class UserListView: BaseView<UserListReactor> {
         $0.showsVerticalScrollIndicator = false
         $0.showsHorizontalScrollIndicator = false
     }
-    
+
     
     // MARK: - configure reactor
 
@@ -45,7 +44,11 @@ final class UserListView: BaseView<UserListReactor> {
             .map { Reactor.Action.searchText($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
-            
+        userlistCollectionView.rx.itemSelected
+            .distinctUntilChanged()
+            .map { Reactor.Action.profileCellTapped(idx: $0) }
+            .bind(to: reactor.action)
+            .disposed(by: disposeBag)
     }
     
     override func bindState(reactor: UserListReactor) {
@@ -54,6 +57,13 @@ final class UserListView: BaseView<UserListReactor> {
             .asDriver(onErrorJustReturn: [])
             .drive(userlistCollectionView.rx.items(cellIdentifier: UserListCollectionViewCell.reuseIdentifier, cellType: UserListCollectionViewCell.self)) { (item, element, cell) in
                 cell.setContent(element)
+            }
+            .disposed(by: disposeBag)
+        reactor.state
+            .map { $0.selectedCell }
+            .compactMap { $0 }
+            .subscribe(with: self) { owner, value in
+                NotificationCenter.default.post(name: .presentUserOverview, object: nil, userInfo: ["id": value.id, "role": value.role])
             }
             .disposed(by: disposeBag)
     }

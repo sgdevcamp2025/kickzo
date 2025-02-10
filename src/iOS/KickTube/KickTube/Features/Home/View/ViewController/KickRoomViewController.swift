@@ -181,14 +181,14 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             make.trailing.equalToSuperview().offset(-12)
         }
         menuSegmentedControl.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview().inset(16)
-            make.bottom.equalTo(safeArea)
+            make.horizontalEdges.equalToSuperview().inset(12)
+            make.bottom.equalTo(safeArea).offset(-12)
             make.height.equalTo(50)
         }
         mainScrollView.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview()
-            make.top.equalTo(creatorImage.snp.bottom).offset(12)
-            make.bottom.equalTo(menuSegmentedControl.snp.top).offset(-12)
+            make.top.equalTo(creatorImage.snp.bottom)
+            make.bottom.equalTo(menuSegmentedControl.snp.top)
         }
     }
     

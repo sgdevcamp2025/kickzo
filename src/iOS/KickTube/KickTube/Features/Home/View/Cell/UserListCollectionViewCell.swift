@@ -128,5 +128,3 @@ final class UserListCollectionViewCell: UICollectionViewCell {
         }
     }
 }
-
-
