@@ -3,17 +3,18 @@ import { CommonButton } from '@/components/common/Button';
 
 interface IconButtonProps {
   beforeImgUrl: string;
-  afterImgUrl: string;
-  /** 아이콘이 변경될 때 추가로 실행할 콜백 (옵션) */
+  afterImgUrl?: string;
   onToggle?: () => void;
+  onClick?: () => void;
 }
 
-export const IconButton = ({ beforeImgUrl, afterImgUrl, onToggle }: IconButtonProps) => {
+export const IconButton = ({ beforeImgUrl, afterImgUrl, onToggle, onClick }: IconButtonProps) => {
   const [isBeforeIcon, setIsBeforeIcon] = useState(true);
 
   const handleClick = () => {
     setIsBeforeIcon(prev => !prev);
     onToggle?.();
+    if (onClick) onClick();
   };
 
   return (

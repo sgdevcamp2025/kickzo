@@ -1,7 +1,7 @@
 enum UserRole {
-  OWNER,
+  CREATOR,
   MANAGER,
-  USER,
+  MEMBER,
 }
 
 export const chatDataTest = [

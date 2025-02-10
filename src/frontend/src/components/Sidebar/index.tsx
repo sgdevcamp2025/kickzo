@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Chat } from './Chat';
 import { MemberList } from './MemberList';
 import { Playlist } from './Playlist';
