@@ -8,7 +8,7 @@ import lombok.Data;
 @AllArgsConstructor
 @Builder
 public class RoomInfoDto {
-	private Long id;
+	private Long roomId;
 	private String code;
 	private String title;
 	private String description;

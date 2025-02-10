@@ -47,29 +47,37 @@ services:
               uri_param_names: []
           - name: custom-jwt-header
 
-  # # Main Service (보호된 서비스 예시)
-  # - name: main-service
-  #   url: http://main:8103 # MAIN_PORT=8103
-  #   routes:
-  #     - name: main-route
-  #       paths:
-  #         - /api/main
-  #       strip_path: false
-  #       protocols:
-  #         - http
-  #         - https
-  #       plugins:
-  #         - name: jwt
-  #           config:
-  #             key_claim_name: kid
-  #             claims_to_verify:
-  #               - exp
-  #             secret_is_base64: false
-  #             anonymous: null
-  #             header_names:
-  #               - Authorization
-  #             cookie_names: []
-  #             uri_param_names: []
+   # Main Service (보호된 서비스 예시)
+  - name: main-service
+    url: http://main:8103 # MAIN_PORT=8103
+
+    routes:
+      - name: main-public-route
+        paths:
+          - /api/rooms/list/all
+        strip_path: false
+
+      - name: main-private-route
+        paths:
+          - /api/rooms
+        strip_path: false
+        protocols:
+          - http
+          - https
+        plugins:
+          - name: jwt
+            config:
+              key_claim_name: kid
+              claims_to_verify:
+                - exp
+              secret_is_base64: false
+              anonymous: null
+              header_names:
+                - Authorization
+              cookie_names: []
+              uri_param_names: []
+          - name: custom-jwt-header
+
 
   - name: chat-service
     url: http://chat-service-upstream # upstream 이름

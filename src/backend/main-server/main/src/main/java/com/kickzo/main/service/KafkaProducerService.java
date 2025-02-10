@@ -7,10 +7,12 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kickzo.main.dto.event.NewUserJoinEvent;
 import com.kickzo.main.dto.event.PlaylistItem;
 import com.kickzo.main.dto.event.PlaylistUpdateEvent;
 import com.kickzo.main.dto.event.RoleChangeEvent;
 import com.kickzo.main.dto.event.RoomEvent;
+import com.kickzo.main.dto.response.UserListDto;
 import com.kickzo.main.exception.CustomErrorCode;
 import com.kickzo.main.exception.CustomException;
 
@@ -28,7 +30,6 @@ public class KafkaProducerService {
 	private static final String TOPIC_PLAYLIST = "playlist";
 
 	public void sendRoomUpdateMessage(Object eventData) {
-
 		try {
 			RoomEvent roomEvent = new RoomEvent("room-update", eventData);
 			String message = objectMapper.writeValueAsString(roomEvent);
@@ -51,6 +52,18 @@ public class KafkaProducerService {
 		}
 	}
 
+	public void sendRoomUserList(Long roomId, List<UserListDto> userList) {
+		NewUserJoinEvent event = new NewUserJoinEvent(roomId, userList);
+		RoomEvent roomEvent = new RoomEvent("user-list", event);
+		try {
+			String message = objectMapper.writeValueAsString(roomEvent);
+			kafkaTemplate.send(TOPIC_ROOM, message);
+			log.info("Kafka New User join UserList Sent: {}", message);
+		} catch (JsonProcessingException e) {
+			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
+		}
+	}
+
 	public void sendPlaylistUpdate(Long roomId, List<PlaylistItem> playlistJson) {
 		PlaylistUpdateEvent event = new PlaylistUpdateEvent(roomId, playlistJson);
 		// Kafka 메시지 발행
@@ -61,6 +74,5 @@ public class KafkaProducerService {
 		} catch (JsonProcessingException e) {
 			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
 		}
-
 	}
 }

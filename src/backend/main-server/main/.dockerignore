@@ -1,0 +1,25 @@
+# Gradle 빌드 결과 제외
+build/
+.gradle/
+*.jar
+*.war
+*.zip
+
+# IDE 관련 파일 제외
+.idea/
+*.iml
+.vscode/
+*.log
+
+# 환경 설정 파일 제외
+.env
+*.properties
+*.yml
+*.yaml
+!application.properties
+!application-dev.properties
+!application-docker.properties
+
+# Git 및 시스템 관련 파일 제외
+.git
+.gitignore

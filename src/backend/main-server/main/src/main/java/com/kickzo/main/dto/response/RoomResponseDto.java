@@ -12,7 +12,7 @@ import lombok.Setter;
 @NoArgsConstructor
 @Builder
 public class RoomResponseDto {
-	private Long id;
+	private Long roomId;
 	private String code;
 	private String title;
 	private String description;
