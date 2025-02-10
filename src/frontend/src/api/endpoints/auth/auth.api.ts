@@ -37,4 +37,10 @@ export const authApi = {
     const { data } = await instance.post('/auth/token/refresh');
     return data;
   },
+
+  // 토큰 검증
+  verifyToken: async () => {
+    const { data } = await instance.post('/auth/token/verify');
+    return data;
+  },
 };

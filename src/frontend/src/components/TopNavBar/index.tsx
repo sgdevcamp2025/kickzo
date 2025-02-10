@@ -32,7 +32,7 @@ export const TopNavBar = () => {
   };
 
   const handleProfile = async () => {
-    const profile = await userApi.getProfile();
+    const profile = await userApi.getMyProfile();
     console.log(profile);
   };
 
