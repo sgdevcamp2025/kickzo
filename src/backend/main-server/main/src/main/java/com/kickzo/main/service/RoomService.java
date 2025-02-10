@@ -1,18 +1,21 @@
 package com.kickzo.main.service;
 
+import static com.kickzo.main.service.MainPageService.*;
+
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.kickzo.main.dto.event.PlaylistItem;
 import com.kickzo.main.dto.event.RoomUpdateEvent;
 import com.kickzo.main.dto.request.RoomUpdateRequestDto;
-import com.kickzo.main.dto.response.PlaylistDto;
 import com.kickzo.main.dto.response.RoomDetailsDto;
 import com.kickzo.main.dto.response.RoomInfoDto;
 import com.kickzo.main.dto.response.UserListDto;
@@ -39,11 +42,11 @@ public class RoomService {
 	private final PlaylistRepository playlistRepository;
 	private final UserRepository userRepository;
 	private final KafkaProducerService kafkaProducerService;
-	private final ObjectMapper objectMapper;
 
 	private static final int ROLE_MEMBER = 2;
 
 	// roomCode에 따른 방의 정보와 유저 list 전달
+	@Transactional
 	public RoomDetailsDto getRoomDetails(String roomCode) {
 		System.out.println("RoomCode : " + roomCode);
 		if (roomCode == null || roomCode.isBlank()) {
@@ -56,17 +59,23 @@ public class RoomService {
 		List<Object[]> userIdRoles = roomUserRepository.findUsersByRoomId(roomId);
 
 		// Step 3: UserID로 Nickname 검색
-		List<UserListDto> userList = mapNicknames(userIdRoles);
+		List<UserListDto> userList = getUserInfoList(userIdRoles);
 
 		// Step 4: RoomID로 Room 정보와 Playlist Order 검색
 		List<RoomInfoDto> roomInfo = getRoomInfoByRoomId(roomId);
-		List<PlaylistDto> playlist = getPlaylistByRoomId(roomId);
+		List<PlaylistItem> playlist = null;
+		try {
+			playlist = getPlaylistByRoomId(roomId);
+		} catch (JsonProcessingException e) {
+			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
+		}
 
 		// 결과를 조합하여 반환
 		return new RoomDetailsDto(userList, roomInfo, playlist);
 	}
 
 	// 방에 유저 소속 여부에 따른 작업과 role 전달
+	@Transactional
 	public int getUserRole(String roomCode, Long userId) {
 		Long roomId = getRoomId(roomCode);
 		// Step 1: 해당 방에서 유저의 역할(Role)을 찾음
@@ -76,17 +85,15 @@ public class RoomService {
 			return role;
 		} else {
 			// Step 3: 역할(Role)이 존재하지 않으면 새 사용자 추가
+			saveUserCount(roomId);
 			saveNewRoomUser(roomId, userId);
-			Room room = roomRepository.findById(roomId)
-				.orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
-			room.incrementUserCount();
 			return ROLE_MEMBER;
 		}
 	}
 
 	@Transactional
 	public void updateRoomInfo(RoomUpdateRequestDto updateRequestDto) {
-		Long roomId = updateRequestDto.getId();
+		Long roomId = updateRequestDto.getRoomId();
 		Room room = roomRepository.findById(roomId)
 			.orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
 		room.setId(roomId);
@@ -129,7 +136,7 @@ public class RoomService {
 			.orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
 	}
 
-	private List<UserListDto> mapNicknames(List<Object[]> userIdRoles) {
+	private List<UserListDto> getUserInfoList(List<Object[]> userIdRoles) {
 		// UserID를 기반으로 Nickname을 매핑하는 로직
 		return userIdRoles.stream()
 			.map(userRole -> {
@@ -137,7 +144,8 @@ public class RoomService {
 				int role = (int)userRole[1];
 				// UserRepository를 통해 UserID로 Nickname 조회
 				String nickname = userRepository.findNicknameById(userId);
-				return new UserListDto(userId, role, nickname);
+				String profileImageUrl= getUserProfileImage(userId);
+				return new UserListDto(userId, role, nickname, profileImageUrl);
 			})
 			.collect(Collectors.toList());
 	}
@@ -157,13 +165,12 @@ public class RoomService {
 			.collect(Collectors.toList());
 	}
 
-	private List<PlaylistDto> getPlaylistByRoomId(Long roomId) {
-		return playlistRepository.findOrderById(roomId)
-			.stream()
-			.map(playlist -> PlaylistDto.builder()
-				.order(playlist.getOrder())
-				.build())
-			.collect(Collectors.toList());
+	private List<PlaylistItem> getPlaylistByRoomId(Long roomId) throws JsonProcessingException {
+		String playlistJson = playlistRepository.findOrderById(roomId);
+		if (playlistJson == null || playlistJson.isBlank()) {
+			return new ArrayList<>();  // null 또는 빈 값 처리
+		}
+		return objectMapper.readValue(playlistJson, new TypeReference<>() {});
 	}
 
 	private String getCreatorProfileImage(String creator) {
@@ -171,21 +178,28 @@ public class RoomService {
 			.orElse("default-profile-image-url"); // 기본 이미지 설정
 	}
 
+	private String getUserProfileImage(Long userId) {
+		return Optional.ofNullable(userRepository.findProfileImageUrlById(userId))
+			.orElse("default-profile-image-url"); // 기본 이미지 설정
+	}
+
 	/**
+	 *  새로 들어온 user -> count 증가
 	 * 새로 들어온 user -> room_user DB에 저장
 	 */
-	private void saveNewRoomUser(Long roomId, Long userId) {
-		try {
-			RoomUser roomUser = RoomUser.builder()
-				.id(new RoomUserId(roomId, userId))
-				.role(ROLE_MEMBER) // 2: member 역할
-				.joinedAt(LocalDateTime.now())
-				.build();
+	private void saveUserCount(Long roomId){
+		Room room = roomRepository.findById(roomId)
+			.orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
+		room.incrementUserCount();
+		roomRepository.save(room);
+	}
 
-			roomUserRepository.save(roomUser);
-		} catch (DataIntegrityViolationException e) {
-			throw new CustomException(CustomErrorCode.FOREIGN_KEY_VIOLATION);
-		}
+	private void saveNewRoomUser(Long roomId, Long userId) {
+		RoomUser roomUser = RoomUser.builder()
+			.id(new RoomUserId(roomId, userId))
+			.role(ROLE_MEMBER) // 2: member 역할
+			.joinedAt(LocalDateTime.now())
+			.build();
+		roomUserRepository.save(roomUser);
 	}
 }
-
