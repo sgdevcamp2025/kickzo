@@ -39,10 +39,12 @@ public class MainPageService {
 	private final UserRepository userRepository;
 
 	private static final int MAX_ROOMS_PER_USER = 5;
+	private static final int ROLE_CREATOR = 0;
 
 	static final ObjectMapper objectMapper = new ObjectMapper();
 
 	// 메인 페이지 방 list 제공
+	@Transactional(readOnly = true)
 	public List<RoomResponseDto> getAllRooms(Pageable pageable) {
 		List<Room> rooms = roomRepository.findAllByUserCountDesc(pageable);
 		return rooms.stream()
@@ -51,6 +53,7 @@ public class MainPageService {
 	}
 
 	// 본인이 소속한 방 list 제공
+	@Transactional(readOnly = true)
 	public List<RoomResponseDto> getUserRooms(Long userId) {
 		List<Room> rooms = roomUserRepository.findRoomsByUserId(userId);
 
@@ -60,11 +63,13 @@ public class MainPageService {
 	}
 
 	// 방 만들기
+	@Transactional
 	public CreateRoomResponseDto createRoom(Long userId, CreateRoomRequestDto requestDto) {
 
 		String randomCode = generateRandomCode();
+		String creatorNickname = userRepository.findNicknameById(userId);
 
-		Room newRoom = saveNewRoom(requestDto, randomCode);
+		Room newRoom = saveNewRoom(creatorNickname, requestDto, randomCode);
 		saveRoomUser(newRoom.getId(), userId);
 
 		return new CreateRoomResponseDto(randomCode);
@@ -102,7 +107,7 @@ public class MainPageService {
 			.orElse(null);
 
 		return RoomResponseDto.builder()
-			.id(room.getId())
+			.roomId(room.getId())
 			.code(room.getCode())
 			.title(room.getTitle())
 			.description(room.getDescription())
@@ -128,9 +133,8 @@ public class MainPageService {
 		return UUID.randomUUID().toString().replaceAll("-", "").substring(0, 8).toUpperCase();
 	}
 
-	private Room saveNewRoom(CreateRoomRequestDto requestDto, String randomCode) {
+	private Room saveNewRoom(String creatorNickname, CreateRoomRequestDto requestDto, String randomCode) {
 
-		String creatorNickname = requestDto.getCreator();
 		int roomCount = roomRepository.findAllByCreator(creatorNickname).size();
 
 		if (roomCount >= MAX_ROOMS_PER_USER) {
@@ -153,7 +157,7 @@ public class MainPageService {
 	private void saveRoomUser(Long roomId, Long userId) {
 		RoomUser roomUser = RoomUser.builder()
 			.id(new RoomUserId(roomId, userId))
-			.role(0) // 0: creator 역할
+			.role(ROLE_CREATOR) // 0: creator 역할
 			.joinedAt(LocalDateTime.now())
 			.build();
 
