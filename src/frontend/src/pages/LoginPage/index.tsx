@@ -5,7 +5,7 @@ import { CommonButton } from '@/components/common/Button';
 import { LogoButton } from '@/components/common/LogoButton';
 import { Wrapper, CommonInput, IdSaveCheckBox, LinkBox, SubTitle } from './index.css';
 import { useAuth } from '@/hooks/queries/useAuth';
-import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { useLocalStorage } from '@/hooks/utils/useLocalStorage';
 
 export const LoginPage = () => {
