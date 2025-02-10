@@ -8,6 +8,9 @@ const instance = axios.create({
   },
 });
 
+let isRefreshing = false;
+let refreshPromise: Promise<string> | null = null;
+
 instance.interceptors.request.use(config => {
   const token = localStorage.getItem('access_token');
   if (token) {
@@ -19,36 +22,64 @@ instance.interceptors.request.use(config => {
 instance.interceptors.response.use(
   response => response,
   async error => {
-    if (error.response.status === 401) {
-      const originalRequest = error.config;
-      console.log('401 error', error);
-      const refreshToken = localStorage.getItem('refresh_token');
+    if (!error.config) {
+      return Promise.reject(error);
+    }
 
-      if (refreshToken) {
+    const originalRequest = error.config;
+
+    console.log('error 발생!!!! status: ', error.response?.status);
+
+    if (error.response?.status === 401 && !originalRequest._retry) {
+      if (isRefreshing && refreshPromise) {
+        console.log('이미 refresh token 요청 중, 기존 요청 대기');
+        return refreshPromise
+          .then(newToken => {
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            return instance(originalRequest);
+          })
+          .catch(refreshError => Promise.reject(refreshError));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      refreshPromise = (async () => {
         try {
-          const { access_token, refresh_token } = await getNewTokens();
-          localStorage.setItem('access_token', access_token);
-          localStorage.setItem('refresh_token', refresh_token);
+          const { data } = await axios
+            .create({
+              baseURL: import.meta.env.VITE_API_URL,
+              withCredentials: true,
+            })
+            .post('/auth/token/refresh'); // 별도 axios 사용
+          localStorage.setItem('access_token', data.accessToken);
+          console.log('새로운 토큰 발급 완료!!!!', data.accessToken);
 
-          return instance(originalRequest);
+          isRefreshing = false;
+          refreshPromise = null;
+
+          return data.accessToken;
         } catch (refreshError) {
+          console.log('refreshToken 요청 실패!!!!', refreshError);
           localStorage.removeItem('access_token');
-          localStorage.removeItem('refresh_token');
+          isRefreshing = false;
+          refreshPromise = null;
+
           window.location.href = '/login';
           return Promise.reject(refreshError);
         }
-      } else {
-        localStorage.removeItem('access_token');
-        window.location.href = '/login';
-      }
+      })();
+
+      return refreshPromise
+        .then(newToken => {
+          originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          return instance(originalRequest);
+        })
+        .catch(err => Promise.reject(err));
     }
+
     return Promise.reject(error);
   },
 );
-
-const getNewTokens = async () => {
-  const response = await instance.post('/auth/refresh');
-  return response.data;
-};
 
 export default instance;

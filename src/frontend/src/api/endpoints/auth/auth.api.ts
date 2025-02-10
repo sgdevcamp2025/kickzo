@@ -6,7 +6,6 @@ export const authApi = {
   login: async (credentials: LoginRequest) => {
     const basicToken = btoa(`${credentials.email}:${credentials.password}`);
     localStorage.removeItem('access_token');
-    localStorage.removeItem('refresh_token');
     const { data } = await instance.post<LoginResponseDto>(
       '/auth/login',
       { device: 'web' },
@@ -22,6 +21,13 @@ export const authApi = {
   // 로그아웃
   logout: async () => {
     const { data } = await instance.post('/auth/logout');
+    localStorage.removeItem('access_token');
+    return data;
+  },
+
+  // 토큰 갱신
+  refreshToken: async () => {
+    const { data } = await instance.post('/auth/token/refresh');
     return data;
   },
 };

@@ -9,7 +9,6 @@ export const useAuth = () => {
     mutationFn: authApi.login,
     onSuccess: data => {
       localStorage.setItem('access_token', data.accessToken);
-      localStorage.setItem('refresh_token', data.refreshToken);
       navigate('/');
     },
     onError: (error: Error) => {
@@ -21,7 +20,6 @@ export const useAuth = () => {
     mutationFn: authApi.logout,
     onSuccess: () => {
       localStorage.removeItem('access_token');
-      localStorage.removeItem('refresh_token');
       navigate('/');
     },
   });
