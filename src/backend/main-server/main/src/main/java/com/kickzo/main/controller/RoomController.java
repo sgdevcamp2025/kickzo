@@ -42,19 +42,7 @@ public class RoomController implements RoomApi {
 		@RequestParam String roomCode) {
 		log.info("UserId = {}, RoomCode = {}", userId, roomCode);
 
-		int myRole;
-		if (userId == null) {
-			// 비로그인 유저는 role = 99
-			myRole = 99;
-		} else {
-			// 유저의 Role 및 방 참여 상태 확인
-			myRole = roomService.getUserRole(roomCode, userId);
-			log.info("myRole: " + myRole);
-		}
-
-		RoomDetailsDto roomDetails = roomService.getRoomDetails(myRole, roomCode);
-
-		RoomEntryResponseDto response = new RoomEntryResponseDto(myRole, roomDetails);
+		RoomEntryResponseDto response = roomService.getRoomJoinResponse(roomCode, userId);
 		return ResponseEntity.ok(response);
 	}
 
