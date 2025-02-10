@@ -1,12 +1,19 @@
+import { useAuthStore } from '@/stores/useAuthStore';
 import instance from '../../axios.instance';
 import { LoginRequest, LoginResponseDto } from './auth.interface';
+import axios from 'axios';
+
+const loginInstance = axios.create({
+  baseURL: import.meta.env.VITE_API_URL,
+  withCredentials: true,
+});
 
 export const authApi = {
   // 로그인
   login: async (credentials: LoginRequest) => {
     const basicToken = btoa(`${credentials.email}:${credentials.password}`);
-    localStorage.removeItem('access_token');
-    const { data } = await instance.post<LoginResponseDto>(
+    useAuthStore.getState().clear();
+    const { data } = await loginInstance.post<LoginResponseDto>(
       '/auth/login',
       { device: 'web' },
       {
@@ -21,7 +28,7 @@ export const authApi = {
   // 로그아웃
   logout: async () => {
     const { data } = await instance.post('/auth/logout');
-    localStorage.removeItem('access_token');
+    useAuthStore.getState().clear();
     return data;
   },
 
