@@ -119,7 +119,7 @@ export class AuthController {
     }
   }
 
-  @Post("verify")
+  @Post("token/verify")
   @HttpCode(200)
   async verifyAccessToken(@Authorization() accessToken: string) {
     if (!accessToken) {
