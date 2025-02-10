@@ -44,7 +44,7 @@ export class AuthController {
         httpOnly: true,
         secure: false,
         maxAge: TOKEN_EXPIRATION_TIME.REFRESH * 1000,
-        path: "/api/auth/login",
+        path: "/api/auth/token/refresh",
       });
 
       return { accessToken: tokens.accessToken };
@@ -64,7 +64,7 @@ export class AuthController {
     }
     const result = await this.authService.logout(accessToken);
     res.clearCookie(TOKEN_TYPE.REFRESH, {
-      path: "/api/auth/logout",
+      path: "/api/auth/token/refresh",
     });
     return result;
   }
