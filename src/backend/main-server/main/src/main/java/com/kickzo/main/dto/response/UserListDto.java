@@ -9,4 +9,5 @@ public class UserListDto {
 	private Long userId;
 	private int role;
 	private String nickname;
+	private String profileImageUrl;
 }

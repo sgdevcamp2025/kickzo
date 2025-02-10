@@ -1,69 +1,23 @@
-import { useState } from 'react';
-import { SmallProfile } from '@/components/common/SmallProfile';
-import { CommonInput } from '@/components/common/Input';
-import { ProfileDetail } from '@/components/common/ProfileDetail';
+import { useState } from "react";
+import { SmallProfile } from "@/components/common/SmallProfile";
+import { ProfileDetail } from "@/components/common/ProfileDetail";
+import { MemberListFooter } from "@/components/Sidebar/MemberList/MemberListFooter";
 
-import { SidebarType } from '@/types/enums/SidebarType';
-import { ProfileType } from '@/types/enums/ProfileType';
-import { UserRole } from '@/types/enums/UserRole';
+import { SidebarType } from "@/types/enums/SidebarType";
+import { ProfileType } from "@/types/enums/ProfileType";
+import { UserRole } from "@/types/enums/UserRole";
+import { memberListTest } from "@/assets/data/memberListTest";
 
-import AddUserIcon from '@/assets/img/AddUser.svg';
-import MicrophoneOn from '@/assets/img/MicrophoneOn.svg';
-import HeadphoneOn from '@/assets/img/HeadphoneOn.svg';
-import MicrophoneOffRed from '@/assets/img/MicrophoneOffRed.svg';
-import HeadphoneOffRed from '@/assets/img/HeadphoneOffRed.svg';
-import { memberListTest } from '@/assets/data/memberListTest';
-
-import {
-  Container,
-  UserList,
-  MemberFooter,
-  VoiceChatFooter,
-  ActionButton,
-  JoinButton,
-  ProfileWrapper,
-} from './index.css';
-
+import { ProfileDetailType } from "@/types/enums/ProfileDetailType";
+import { Container, UserList, ProfileWrapper } from "./index.css";
 interface IMemberListProps {
-  sidebarType?: SidebarType;
+  sidebarType: SidebarType;
 }
 
 export const MemberList = ({ sidebarType }: IMemberListProps) => {
-  const [micOn, setMicOn] = useState(true);
-  const [soundOn, setSoundOn] = useState(true);
   const [activeProfile, setActiveProfile] = useState<number | null>(null);
-
-  // TODO - 마이크 소리 on/off
-  const handleMicrophone = () => setMicOn(!micOn);
-  const handleSound = () => setSoundOn(!soundOn);
   const handleProfileClick = (id: number) => {
-    setActiveProfile(prevId => (prevId === id ? null : id));
-  };
-
-  const renderFooter = () => {
-    if (sidebarType === SidebarType.MEMBER) {
-      return (
-        <MemberFooter>
-          <img src={AddUserIcon} alt="Add User" />
-          <CommonInput placeholder="룸 유저 검색" design={1} />
-        </MemberFooter>
-      );
-    }
-
-    if (sidebarType === SidebarType.VOICECHAT) {
-      return (
-        <VoiceChatFooter>
-          <ActionButton onClick={handleMicrophone}>
-            <img src={micOn ? MicrophoneOn : MicrophoneOffRed} />
-          </ActionButton>
-          <ActionButton onClick={handleSound}>
-            <img src={soundOn ? HeadphoneOn : HeadphoneOffRed} />
-          </ActionButton>
-          <JoinButton>입장</JoinButton>
-        </VoiceChatFooter>
-      );
-    }
-    return null;
+    setActiveProfile((prevId) => (prevId === id ? null : id));
   };
 
   return (
@@ -71,7 +25,7 @@ export const MemberList = ({ sidebarType }: IMemberListProps) => {
       <UserList>
         {memberListTest
           .sort((a, b) => a.role - b.role)
-          .map(member => (
+          .map((member) => (
             <ProfileWrapper key={member.id}>
               <div onClick={() => handleProfileClick(member.id)}>
                 <SmallProfile
@@ -86,21 +40,25 @@ export const MemberList = ({ sidebarType }: IMemberListProps) => {
                 />
               </div>
               {activeProfile === member.id ? (
-                <div className={`profile-detail ${activeProfile === member.id ? 'active' : ''}`}>
+                <div
+                  className={`profile-detail ${
+                    activeProfile === member.id ? "active" : ""
+                  }`}
+                >
                   <ProfileDetail
                     userId={member.id}
                     userRole={member.role}
                     myRole={UserRole.CREATOR}
-                    sidebarType={sidebarType || SidebarType.MEMBER}
+                    profileDetailType={sidebarType as unknown as ProfileDetailType}
                   />
                 </div>
               ) : (
-                ''
+                ""
               )}
             </ProfileWrapper>
           ))}
       </UserList>
-      {renderFooter()}
+      <MemberListFooter sidebarType={sidebarType} />
     </Container>
   );
 };

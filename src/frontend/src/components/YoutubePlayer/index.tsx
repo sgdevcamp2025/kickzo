@@ -14,7 +14,7 @@ export const YouTubePlayer = () => {
   // const [inputUrl, setInputUrl] = useState<string>(''); // 사용자가 입력한 유튜브 URL
   // const [seekTime, setSeekTime] = useState<string>(''); // 사용자가 입력한 이동 시간
 
-  const { videoQueue, currentIndex, setCurrentIndex } = useVideoStore();
+  const { videoQueue, currentIndex } = useVideoStore();
 
   const playerRef = useRef<YT.Player | null>(null); // 유튜브 플레이어 객체
   const lastKnownTimeRef = useRef<number>(0); // 마지막으로 기록된 재생 시간
@@ -114,7 +114,7 @@ export const YouTubePlayer = () => {
     } else if (event.data === YT.PlayerState.PAUSED) {
       console.log('멈춤');
     } else if (event.data === YT.PlayerState.ENDED) {
-      handleNextVideo();
+      // handleNextVideo();
     }
   };
 

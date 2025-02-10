@@ -13,9 +13,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class CreateRoomRequestDto {
-
-	@NotBlank(message = "방 생성자 이름을 입력해주세요.")
-	private String creator;
 	@NotBlank(message = "방 제목을 입력해주세요.")
 	@Size(max = 60, message = "방 제목은 60자 이하여야 합니다.")
 	private String title;

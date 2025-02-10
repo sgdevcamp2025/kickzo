@@ -27,7 +27,7 @@ class KickRoomMainScrollView: UIView {
     private let emptyView = UIView().then { $0.backgroundColor = .red }
     private let playlistView = PlaylistView()
     private let voiceChatView = UIView().then { $0.backgroundColor = .yellow }
-    private let particiapteUserView = UIView().then { $0.backgroundColor = .green }
+    private let userlistView = UserListView(UserListReactor(SampleTest.userlist))
     
     var didUpdatePageIndex: ((Int) -> Void)?
     
@@ -60,7 +60,7 @@ class KickRoomMainScrollView: UIView {
     private func configureHierarchy() {
         addSubview(scrollView)
         scrollView.addSubview(stackView)
-        [emptyView, playlistView, voiceChatView, particiapteUserView].forEach {
+        [emptyView, playlistView, voiceChatView, userlistView].forEach {
             stackView.addArrangedSubview($0)
         }
     }
@@ -75,7 +75,7 @@ class KickRoomMainScrollView: UIView {
             make.width.equalTo(scrollView.snp.width).multipliedBy(4)
         }
         
-        [emptyView, playlistView, voiceChatView, particiapteUserView].forEach {
+        [emptyView, playlistView, voiceChatView, userlistView].forEach {
             $0.snp.makeConstraints { make in
                 make.size.equalTo(scrollView.snp.size)
             }

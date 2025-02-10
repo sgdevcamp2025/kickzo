@@ -23,8 +23,6 @@ public class UserRepository {
 			return jdbcTemplate.queryForObject(sql, params, String.class);
 		} catch (EmptyResultDataAccessException e) {
 			throw new CustomException(CustomErrorCode.USER_NOT_FOUND);
-		} catch (Exception e) {
-			throw new CustomException(CustomErrorCode.DATABASE_ERROR);
 		}
 	}
 
@@ -32,6 +30,13 @@ public class UserRepository {
 		String sql = "SELECT u.profile_image_url FROM user u WHERE u.nickname = :nickname";
 		MapSqlParameterSource params = new MapSqlParameterSource()
 			.addValue("nickname", nickname);
+		return jdbcTemplate.queryForObject(sql, params, String.class);
+	}
+
+	public String findProfileImageUrlById(Long userId) {
+		String sql = "SELECT u.profile_image_url FROM user u WHERE u.id = :userId";
+		MapSqlParameterSource params = new MapSqlParameterSource()
+			.addValue("userId", userId);
 		return jdbcTemplate.queryForObject(sql, params, String.class);
 	}
 }

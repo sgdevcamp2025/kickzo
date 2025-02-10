@@ -2,6 +2,8 @@ package com.kickzo.main.dto.response;
 
 import java.util.List;
 
+import com.kickzo.main.dto.event.PlaylistItem;
+
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
@@ -10,5 +12,5 @@ import lombok.Data;
 public class RoomDetailsDto {
 	private List<UserListDto> userList;
 	private List<RoomInfoDto> roomInfo;
-	private List<PlaylistDto> playlist;
+	private List<PlaylistItem> playlist;
 }
