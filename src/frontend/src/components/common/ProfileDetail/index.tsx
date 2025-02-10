@@ -1,18 +1,10 @@
 import { useState } from "react";
-import { IconButton } from "@/components/IconButton";
-import { EditButton } from "@/components/common/ProfileDetail/EditButton";
 import { ProfileButtonContainer } from "@/components/common/ProfileDetail/ButtonContainer";
 import { ProfileContent } from "@/components/common/ProfileDetail/ProfileContent";
 
 import { UserRole } from "@/types/enums/UserRole";
 import { ProfileDetailType } from "@/types/enums/ProfileDetailType";
-
-import MicrophoneOn from "@/assets/img/MicrophoneOn.svg";
-import MicrophoneOffRed from "@/assets/img/MicrophoneOffRed.svg";
-import HeadphoneOn from "@/assets/img/HeadphoneOn.svg";
-import HeadphoneOffRed from "@/assets/img/HeadphoneOffRed.svg";
-import AddUser from "@/assets/img/AddUser.svg";
-import Check from "@/assets/img/Check.svg";
+import { RightButtonContainer } from "./RightButtonContainer";
 
 import {
   Container,
@@ -47,22 +39,13 @@ export const ProfileDetail = (props: IProfileDetail) => {
         <Profile__Header>
           <Profile__Header__Img src={detailProfile.imgUrl} />
           <Profile__Header__ButtonContainer>
-            {props.profileDetailType === ProfileDetailType.VOICECHAT ? (
-              <>
-                <IconButton beforeImgUrl={MicrophoneOn} afterImgUrl={MicrophoneOffRed} />
-                <IconButton beforeImgUrl={HeadphoneOn} afterImgUrl={HeadphoneOffRed} />
-              </>
-            ) : (
-              <IconButton beforeImgUrl={AddUser} afterImgUrl={Check} />
-            )}
-            {props.profileDetailType === ProfileDetailType.EDIT && (
-              <EditButton
-                isEditing={isEditing}
-                setIsEditing={setIsEditing}
-                setNickname={setNickname}
-                setIntroduce={setIntroduce}
-              />
-            )}
+            <RightButtonContainer
+              profileDetailType={props.profileDetailType}
+              isEditing={isEditing}
+              setIsEditing={setIsEditing}
+              setNickname={setNickname}
+              setIntroduce={setIntroduce}
+            />
           </Profile__Header__ButtonContainer>
         </Profile__Header>
         <ProfileContent

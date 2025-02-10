@@ -8,8 +8,8 @@ import { ProfileType } from "@/types/enums/ProfileType";
 import { UserRole } from "@/types/enums/UserRole";
 import { memberListTest } from "@/assets/data/memberListTest";
 
+import { ProfileDetailType } from "@/types/enums/ProfileDetailType";
 import { Container, UserList, ProfileWrapper } from "./index.css";
-
 interface IMemberListProps {
   sidebarType: SidebarType;
 }
@@ -49,7 +49,7 @@ export const MemberList = ({ sidebarType }: IMemberListProps) => {
                     userId={member.id}
                     userRole={member.role}
                     myRole={UserRole.CREATOR}
-                    profileDetailType={sidebarType}
+                    profileDetailType={sidebarType as unknown as ProfileDetailType}
                   />
                 </div>
               ) : (
