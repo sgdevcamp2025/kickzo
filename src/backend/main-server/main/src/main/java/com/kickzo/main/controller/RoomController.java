@@ -52,7 +52,7 @@ public class RoomController implements RoomApi {
 			log.info("myRole: " + myRole);
 		}
 
-		RoomDetailsDto roomDetails = roomService.getRoomDetails(roomCode);
+		RoomDetailsDto roomDetails = roomService.getRoomDetails(myRole, roomCode);
 
 		RoomEntryResponseDto response = new RoomEntryResponseDto(myRole, roomDetails);
 		return ResponseEntity.ok(response);

@@ -47,7 +47,7 @@ public class RoomService {
 
 	// roomCode에 따른 방의 정보와 유저 list 전달
 	@Transactional
-	public RoomDetailsDto getRoomDetails(String roomCode) {
+	public RoomDetailsDto getRoomDetails(int myRole, String roomCode) {
 		System.out.println("RoomCode : " + roomCode);
 		if (roomCode == null || roomCode.isBlank()) {
 			throw new CustomException(CustomErrorCode.INVALID_ROOM_CODE);
@@ -70,6 +70,10 @@ public class RoomService {
 			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
 		}
 
+		if (myRole == ROLE_MEMBER) {
+			kafkaProducerService.sendRoomUserList(roomId, userList);
+		}
+
 		// 결과를 조합하여 반환
 		return new RoomDetailsDto(userList, roomInfo, playlist);
 	}
@@ -87,6 +91,7 @@ public class RoomService {
 			// Step 3: 역할(Role)이 존재하지 않으면 새 사용자 추가
 			saveUserCount(roomId);
 			saveNewRoomUser(roomId, userId);
+			// 새로운 사람이 들어왔으므로 kafka로 현재 방의 UserList 보내기
 			return ROLE_MEMBER;
 		}
 	}
