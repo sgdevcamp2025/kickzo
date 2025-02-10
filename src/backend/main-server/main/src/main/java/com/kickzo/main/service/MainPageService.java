@@ -44,6 +44,7 @@ public class MainPageService {
 	static final ObjectMapper objectMapper = new ObjectMapper();
 
 	// 메인 페이지 방 list 제공
+	@Transactional(readOnly = true)
 	public List<RoomResponseDto> getAllRooms(Pageable pageable) {
 		List<Room> rooms = roomRepository.findAllByUserCountDesc(pageable);
 		return rooms.stream()
@@ -52,6 +53,7 @@ public class MainPageService {
 	}
 
 	// 본인이 소속한 방 list 제공
+	@Transactional(readOnly = true)
 	public List<RoomResponseDto> getUserRooms(Long userId) {
 		List<Room> rooms = roomUserRepository.findRoomsByUserId(userId);
 
@@ -61,6 +63,7 @@ public class MainPageService {
 	}
 
 	// 방 만들기
+	@Transactional
 	public CreateRoomResponseDto createRoom(Long userId, CreateRoomRequestDto requestDto) {
 
 		String randomCode = generateRandomCode();
