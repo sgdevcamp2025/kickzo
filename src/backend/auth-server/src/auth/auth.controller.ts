@@ -43,7 +43,8 @@ export class AuthController {
       res.cookie(TOKEN_TYPE.REFRESH, tokens.refreshToken, {
         httpOnly: true,
         secure: false,
-        maxAge: TOKEN_EXPIRATION_TIME.REFRESH,
+        maxAge: TOKEN_EXPIRATION_TIME.REFRESH * 1000,
+        path: "/api/auth/login",
       });
 
       return { accessToken: tokens.accessToken };
@@ -54,11 +55,18 @@ export class AuthController {
 
   @Post("logout")
   @HttpCode(200)
-  async logout(@Authorization() accessToken: string) {
+  async logout(
+    @Authorization() accessToken: string,
+    @Res({ passthrough: true }) res: Response,
+  ) {
     if (!accessToken) {
       throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);
     }
-    return await this.authService.logout(accessToken);
+    const result = await this.authService.logout(accessToken);
+    res.clearCookie(TOKEN_TYPE.REFRESH, {
+      path: "/api/auth/logout",
+    });
+    return result;
   }
 
   @Post("token/refresh")
@@ -82,19 +90,33 @@ export class AuthController {
     }
 
     const rawToken = `${RAW_TOKEN_TYPE.BEARER} ${refreshToken}`;
-    const tokens = await this.authService.updateTokens(rawToken);
 
-    if (cookies[TOKEN_TYPE.REFRESH]) {
-      res.cookie(TOKEN_TYPE.REFRESH, tokens.refreshToken, {
-        httpOnly: true,
-        secure: false,
-        maxAge: TOKEN_EXPIRATION_TIME.REFRESH,
-      });
+    try {
+      const tokens = await this.authService.updateTokens(rawToken);
 
-      return { accessToken: tokens.accessToken };
+      if (cookies[TOKEN_TYPE.REFRESH]) {
+        res.cookie(TOKEN_TYPE.REFRESH, tokens.refreshToken, {
+          httpOnly: true,
+          secure: false,
+          maxAge: TOKEN_EXPIRATION_TIME.REFRESH * 1000,
+          path: "/api/auth/token/refresh",
+        });
+
+        return { accessToken: tokens.accessToken };
+      }
+
+      return tokens;
+    } catch (error) {
+      if (
+        error instanceof UnauthorizedException &&
+        error.getResponse()["clearCookie"]
+      ) {
+        res.clearCookie(TOKEN_TYPE.REFRESH, {
+          path: "/api/auth/token/refresh",
+        });
+      }
+      throw error;
     }
-
-    return tokens;
   }
 
   @Post("verify")

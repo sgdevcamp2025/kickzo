@@ -63,23 +63,36 @@ export class AuthService {
   }
 
   async updateTokens(rawToken: string) {
-    const payload = await this.parseBearerToken(rawToken, true);
+    try {
+      const payload = await this.parseBearerToken(rawToken, true);
+      const device = payload.device as DeviceType;
 
-    const device = payload.device as DeviceType;
+      if (device !== DeviceType.WEB && device !== DeviceType.MOBILE) {
+        throw new UnauthorizedException(MESSAGES.INVALID_DEVICE);
+      }
 
-    if (device !== DeviceType.WEB && device !== DeviceType.MOBILE) {
-      throw new UnauthorizedException(MESSAGES.INVALID_DEVICE);
+      const token = await this.redis.get(
+        REDIS_KEY.REFRESH_TOKEN(payload.id, device),
+      );
+
+      if (!token) {
+        // Redis에 토큰이 없으면 쿠키를 지우기
+        throw new UnauthorizedException({
+          message: MESSAGES.INVALID_TOKEN,
+          clearCookie: true,
+        });
+      }
+
+      return await this.sendTokens(payload, device);
+    } catch (error) {
+      if (error instanceof UnauthorizedException) {
+        throw new UnauthorizedException({
+          message: MESSAGES.INVALID_TOKEN,
+          clearCookie: true,
+        });
+      }
+      throw error;
     }
-
-    const token = await this.redis.get(
-      REDIS_KEY.REFRESH_TOKEN(payload.id, device),
-    );
-
-    if (!token) {
-      throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);
-    }
-
-    return await this.sendTokens(payload, device);
   }
 
   async sendTokens(payload: TokenPayload, device: DeviceType) {
