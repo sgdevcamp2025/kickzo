@@ -1,5 +1,5 @@
 //
-//  PlayListCollectionViewCellViewModel.swift
+//  PlayListViewModel.swift
 //  KickTube
 //
 //  Created by 김수경 on 2/6/25.

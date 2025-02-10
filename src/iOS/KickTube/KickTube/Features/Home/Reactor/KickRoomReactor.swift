@@ -30,6 +30,8 @@ final class KickRoomReactor: Reactor {
     var initialState: State
     
     init(_ roomInfo: KickRoomViewModel) {
+        UserDefaultsManager.shared.myRole = roomInfo.myRole
+        
         var initialState = State(
             roomInfo: roomInfo,
             playState: nil,
