@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { ButtonColor } from '@/types/enums/ButtonColor';
 import { CommonButton } from '@/components/common/Button';
@@ -6,15 +6,14 @@ import { LogoButton } from '@/components/common/LogoButton';
 import { Wrapper, CommonInput, IdSaveCheckBox, LinkBox, SubTitle } from './index.css';
 import { useAuth } from '@/hooks/queries/useAuth';
 import { LoadingSpinner } from '@/components/LoadingSpinner';
+import { useLocalStorage } from '@/hooks/utils/useLocalStorage';
 
 export const LoginPage = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
   const { login } = useAuth();
-  const [isSaveEmail, setIsSaveEmail] = useState(() => {
-    const savedCheck = localStorage.getItem('isSaveEmail');
-    return savedCheck === 'true';
-  });
+  const [isSaveEmail, setIsSaveEmail] = useLocalStorage<boolean>('isSaveEmail', false);
+  const [savedEmail, setSavedEmail] = useLocalStorage<string>('savedEmail', '');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -24,11 +23,11 @@ export const LoginPage = () => {
     if (email && password) {
       if (isSaveEmail) {
         const encodedEmail = btoa(email);
-        localStorage.setItem('savedEmail', encodedEmail);
-        localStorage.setItem('isSaveEmail', 'true');
+        setSavedEmail(encodedEmail);
+        setIsSaveEmail(true);
       } else {
-        localStorage.removeItem('savedEmail');
-        localStorage.removeItem('isSaveEmail');
+        setSavedEmail('');
+        setIsSaveEmail(false);
       }
 
       login.mutate(
@@ -45,13 +44,12 @@ export const LoginPage = () => {
   };
 
   const loadSavedEmail = () => {
-    const savedEmail = localStorage.getItem('savedEmail');
     if (!savedEmail) return '';
 
     try {
       return atob(savedEmail);
     } catch {
-      localStorage.removeItem('savedEmail');
+      setSavedEmail('');
       return '';
     }
   };
