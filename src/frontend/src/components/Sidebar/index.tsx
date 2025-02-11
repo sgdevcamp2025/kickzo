@@ -1,18 +1,13 @@
 import { useState } from 'react';
-import { Chat } from './Chat';
+import { ChatBox } from './Chating';
 import { MemberList } from './MemberList';
 import { Playlist } from './Playlist';
 import SidebarChat from '@/assets/img/SidebarChat.svg';
 import SidebarPlaylist from '@/assets/img/SidebarPlaylist.svg';
 import SidebarVoicechat from '@/assets/img/SidebarVoicechat.svg';
 import SidebarMember from '@/assets/img/SidebarMember.svg';
-import Add from '@/assets/img/Add.svg';
-import { CommonInput } from '@/components/common/Input';
-import { CommonButton } from '@/components/common/Button';
-import { chatDataTest } from '@/assets/data/chatDataTest';
-import { Wrapper, Nav, Content, NavButton, InputContainer, ChatContainer } from './index.css';
+import { Wrapper, Nav, Content, NavButton } from './index.css';
 import { SidebarType } from '@/types/enums/SidebarType';
-import { ButtonColor } from '@/types/enums/ButtonColor';
 
 export const Sidebar = () => {
   const [interfaceType, setInterfaceType] = useState<SidebarType>(SidebarType.CHAT);
@@ -20,12 +15,7 @@ export const Sidebar = () => {
   const renderContent = () => {
     switch (interfaceType) {
       case SidebarType.CHAT:
-        return (
-          <ChatContainer>
-            <ChatMessages />
-            <ChatInput />
-          </ChatContainer>
-        );
+        return <ChatBox />;
       case SidebarType.PLAYLIST:
         return <Playlist />;
       case SidebarType.VOICECHAT:
@@ -37,52 +27,25 @@ export const Sidebar = () => {
     }
   };
 
-  const navButtons = [
-    { type: SidebarType.CHAT, icon: SidebarChat },
-    { type: SidebarType.PLAYLIST, icon: SidebarPlaylist },
-    { type: SidebarType.VOICECHAT, icon: SidebarVoicechat },
-    { type: SidebarType.MEMBER, icon: SidebarMember },
-  ];
-
   return (
     <Wrapper>
       <Nav>
-        {navButtons.map(button => (
-          <NavButton
-            key={button.type}
-            onClick={() => setInterfaceType(button.type)}
-            $active={interfaceType === button.type}
-          >
-            <img src={button.icon} alt={`Sidebar ${button.type}`} />
-          </NavButton>
-        ))}
+        {[SidebarType.CHAT, SidebarType.PLAYLIST, SidebarType.VOICECHAT, SidebarType.MEMBER].map(
+          (type, index) => (
+            <NavButton
+              key={index}
+              onClick={() => setInterfaceType(type)}
+              $active={interfaceType === type}
+            >
+              <img
+                src={[SidebarChat, SidebarPlaylist, SidebarVoicechat, SidebarMember][index]}
+                alt={`Sidebar ${type}`}
+              />
+            </NavButton>
+          ),
+        )}
       </Nav>
       <Content>{renderContent()}</Content>
     </Wrapper>
   );
 };
-
-// 채팅창
-const ChatMessages = () => (
-  <div>
-    {chatDataTest.map((chat, index) => (
-      <Chat
-        key={index}
-        role={chat.role}
-        nickname={chat.nickname}
-        time={chat.time}
-        text={chat.text}
-      />
-    ))}
-  </div>
-);
-
-// 채팅 입력
-const ChatInput = () => (
-  <InputContainer>
-    <CommonButton color={ButtonColor.TRANSPARENT} borderradius="20px">
-      <img src={Add} alt="Add" />
-    </CommonButton>
-    <CommonInput placeholder="메시지 보내기" design={1} />
-  </InputContainer>
-);
