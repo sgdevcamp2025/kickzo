@@ -33,7 +33,7 @@ public interface RoomApi {
 	})
 	ResponseEntity<RoomEntryResponseDto> joinRoom(
 		@RequestHeader(value = "x-user-id", required = false) Long userId,
-		@RequestParam String roomCode
+		@RequestBody String roomCode
 	);
 
 	@Operation(summary = "방 정보 수정", description = "특정 방의 제목, 설명, 공개여부를 수정합니다.")
@@ -75,7 +75,7 @@ public interface RoomApi {
 	})
 	ResponseEntity<String> savePlaylist(
 		@RequestHeader(value = "x-user-id", required = true) Long userId,
-		@RequestParam Long roomId,
+		@RequestBody Long roomId,
 		@RequestBody String playlistJson
 	);
 
