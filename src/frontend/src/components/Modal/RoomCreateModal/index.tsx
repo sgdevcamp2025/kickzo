@@ -2,7 +2,13 @@ import { ButtonColor } from '@/types/enums/ButtonColor';
 import { ModalPortal } from '@/components/Modal/ModalPortal';
 import { IModal } from '@/components/Modal';
 import { Background, ButtonContainer, ModalContainer, Title } from '@/components/Modal/index.css';
-import { CommonInput, PrivacyButton, PrivacyToggleContainer } from './index.css';
+import {
+  CommonInput,
+  PrivacyButton,
+  PrivacyToggleContainer,
+  TextArea,
+  TitleLength,
+} from './index.css';
 import { CommonButton } from '@/components/common/Button';
 import { useRef, useState } from 'react';
 import VideoIcon from '@/assets/img/Video.svg';
@@ -10,7 +16,8 @@ import UserLineIcon from '@/assets/img/UsersLine.svg';
 import UserLineWhiteIcon from '@/assets/img/UsersLine_W.svg';
 import DisableEyeIcon from '@/assets/img/DisableEye.svg';
 import DisableEyeWhiteIcon from '@/assets/img/DisableEye_W.svg';
-
+import { getByteLength } from '@/utils/stringUtils';
+import { useRoom } from '@/hooks/queries/useRoom';
 interface IRoomCreateModal {
   onCancel: () => void;
 }
@@ -18,13 +25,34 @@ interface IRoomCreateModal {
 export const RoomCreateModal = ({ onCancel }: IRoomCreateModal) => {
   const titleRef = useRef<HTMLInputElement>(null);
   const [isPublic, setIsPublic] = useState(true);
+  const [titleLength, setTitleLength] = useState(0);
+  const { createRoom } = useRoom();
 
   const handleTitleChange = () => {
-    console.log('title:', titleRef.current?.value);
+    const title = titleRef.current?.value || '';
+    const titleByteLength = getByteLength(title);
+    if (titleByteLength > 60) {
+      titleRef.current?.setCustomValidity('제목은 한글 20자, 영어 60자 이하로 입력해주세요.');
+      titleRef.current?.reportValidity();
+      setTitleLength(titleByteLength);
+    } else {
+      titleRef.current?.setCustomValidity('');
+      setTitleLength(titleByteLength);
+    }
   };
 
   const handleCreation = () => {
-    console.log('생성');
+    if (titleRef.current?.value === '') {
+      titleRef.current?.setCustomValidity('제목을 입력해주세요.');
+      titleRef.current?.reportValidity();
+      return;
+    }
+
+    createRoom.mutate({
+      title: titleRef.current?.value || '',
+      description: '',
+      isPublic: isPublic,
+    });
     onCancel();
   };
 
@@ -52,6 +80,8 @@ export const RoomCreateModal = ({ onCancel }: IRoomCreateModal) => {
           onChange={handleTitleChange}
           required
         />
+        <TitleLength>{`${titleLength} / 60`}</TitleLength>
+        <TextArea placeholder="방 설명" rows={4} />
         <PrivacyToggleContainer>
           <PrivacyButton $active={isPublic} onClick={() => setIsPublic(true)}>
             {isPublic ? (

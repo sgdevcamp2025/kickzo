@@ -16,6 +16,31 @@ export const CommonInput = styled.input`
   }
 `;
 
+export const TitleLength = styled.div`
+  width: 100%;
+  text-align: right;
+  font-size: 0.875rem;
+  color: var(--palette-font-gray);
+  margin: -0.625rem 0.625rem 0.625rem 0;
+`;
+
+export const TextArea = styled.textarea`
+  width: 100%;
+  padding: 0.625rem;
+  margin: 0.625rem 0 1.25rem;
+  background: var(--palette-fill-normal);
+  border: 1px solid var(--palette-line-normal-normal);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  color: var(--palette-font-gray);
+  outline: none;
+  resize: none;
+
+  &:focus-within {
+    border: 1px solid var(--palette-interaction-inactive);
+  }
+`;
+
 export const PrivacyToggleContainer = styled.div`
   display: flex;
   justify-content: center;
