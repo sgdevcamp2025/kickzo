@@ -54,7 +54,8 @@ services:
     routes:
       - name: main-public-route
         paths:
-          - /api/rooms/list/all
+          - /api/rooms/all
+          - /api/rooms/participants
         strip_path: false
 
       - name: main-private-route
