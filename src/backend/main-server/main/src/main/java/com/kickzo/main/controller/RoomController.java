@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kickzo.main.dto.request.RoleChangeRequestDto;
+import com.kickzo.main.dto.request.RoomJoinRequestDto;
 import com.kickzo.main.dto.request.RoomUpdateRequestDto;
 import com.kickzo.main.dto.response.RoomEntryResponseDto;
 import com.kickzo.main.dto.response.UserListDto;
@@ -43,7 +44,9 @@ public class RoomController implements RoomApi {
 	@PostMapping("/join")
 	public ResponseEntity<RoomEntryResponseDto> joinRoom(
 		@RequestHeader(value = "x-user-id", required = false) Long userId,
-		@RequestBody String roomCode) {
+		@RequestBody RoomJoinRequestDto roomJoinRequestDto) {
+
+		String roomCode = roomJoinRequestDto.getRoomCode();
 		log.info("UserId = {}, RoomCode = {}", userId, roomCode);
 
 		RoomEntryResponseDto response = roomService.getRoomJoinResponse(roomCode, userId);

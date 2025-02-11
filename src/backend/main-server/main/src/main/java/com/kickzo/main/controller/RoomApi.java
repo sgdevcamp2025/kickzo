@@ -4,6 +4,7 @@ import java.util.List;
 
 import com.kickzo.main.constants.ApiResponseConstants;
 import com.kickzo.main.dto.request.RoleChangeRequestDto;
+import com.kickzo.main.dto.request.RoomJoinRequestDto;
 import com.kickzo.main.dto.request.RoomUpdateRequestDto;
 import com.kickzo.main.dto.response.RoomEntryResponseDto;
 import com.kickzo.main.dto.response.UserListDto;
@@ -33,7 +34,7 @@ public interface RoomApi {
 	})
 	ResponseEntity<RoomEntryResponseDto> joinRoom(
 		@RequestHeader(value = "x-user-id", required = false) Long userId,
-		@RequestBody String roomCode
+		@RequestBody RoomJoinRequestDto roomJoinRequestDto
 	);
 
 	@Operation(summary = "방 정보 수정", description = "특정 방의 제목, 설명, 공개여부를 수정합니다.")
