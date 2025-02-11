@@ -200,7 +200,7 @@ export const ChatBox = () => {
     };
   }, [chatData, startIndex, visibleChat]);
 
-  const scrollToBottom = useCallback(() => {
+  const scrollToBottom = () => {
     if (chatContainerRef.current) {
       setExtraTopNum(extraTopNum + extraDownNum);
       setExtraDownNum(0);
@@ -209,7 +209,7 @@ export const ChatBox = () => {
         behavior: 'smooth',
       });
     }
-  }, []);
+  };
 
   return (
     <ChatContainer>
