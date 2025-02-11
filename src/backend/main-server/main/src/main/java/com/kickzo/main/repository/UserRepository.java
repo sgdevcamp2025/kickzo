@@ -30,13 +30,21 @@ public class UserRepository {
 		String sql = "SELECT u.profile_image_url FROM user u WHERE u.nickname = :nickname";
 		MapSqlParameterSource params = new MapSqlParameterSource()
 			.addValue("nickname", nickname);
-		return jdbcTemplate.queryForObject(sql, params, String.class);
+		try {
+			return jdbcTemplate.queryForObject(sql, params, String.class);
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
 	}
 
 	public String findProfileImageUrlById(Long userId) {
 		String sql = "SELECT u.profile_image_url FROM user u WHERE u.id = :userId";
 		MapSqlParameterSource params = new MapSqlParameterSource()
 			.addValue("userId", userId);
-		return jdbcTemplate.queryForObject(sql, params, String.class);
+		try {
+			return jdbcTemplate.queryForObject(sql, params, String.class);
+		} catch (EmptyResultDataAccessException e) {
+			return null;
+		}
 	}
 }

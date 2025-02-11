@@ -13,7 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.kickzo.main.dto.event.PlaylistItem;
+import com.kickzo.main.dto.data.PlaylistItem;
 import com.kickzo.main.dto.event.RoomUpdateEvent;
 import com.kickzo.main.dto.request.RoomUpdateRequestDto;
 import com.kickzo.main.dto.response.RoomDetailsDto;
@@ -186,15 +186,14 @@ public class RoomService {
 			.orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
 	}
 
-	private String getCreatorProfileImage(String creator) {
-		return Optional.ofNullable(userRepository.findProfileImageUrlByNickname(creator))
-			.orElse("default-profile-image-url"); // 기본 이미지 설정
+	private String getCreatorProfileImage(String creatorNickname) {
+		return userRepository.findProfileImageUrlByNickname(creatorNickname);
 	}
 
 	private String getUserProfileImage(Long userId) {
-		return Optional.ofNullable(userRepository.findProfileImageUrlById(userId))
-			.orElse("default-profile-image-url"); // 기본 이미지 설정
+		return userRepository.findProfileImageUrlById(userId);
 	}
+
 
 	private void saveUserCount(Long roomId){
 		Room room = roomRepository.findById(roomId)
