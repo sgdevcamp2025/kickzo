@@ -1,4 +1,3 @@
-// import { myRoomListTest } from '@/assets/data/myRoomListTest';
 import { useEffect, useState } from 'react';
 import { MyRoomCard } from '@/components/MyRoomCard';
 import { Wrapper, Container, Title, SubTitle, CommonParagraph } from './index.css';
@@ -6,25 +5,19 @@ import { useRoom } from '@/hooks/queries/useRoom';
 import { useUserStore } from '@/stores/useUserStore';
 import { MyRoomDto } from '@/api/endpoints/room/room.interface';
 import { MyRoomSkeleton } from './MyRoomSkeleton';
+import { useDelayedLoading } from '@/hooks/utils/useDelayedLoading';
 
 export const MyRoomPage = () => {
   const { getMyRooms } = useRoom();
   const { user } = useUserStore();
   const [myRoomList, setMyRoomList] = useState<MyRoomDto[]>([]);
-  const [showSkeleton, setShowSkeleton] = useState(true);
+  const showSkeleton = useDelayedLoading(getMyRooms.data);
 
   useEffect(() => {
-    const minLoadingTime = 300;
-    const startTime = Date.now();
-
     getMyRooms.refetch();
 
     if (getMyRooms.data) {
       setMyRoomList(getMyRooms.data);
-      const elapsedTime = Date.now() - startTime;
-      const delay = Math.max(0, minLoadingTime - elapsedTime);
-
-      setTimeout(() => setShowSkeleton(false), delay);
     }
   }, [getMyRooms.data]);
 

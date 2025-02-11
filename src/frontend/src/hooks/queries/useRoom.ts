@@ -20,6 +20,10 @@ export const useRoom = () => {
     onSuccess: data => {
       navigate(`/room?code=${data.code}`);
     },
+    onError: error => {
+      alert('방 생성을 실패했습니다.');
+      console.error(error);
+    },
   });
 
   const getMyRooms = useQuery({
