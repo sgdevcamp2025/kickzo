@@ -3,69 +3,129 @@ package com.kickzo.main.service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Optional;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kickzo.main.dto.data.InvitationData;
 import com.kickzo.main.dto.request.RoomInviteRequestDto;
+import com.kickzo.main.enums.InvitationStatus;
+import com.kickzo.main.exception.CustomErrorCode;
+import com.kickzo.main.exception.CustomException;
 import com.kickzo.main.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class InvitationService {
 
 	private final RedisTemplate<String, Object> redisTemplate;
 	private final UserRepository userRepository;
+	private final KafkaProducerService kafkaProducerService;
 
 	private static final int TTL_EXPIRE_DAY = 7;
+	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+	private final ObjectMapper objectMapper = new ObjectMapper();
 
-	// 1. 초대 저장
 	public void saveInvitation(RoomInviteRequestDto inviteRequestDto) {
-		Long senderId = inviteRequestDto.getSenderId();
-		Long receiverId = inviteRequestDto.getReceiverId();
-		Long roomId = inviteRequestDto.getRoomId();
+		String key = generateKey(inviteRequestDto);
 
-		String key = generateKey(senderId, receiverId, roomId);
+		validateExistingInvitation(key);
 
-		String SenderNickname = userRepository.findNicknameById(senderId);
-		String ReceiverNickname = userRepository.findNicknameById(receiverId);
-		String roomCode = inviteRequestDto.getRoomCode();
-
-		DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-		String formattedDate = LocalDateTime.now().format(formatter);
-
-		redisTemplate.opsForHash().put(key, "type", "room_request");
-		redisTemplate.opsForHash().put(key, "senderId", senderId);
-		redisTemplate.opsForHash().put(key, "senderNickname", SenderNickname);
-		redisTemplate.opsForHash().put(key, "receiverId", receiverId);
-		redisTemplate.opsForHash().put(key, "receiverNickname", ReceiverNickname);
-		redisTemplate.opsForHash().put(key, "timestamp", formattedDate);
-		redisTemplate.opsForHash().put(key, "roomId", roomId);
-		redisTemplate.opsForHash().put(key, "roomCode", roomCode);
-		redisTemplate.opsForHash().put(key, "isRead", "false");
-
-		// TTL 설정 (7일)
+		// 새 초대 데이터 생성 및 저장
+		String invitationData = createInvitationData(inviteRequestDto);
+		redisTemplate.opsForValue().set(key, invitationData);
 		redisTemplate.expire(key, Duration.ofDays(TTL_EXPIRE_DAY));
+
+		kafkaProducerService.sendRoomInvitation(invitationData);
+		log.info("Invitation saved and sent to Kafka: {}", invitationData);
 	}
 
-	// 2. 초대 수락
 	public void acceptInvitation(RoomInviteRequestDto inviteRequestDto) {
-		String key = generateKey(inviteRequestDto.getSenderId(), inviteRequestDto.getReceiverId(), inviteRequestDto.getRoomId());
-		if (Boolean.FALSE.toString().equals(redisTemplate.opsForHash().get(key, "isRead"))) {
-			redisTemplate.opsForHash().put(key, "isRead", "true");
+		updateInvitationStatus(inviteRequestDto, InvitationStatus.ACCEPTED);
+	}
+
+	public void rejectInvitation(RoomInviteRequestDto inviteRequestDto) {
+		updateInvitationStatus(inviteRequestDto, InvitationStatus.REJECTED);
+	}
+
+	private void validateExistingInvitation(String key) {
+		Optional<InvitationData> existingInvitation = getInvitationDataFromRedis(key);
+		existingInvitation.ifPresent(invitation -> {
+			if (invitation.getStatus() == InvitationStatus.PENDING || invitation.getStatus() == InvitationStatus.ACCEPTED) {
+				throw new CustomException(CustomErrorCode.DUPLICATE_INVITATION);
+			}
+		});
+	}
+
+	private Optional<InvitationData> getInvitationDataFromRedis(String key) {
+		String existingData = (String)redisTemplate.opsForValue().get(key);
+		if (existingData != null) {
+			try {
+				InvitationData invitationData = objectMapper.readValue(existingData, InvitationData.class);
+				log.info("Get invitationData: {}", invitationData);
+				return Optional.of(invitationData);
+			} catch (JsonProcessingException e) {
+				throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
+			}
 		}
-		redisTemplate.delete(key);
+		return Optional.empty();
 	}
 
-	// 3. 초대 거절
-	public void rejectInvitation(Long senderId, Long receiverId, Long roomId) {
-		String key = generateKey(senderId, receiverId, roomId);
-		redisTemplate.delete(key);
+	private String createInvitationData(RoomInviteRequestDto inviteRequestDto) {
+		try {
+			InvitationData invitationData = new InvitationData(
+				"room_request",
+				inviteRequestDto.getSenderId(),
+				userRepository.findNicknameById(inviteRequestDto.getSenderId()),
+				inviteRequestDto.getReceiverId(),
+				userRepository.findNicknameById(inviteRequestDto.getReceiverId()),
+				LocalDateTime.now().format(DATE_TIME_FORMATTER),
+				inviteRequestDto.getRoomId(),
+				inviteRequestDto.getRoomCode(),
+				"false",
+				InvitationStatus.PENDING
+			);
+			return objectMapper.writeValueAsString(invitationData);
+		} catch (Exception e) {
+			log.error("Failed to create invitation data: {}", e.getMessage(), e);
+			throw new CustomException(CustomErrorCode.FAILED_CREATE_INVITATION);
+		}
 	}
 
-	private String generateKey(Long senderId, Long receiverId, Long roomId) {
-		return String.format("invitation:%s:%d:%d:%d", "room_request", senderId, receiverId, roomId);
+	private void updateInvitationStatus(RoomInviteRequestDto inviteRequestDto, InvitationStatus newStatus) {
+		String key = generateKey(inviteRequestDto);
+		try {
+			String jsonData = (String) redisTemplate.opsForValue().get(key);
+			if (jsonData != null) {
+				InvitationData invitationData = objectMapper.readValue(jsonData, InvitationData.class);
+				invitationData.setStatus(newStatus);  // 상태 업데이트
+
+				String updatedJsonData = objectMapper.writeValueAsString(invitationData);
+				redisTemplate.opsForValue().set(key, updatedJsonData);
+				redisTemplate.expire(key, Duration.ofDays(TTL_EXPIRE_DAY));
+
+				log.info("Invitation status updated to {}: {}", newStatus, updatedJsonData);
+			} else {
+				log.warn("Invitation not found for key: {}", key);
+			}
+		} catch (Exception e) {
+			log.error("Failed to update invitation status: {}", e.getMessage(), e);
+			throw new CustomException(CustomErrorCode.FAILED_INVITE_STATUS_UPDATE);
+		}
+	}
+
+	private String generateKey(RoomInviteRequestDto inviteRequestDto) {
+		return String.format("room_request:%d:%d:%d",
+			inviteRequestDto.getSenderId(),
+			inviteRequestDto.getReceiverId(),
+			inviteRequestDto.getRoomId()
+		);
 	}
 }

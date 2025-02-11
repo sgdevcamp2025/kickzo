@@ -5,11 +5,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kickzo.main.dto.request.RoomInviteRequestDto;
-import com.kickzo.main.dto.response.RoomEntryResponseDto;
 import com.kickzo.main.service.InvitationService;
 import com.kickzo.main.service.RoomService;
 
@@ -25,28 +23,27 @@ public class InvitationController {
 	private final InvitationService invitationService;
 
 	@PostMapping()
-	public ResponseEntity<?> sendInvitation(
-		@RequestHeader(value = "x-user-id") Long senderId,
+	public ResponseEntity<String> sendInvitation(
+		//@RequestHeader(value = "x-user-id") Long senderId,
 		@RequestBody RoomInviteRequestDto inviteRequestDto) {
 		invitationService.saveInvitation(inviteRequestDto);
-		return ResponseEntity.ok().build();
+		return ResponseEntity.ok("Invitation sent");
 	}
 
 	@PostMapping("/accept")
-	public ResponseEntity<RoomEntryResponseDto> acceptInvitation(
-		@RequestHeader(value = "x-user-id") Long receiverId,
+	public ResponseEntity<String> acceptInvitation(
+		//@RequestHeader(value = "x-user-id") Long receiverId,
 		@RequestBody RoomInviteRequestDto inviteRequestDto) {
 		invitationService.acceptInvitation(inviteRequestDto);
-		RoomEntryResponseDto response = roomService.getRoomJoinResponse(inviteRequestDto.getRoomCode(), receiverId);
-		return ResponseEntity.ok(response);
+		roomService.getRoomJoinResponse(inviteRequestDto.getRoomCode(), inviteRequestDto.getReceiverId());
+		return ResponseEntity.ok("Invitation accepted");
 	}
 
 	@PostMapping("/reject")
-	public ResponseEntity<?> rejectInvitation(
-		@RequestHeader(value = "x-user-id") Long receiverId,
-		@RequestParam Long senderId,
-		@RequestParam Long roomId) {
-		invitationService.rejectInvitation(senderId, receiverId, roomId);
-		return ResponseEntity.ok().build();
+	public ResponseEntity<String> rejectInvitation(
+		//@RequestHeader(value = "x-user-id") Long receiverId,
+		@RequestBody RoomInviteRequestDto inviteRequestDto) {
+		invitationService.rejectInvitation(inviteRequestDto);
+		return ResponseEntity.ok("Invitation rejected");
 	}
 }
