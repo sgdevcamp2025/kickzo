@@ -77,13 +77,7 @@ export const ChatBox = () => {
           setStartIndex(newStartIndex);
           setVisibleChat(updated.slice(newStartIndex, updated.length));
 
-          requestAnimationFrame(() => {
-            if (chatContainerRef.current) {
-              setExtraTopNum(extraTopNum + extraDownNum);
-              setExtraDownNum(0);
-              chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-            }
-          });
+          scrollToBottom();
         }
         return updated;
       });
@@ -208,6 +202,8 @@ export const ChatBox = () => {
 
   const scrollToBottom = useCallback(() => {
     if (chatContainerRef.current) {
+      setExtraTopNum(extraTopNum + extraDownNum);
+      setExtraDownNum(0);
       chatContainerRef.current.scrollTo({
         top: chatContainerRef.current.scrollHeight,
         behavior: 'smooth',
@@ -228,7 +224,6 @@ export const ChatBox = () => {
       <button onClick={connect}>연결하기</button>
       <button onClick={disconnect}>연결 끊기</button>
       <p>Status: {status}</p>
-      <button onClick={scrollToBottom}>맨 아래로</button>
     </ChatContainer>
   );
 };
