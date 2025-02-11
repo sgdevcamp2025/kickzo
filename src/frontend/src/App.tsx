@@ -12,27 +12,31 @@ import { SettingPage } from '@/pages/SettingPage';
 import { MyRoomPage } from '@/pages/MyRoomPage';
 import { PasswordResetPage } from '@/pages/PasswordResetPage';
 import { SearchPage } from '@/pages/SearchPage';
+import { QueryClientProvider } from '@tanstack/react-query';
+import { queryClient } from '@/lib/react-query';
 
 function App() {
   const SentryRoutes = Sentry.withSentryReactRouterV6Routing(Routes);
 
   return (
-    <BrowserRouter>
-      <SentryRoutes>
-        <Route path="/login" element={<LoginPage />} />
-        <Route path="/register" element={<RegisterPage />} />
-        <Route path="/password-reset" element={<PasswordResetPage />} />
-        <Route path="/" element={<Layout />}>
-          <Route index element={<HomePage />} />
-          <Route path="my-room" element={<MyRoomPage />} />
-          <Route path="room" element={<Room />} />
-          <Route path="friend" element={<FriendPage />} />
-          <Route path="search" element={<SearchPage />} />
-          <Route path="setting" element={<SettingPage />} />
-        </Route>
-        <Route path="/*" element={<NotFoundPage />} />
-      </SentryRoutes>
-    </BrowserRouter>
+    <QueryClientProvider client={queryClient}>
+      <BrowserRouter>
+        <SentryRoutes>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route path="/password-reset" element={<PasswordResetPage />} />
+          <Route path="/" element={<Layout />}>
+            <Route index element={<HomePage />} />
+            <Route path="my-room" element={<MyRoomPage />} />
+            <Route path="room" element={<Room />} />
+            <Route path="friend" element={<FriendPage />} />
+            <Route path="search" element={<SearchPage />} />
+            <Route path="setting" element={<SettingPage />} />
+          </Route>
+          <Route path="/*" element={<NotFoundPage />} />
+        </SentryRoutes>
+      </BrowserRouter>
+    </QueryClientProvider>
   );
 }
 

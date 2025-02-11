@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import useDebounceCallback from '@/hooks/useDebounceCallback';
+import useDebounceCallback from '@/hooks/utils/useDebounceCallback';
 import SearchIcon from '@/assets/img/Search.svg';
 import CancelIcon from '@/assets/img/Cancel.svg';
 import { SearchBarList } from '@/components/Search/SearchBarList';
