@@ -1,5 +1,6 @@
 import { UserRole } from '@/types/enums/UserRole';
-import { Chat } from '../Chat';
+// import { ChatLayout } from '@/components/Sidebar/Chating/ChatMessages/ChatLayout';
+import { ChatLayout } from '@/components/Sidebar/Chating/ChatMessages/ChatLayout';
 
 interface IChatMessages {
   chatData: {
@@ -14,7 +15,7 @@ export const ChatMessages = (props: IChatMessages) => {
   return (
     <>
       {props.chatData.map((chat, index) => (
-        <Chat
+        <ChatLayout
           key={index}
           role={chat.role}
           nickname={chat.nickname}

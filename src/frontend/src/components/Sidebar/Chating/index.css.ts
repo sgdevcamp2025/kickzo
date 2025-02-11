@@ -67,14 +67,6 @@ export const ChatProfileImage = styled.img`
   margin-right: 8px;
 `;
 
-export const InputContainer = styled.div`
-  display: flex;
-  align-items: center;
-  padding: 8px;
-  border-top: 1px solid #d4d4d4;
-  background: white;
-`;
-
 export const ChatInputField = styled.input`
   flex: 1;
   padding: 8px;
@@ -102,4 +94,8 @@ export const ChatInputButton = styled.button`
   &:hover {
     opacity: 0.7;
   }
+`;
+
+export const Blank = styled.div<{ $blankPadding: string }>`
+  padding-bottom: ${({ $blankPadding }) => $blankPadding};
 `;

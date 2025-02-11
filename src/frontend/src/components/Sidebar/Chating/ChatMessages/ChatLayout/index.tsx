@@ -1,8 +1,7 @@
-
 import ProfileImg from '@/assets/img/ProfileImg.svg';
 import { Wrapper, Profile, ChatContainer, Title, Title__Time, ChatText } from './index.css';
 import { UserRole } from '@/types/enums/UserRole';
-import { ChatNickname } from './ChatNickname';
+import { ChatNickname } from '@/components/Sidebar/Chating/ChatMessages/ChatLayout/ChatNickname';
 
 interface IChat {
   role: UserRole;
@@ -11,7 +10,7 @@ interface IChat {
   text: string;
 }
 
-export const Chat = (props: IChat) => {
+export const ChatLayout = (props: IChat) => {
   return (
     <Wrapper>
       <Profile className="Profile" src={ProfileImg} />
