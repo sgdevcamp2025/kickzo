@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kickzo.main.dto.request.RoleChangeRequestDto;
 import com.kickzo.main.dto.request.RoomJoinRequestDto;
+import com.kickzo.main.dto.request.RoomPlaylistRequestDto;
 import com.kickzo.main.dto.request.RoomUpdateRequestDto;
 import com.kickzo.main.dto.response.RoomEntryResponseDto;
 import com.kickzo.main.dto.response.UserListDto;
@@ -35,20 +36,13 @@ public class RoomController implements RoomApi {
 	private final PlaylistService playlistService;
 	private final RoomUserService roomUserService;
 
-	/**
-	 * 방 입장 로직 (WebSocket + STOMP)
-	 * @param userId, roomCode
-	 * @return RoomEntryResponseDto (방 정보, 유저 리스트, 역할 등)
-	 */
 	@Override
 	@PostMapping("/join")
 	public ResponseEntity<RoomEntryResponseDto> joinRoom(
 		@RequestHeader(value = "x-user-id", required = false) Long userId,
 		@RequestBody RoomJoinRequestDto roomJoinRequestDto) {
-
 		String roomCode = roomJoinRequestDto.getRoomCode();
-		log.info("UserId = {}, RoomCode = {}", userId, roomCode);
-
+		log.info("Join Room : UserId = {}, RoomCode = {}", userId, roomCode);
 		RoomEntryResponseDto response = roomService.getRoomJoinResponse(roomCode, userId);
 		return ResponseEntity.ok(response);
 	}
@@ -56,8 +50,9 @@ public class RoomController implements RoomApi {
 	@Override
 	@PostMapping("/update")
 	public ResponseEntity<?> updateRoomInfo(
-		@RequestHeader(value = "x-user-id", required = true) Long userId,
+	@RequestHeader(value = "x-user-id") Long userId,
 		@Valid @RequestBody RoomUpdateRequestDto requestDto) {
+		log.info("Room Update : UserId = {}, RoomCode = {}", userId, requestDto);
 		roomUserService.checkAccessRole(userId, requestDto.getRoomId());
 		roomService.updateRoomInfo(requestDto);
 		return ResponseEntity.ok("Room updated successfully");
@@ -66,9 +61,10 @@ public class RoomController implements RoomApi {
 	@Override
 	@PostMapping("/playlist")
 	public ResponseEntity<String> savePlaylist(
-		@RequestHeader(value = "x-user-id", required = true) Long userId,
-		@RequestBody Long roomId,
-		@RequestBody String playlistJson) {
+		@RequestHeader(value = "x-user-id") Long userId,
+		@RequestBody RoomPlaylistRequestDto playlistRequestDto) {
+		Long roomId = playlistRequestDto.getRoomId();
+		String playlistJson = playlistRequestDto.getPlaylistJson();
 		log.info("Saving playlist for room: {}, playlist: {}", roomId, playlistJson);
 		roomUserService.checkAccessRole(userId, roomId);
 		playlistService.savePlaylist(roomId, playlistJson);
@@ -78,8 +74,9 @@ public class RoomController implements RoomApi {
 	@Override
 	@PatchMapping("/change-role")
 	public ResponseEntity<String> changeUserRole(
-		@RequestHeader(value = "x-user-id", required = true) Long userId,
+		@RequestHeader(value = "x-user-id") Long userId,
 		@RequestBody RoleChangeRequestDto roleChangeRequestDto) {
+		log.info("Changing user role: {}", roleChangeRequestDto);
 		roomUserService.changeUserRole(userId, roleChangeRequestDto);
 		return ResponseEntity.ok("User role updated successfully.");
 	}

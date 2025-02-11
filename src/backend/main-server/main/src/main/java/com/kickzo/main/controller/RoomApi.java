@@ -5,6 +5,7 @@ import java.util.List;
 import com.kickzo.main.constants.ApiResponseConstants;
 import com.kickzo.main.dto.request.RoleChangeRequestDto;
 import com.kickzo.main.dto.request.RoomJoinRequestDto;
+import com.kickzo.main.dto.request.RoomPlaylistRequestDto;
 import com.kickzo.main.dto.request.RoomUpdateRequestDto;
 import com.kickzo.main.dto.response.RoomEntryResponseDto;
 import com.kickzo.main.dto.response.UserListDto;
@@ -76,8 +77,7 @@ public interface RoomApi {
 	})
 	ResponseEntity<String> savePlaylist(
 		@RequestHeader(value = "x-user-id", required = true) Long userId,
-		@RequestBody Long roomId,
-		@RequestBody String playlistJson
+		@RequestBody RoomPlaylistRequestDto playlistRequestDto
 	);
 
 	@Operation(summary = "role 변경", description = "특정 방에 권한 있는 사용자가 tragetId의 role을 변경합니다.")

@@ -41,7 +41,7 @@ public class MainPageController implements MainPageApi {
 	@Override
 	@GetMapping("/me")
 	public ResponseEntity<List<RoomResponseDto>> getUserRooms(
-		@RequestHeader(value = "x-user-id", required = true) Long userId) {
+		@RequestHeader(value = "x-user-id") Long userId) {
 		log.info("get user rooms. userId: {}", userId);
 		return ResponseEntity.ok(mainPageService.getUserRooms(userId));
 	}
@@ -49,7 +49,7 @@ public class MainPageController implements MainPageApi {
 	@Override
 	@PostMapping("/create-room")
 	public ResponseEntity<CreateRoomResponseDto> createRoom(
-		@RequestHeader(value = "x-user-id", required = true) Long userId,
+		@RequestHeader(value = "x-user-id") Long userId,
 		@Valid @RequestBody CreateRoomRequestDto requestDto) {
 		log.info("create room for userId: {}", userId);
 		return ResponseEntity.ok(mainPageService.createRoom(userId, requestDto));
