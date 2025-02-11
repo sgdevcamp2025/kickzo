@@ -16,7 +16,7 @@ import {
   Overlay,
 } from './index.css';
 import { ButtonColor } from '@/types/enums/ButtonColor';
-import { useDebounce } from '@/hooks/useDebounce';
+import { useDebounce } from '@/hooks/utils/useDebounce';
 import { PlaylistItem } from './PlaylistItem';
 
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;

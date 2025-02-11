@@ -4,16 +4,54 @@ import { ButtonColor } from '@/types/enums/ButtonColor';
 import { CommonButton } from '@/components/common/Button';
 import { LogoButton } from '@/components/common/LogoButton';
 import { Wrapper, CommonInput, IdSaveCheckBox, LinkBox, SubTitle } from './index.css';
+import { useAuth } from '@/hooks/queries/useAuth';
+import { LoadingSpinner } from '@/components/common/LoadingSpinner';
+import { useLocalStorage } from '@/hooks/utils/useLocalStorage';
 
 export const LoginPage = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
+  const { login } = useAuth();
+  const [isSaveEmail, setIsSaveEmail] = useLocalStorage<boolean>('isSaveEmail', false);
+  const [savedEmail, setSavedEmail] = useLocalStorage<string>('savedEmail', '');
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('submit');
-    console.log('Email:', emailRef.current?.value);
-    console.log('Password:', passwordRef.current?.value);
+    const email = emailRef.current?.value;
+    const password = passwordRef.current?.value;
+
+    if (email && password) {
+      if (isSaveEmail) {
+        const encodedEmail = btoa(email);
+        setSavedEmail(encodedEmail);
+        setIsSaveEmail(true);
+      } else {
+        setSavedEmail('');
+        setIsSaveEmail(false);
+      }
+
+      login.mutate(
+        { email, password },
+        {
+          onError: () => {
+            alert('이메일 또는 비밀번호가 일치하지 않습니다.');
+          },
+        },
+      );
+    } else {
+      alert('이메일과 비밀번호를 입력해주세요.');
+    }
+  };
+
+  const loadSavedEmail = () => {
+    if (!savedEmail) return '';
+
+    try {
+      return atob(savedEmail);
+    } catch {
+      setSavedEmail('');
+      return '';
+    }
   };
 
   return (
@@ -27,6 +65,7 @@ export const LoginPage = () => {
           ref={emailRef}
           autoComplete="new-password"
           required
+          defaultValue={loadSavedEmail()}
         />
         <CommonInput
           type="password"
@@ -36,7 +75,11 @@ export const LoginPage = () => {
           required
         />
         <IdSaveCheckBox>
-          <input type="checkbox" />
+          <input
+            type="checkbox"
+            checked={isSaveEmail}
+            onChange={e => setIsSaveEmail(e.target.checked)}
+          />
           아이디 저장
         </IdSaveCheckBox>
         <CommonButton
@@ -44,8 +87,9 @@ export const LoginPage = () => {
           width="300px"
           height="3rem"
           borderradius="0.625rem"
+          disabled={login.isPending}
         >
-          로그인
+          {login.isPending ? <LoadingSpinner /> : '로그인'}
         </CommonButton>
         <LinkBox>
           <Link to="/register">회원가입</Link>

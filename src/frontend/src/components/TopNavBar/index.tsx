@@ -1,16 +1,37 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import AddCircleIcon from '@/assets/img/AddCircle.svg';
 import BellIcon from '@/assets/img/Bell.svg';
-import { Wrapper, ButtonContainer, ButtonBox, LogoBox, LoginButton } from './index.css';
+import {
+  Wrapper,
+  ButtonContainer,
+  ButtonBox,
+  LogoBox,
+  LoginButton,
+  ProfileButton,
+} from './index.css';
 import { LogoButton } from '@/components/common/LogoButton';
+import DefaultProfile from '@/assets/img/DefaultProfile.svg';
 import { RoomCreateModal } from '@/components/Modal/RoomCreateModal';
 import { NotificationModal } from '@/components/Modal/NotificationModal';
 import { SearchBar } from '@/components/Search/SearchBar';
+import { userApi } from '@/api/endpoints/user/user.api';
+import { useUserStore } from '@/stores/useUserStore';
+import { useAuthStore } from '@/stores/useAuthStore';
 
 export const TopNavBar = () => {
+  const { user, fetchMyProfile, clear } = useUserStore();
   const [isRoomCreateModalOpen, setIsRoomCreateModalOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+  const accessToken = useAuthStore(state => state.accessToken);
+
+  useEffect(() => {
+    if (accessToken) {
+      fetchMyProfile();
+    } else {
+      clear();
+    }
+  }, [accessToken, fetchMyProfile, clear]);
 
   const clickNotification = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -20,6 +41,11 @@ export const TopNavBar = () => {
   const handleCancelNotification = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
     setIsNotificationModalOpen(false);
+  };
+
+  const handleProfile = async () => {
+    const profile = await userApi.getMyProfile();
+    console.log(profile);
   };
 
   return (
@@ -37,9 +63,19 @@ export const TopNavBar = () => {
             <img src={BellIcon} alt="Notification" />
             {isNotificationModalOpen && <NotificationModal onCancel={handleCancelNotification} />}
           </ButtonBox>
-          <LoginButton>
-            <Link to="/login">로그인</Link>
-          </LoginButton>
+          {user ? (
+            <ProfileButton onClick={handleProfile}>
+              {user.profileImageUrl ? (
+                <img src={user.profileImageUrl} alt="Profile" />
+              ) : (
+                <img src={DefaultProfile} alt="Profile" />
+              )}
+            </ProfileButton>
+          ) : (
+            <LoginButton>
+              <Link to="/login">로그인</Link>
+            </LoginButton>
+          )}
         </ButtonContainer>
       </Wrapper>
       {isRoomCreateModalOpen && (
