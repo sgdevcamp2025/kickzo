@@ -26,7 +26,7 @@ class KickRoomMainScrollView: UIView {
     }()
     private let emptyView = UIView().then { $0.backgroundColor = .red }
     private let playlistView = PlaylistView()
-    private let voiceChatView = UIView().then { $0.backgroundColor = .yellow }
+    private let voiceChatView = VoiceChatListView(VoiceChatListReactor())
     private let userlistView = UserListView(UserListReactor(SampleTest.userlist))
     
     var didUpdatePageIndex: ((Int) -> Void)?
