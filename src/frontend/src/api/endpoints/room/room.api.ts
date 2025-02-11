@@ -14,22 +14,6 @@ export const roomApi = {
     return data;
   },
 
-  // 내 방 정보 수정
-  updateMyRoomTitle: async (roomId: number, title: string) => {
-    const { data } = await instance.patch(`/rooms/update`, { roomId, title });
-    return data;
-  },
-
-  updateMyRoomDescription: async (roomId: number, description: string) => {
-    const { data } = await instance.patch(`/rooms/update`, { roomId, description });
-    return data;
-  },
-
-  updateMyRoomPublic: async (roomId: number, isPublic: boolean) => {
-    const { data } = await instance.patch(`/rooms/update`, { roomId, isPublic });
-    return data;
-  },
-
   // 전체 방 조회
   getRooms: async (page: number) => {
     const response = await instance.get<RoomDto[]>('/rooms/all', {
@@ -80,6 +64,24 @@ export const roomApi = {
       newRole: role,
     };
     const { data } = await instance.post(`/rooms/change-role`, body);
+    return data;
+  },
+
+  // 내 방 정보 수정
+  updateMyRoomTitle: async (roomId: number, title: string) => {
+    const { data } = await instance.patch(`/rooms/update`, { roomId, title });
+    return data;
+  },
+
+  // 내 방 설명 수정
+  updateMyRoomDescription: async (roomId: number, description: string) => {
+    const { data } = await instance.patch(`/rooms/update`, { roomId, description });
+    return data;
+  },
+
+  // 내 방 공개 여부 수정
+  updateMyRoomPublic: async (roomId: number, isPublic: boolean) => {
+    const { data } = await instance.patch(`/rooms/update`, { roomId, isPublic });
     return data;
   },
 };

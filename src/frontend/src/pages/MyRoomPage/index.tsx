@@ -1,25 +1,32 @@
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MyRoomCard } from '@/components/MyRoomCard';
 import { Wrapper, Container, Title, SubTitle, CommonParagraph } from './index.css';
-import { useRoom } from '@/hooks/queries/useRoom';
 import { useUserStore } from '@/stores/useUserStore';
 import { MyRoomDto } from '@/api/endpoints/room/room.interface';
 import { MyRoomSkeleton } from './MyRoomSkeleton';
 import { useDelayedLoading } from '@/hooks/utils/useDelayedLoading';
+import { useMyRooms } from '@/hooks/queries/useMyRooms';
 
 export const MyRoomPage = () => {
-  const { getMyRooms } = useRoom();
+  const navigate = useNavigate();
+  const getMyRooms = useMyRooms();
   const { user } = useUserStore();
   const [myRoomList, setMyRoomList] = useState<MyRoomDto[]>([]);
   const showSkeleton = useDelayedLoading(getMyRooms.data);
 
   useEffect(() => {
-    getMyRooms.refetch();
-
-    if (getMyRooms.data) {
-      setMyRoomList(getMyRooms.data);
+    if (!user) {
+      navigate('/login');
+      return;
     }
-  }, [getMyRooms.data]);
+
+    getMyRooms.refetch().then(({ data }) => {
+      if (data) {
+        setMyRoomList(data);
+      }
+    });
+  }, [user, navigate, getMyRooms]);
 
   if (showSkeleton) {
     return <MyRoomSkeleton />;

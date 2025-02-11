@@ -17,7 +17,7 @@ import UserLineWhiteIcon from '@/assets/img/UsersLine_W.svg';
 import DisableEyeIcon from '@/assets/img/DisableEye.svg';
 import DisableEyeWhiteIcon from '@/assets/img/DisableEye_W.svg';
 import { getByteLength } from '@/utils/stringUtils';
-import { useRoom } from '@/hooks/queries/useRoom';
+import { useCreateRoom } from '@/hooks/queries/useCreateRoom';
 interface IRoomCreateModal {
   onCancel: () => void;
 }
@@ -26,7 +26,7 @@ export const RoomCreateModal = ({ onCancel }: IRoomCreateModal) => {
   const titleRef = useRef<HTMLInputElement>(null);
   const [isPublic, setIsPublic] = useState(true);
   const [titleLength, setTitleLength] = useState(0);
-  const { createRoom } = useRoom();
+  const createRoom = useCreateRoom();
 
   const handleTitleChange = () => {
     const title = titleRef.current?.value || '';
