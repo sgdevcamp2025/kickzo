@@ -21,8 +21,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 public interface MainPageApi {
 
 	@Operation(summary = "모든 방 조회", description = "페이지 번호와 사이즈로 방 목록을 조회합니다.")
-	@ApiResponses(
-		value = {
+	@ApiResponses({
 			@ApiResponse(responseCode = "200", description = "전체 방 목록 조회 성공"),
 			@ApiResponse(responseCode = "DB-500-001", description = ApiResponseConstants.DATABASE_ERROR_MESSAGE),
 			@ApiResponse(responseCode = "JSON-500-001", description = ApiResponseConstants.JSON_PROCESSING_ERROR_MESSAGE),
@@ -46,7 +45,7 @@ public interface MainPageApi {
 	);
 
 	@Operation(summary = "방 생성", description = "사용자가 새로운 방을 생성합니다.")
-	@ApiResponses(value = {
+	@ApiResponses({
 		@ApiResponse(responseCode = "200", description = "새로운 방 생성 성공"),
 		@ApiResponse(responseCode = "MAIN-400-001", description = ApiResponseConstants.INVALID_INPUT_MESSAGE),
 		@ApiResponse(responseCode = "MAIN-404-002", description = ApiResponseConstants.USER_NOT_FOUND_MESSAGE),
