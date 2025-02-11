@@ -86,6 +86,11 @@ public class RoomService {
 		kafkaProducerService.sendRoomUpdateMessage(event);
 	}
 
+	@Transactional(readOnly = true)
+	public List<UserListDto> getRoomParticipants(Long roomId) {
+		return fetchUserList(roomId);
+	}
+
 	/**
 	 * roomCode에 따른 방의 정보와 유저 list 전달
 	 * 1. 사용자 역할(Role) 확인, 비로그인 유저인 경우 기본 Role(99) 반환 : determineUserRole

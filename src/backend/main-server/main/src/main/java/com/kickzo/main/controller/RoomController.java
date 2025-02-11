@@ -1,6 +1,9 @@
 package com.kickzo.main.controller;
 
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -11,8 +14,8 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kickzo.main.dto.request.RoleChangeRequestDto;
 import com.kickzo.main.dto.request.RoomUpdateRequestDto;
-import com.kickzo.main.dto.response.RoomDetailsDto;
 import com.kickzo.main.dto.response.RoomEntryResponseDto;
+import com.kickzo.main.dto.response.UserListDto;
 import com.kickzo.main.service.PlaylistService;
 import com.kickzo.main.service.RoomService;
 import com.kickzo.main.service.RoomUserService;
@@ -76,5 +79,12 @@ public class RoomController implements RoomApi {
 		@RequestBody RoleChangeRequestDto roleChangeRequestDto) {
 		roomUserService.changeUserRole(userId, roleChangeRequestDto);
 		return ResponseEntity.ok("User role updated successfully.");
+	}
+
+	@Override
+	@GetMapping("/participants")
+	public ResponseEntity<List<UserListDto>> getRoomParticipants(
+		@RequestParam Long roomId) {
+		return ResponseEntity.ok(roomService.getRoomParticipants(roomId));
 	}
 }
