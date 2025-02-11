@@ -30,7 +30,7 @@ public class MainPageController implements MainPageApi {
 	private final MainPageService mainPageService;
 
 	@Override
-	@GetMapping()
+	@GetMapping("/all")
 	public ResponseEntity<List<RoomResponseDto>> getAllRooms(
 		@RequestParam(defaultValue = "0") int page,
 		@RequestParam(defaultValue = "10") int size) {
