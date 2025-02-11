@@ -5,6 +5,7 @@ import java.util.Optional;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kickzo.main.dto.request.RoleChangeRequestDto;
 import com.kickzo.main.entity.RoomUser;
 import com.kickzo.main.entity.RoomUserId;
 import com.kickzo.main.exception.CustomErrorCode;
@@ -23,7 +24,11 @@ public class RoomUserService {
 	private static final int ROLE_MEMBER = 2;
 
 	@Transactional
-	public void changeUserRole(Long userId, Long roomId, Long targetUserId, int newRole) {
+	public void changeUserRole(Long userId, RoleChangeRequestDto roleChangeRequestDto) {
+		Long roomId = roleChangeRequestDto.getRoomId();
+		Long targetUserId = roleChangeRequestDto.getTargetUserId();
+		int newRole = roleChangeRequestDto.getNewRole();
+
 		checkAccessRole(userId, roomId);
 
 		RoomUserId targetId = new RoomUserId(roomId, targetUserId);

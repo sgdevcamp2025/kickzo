@@ -1,6 +1,7 @@
 package com.kickzo.main.controller;
 
 import com.kickzo.main.constants.ApiResponseConstants;
+import com.kickzo.main.dto.request.RoleChangeRequestDto;
 import com.kickzo.main.dto.request.RoomUpdateRequestDto;
 import com.kickzo.main.dto.response.RoomEntryResponseDto;
 
@@ -92,8 +93,6 @@ public interface RoomApi {
 	})
 	ResponseEntity<String> changeUserRole(
 		@RequestHeader(value = "x-user-id", required = true) Long userId,
-		@RequestParam Long roomId,
-		@RequestParam Long targetUserId,
-		@RequestParam int newRole
+		@RequestBody RoleChangeRequestDto roleChangeRequestDto
 	);
 }

@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kickzo.main.dto.request.RoleChangeRequestDto;
 import com.kickzo.main.dto.request.RoomUpdateRequestDto;
 import com.kickzo.main.dto.response.RoomDetailsDto;
 import com.kickzo.main.dto.response.RoomEntryResponseDto;
@@ -72,10 +73,8 @@ public class RoomController implements RoomApi {
 	@PatchMapping("/change-role")
 	public ResponseEntity<String> changeUserRole(
 		@RequestHeader(value = "x-user-id", required = true) Long userId,
-		@RequestParam Long roomId,
-		@RequestParam Long targetUserId,
-		@RequestParam int newRole) {
-		roomUserService.changeUserRole(userId, roomId, targetUserId, newRole);
+		@RequestBody RoleChangeRequestDto roleChangeRequestDto) {
+		roomUserService.changeUserRole(userId, roleChangeRequestDto);
 		return ResponseEntity.ok("User role updated successfully.");
 	}
 }
