@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { CommonInput } from '@/components/common/Input';
 import { CommonButton } from '@/components/common/Button';
 import Add from '@/assets/img/Add.svg';
@@ -11,11 +11,25 @@ interface IChatInput {
 
 export const ChatInput = (props: IChatInput) => {
   const [message, setMessage] = useState('');
+  const enterKeyProcessed = useRef(false);
 
   const handleSend = () => {
     if (message.trim() !== '') {
       props.onSendMessage(message);
       setMessage('');
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      if (e.nativeEvent.isComposing || enterKeyProcessed.current) return;
+      enterKeyProcessed.current = true;
+
+      handleSend();
+
+      setTimeout(() => {
+        enterKeyProcessed.current = false;
+      }, 0);
     }
   };
 
@@ -29,7 +43,7 @@ export const ChatInput = (props: IChatInput) => {
         design={1}
         value={message}
         onChange={e => setMessage(e.target.value)}
-        onKeyDown={e => e.key === 'Enter' && handleSend()}
+        onKeyDown={handleKeyDown}
       />
     </InputContainer>
   );
