@@ -22,6 +22,10 @@ public enum CustomErrorCode {
 	ROOM_USER_NOT_FOUND("MAIN-404-003", "방-사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	//PLAYLIST_NOT_FOUND("MAIN-404-004", "플레이리스트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
+	DUPLICATE_INVITATION("MAIN-409-001", "이미 보낸 요청입니다.", HttpStatus.CONFLICT),
+
+	FAILED_CREATE_INVITATION("MAIN-422-001", "초대 요청 생성에 실패했습니다.", HttpStatus.UNPROCESSABLE_ENTITY),
+
 	FOREIGN_KEY_VIOLATION("DB-400-001", "참조하는 데이터가 존재하지 않습니다.", HttpStatus.BAD_REQUEST),
 	DATABASE_ERROR("DB-500-001", "데이터베이스 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 
@@ -32,6 +36,7 @@ public enum CustomErrorCode {
 
 	JSON_PROCESSING_ERROR("JSON-500-001", "JSON 직렬화 중 오류가 발생하였습니다.", HttpStatus.BAD_REQUEST),
 
+	FAILED_INVITE_STATUS_UPDATE("MAIN-500-001", "초대 상태 업데이트에 실패했습니다.", HttpStatus.INTERNAL_SERVER_ERROR),
 	UNEXPECTED_ERROR("MAIN-500-999", "예상치 못한 오류가 발생했습니다.", HttpStatus.INTERNAL_SERVER_ERROR);
 
 	private final String code;
