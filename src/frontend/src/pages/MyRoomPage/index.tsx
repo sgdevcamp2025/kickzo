@@ -1,18 +1,36 @@
-import { myRoomListTest } from '@/assets/data/myRoomListTest';
+// import { myRoomListTest } from '@/assets/data/myRoomListTest';
+import { useEffect, useState } from 'react';
 import { MyRoomCard } from '@/components/MyRoomCard';
-import { MyRoomDto } from '@/types/dto/MyRoom.dto';
 import { Wrapper, Container, Title, SubTitle, CommonParagraph } from './index.css';
+import { useRoom } from '@/hooks/queries/useRoom';
+import { useUserStore } from '@/stores/useUserStore';
+import { MyRoomDto } from '@/api/endpoints/room/room.interface';
+import { MyRoomSkeleton } from './MyRoomSeleton';
 
 export const MyRoomPage = () => {
-  const myRooms: MyRoomDto[] = myRoomListTest;
+  const { getMyRooms } = useRoom();
+  const { user } = useUserStore();
+  const [myRoomList, setMyRoomList] = useState<MyRoomDto[]>([]);
+  const [showSkeleton, setShowSkeleton] = useState(true);
 
-  const userInfo = {
-    id: 1,
-    nickname: '니노',
-    profileImageUrl: 'https://picsum.photos/40/40?random=1',
-  };
+  useEffect(() => {
+    const minLoadingTime = 300;
+    const startTime = Date.now();
 
-  const myRoomList = myRooms;
+    getMyRooms.refetch();
+
+    if (getMyRooms.data) {
+      setMyRoomList(getMyRooms.data);
+      const elapsedTime = Date.now() - startTime;
+      const delay = Math.max(0, minLoadingTime - elapsedTime);
+
+      setTimeout(() => setShowSkeleton(false), delay);
+    }
+  }, [getMyRooms.data]);
+
+  if (showSkeleton) {
+    return <MyRoomSkeleton />;
+  }
 
   return (
     <Wrapper>
@@ -20,20 +38,20 @@ export const MyRoomPage = () => {
         <Title>내 방</Title>
         <div>
           <SubTitle>내가 만든 방</SubTitle>
-          {myRoomList.filter(room => room.creator === userInfo.nickname).length > 0 ? (
+          {myRoomList.filter(room => room.creator === user?.nickname).length > 0 ? (
             myRoomList
-              .filter(room => room.creator === userInfo.nickname)
-              .map(room => <MyRoomCard key={room.id} room={room} />)
+              .filter(room => room.creator === user?.nickname)
+              .map(room => <MyRoomCard key={room.roomId} room={room} />)
           ) : (
             <CommonParagraph>🥹 내가 만든 방이 없습니다.</CommonParagraph>
           )}
         </div>
         <div>
           <SubTitle>참여 중인 방</SubTitle>
-          {myRoomList.filter(room => room.creator !== userInfo.nickname).length > 0 ? (
+          {myRoomList.filter(room => room.creator !== user?.nickname).length > 0 ? (
             myRoomList
-              .filter(room => room.creator !== userInfo.nickname)
-              .map(room => <MyRoomCard key={room.id} room={room} />)
+              .filter(room => room.creator !== user?.nickname)
+              .map(room => <MyRoomCard key={room.roomId} room={room} />)
           ) : (
             <CommonParagraph>🥹 참여 중인 방이 없습니다.</CommonParagraph>
           )}

@@ -1,5 +1,5 @@
 import instance from '@/api/axios.instance';
-import { RoomRequestDto } from './room.interface';
+import { PlaylistDto, RoomRequestDto, MyRoomDto } from './room.interface';
 
 export const roomApi = {
   // 방 생성
@@ -10,17 +10,23 @@ export const roomApi = {
 
   // 내 방 조회
   getMyRooms: async () => {
-    const { data } = await instance.get('/rooms/list/my');
+    const { data } = await instance.get<MyRoomDto[]>('/rooms/me');
     return data;
   },
 
   // 내 방 정보 수정
-  updateMyRoom: async (roomId: number, roomInfo: RoomRequestDto) => {
-    const body = {
-      roomId,
-      ...roomInfo,
-    };
-    const { data } = await instance.patch('/rooms/update', body);
+  updateMyRoomTitle: async (roomId: number, title: string) => {
+    const { data } = await instance.patch(`/rooms/update`, { roomId, title });
+    return data;
+  },
+
+  updateMyRoomDescription: async (roomId: number, description: string) => {
+    const { data } = await instance.patch(`/rooms/update`, { roomId, description });
+    return data;
+  },
+
+  updateMyRoomPublic: async (roomId: number, isPublic: boolean) => {
+    const { data } = await instance.patch(`/rooms/update`, { roomId, isPublic });
     return data;
   },
 
@@ -30,13 +36,13 @@ export const roomApi = {
       page,
       size,
     };
-    const { data } = await instance.get('/rooms/list/all', { params: queryParams });
+    const { data } = await instance.get('/rooms/all', { params: queryParams });
     return data;
   },
 
   // 방 입장
   joinRoom: async (roomCode: string) => {
-    const { data } = await instance.post(`/rooms/join/${roomCode}`);
+    const { data } = await instance.post(`/rooms/join`, { roomCode });
     return data;
   },
 
@@ -53,14 +59,15 @@ export const roomApi = {
   // },
 
   // 방 참여자 조회
-  // getParticipants: async (roomId: string) => {
-  //   const { data } = await instance.get(`/rooms/participants/${roomId}`);
-  //   return data;
-  // },
+  getParticipants: async (roomId: string) => {
+    const { data } = await instance.get(`/rooms/participants`, { params: { roomId } });
+    return data;
+  },
 
   // playlist 보내기(배열을 json 형식으로 보내기)
-  postPlaylist: async (roomId: number, playlist: string[]) => {
-    const { data } = await instance.post(`/rooms/playlists/${roomId}`, {
+  sendPlaylist: async (roomId: number, playlist: PlaylistDto[]) => {
+    const { data } = await instance.post('/rooms/playlist', {
+      roomId,
       playlist: JSON.stringify(playlist),
     });
     return data;
