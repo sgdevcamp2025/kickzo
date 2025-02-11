@@ -43,7 +43,7 @@ public class RoomController implements RoomApi {
 	@PostMapping("/join")
 	public ResponseEntity<RoomEntryResponseDto> joinRoom(
 		@RequestHeader(value = "x-user-id", required = false) Long userId,
-		@RequestParam String roomCode) {
+		@RequestBody String roomCode) {
 		log.info("UserId = {}, RoomCode = {}", userId, roomCode);
 
 		RoomEntryResponseDto response = roomService.getRoomJoinResponse(roomCode, userId);
@@ -64,7 +64,7 @@ public class RoomController implements RoomApi {
 	@PostMapping("/playlist")
 	public ResponseEntity<String> savePlaylist(
 		@RequestHeader(value = "x-user-id", required = true) Long userId,
-		@RequestParam Long roomId,
+		@RequestBody Long roomId,
 		@RequestBody String playlistJson) {
 		log.info("Saving playlist for room: {}, playlist: {}", roomId, playlistJson);
 		roomUserService.checkAccessRole(userId, roomId);
