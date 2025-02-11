@@ -8,7 +8,8 @@ export const useRooms = () => {
     queryFn: ({ pageParam }) => roomApi.getRooms(pageParam as number),
     initialPageParam: 0,
     getNextPageParam: lastPage => {
-      return lastPage.length === 0 ? undefined : lastPage.length;
+      return lastPage.length === 20 ? lastPage.length : undefined;
     },
+    staleTime: 1000 * 60 * 1, // 1분동안 기존 데이터를 사용
   });
 };
