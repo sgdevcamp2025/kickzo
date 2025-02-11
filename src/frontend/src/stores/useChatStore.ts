@@ -3,6 +3,13 @@ import SockJS from 'sockjs-client';
 import Stomp, { Client, Message } from 'stompjs';
 import { UserRole } from '@/types/enums/UserRole';
 
+const initialChatData = Array.from({ length: 100 }, (_, i) => ({
+  role: i % 2 === 0 ? UserRole.MEMBER : UserRole.CREATOR,
+  nickname: `User${i}`,
+  time: `10:${(i % 60).toString().padStart(2, '0')}`,
+  text: `This is message number ${i}`,
+}));
+
 interface IChatState {
   chatData: { role: UserRole; nickname: string; time: string; text: string }[];
   stompClient: Client | null;
@@ -17,10 +24,10 @@ interface IChatState {
 }
 
 export const useChatStore = create<IChatState>((set, get) => ({
-  chatData: [],
+  chatData: initialChatData,
   stompClient: null,
   status: 'Disconnected',
-  userId: `users(Math.floor(Math.random()*1000))`,
+  userId: `users${Math.floor(Math.random() * 1000)}`,
   roomId: '1',
 
   // WebSocket 연결
