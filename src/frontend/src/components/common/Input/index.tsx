@@ -24,6 +24,8 @@ interface IInput {
   onButtonClick?: () => void;
   /** Input 디자인 선택 (INPUT 또는 SEARCH) */
   design?: InputDesign;
+  /** KeyDown으로 이벤트 */
+  onKeyDown?: (event: React.KeyboardEvent<HTMLInputElement>) => void;
 }
 
 export const CommonInput = (props: IInput) => {
@@ -38,6 +40,7 @@ export const CommonInput = (props: IInput) => {
           disabled={props.disabled || false}
           $isError={!!props.error}
           $design={props.design || InputDesign.INPUT}
+          onKeyDown={props.onKeyDown}
         />
         {props.design === InputDesign.INPUT && props.buttonLabel && (
           <Btn onClick={props.onButtonClick} disabled={props.disabled || false}>
