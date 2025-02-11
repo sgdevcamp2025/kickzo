@@ -1,5 +1,5 @@
 import instance from '@/api/axios.instance';
-import { PlaylistDto, RoomRequestDto, MyRoomDto } from './room.interface';
+import { PlaylistDto, RoomRequestDto, MyRoomDto, RoomDto } from './room.interface';
 
 export const roomApi = {
   // 방 생성
@@ -31,13 +31,12 @@ export const roomApi = {
   },
 
   // 전체 방 조회
-  getRooms: async (page: number = 0, size: number = 10) => {
-    const queryParams = {
-      page,
-      size,
-    };
-    const { data } = await instance.get('/rooms/all', { params: queryParams });
-    return data;
+  getRooms: async (page: number) => {
+    const response = await instance.get<RoomDto[]>('/rooms/all', {
+      params: { page, size: 20 },
+    });
+    console.log(response.data);
+    return response.data;
   },
 
   // 방 입장

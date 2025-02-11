@@ -5,7 +5,7 @@ import { Wrapper, Container, Title, SubTitle, CommonParagraph } from './index.cs
 import { useRoom } from '@/hooks/queries/useRoom';
 import { useUserStore } from '@/stores/useUserStore';
 import { MyRoomDto } from '@/api/endpoints/room/room.interface';
-import { MyRoomSkeleton } from './MyRoomSeleton';
+import { MyRoomSkeleton } from './MyRoomSkeleton';
 
 export const MyRoomPage = () => {
   const { getMyRooms } = useRoom();

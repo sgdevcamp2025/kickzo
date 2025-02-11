@@ -15,7 +15,23 @@ export interface MyRoomDto {
   title: string;
   description?: string;
   creator: string;
-  profileImageUrl: string;
+  profileImageUrl?: string;
   userCount: number;
-  playlistUrl: string;
+  playlistUrl?: string;
+}
+
+export interface PaginationDto {
+  page: number;
+  size: number;
+}
+
+export interface RoomDto {
+  roomId: number;
+  code: string;
+  title: string;
+  description?: string;
+  creator: string;
+  profileImageUrl?: string;
+  userCount: number;
+  playlistUrl?: string;
 }
