@@ -1,10 +1,12 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
 import Stomp, { Client, Message } from 'stompjs';
 import SockJS from 'sockjs-client';
 import { ChatInput } from '@/components/Sidebar/Chating/ChatInput';
 import { ChatMessages } from '@/components/Sidebar/Chating/ChatMessages';
 import { UserRole } from '@/types/enums/UserRole';
 import { ChatContainer, ChatScrollArea, Blank } from './index.css';
+
+const MemoizedChatMessages = React.memo(ChatMessages);
 
 const INITIAL_CHAT_NUM = 20;
 const EXTRA_CHAT_NUM = 5;
@@ -22,24 +24,76 @@ export const ChatBox = () => {
   const [chatData, setChatData] = useState(initialChatData);
   const [visibleChat, setVisibleChat] = useState(chatData.slice(-INITIAL_CHAT_NUM));
   const [startIndex, setStartIndex] = useState(chatData.length - INITIAL_CHAT_NUM);
-  const chatContainerRef = useRef<HTMLDivElement>(null);
   const [extraTopNum, setExtraTopNum] = useState(0);
   const [extraDownNum, setExtraDownNum] = useState(0);
-  const [stompClient, setStompClient] = useState<Client | null>(null);
   const [status, setStatus] = useState<string>('Disconnected');
+
+  const chatContainerRef = useRef<HTMLDivElement>(null);
+  const stompClientRef = useRef<Client | null>(null);
+  const topSentinelRef = useRef<HTMLDivElement>(null);
+  const bottomSentinelRef = useRef<HTMLDivElement>(null);
 
   const userId = useRef(`user${Math.floor(Math.random() * 1000)}`);
   const roomId = '1';
 
-  const isAtBottom = () => {
+  const isAtBottom = useCallback(() => {
     if (!chatContainerRef.current) return false;
     const { scrollTop, clientHeight, scrollHeight } = chatContainerRef.current;
     return scrollHeight - scrollTop - clientHeight < 10;
-  };
+  }, []);
+
+  // WebSocket을 통한 메시지 전송
+  const sendMessage = useCallback(
+    (message: string) => {
+      if (!stompClientRef.current || !stompClientRef.current.connected) {
+        console.warn('웹소켓 연결이 되지 않아 메세지를 보낼 수 없습니다.');
+        return;
+      }
+      stompClientRef.current.send('/app/sendMessage', {}, JSON.stringify({ roomId, message }));
+    },
+    [roomId],
+  );
+
+  // 새 메시지 추가
+  const addMessage = useCallback(
+    (message: string, sender: string = 'Me') => {
+      if (sender !== 'Me' && sender === userId.current) return;
+
+      const newChat = {
+        role: sender === 'Me' ? UserRole.MEMBER : UserRole.CREATOR,
+        nickname: sender,
+        time: new Date().toLocaleTimeString().slice(0, 5),
+        text: message,
+      };
+
+      if (sender === 'Me') {
+        sendMessage(message);
+      }
+
+      setChatData(prev => {
+        const updated = [...prev, newChat];
+        if (sender === 'Me' || isAtBottom()) {
+          const newStartIndex = updated.length > MAX_CHAT_NUM ? updated.length - MAX_CHAT_NUM : 0;
+          setStartIndex(newStartIndex);
+          setVisibleChat(updated.slice(newStartIndex, updated.length));
+
+          requestAnimationFrame(() => {
+            if (chatContainerRef.current) {
+              setExtraTopNum(extraTopNum + extraDownNum);
+              setExtraDownNum(0);
+              chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+            }
+          });
+        }
+        return updated;
+      });
+    },
+    [isAtBottom, sendMessage],
+  );
 
   // WebSocket 연결
-  const connect = () => {
-    if (stompClient) {
+  const connect = useCallback(() => {
+    if (stompClientRef.current) {
       console.warn('웹소켓이 이미 연결되어 있습니다.');
       return;
     }
@@ -49,7 +103,7 @@ export const ChatBox = () => {
     client.connect({}, () => {
       console.log('WebSocket Connected');
       setStatus('Connected');
-      setStompClient(client);
+      stompClientRef.current = client;
 
       // 채팅방 구독
       const subscription = client.subscribe(`/topic/${roomId}`, (message: Message) => {
@@ -61,153 +115,113 @@ export const ChatBox = () => {
         }
       });
 
-      client.send(
-        '/app/joinRoom',
-        {},
-        JSON.stringify({
-          roomId: roomId,
-          userId: userId.current,
-        }),
-      );
+      client.send('/app/joinRoom', {}, JSON.stringify({ roomId, userId: userId.current }));
 
       return () => {
         subscription.unsubscribe();
       };
     });
-  };
+  }, [roomId, addMessage]);
 
   // WebSocket 연결 해제
-  const disconnect = () => {
-    if (stompClient && stompClient.connected) {
-      stompClient.disconnect(() => {
+  const disconnect = useCallback(() => {
+    if (stompClientRef.current && stompClientRef.current.connected) {
+      stompClientRef.current.disconnect(() => {
         console.log('❌ 웹소켓 연결이 해제되었습니다.');
         setStatus('Disconnected');
-        setStompClient(null);
+        stompClientRef.current = null;
       });
     } else {
       console.warn('웹소켓이 이미 연결되지 않았습니다.');
     }
-  };
+  }, []);
 
-  // WebSocket을 통한 메시지 전송
-  const sendMessage = (message: string) => {
-    if (!stompClient || !stompClient.connected) {
-      console.warn('웹소켓 연결이 되지 않아 메세지를 보낼 수 없습니다.');
-      return;
-    }
-    stompClient.send('/app/sendMessage', {}, JSON.stringify({ roomId, message }));
-  };
-
-  // 새 메시지 추가
-  const addMessage = (message: string, sender: string = 'Me') => {
-    if (sender !== 'Me' && sender === userId.current) {
-      return;
-    }
-
-    const newChat = {
-      role: sender === 'Me' ? UserRole.MEMBER : UserRole.CREATOR,
-      nickname: sender,
-      time: new Date().toLocaleTimeString().slice(0, 5),
-      text: message,
+  useEffect(() => {
+    const observerOptions = {
+      root: chatContainerRef.current,
+      threshold: 1.0,
     };
-
-    if (sender === 'Me') {
-      sendMessage(message);
-    }
-
-    setChatData(prev => {
-      const updated = [...prev, newChat];
-      if (sender === 'Me' || isAtBottom()) {
-        const newStartIndex = updated.length > MAX_CHAT_NUM ? updated.length - MAX_CHAT_NUM : 0;
+    const topObserver = new IntersectionObserver(entries => {
+      const entry = entries[0];
+      if (entry.isIntersecting && startIndex > 0) {
+        const newStartIndex = Math.max(0, startIndex - EXTRA_CHAT_NUM);
+        const prevHeight = chatContainerRef.current?.scrollHeight || 0;
+        if (visibleChat.length === MAX_CHAT_NUM) {
+          setExtraDownNum(prev => prev + EXTRA_CHAT_NUM);
+        }
         setStartIndex(newStartIndex);
-        setVisibleChat(updated.slice(newStartIndex, updated.length));
-
+        setVisibleChat(chatData.slice(newStartIndex, newStartIndex + MAX_CHAT_NUM));
         requestAnimationFrame(() => {
           if (chatContainerRef.current) {
-            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+            const newHeight = chatContainerRef.current.scrollHeight;
+            chatContainerRef.current.scrollTop = newHeight - prevHeight;
           }
         });
       }
-      return updated;
-    });
-  };
+    }, observerOptions);
 
-  // 스크롤을 올릴 때 추가 메시지 로드
-  const handleScroll = useCallback(() => {
-    if (!chatContainerRef.current) return;
-    const { scrollTop, scrollHeight, clientHeight } = chatContainerRef.current;
-
-    if (scrollTop === 0 && startIndex > 0) {
-      const newStartIndex = Math.max(0, startIndex - EXTRA_CHAT_NUM);
-      const prevHeight = scrollHeight;
-      if (visibleChat.length === MAX_CHAT_NUM) {
-        setExtraDownNum(extraDownNum + EXTRA_CHAT_NUM);
-      }
-      setStartIndex(newStartIndex);
-      setVisibleChat(chatData.slice(newStartIndex, newStartIndex + MAX_CHAT_NUM));
-      requestAnimationFrame(() => {
-        if (chatContainerRef.current) {
-          const newHeight = chatContainerRef.current.scrollHeight;
-          chatContainerRef.current.scrollTop =
-            newHeight - prevHeight + CHAT_HEIGHT * EXTRA_CHAT_NUM;
-        }
-      });
-    }
-    // 스크롤이 최하단에 도달했을 때 (새로운 메시지 불러오기)
-    else if (
-      scrollTop + clientHeight >= scrollHeight - extraDownNum * CHAT_HEIGHT - 10 &&
-      startIndex < chatData.length - MAX_CHAT_NUM
-    ) {
-      const newStartIndex = Math.min(startIndex + EXTRA_CHAT_NUM, chatData.length - MAX_CHAT_NUM);
-      const prevHeight = scrollHeight;
-      if (visibleChat.length === MAX_CHAT_NUM) {
-        setExtraDownNum(prev => Math.max(prev - EXTRA_CHAT_NUM, 0));
-        setExtraTopNum(extraTopNum + EXTRA_CHAT_NUM);
-      }
-      setStartIndex(newStartIndex);
-      setVisibleChat(chatData.slice(newStartIndex, newStartIndex + MAX_CHAT_NUM));
-      requestAnimationFrame(() => {
-        if (chatContainerRef.current) {
-          const newHeight = chatContainerRef.current.scrollHeight;
-          chatContainerRef.current.scrollTop +=
-            newHeight - prevHeight - CHAT_HEIGHT * EXTRA_CHAT_NUM;
-        }
-      });
-    }
-  }, [startIndex, visibleChat, chatData, extraDownNum, extraTopNum]);
-
-  useEffect(() => {
-    const container = chatContainerRef.current;
-    if (container) {
-      container.addEventListener('scroll', handleScroll);
+    if (topSentinelRef.current) {
+      topObserver.observe(topSentinelRef.current);
     }
     return () => {
-      if (container) {
-        container.removeEventListener('scroll', handleScroll);
+      if (topSentinelRef.current) {
+        topObserver.unobserve(topSentinelRef.current);
       }
     };
-  }, [handleScroll]);
+  }, [chatData, startIndex, visibleChat]);
 
   useEffect(() => {
-    return () => {
-      disconnect();
+    const observerOptions = {
+      root: chatContainerRef.current,
+      threshold: 1.0,
     };
-  }, [stompClient]);
+    const bottomObserver = new IntersectionObserver(entries => {
+      const entry = entries[0];
+      if (entry.isIntersecting && startIndex < chatData.length - MAX_CHAT_NUM) {
+        const newStartIndex = Math.min(startIndex + EXTRA_CHAT_NUM, chatData.length - MAX_CHAT_NUM);
+        const prevHeight = chatContainerRef.current?.scrollHeight || 0;
+        if (visibleChat.length === MAX_CHAT_NUM) {
+          setExtraDownNum(prev => Math.max(prev - EXTRA_CHAT_NUM, 0));
+          setExtraTopNum(prev => prev + EXTRA_CHAT_NUM);
+        }
+        setStartIndex(newStartIndex);
+        setVisibleChat(chatData.slice(newStartIndex, newStartIndex + MAX_CHAT_NUM));
+        requestAnimationFrame(() => {
+          if (chatContainerRef.current) {
+            const newHeight = chatContainerRef.current.scrollHeight;
+            chatContainerRef.current.scrollTop +=
+              newHeight - prevHeight - CHAT_HEIGHT * EXTRA_CHAT_NUM;
+          }
+        });
+      }
+    }, observerOptions);
 
-  const scrollToBottom = () => {
+    if (bottomSentinelRef.current) {
+      bottomObserver.observe(bottomSentinelRef.current);
+    }
+    return () => {
+      if (bottomSentinelRef.current) {
+        bottomObserver.unobserve(bottomSentinelRef.current);
+      }
+    };
+  }, [chatData, startIndex, visibleChat]);
+
+  const scrollToBottom = useCallback(() => {
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTo({
         top: chatContainerRef.current.scrollHeight,
         behavior: 'smooth',
       });
     }
-  };
+  }, []);
 
   return (
     <ChatContainer>
       <ChatScrollArea ref={chatContainerRef}>
         <Blank $blankPadding={`${CHAT_HEIGHT * extraTopNum}px`} />
-        <ChatMessages chatData={visibleChat} />
+        <div ref={topSentinelRef} style={{ height: 1 }} />
+        <MemoizedChatMessages chatData={visibleChat} />
+        <div ref={bottomSentinelRef} style={{ height: 1 }} />
         <Blank $blankPadding={`${CHAT_HEIGHT * extraDownNum}px`} />
       </ChatScrollArea>
       <ChatInput onSendMessage={addMessage} />
