@@ -3,6 +3,7 @@ package com.kickzo.main.service;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.LinkedHashMap;
 import java.util.Optional;
 
 import org.springframework.data.redis.core.RedisTemplate;
@@ -27,12 +28,11 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class InvitationService {
 
-	private final RedisTemplate<String, Object> redisTemplate;
+	private final RedisTemplate<String, InvitationData> redisTemplate;
 	private final UserRepository userRepository;
 	private final KafkaProducerService kafkaProducerService;
 
 	private static final int TTL_EXPIRE_DAY = 7;
-	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final RoomUserRepository roomUserRepository;
 	private final RoomRepository roomRepository;
@@ -43,16 +43,19 @@ public class InvitationService {
 		// 이미 방에 소속된 유저인 경우 오류 보내기
 		validateExistingRoomUser(inviteRequestDto);
 		String key = generateKey(inviteRequestDto);
-
 		validateExistingInvitation(key);
-
 		// 새 초대 데이터 생성 및 저장
-		String invitationData = createInvitationData(inviteRequestDto);
+		InvitationData invitationData = createInvitationData(inviteRequestDto);
 		redisTemplate.opsForValue().set(key, invitationData);
 		redisTemplate.expire(key, Duration.ofDays(TTL_EXPIRE_DAY));
 
-		kafkaProducerService.sendRoomInvitation(invitationData);
+		try {
+			kafkaProducerService.sendRoomInvitation(objectMapper.writeValueAsString(invitationData));
+		} catch (JsonProcessingException e) {
+			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
+		}
 		log.info("Invitation saved and sent to Kafka: {}", invitationData);
+
 	}
 
 	public void acceptInvitation(RoomInviteRequestDto inviteRequestDto) {
@@ -66,8 +69,7 @@ public class InvitationService {
 	private void checkRoomIdAndRoomCode(RoomInviteRequestDto inviteRequestDto) {
 		Long roomId = inviteRequestDto.getRoomId();
 		String roomCode = inviteRequestDto.getRoomCode();
-		Integer result = roomRepository.existsByRoomIdAndRoomCode(roomId, roomCode);
-		if (result == 0) {
+		if (roomRepository.existsByRoomIdAndRoomCode(roomId, roomCode) == 0) {
 			throw new CustomException(CustomErrorCode.INVALID_ROOM);
 		}
 	}
@@ -75,9 +77,7 @@ public class InvitationService {
 	private void validateExistingRoomUser(RoomInviteRequestDto inviteRequestDto) {
 		Long roomId = inviteRequestDto.getRoomId();
 		Long receiverId = inviteRequestDto.getReceiverId();
-		Integer result = roomUserRepository.existsByUserIdAndRoomId(roomId, receiverId);
-
-		if (result == 1) {
+		if (roomUserRepository.existsByUserIdAndRoomId(roomId, receiverId) == 1) {
 			throw new CustomException(CustomErrorCode.EXISTING_ROOM_USER);
 		}
 	}
@@ -93,57 +93,42 @@ public class InvitationService {
 	}
 
 	private Optional<InvitationData> getInvitationDataFromRedis(String key) {
-		String existingData = (String)redisTemplate.opsForValue().get(key);
-		if (existingData != null) {
-			try {
-				InvitationData invitationData = objectMapper.readValue(existingData, InvitationData.class);
-				log.info("Get invitationData: {}", invitationData);
-				return Optional.of(invitationData);
-			} catch (JsonProcessingException e) {
-				throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
-			}
-		}
-		return Optional.empty();
+		// 바로 InvitationData로 반환
+		InvitationData invitationData = redisTemplate.opsForValue().get(key);
+		return Optional.ofNullable(invitationData);
 	}
 
-	private String createInvitationData(RoomInviteRequestDto inviteRequestDto) {
-		try {
-			InvitationData invitationData = new InvitationData(
-				"room_request",
-				inviteRequestDto.getSenderId(),
-				userRepository.findNicknameById(inviteRequestDto.getSenderId()),
-				inviteRequestDto.getReceiverId(),
-				userRepository.findNicknameById(inviteRequestDto.getReceiverId()),
-				LocalDateTime.now().format(DATE_TIME_FORMATTER),
-				inviteRequestDto.getRoomId(),
-				inviteRequestDto.getRoomCode(),
-				"false",
-				InvitationStatus.PENDING
-			);
-			return objectMapper.writeValueAsString(invitationData);
-		} catch (Exception e) {
-			log.error("Failed to create invitation data: {}", e.getMessage(), e);
-			throw new CustomException(CustomErrorCode.FAILED_CREATE_INVITATION);
-		}
+	private InvitationData createInvitationData(RoomInviteRequestDto inviteRequestDto) {
+		return new InvitationData(
+			"room_request",
+			inviteRequestDto.getSenderId(),
+			userRepository.findNicknameById(inviteRequestDto.getSenderId()),
+			inviteRequestDto.getReceiverId(),
+			userRepository.findNicknameById(inviteRequestDto.getReceiverId()),
+			System.currentTimeMillis(),
+			inviteRequestDto.getRoomId(),
+			inviteRequestDto.getRoomCode(),
+			false,
+			InvitationStatus.PENDING
+		);
 	}
+
 
 	private void updateInvitationStatus(RoomInviteRequestDto inviteRequestDto, InvitationStatus newStatus) {
 		checkRoomIdAndRoomCode(inviteRequestDto);
 
 		String key = generateKey(inviteRequestDto);
 		try {
-			String jsonData = (String) redisTemplate.opsForValue().get(key);
-			if (jsonData != null) {
-				InvitationData invitationData = objectMapper.readValue(jsonData, InvitationData.class);
+			InvitationData invitationData = redisTemplate.opsForValue().get(key);
+			if (invitationData != null) {
 				invitationData.setStatus(newStatus);  // 상태 업데이트
-
-				String updatedJsonData = objectMapper.writeValueAsString(invitationData);
-				redisTemplate.opsForValue().set(key, updatedJsonData);
+				redisTemplate.opsForValue().set(key, invitationData);
 				redisTemplate.expire(key, Duration.ofDays(TTL_EXPIRE_DAY));
 
-				log.info("Invitation status updated to {}: {}", newStatus, updatedJsonData);
+				log.info("Invitation status updated to {}: {}", newStatus, invitationData);
 			} else {
 				log.warn("Invitation not found for key: {}", key);
+				throw new CustomException(CustomErrorCode.INVITATION_NOT_FOUND);
 			}
 		} catch (Exception e) {
 			log.error("Failed to update invitation status: {}", e.getMessage(), e);

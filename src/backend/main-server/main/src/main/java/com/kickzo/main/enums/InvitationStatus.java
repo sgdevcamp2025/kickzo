@@ -4,9 +4,4 @@ public enum InvitationStatus {
 	PENDING,
 	ACCEPTED,
 	REJECTED;
-
-	@Override
-	public String toString() {
-		return name().toLowerCase();
-	}
 }

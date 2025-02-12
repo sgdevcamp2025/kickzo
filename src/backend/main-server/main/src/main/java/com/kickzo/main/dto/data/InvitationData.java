@@ -1,5 +1,6 @@
 package com.kickzo.main.dto.data;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.kickzo.main.enums.InvitationStatus;
 
 import lombok.AllArgsConstructor;
@@ -15,9 +16,10 @@ public class InvitationData {
 	private String senderNickname;
 	private Long receiverId;
 	private String receiverNickname;
-	private String timestamp;
+	private Long timestamp;
 	private Long roomId;
 	private String roomCode;
-	private String isRead;
+	@JsonProperty("isRead")
+	private boolean isRead;
 	private InvitationStatus status;
 }
