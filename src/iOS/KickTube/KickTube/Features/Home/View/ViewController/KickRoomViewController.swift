@@ -51,16 +51,26 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         segmented.layer.borderWidth = 1
         segmented.layer.borderColor = UIColor.kGray.cgColor
         
-        segmented.selectedSegmentIndex = 1
+        segmented.selectedSegmentIndex = 0
         
         return segmented
     }()
-    private let mainScrollView = KickRoomMainScrollView()
+    private let mainScrollView: KickRoomMainScrollView
     private var previousTime: TimeInterval = 0
     private var timeTrackingTimer: Timer?
     
     
     // MARK: - init
+    
+    override init(_ reactor: KickRoomReactor) {
+        mainScrollView = KickRoomMainScrollView(roomInfo: reactor.initialState.roomInfo.roomDetail.roomInfo)
+        
+        super.init(reactor)
+    }
+    
+    required init?(coder: NSCoder) {
+        fatalError("init(coder:) has not been implemented")
+    }
     
     deinit {
         NotificationCenter.default.removeObserver(self)
@@ -157,18 +167,10 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
                 owner.mainScrollView.setPageIndex(index)
                 
                 if index == 0 {
-                    let vc = ChatViewController(ChatReactor())
-                    if let sheet = vc.sheetPresentationController {
-                        sheet.detents = [.custom(resolver: { _ in
-                            ComponentSize.chatBtoomSheet.size.height })]
-                        sheet.prefersGrabberVisible = true
-                    }
-                    
-                    self.present(vc, animated: false)
+                    owner.presentChattingView()
                 }
             })
             .disposed(by: disposeBag)
-        menuSegmentedControl.rx.selectedSegmentIndex.onNext(1)
     }
     
     private func setNotification() {
@@ -184,6 +186,17 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             name: .presentVoiceUserOverview,
             object: nil
         )
+    }
+    
+    private func presentChattingView() {
+        let vc = ChatViewController(ChatReactor())
+        if let sheet = vc.sheetPresentationController {
+            sheet.detents = [.custom(resolver: { _ in
+                ComponentSize.chatBtoomSheet.size.height })]
+            sheet.prefersGrabberVisible = true
+        }
+        
+        self.present(vc, animated: true)
     }
     
     @objc
@@ -269,6 +282,10 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             
             DispatchQueue.main.async {
                 self.menuSegmentedControl.selectedSegmentIndex = pageIndex
+                
+                if pageIndex == 0 {
+                    self.presentChattingView()
+                }
             }
         }
     }
