@@ -22,6 +22,7 @@ public enum CustomErrorCode {
 	USER_NOT_FOUND("MAIN-404-002", "사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	ROOM_USER_NOT_FOUND("MAIN-404-003", "방-사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	//PLAYLIST_NOT_FOUND("MAIN-404-004", "플레이리스트를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
+	INVITATION_NOT_FOUND("MAIN-404-005", "초대 정보를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 
 	DUPLICATE_INVITATION("MAIN-409-001", "이미 보낸 요청입니다.", HttpStatus.CONFLICT),
 	INVITATION_REJECTED("MAIN-409-002", "이전에 초대가 거절되어 다시 초대할 수 없습니다.", HttpStatus.CONFLICT),
