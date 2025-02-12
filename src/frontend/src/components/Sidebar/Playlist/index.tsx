@@ -48,6 +48,12 @@ export const Playlist = () => {
     setCurrentIndex,
   } = useVideoStore();
 
+  // TODO: 추후 WebSocket 타입으로 변경할 때 사용
+  const ChangeToWebSocketType = () => {
+    const updatedQueue = useVideoStore.getState().videoQueue;
+    console.log('playlist:  ' + JSON.stringify(updatedQueue));
+  };
+
   useEffect(() => {
     const fetchVideoDetails = async (videoId: string) => {
       try {
@@ -103,10 +109,17 @@ export const Playlist = () => {
       youtuber: videoYoutuber,
     });
 
+    ChangeToWebSocketType();
+
     setInputUrl('');
     setThumbnailPreview('');
     setVideoTitle('');
     setVideoYoutuber('');
+  };
+
+  const handleRemoveVideo = (index: number) => {
+    removeVideo(index);
+    ChangeToWebSocketType();
   };
 
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -137,9 +150,10 @@ export const Playlist = () => {
           newCurrentIndex = state.currentIndex + 1;
         }
 
+        ChangeToWebSocketType();
+
         return { videoQueue: updatedQueue, currentIndex: newCurrentIndex };
       });
-
       setDraggedIndex(null);
     },
     [draggedIndex],
@@ -160,7 +174,7 @@ export const Playlist = () => {
             onClick={() => setCurrentIndex(index)}
             onMoveUp={() => moveVideoUp(index)}
             onMoveDown={() => moveVideoDown(index)}
-            onRemove={() => removeVideo(index)}
+            onRemove={() => handleRemoveVideo(index)}
           />
         ))}
       </Wrapper>
