@@ -17,6 +17,7 @@ interface IVideoStore {
   moveVideoDown: (index: number) => void;
   setCurrentIndex: (index: number) => void;
   setCurrentVideo: (index: number) => void;
+  moveToNextVideo: () => void;
 }
 
 export const useVideoStore = create<IVideoStore>(set => ({
@@ -65,6 +66,19 @@ export const useVideoStore = create<IVideoStore>(set => ({
       const newQueue = [...state.videoQueue];
       const selectedVideo = newQueue.splice(index, 1)[0];
       newQueue[0] = selectedVideo;
+
+      return {
+        videoQueue: newQueue,
+        currentIndex: 0,
+      };
+    }),
+
+  moveToNextVideo: () =>
+    set((state: IVideoStore) => {
+      if (state.videoQueue.length <= 1) return state;
+
+      const newQueue = [...state.videoQueue];
+      newQueue.shift();
 
       return {
         videoQueue: newQueue,
