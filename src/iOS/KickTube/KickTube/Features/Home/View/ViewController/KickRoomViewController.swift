@@ -60,6 +60,15 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     private var timeTrackingTimer: Timer?
     
     
+    // MARK: - init
+
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    
+    // MARK: - view life cycle
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -72,6 +81,8 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         
         navigationController?.interactivePopGestureRecognizer?.delegate = self
         navigationController?.interactivePopGestureRecognizer?.isEnabled = true
+        
+        setNotification()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -80,6 +91,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         tabBarController?.tabBar.isHidden = false
         navigationController?.setNavigationBarHidden(false, animated: false)
     }
+  
     
     // MARK: - configure Reactor
     
@@ -119,6 +131,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             .disposed(by: disposeBag)
     }
     
+    
     // MARK: - private method
     
     private func setRoomInformationSection(_ info: KickRoomInfoViewModel) {
@@ -145,6 +158,50 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             })
             .disposed(by: disposeBag)
         menuSegmentedControl.rx.selectedSegmentIndex.onNext(1)
+    }
+    
+    private func setNotification() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(presentUserOverviewVC),
+            name: .presentUserOverview,
+            object: nil
+        )
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(presentVoiceUserOverviewVC),
+            name: .presentVoiceUserOverview,
+            object: nil
+        )
+    }
+    
+    @objc
+    private func presentUserOverviewVC(notification: Notification) {
+        if let userInfo = notification.userInfo,
+           let id = userInfo["id"] as? Int,
+           let role = userInfo["role"] as? UserRole {
+            let vc = UserOverviewViewController(UserOverviewReactor(id, role: role))
+            if let sheet = vc.sheetPresentationController {
+                sheet.detents = [.custom(resolver: { _ in ComponentSize.userlistBottomSheet.size.height })]
+                sheet.prefersGrabberVisible = true
+            }
+            
+            self.present(vc, animated: false)
+        }
+    }
+    
+    @objc
+    private func presentVoiceUserOverviewVC(notification: Notification) {
+        if let userInfo = notification.userInfo,
+           let voiceState = userInfo["voiceState"] as? VoiceChatUserStateViewModel {
+            let vc = VoiceUserOverviewViewController(VoiceUserOverviewReactor(voiceState))
+            if let sheet = vc.sheetPresentationController {
+                sheet.detents = [.custom(resolver: { _ in ComponentSize.userlistBottomSheet.size.height + 50 })]
+                sheet.prefersGrabberVisible = true
+            }
+            
+            self.present(vc, animated: false)
+        }
     }
     
     
@@ -181,14 +238,14 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             make.trailing.equalToSuperview().offset(-12)
         }
         menuSegmentedControl.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview().inset(16)
-            make.bottom.equalTo(safeArea)
+            make.horizontalEdges.equalToSuperview().inset(12)
+            make.bottom.equalTo(safeArea).offset(-12)
             make.height.equalTo(50)
         }
         mainScrollView.snp.makeConstraints { make in
             make.horizontalEdges.equalToSuperview()
-            make.top.equalTo(creatorImage.snp.bottom).offset(12)
-            make.bottom.equalTo(menuSegmentedControl.snp.top).offset(-12)
+            make.top.equalTo(creatorImage.snp.bottom)
+            make.bottom.equalTo(menuSegmentedControl.snp.top)
         }
     }
     

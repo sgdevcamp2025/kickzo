@@ -11,7 +11,7 @@ interface IChatNickname {
 export const ChatNickname = (props: IChatNickname) => {
   return (
     <Wrapper>
-      {props.role !== UserRole.USER ? (
+      {props.role !== UserRole.MEMBER ? (
         <Img
           src={
             props.role === UserRole.CREATOR
