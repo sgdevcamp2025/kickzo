@@ -102,6 +102,13 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         navigationController?.setNavigationBarHidden(false, animated: false)
     }
     
+    override func bindAction(reactor: KickRoomReactor) {
+        Observable<Int>.timer(.seconds(3), scheduler: MainScheduler.instance)
+            .subscribe(with: self) { owner, _ in
+                owner.presentChattingView()
+            }
+            .disposed(by: disposeBag)
+    }
     
     // MARK: - configure Reactor
     
@@ -163,6 +170,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     
     private func setupSegmentedControl() {
         menuSegmentedControl.rx.selectedSegmentIndex
+            .skip(1)
             .subscribe(with: self, onNext: { owner, index in
                 owner.mainScrollView.setPageIndex(index)
                 
