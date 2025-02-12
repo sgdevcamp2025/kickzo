@@ -19,8 +19,7 @@ services:
     routes:
       - name: user-public-route
         paths:
-          - /api/users/register
-          - /api/users/exists
+          - /api/users
         strip_path: false
         protocols:
           - http
@@ -28,7 +27,8 @@ services:
 
       - name: user-private-route
         paths:
-          - /api/users
+          - /api/users/me
+          - /api/users/unregister
         strip_path: false
         protocols:
           - http
@@ -78,7 +78,6 @@ services:
               cookie_names: []
               uri_param_names: []
           - name: custom-jwt-header
-
 
   - name: chat-service
     url: http://chat-service-upstream # upstream 이름

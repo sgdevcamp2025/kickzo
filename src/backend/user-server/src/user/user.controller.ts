@@ -14,6 +14,7 @@ import {
   BadRequestException,
   Delete,
   Patch,
+  DefaultValuePipe,
 } from "@nestjs/common";
 import { UserService } from "./user.service";
 import { CreateUserDto } from "./dto/create-user.dto";
@@ -43,17 +44,22 @@ export class UserController {
     return await this.userService.delete(+userId);
   }
 
-  @Get()
-  async findAll() {
-    return this.userService.findAll();
+  @Get("exists")
+  @UsePipes(new ValidationPipe({ transform: true }))
+  async checkExists(@Query() query: CheckExistsDto) {
+    if (query.nickname && query.email) {
+      throw new BadRequestException(MESSAGES.NICKNAME_AND_EMAIL);
+    }
+
+    if (query.nickname) {
+      return this.userService.checkNicknameExists(query.nickname);
+    }
+    if (query.email) {
+      return this.userService.checkEmailExists(query.email);
+    }
   }
 
-  @Get("profile/:id")
-  async getUserById(@Param("id", ParseIntPipe) id: string) {
-    return this.userService.getUserById(+id);
-  }
-
-  @Get("profile")
+  @Get("me")
   async getMyInfo(@Req() req: Request) {
     const id = req.headers["x-user-id"];
     if (!id) {
@@ -62,7 +68,7 @@ export class UserController {
     return this.userService.getUserById(+id);
   }
 
-  @Patch("profile")
+  @Patch("me")
   @UsePipes(ValidationPipe)
   async updateProfile(
     @Req() req: Request,
@@ -76,6 +82,19 @@ export class UserController {
       throw new BadRequestException(MESSAGES.NO_UPDATE_INFO);
     }
     return await this.userService.updateProfile(+userId, updateUserDto);
+  }
+
+  @Get()
+  async findAll(
+    @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number = 0,
+    @Query("size", new DefaultValuePipe(10), ParseIntPipe) size: number = 10,
+  ) {
+    return this.userService.findAll(page, size);
+  }
+
+  @Get(":id")
+  async getUserById(@Param("id", ParseIntPipe) id: string) {
+    return this.userService.getUserById(+id);
   }
 
   @MessagePattern({ cmd: "get_user_by_email" })
@@ -97,20 +116,5 @@ export class UserController {
       password: user.getPassword(),
     };
     return userWithPassword;
-  }
-
-  @Get("exists")
-  @UsePipes(new ValidationPipe({ transform: true }))
-  async checkExists(@Query() query: CheckExistsDto) {
-    if (query.nickname && query.email) {
-      throw new BadRequestException(MESSAGES.NICKNAME_AND_EMAIL);
-    }
-
-    if (query.nickname) {
-      return this.userService.checkNicknameExists(query.nickname);
-    }
-    if (query.email) {
-      return this.userService.checkEmailExists(query.email);
-    }
   }
 }
