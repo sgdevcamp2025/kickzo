@@ -26,7 +26,7 @@ public class InvitationController {
 	public ResponseEntity<String> sendInvitation(
 		//@RequestHeader(value = "x-user-id") Long senderId,
 		@RequestBody RoomInviteRequestDto inviteRequestDto) {
-		invitationService.saveInvitation(inviteRequestDto);
+		invitationService.sendInvitation(inviteRequestDto);
 		return ResponseEntity.ok("Invitation sent");
 	}
 

@@ -15,6 +15,8 @@ import com.kickzo.main.dto.request.RoomInviteRequestDto;
 import com.kickzo.main.enums.InvitationStatus;
 import com.kickzo.main.exception.CustomErrorCode;
 import com.kickzo.main.exception.CustomException;
+import com.kickzo.main.repository.RoomRepository;
+import com.kickzo.main.repository.RoomUserRepository;
 import com.kickzo.main.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -32,8 +34,14 @@ public class InvitationService {
 	private static final int TTL_EXPIRE_DAY = 7;
 	private static final DateTimeFormatter DATE_TIME_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 	private final ObjectMapper objectMapper = new ObjectMapper();
+	private final RoomUserRepository roomUserRepository;
+	private final RoomRepository roomRepository;
 
-	public void saveInvitation(RoomInviteRequestDto inviteRequestDto) {
+	public void sendInvitation(RoomInviteRequestDto inviteRequestDto) {
+		// roomId와 roomCode 일치하는 확인
+		checkRoomIdAndRoomCode(inviteRequestDto);
+		// 이미 방에 소속된 유저인 경우 오류 보내기
+		validateExistingRoomUser(inviteRequestDto);
 		String key = generateKey(inviteRequestDto);
 
 		validateExistingInvitation(key);
@@ -55,11 +63,31 @@ public class InvitationService {
 		updateInvitationStatus(inviteRequestDto, InvitationStatus.REJECTED);
 	}
 
+	private void checkRoomIdAndRoomCode(RoomInviteRequestDto inviteRequestDto) {
+		Long roomId = inviteRequestDto.getRoomId();
+		String roomCode = inviteRequestDto.getRoomCode();
+		Integer result = roomRepository.existsByRoomIdAndRoomCode(roomId, roomCode);
+		if (result == 0) {
+			throw new CustomException(CustomErrorCode.INVALID_ROOM);
+		}
+	}
+
+	private void validateExistingRoomUser(RoomInviteRequestDto inviteRequestDto) {
+		Long roomId = inviteRequestDto.getRoomId();
+		Long receiverId = inviteRequestDto.getReceiverId();
+		Integer result = roomUserRepository.existsByUserIdAndRoomId(roomId, receiverId);
+
+		if (result == 1) {
+			throw new CustomException(CustomErrorCode.EXISTING_ROOM_USER);
+		}
+	}
+
 	private void validateExistingInvitation(String key) {
 		Optional<InvitationData> existingInvitation = getInvitationDataFromRedis(key);
 		existingInvitation.ifPresent(invitation -> {
-			if (invitation.getStatus() == InvitationStatus.PENDING || invitation.getStatus() == InvitationStatus.ACCEPTED) {
-				throw new CustomException(CustomErrorCode.DUPLICATE_INVITATION);
+			switch (invitation.getStatus()) {
+				case PENDING -> throw new CustomException(CustomErrorCode.DUPLICATE_INVITATION);
+				case REJECTED -> throw new CustomException(CustomErrorCode.INVITATION_REJECTED);
 			}
 		});
 	}
@@ -100,6 +128,8 @@ public class InvitationService {
 	}
 
 	private void updateInvitationStatus(RoomInviteRequestDto inviteRequestDto, InvitationStatus newStatus) {
+		checkRoomIdAndRoomCode(inviteRequestDto);
+
 		String key = generateKey(inviteRequestDto);
 		try {
 			String jsonData = (String) redisTemplate.opsForValue().get(key);

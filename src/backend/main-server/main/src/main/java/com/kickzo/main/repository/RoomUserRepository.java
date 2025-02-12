@@ -31,4 +31,6 @@ public interface RoomUserRepository extends JpaRepository<RoomUser, RoomUserId> 
 		+ "WHERE ru.room_id = :roomId AND ru.user_id = :userId", nativeQuery = true)
 	Integer findRoleByUserIdAndRoomId(@Param("roomId") Long roomId, @Param("userId") Long userId);
 
+	@Query(value = "SELECT EXISTS (SELECT 1 FROM room_user ru WHERE ru.room_id = :roomId AND ru.user_id = :userId)", nativeQuery = true)
+	Integer existsByUserIdAndRoomId(@Param("roomId") Long roomId, @Param("userId") Long userId);
 }
