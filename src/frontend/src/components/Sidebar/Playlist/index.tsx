@@ -195,7 +195,13 @@ export const Playlist = () => {
         {videoTitle && (
           <PreviewContainer>
             <Overlay onClick={handleAddVideo}>추가하기</Overlay>
-            <CommonButton onClick={handleAddVideo} color={ButtonColor.DARKGRAY} padding="10px">
+            <CommonButton
+              onClick={handleAddVideo}
+              color={ButtonColor.DARKGRAY}
+              padding="10px"
+              width="100%"
+              justifycontent="flex-start"
+            >
               <PreviewImg src={thumbnailPreview} />
               <PreviewInfo>
                 <PreviewInfo__Title>{videoTitle || '제목 없음'}</PreviewInfo__Title>

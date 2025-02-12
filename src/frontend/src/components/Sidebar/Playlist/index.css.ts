@@ -10,6 +10,7 @@ export const Container = styled.div`
 `;
 
 export const Wrapper = styled.div`
+  width: 100%;
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -31,8 +32,7 @@ export const SearchInput = styled.input`
 `;
 
 export const PreviewContainer = styled.div`
-  position: relative;
-  display: inline-block;
+  display: block;
   width: 100%;
   overflow: hidden;
   &:hover .overlay {
