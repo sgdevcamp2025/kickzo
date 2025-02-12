@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.kickzo.main.dto.data.PlaylistItem;
 import com.kickzo.main.dto.request.RoleChangeRequestDto;
 import com.kickzo.main.dto.request.RoomJoinRequestDto;
 import com.kickzo.main.dto.request.RoomPlaylistRequestDto;
@@ -64,10 +65,10 @@ public class RoomController implements RoomApi {
 		@RequestHeader(value = "x-user-id") Long userId,
 		@RequestBody RoomPlaylistRequestDto playlistRequestDto) {
 		Long roomId = playlistRequestDto.getRoomId();
-		String playlistJson = playlistRequestDto.getPlaylistJson();
-		log.info("Saving playlist for room: {}, playlist: {}", roomId, playlistJson);
+		List<PlaylistItem> playlistItems = playlistRequestDto.getPlaylistJson();
+		log.info("Saving playlist for room: {}, playlist: {}", roomId, playlistItems);
 		roomUserService.checkAccessRole(userId, roomId);
-		playlistService.savePlaylist(roomId, playlistJson);
+		playlistService.savePlaylist(roomId, playlistItems);
 		return ResponseEntity.ok("Playlist saved successfully");
 	}
 

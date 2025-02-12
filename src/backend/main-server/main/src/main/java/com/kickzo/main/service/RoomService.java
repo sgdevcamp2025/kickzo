@@ -1,9 +1,7 @@
 package com.kickzo.main.service;
 
-import static com.kickzo.main.service.MainPageService.*;
-
 import java.time.LocalDateTime;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -11,8 +9,6 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.kickzo.main.dto.data.PlaylistItem;
 import com.kickzo.main.dto.event.RoomUpdateEvent;
 import com.kickzo.main.dto.request.RoomUpdateRequestDto;
@@ -23,6 +19,7 @@ import com.kickzo.main.dto.response.UserListDto;
 import com.kickzo.main.entity.Room;
 import com.kickzo.main.entity.RoomUser;
 import com.kickzo.main.entity.RoomUserId;
+import com.kickzo.main.entity.Playlist;
 import com.kickzo.main.exception.CustomErrorCode;
 import com.kickzo.main.exception.CustomException;
 import com.kickzo.main.repository.PlaylistRepository;
@@ -169,16 +166,9 @@ public class RoomService {
 	}
 
 	private List<PlaylistItem> fetchPlaylist(Long roomId) {
-		String playlistJson = playlistRepository.findOrderById(roomId);
-		if (playlistJson == null || playlistJson.isBlank()) {
-			return new ArrayList<>();
-		}
-
-		try {
-			return objectMapper.readValue(playlistJson, new TypeReference<>() {});
-		} catch (JsonProcessingException e) {
-			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
-		}
+		return playlistRepository.findByRoomId(roomId)
+			.map(Playlist::getOrderAsList)  // JSON → List 변환
+			.orElse(Collections.emptyList());  // Playlist가 없으면 빈 리스트 반환
 	}
 
 	private Long getRoomId(String roomCode) {

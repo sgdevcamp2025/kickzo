@@ -5,13 +5,8 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kickzo.main.dto.data.PlaylistItem;
 import com.kickzo.main.entity.Playlist;
-import com.kickzo.main.exception.CustomErrorCode;
-import com.kickzo.main.exception.CustomException;
 import com.kickzo.main.repository.PlaylistRepository;
 
 import jakarta.transaction.Transactional;
@@ -25,43 +20,32 @@ public class PlaylistService {
 
 	private final PlaylistRepository playlistRepository;
 	private final KafkaProducerService kafkaProducerService;
-	private final ObjectMapper objectMapper;
 
 	@Transactional
-	public void savePlaylist(Long roomId, String playlistJson) {
-		List<PlaylistItem> playlistItems = parsePlaylistJson(playlistJson);
-		updateOrCreatePlaylist(roomId, playlistJson);
+	public void savePlaylist(Long roomId, List<PlaylistItem> playlistItems) {
+		updateOrCreatePlaylist(roomId, playlistItems);
 		kafkaProducerService.sendPlaylistUpdate(roomId, playlistItems);
 	}
 
-	private List<PlaylistItem> parsePlaylistJson(String playlistJson) {
-		try {
-			return objectMapper.readValue(playlistJson, new TypeReference<>() {
-			});
-		} catch (JsonProcessingException e) {
-			log.error("Failed to parse playlist JSON: {}", playlistJson, e);
-			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
-		}
-	}
-
-	private void updateOrCreatePlaylist(Long roomId, String playlistJson) {
+	private void updateOrCreatePlaylist(Long roomId, List<PlaylistItem> playlistItems) {
 		Optional<Playlist> existingPlaylist = playlistRepository.findByRoomId(roomId);
 
 		if (existingPlaylist.isPresent()) {
-			updateExistingPlaylist(existingPlaylist.get(), playlistJson);
+			updateExistingPlaylist(existingPlaylist.get(), playlistItems);
 		} else {
-			createNewPlaylist(roomId, playlistJson);
+			createNewPlaylist(roomId, playlistItems);
 		}
 	}
 
-	private void updateExistingPlaylist(Playlist playlist, String playlistJson) {
-		playlist.setOrder(playlistJson);
+	private void updateExistingPlaylist(Playlist playlist, List<PlaylistItem> playlistItems) {
+		playlist.setOrderFromList(playlistItems);
 	}
 
-	private void createNewPlaylist(Long roomId, String playlistJson) {
+	private void createNewPlaylist(Long roomId, List<PlaylistItem> playlistItems) {
+
 		Playlist newPlaylist = new Playlist();
 		newPlaylist.setRoomId(roomId);
-		newPlaylist.setOrder(playlistJson);
+		newPlaylist.setOrderFromList(playlistItems);
 		playlistRepository.save(newPlaylist);
 	}
 }

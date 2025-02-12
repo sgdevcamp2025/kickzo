@@ -1,6 +1,7 @@
 package com.kickzo.main.service;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -10,15 +11,14 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.kickzo.main.dto.data.PlaylistItem;
 import com.kickzo.main.dto.request.CreateRoomRequestDto;
 import com.kickzo.main.dto.response.CreateRoomResponseDto;
 import com.kickzo.main.dto.response.RoomResponseDto;
 import com.kickzo.main.entity.Room;
 import com.kickzo.main.entity.RoomUser;
 import com.kickzo.main.entity.RoomUserId;
+import com.kickzo.main.entity.Playlist;
 import com.kickzo.main.exception.CustomErrorCode;
 import com.kickzo.main.exception.CustomException;
 import com.kickzo.main.repository.RoomRepository;
@@ -40,8 +40,6 @@ public class MainPageService {
 
 	private static final int MAX_ROOMS_PER_USER = 5;
 	private static final int ROLE_CREATOR = 0;
-
-	static final ObjectMapper objectMapper = new ObjectMapper();
 
 	// 메인 페이지 방 list 제공
 	@Transactional(readOnly = true)
@@ -83,28 +81,20 @@ public class MainPageService {
 	 * 4. getCreatorProfileImage : 생성자의 profileImageUrl 받아오기
 	 */
 
-	private String extractPlaylistUrl(String orderJson) {
-		if (orderJson == null || orderJson.isBlank()) {
-			return null;
-		}
-		try {
-			JsonNode orderArray = objectMapper.readTree(orderJson);
-			for (JsonNode node : orderArray) {
-				if (node.has("order") && node.get("order").asInt() == 0 && node.has("url")) {
-					return node.get("url").asText();
-				}
-			}
-		} catch (JsonProcessingException e) {
-			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
-		}
-		return null; // order == 0인 항목이 없는 경우
+	private String extractPlaylistUrl(List<PlaylistItem> playlistItems) {
+		return playlistItems.stream()
+			.filter(item -> item.getOrder() == 0)
+			.map(PlaylistItem::getUrl)
+			.findFirst()
+			.orElse(null);
 	}
 
 	private RoomResponseDto convertToDto(Room room) {
+		List<PlaylistItem> playlistItems = Optional.ofNullable(room.getPlaylist())
+			.map(Playlist::getOrderAsList)  // JSON → List 변환
+			.orElse(Collections.emptyList());
 
-		String playlistUrl = Optional.ofNullable(room.getPlaylist())
-			.map(playlist -> extractPlaylistUrl(playlist.getOrder()))
-			.orElse(null);
+		String playlistUrl = extractPlaylistUrl(playlistItems);
 
 		return RoomResponseDto.builder()
 			.roomId(room.getId())
@@ -119,8 +109,7 @@ public class MainPageService {
 	}
 
 	private String getCreatorProfileImage(String creator) {
-		return Optional.ofNullable(userRepository.findProfileImageUrlByNickname(creator))
-			.orElse("default-profile-image-url"); // 기본 이미지 설정
+		return userRepository.findProfileImageUrlByNickname(creator);
 	}
 
 	/**
