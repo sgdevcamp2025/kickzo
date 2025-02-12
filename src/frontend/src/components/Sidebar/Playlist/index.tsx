@@ -19,16 +19,25 @@ import { ButtonColor } from '@/types/enums/ButtonColor';
 import { useDebounce } from '@/hooks/utils/useDebounce';
 import { PlaylistItem } from './PlaylistItem';
 
-const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY;
+const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY as string;
+
+// 사용자가 입력한 URL로부터 영상의 ID와 시간을 받아온다.
+const extractVideoIdAndStartTime = (url: string) => {
+  const regex =
+    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([^&?/]+)(?:.*[?&]t=(\d+))?/;
+  const match = url.match(regex);
+  return {
+    videoId: match ? match[1] : '',
+    startTime: match && match[2] ? parseInt(match[2], 10) : 0,
+  };
+};
 
 export const Playlist = () => {
-  const [inputUrl, setInputUrl] = useState<string>(''); // input창에 사용자가 입력한 URL
-  const [thumbnailPreview, setThumbnailPreview] = useState<string>(''); // Input창에 사용자가 URL을 입력했을때 미리보기 위한 썸네일
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null); // 플레이리스트 요소에 대해 드래그중인 index
-  const [videoTitle, setVideoTitle] = useState<string>(''); // 입력한 URL에 대한 영상의 제목
-  const [videoYoutuber, setVideoYoutuber] = useState<string>(''); // 입력한 URL에 대한 영상의 유튜버
-  const debouncedInputUrl = useDebounce(inputUrl, 1000); // input창에 입력중인 URL에 대해서 디바운스
-
+  const [inputUrl, setInputUrl] = useState('');
+  const [thumbnailPreview, setThumbnailPreview] = useState('');
+  const [videoTitle, setVideoTitle] = useState('');
+  const [videoYoutuber, setVideoYoutuber] = useState('');
+  const debouncedInputUrl = useDebounce(inputUrl, 1000);
   const {
     videoQueue,
     currentIndex,
@@ -39,22 +48,10 @@ export const Playlist = () => {
     setCurrentIndex,
   } = useVideoStore();
 
-  // 사용자가 입력한 URL로부터 영상의 ID와 시간을 받아온다.
-  const extractVideoIdAndStartTime = (url: string) => {
-    const regex =
-      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([^&?/]+)(?:.*[?&]t=(\d+))?/;
-    const match = url.match(regex);
-    return {
-      videoId: match ? match[1] : '',
-      startTime: match && match[2] ? parseInt(match[2], 10) : 0,
-    };
-  };
-
-  // 디바운스된 URL이 바뀔때마다
   useEffect(() => {
     const fetchVideoDetails = async (videoId: string) => {
       try {
-        const response = await axios.get(`https://www.googleapis.com/youtube/v3/videos`, {
+        const { data } = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
           params: {
             part: 'snippet',
             id: videoId,
@@ -62,9 +59,9 @@ export const Playlist = () => {
             hl: 'ko',
           },
         });
-        const data = response.data;
-        if (data.items && data.items.length > 0) {
-          const { title, channelTitle } = data.items[0].snippet;
+        const items = data.items;
+        if (items && items.length > 0) {
+          const { title, channelTitle } = items[0].snippet;
           setVideoTitle(title);
           setVideoYoutuber(channelTitle);
         } else {
@@ -112,6 +109,8 @@ export const Playlist = () => {
     setVideoYoutuber('');
   };
 
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+
   const handleDragStart = useCallback((index: number) => {
     setDraggedIndex(index);
   }, []);
@@ -121,15 +120,24 @@ export const Playlist = () => {
   }, []);
 
   const handleDrop = useCallback(
-    (index: number) => {
-      if (draggedIndex === null || draggedIndex === index) return;
+    (dropIndex: number) => {
+      if (draggedIndex === null || draggedIndex === dropIndex) return;
 
       useVideoStore.setState(state => {
         const updatedQueue = [...state.videoQueue];
         const [draggedItem] = updatedQueue.splice(draggedIndex, 1);
-        updatedQueue.splice(index, 0, draggedItem);
+        updatedQueue.splice(dropIndex, 0, draggedItem);
 
-        return { videoQueue: updatedQueue };
+        let newCurrentIndex = state.currentIndex;
+        if (draggedIndex === state.currentIndex) {
+          newCurrentIndex = dropIndex;
+        } else if (draggedIndex < state.currentIndex && state.currentIndex <= dropIndex) {
+          newCurrentIndex = state.currentIndex - 1;
+        } else if (dropIndex <= state.currentIndex && state.currentIndex < draggedIndex) {
+          newCurrentIndex = state.currentIndex + 1;
+        }
+
+        return { videoQueue: updatedQueue, currentIndex: newCurrentIndex };
       });
 
       setDraggedIndex(null);
@@ -142,12 +150,12 @@ export const Playlist = () => {
       <Wrapper>
         {videoQueue.map((video, index) => (
           <PlaylistItem
-            key={video.id}
+            key={`${video.id}-${index}`}
             video={video}
             index={index}
             active={index === currentIndex}
             onDragStart={() => handleDragStart(index)}
-            onDragOver={e => handleDragOver(e)}
+            onDragOver={handleDragOver}
             onDrop={() => handleDrop(index)}
             onClick={() => setCurrentIndex(index)}
             onMoveUp={() => moveVideoUp(index)}
@@ -159,9 +167,7 @@ export const Playlist = () => {
       <div>
         {videoTitle && (
           <PreviewContainer>
-            <Overlay className="overlay" onClick={handleAddVideo}>
-              추가하기
-            </Overlay>
+            <Overlay onClick={handleAddVideo}>추가하기</Overlay>
             <CommonButton onClick={handleAddVideo} color={ButtonColor.DARKGRAY} padding="10px">
               <PreviewImg src={thumbnailPreview} />
               <PreviewInfo>
