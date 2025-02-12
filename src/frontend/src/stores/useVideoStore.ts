@@ -16,6 +16,7 @@ interface IVideoStore {
   moveVideoUp: (index: number) => void;
   moveVideoDown: (index: number) => void;
   setCurrentIndex: (index: number) => void;
+  setCurrentVideo: (index: number) => void;
 }
 
 export const useVideoStore = create<IVideoStore>(set => ({
@@ -38,7 +39,7 @@ export const useVideoStore = create<IVideoStore>(set => ({
 
   moveVideoUp: (index: number) =>
     set((state: IVideoStore) => {
-      if (index === 0) return state;
+      if (index === 0 || index === 1) return state;
       const videoQueue = [...state.videoQueue];
       [videoQueue[index], videoQueue[index - 1]] = [videoQueue[index - 1], videoQueue[index]];
       return { videoQueue };
@@ -46,7 +47,7 @@ export const useVideoStore = create<IVideoStore>(set => ({
 
   moveVideoDown: (index: number) =>
     set((state: IVideoStore) => {
-      if (index >= state.videoQueue.length - 1) return state;
+      if (index >= state.videoQueue.length - 1 || index === 0) return state;
       const videoQueue = [...state.videoQueue];
       [videoQueue[index], videoQueue[index + 1]] = [videoQueue[index + 1], videoQueue[index]];
       return { videoQueue };
@@ -56,4 +57,18 @@ export const useVideoStore = create<IVideoStore>(set => ({
     set((state: IVideoStore) => ({
       currentIndex: index >= 0 && index < state.videoQueue.length ? index : state.currentIndex,
     })),
+
+  setCurrentVideo: (index: number) =>
+    set((state: IVideoStore) => {
+      if (index < 0 || index >= state.videoQueue.length) return state;
+
+      const newQueue = [...state.videoQueue];
+      const selectedVideo = newQueue.splice(index, 1)[0];
+      newQueue[0] = selectedVideo;
+
+      return {
+        videoQueue: newQueue,
+        currentIndex: 0,
+      };
+    }),
 }));
