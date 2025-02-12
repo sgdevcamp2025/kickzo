@@ -45,13 +45,18 @@ export const Playlist = () => {
     removeVideo,
     moveVideoUp,
     moveVideoDown,
+    setCurrentVideo,
     setCurrentIndex,
   } = useVideoStore();
 
-  // TODO: 추후 WebSocket 타입으로 변경할 때 사용
   const ChangeToWebSocketType = () => {
-    const updatedQueue = useVideoStore.getState().videoQueue;
-    console.log('playlist:  ' + JSON.stringify(updatedQueue));
+    const { videoQueue } = useVideoStore.getState();
+    const formattedQueue = videoQueue.map((video, index) => ({
+      order: index,
+      url: `https://www.youtube.com/watch?v=${video.id}${video.start ? `&t=${video.start}` : ''}`,
+    }));
+    // TODO: 추후 WebSocket 타입으로 변경할 때 사용
+    console.log('playlist: ' + JSON.stringify(formattedQueue));
   };
 
   useEffect(() => {
@@ -159,24 +164,32 @@ export const Playlist = () => {
     [draggedIndex],
   );
 
+  const handleSetCurrentVideo = (index: number) => {
+    setCurrentVideo(index);
+    setCurrentIndex(index);
+    ChangeToWebSocketType();
+  };
+
   return (
     <Container>
       <Wrapper>
-        {videoQueue.map((video, index) => (
-          <PlaylistItem
-            key={`${video.id}-${index}`}
-            video={video}
-            index={index}
-            active={index === currentIndex}
-            onDragStart={() => handleDragStart(index)}
-            onDragOver={handleDragOver}
-            onDrop={() => handleDrop(index)}
-            onClick={() => setCurrentIndex(index)}
-            onMoveUp={() => moveVideoUp(index)}
-            onMoveDown={() => moveVideoDown(index)}
-            onRemove={() => handleRemoveVideo(index)}
-          />
-        ))}
+        {videoQueue.map((video, index) =>
+          index > 0 ? (
+            <PlaylistItem
+              key={`${video.id}-${index}`}
+              video={video}
+              index={index}
+              active={index === currentIndex}
+              onDragStart={() => handleDragStart(index)}
+              onDragOver={handleDragOver}
+              onDrop={() => handleDrop(index)}
+              onClick={() => handleSetCurrentVideo(index)}
+              onMoveUp={() => moveVideoUp(index)}
+              onMoveDown={() => moveVideoDown(index)}
+              onRemove={() => handleRemoveVideo(index)}
+            />
+          ) : null,
+        )}
       </Wrapper>
       <div>
         {videoTitle && (
