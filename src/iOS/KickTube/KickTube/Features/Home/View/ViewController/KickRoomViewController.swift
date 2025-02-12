@@ -61,7 +61,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     
     
     // MARK: - init
-
+    
     deinit {
         NotificationCenter.default.removeObserver(self)
     }
@@ -91,7 +91,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         tabBarController?.tabBar.isHidden = false
         navigationController?.setNavigationBarHidden(false, animated: false)
     }
-  
+    
     
     // MARK: - configure Reactor
     
@@ -155,6 +155,17 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         menuSegmentedControl.rx.selectedSegmentIndex
             .subscribe(with: self, onNext: { owner, index in
                 owner.mainScrollView.setPageIndex(index)
+                
+                if index == 0 {
+                    let vc = ChatViewController(ChatReactor())
+                    if let sheet = vc.sheetPresentationController {
+                        sheet.detents = [.custom(resolver: { _ in
+                            ComponentSize.chatBtoomSheet.size.height })]
+                        sheet.prefersGrabberVisible = true
+                    }
+                    
+                    self.present(vc, animated: false)
+                }
             })
             .disposed(by: disposeBag)
         menuSegmentedControl.rx.selectedSegmentIndex.onNext(1)
@@ -182,8 +193,8 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
            let role = userInfo["role"] as? UserRole {
             let vc = UserOverviewViewController(UserOverviewReactor(id, role: role))
             if let sheet = vc.sheetPresentationController {
-                sheet.detents = [.custom(resolver: { _ in ComponentSize.userlistBottomSheet.size.height })]
-                sheet.prefersGrabberVisible = true
+                sheet.detents = [.custom(resolver: { _ in ComponentSize.userlistBottomSheet.size.height
+                })]
             }
             
             self.present(vc, animated: false)
