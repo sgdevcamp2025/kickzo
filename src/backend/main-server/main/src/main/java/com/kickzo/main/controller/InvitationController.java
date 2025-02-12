@@ -24,26 +24,26 @@ public class InvitationController {
 
 	@PostMapping()
 	public ResponseEntity<String> sendInvitation(
-		//@RequestHeader(value = "x-user-id") Long senderId,
+		@RequestHeader(value = "x-user-id") Long senderId,
 		@RequestBody RoomInviteRequestDto inviteRequestDto) {
-		invitationService.sendInvitation(inviteRequestDto);
+		invitationService.sendInvitation(senderId, inviteRequestDto);
 		return ResponseEntity.ok("Invitation sent");
 	}
 
 	@PostMapping("/accept")
 	public ResponseEntity<String> acceptInvitation(
-		//@RequestHeader(value = "x-user-id") Long receiverId,
+		@RequestHeader(value = "x-user-id") Long receiverId,
 		@RequestBody RoomInviteRequestDto inviteRequestDto) {
-		invitationService.acceptInvitation(inviteRequestDto);
-		roomService.getRoomJoinResponse(inviteRequestDto.getRoomCode(), inviteRequestDto.getReceiverId());
+		invitationService.acceptInvitation(receiverId, inviteRequestDto);
+		roomService.getRoomJoinResponse(inviteRequestDto.getRoomCode(), receiverId);
 		return ResponseEntity.ok("Invitation accepted");
 	}
 
 	@PostMapping("/reject")
 	public ResponseEntity<String> rejectInvitation(
-		//@RequestHeader(value = "x-user-id") Long receiverId,
+		@RequestHeader(value = "x-user-id") Long receiverId,
 		@RequestBody RoomInviteRequestDto inviteRequestDto) {
-		invitationService.rejectInvitation(inviteRequestDto);
+		invitationService.rejectInvitation(receiverId, inviteRequestDto);
 		return ResponseEntity.ok("Invitation rejected");
 	}
 }
