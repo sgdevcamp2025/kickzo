@@ -102,7 +102,7 @@ async def get_friend_requests(userId: int, redis=Depends(get_redis)):
         all_requests.append(request_data)
 
     # timestamp 기준으로 정렬 (내림차순)
-    all_requests.sort(key=lambda x: datetime.fromisoformat(x["timestamp"]), reverse=True)
+    all_requests.sort(key=lambda x: x["timestamp"], reverse=True)
 
     return {"requests": all_requests}
 
@@ -136,11 +136,11 @@ async def send_friend_request(
     existing_request = await redis.get(request_key)
     if existing_request:
         existing_request = json.loads(existing_request)
-        status = existing_request.get("status", "pending")
+        status = existing_request.get("status", "PENDING")
 
-        if status == "pending":
+        if status == "PENDING":
             raise HTTPException(status_code=400, detail="이미 친구 요청을 보냈습니다.")
-        elif status == "rejected":
+        elif status == "REJECTED":
             ttl = await redis.ttl(request_key)
             raise HTTPException(
                 status_code=400, 
@@ -153,9 +153,9 @@ async def send_friend_request(
         "senderNickname": sender_nickname,
         "receiverId": data.receiverId,
         "receiverNickname": receiver_nickname,
-        "timestamp": datetime.utcnow().isoformat(),
+        "timestamp": int(datetime.utcnow().timestamp() * 1000),
         "isRead": False,
-        "status": "pending",
+        "status": "PENDING",
         "roomId": "null",
         "roomCode": "null"
     }
@@ -178,8 +178,8 @@ async def accept_friend_request(data: FriendRequestBody, db=Depends(get_db), red
 
     request_data = json.loads(existing_request)
     
-    # status가 pending이 아닌 경우 예외 처리 (이미 수락 또는 거절된 요청)
-    if request_data.get("status") != "pending":
+    # status가 PENDING이 아닌 경우 예외 처리 (이미 수락 또는 거절된 요청)
+    if request_data.get("status") != "PENDING":
         raise HTTPException(status_code=400, detail="이미 처리된 친구 요청입니다.")
 
     # DB에 친구 관계 추가
@@ -191,7 +191,7 @@ async def accept_friend_request(data: FriendRequestBody, db=Depends(get_db), red
         await db.commit()
     
     # status를 "accepted"로 변경
-    request_data["status"] = "accepted"
+    request_data["status"] = "ACCEPTED"
     
     # TTL 유지하면서 Redis 업데이트
     ttl = await redis.ttl(request_key)
@@ -210,12 +210,12 @@ async def reject_friend_request(data: FriendRequestBody, redis=Depends(get_redis
 
     request_data = json.loads(existing_request)
     
-    # status가 이미 "rejected"인 경우 예외 처리
-    if request_data.get("status") == "rejected":
+    # status가 이미 "REJECTED"인 경우 예외 처리
+    if request_data.get("status") == "REJECTED":
         raise HTTPException(status_code=400, detail="이미 거절된 친구 요청입니다.")
 
-    # status를 "rejected"로 변경 & isRead = True
-    request_data["status"] = "rejected"
+    # status를 "REJECTED"로 변경 & isRead = True
+    request_data["status"] = "REJECTED"
 
     # TTL 유지하면서 Redis 업데이트
     ttl = await redis.ttl(request_key)
