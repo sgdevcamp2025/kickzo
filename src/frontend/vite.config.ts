@@ -21,4 +21,7 @@ export default defineConfig({
       { find: '@components', replacement: path.resolve(__dirname, 'src/components') },
     ],
   },
+  define: {
+    global: 'window',
+  },
 });
