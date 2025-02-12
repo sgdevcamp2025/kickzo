@@ -19,8 +19,7 @@ services:
     routes:
       - name: user-public-route
         paths:
-          - /api/users/register
-          - /api/users/exists
+          - /api/users
         strip_path: false
         protocols:
           - http
@@ -28,7 +27,8 @@ services:
 
       - name: user-private-route
         paths:
-          - /api/users
+          - /api/users/me
+          - /api/users/unregister
         strip_path: false
         protocols:
           - http
@@ -47,14 +47,15 @@ services:
               uri_param_names: []
           - name: custom-jwt-header
 
-   # Main Service (보호된 서비스 예시)
+  # Main Service (보호된 서비스 예시)
   - name: main-service
     url: http://main:8103 # MAIN_PORT=8103
 
     routes:
       - name: main-public-route
         paths:
-          - /api/rooms/list/all
+          - /api/rooms/all
+          - /api/rooms/participants
         strip_path: false
 
       - name: main-private-route
@@ -77,7 +78,6 @@ services:
               cookie_names: []
               uri_param_names: []
           - name: custom-jwt-header
-
 
   - name: chat-service
     url: http://chat-service-upstream # upstream 이름
