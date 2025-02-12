@@ -48,6 +48,6 @@ public class RoomEventHandler {
 
 	private void handleUserList(RoomEvent event) throws JsonProcessingException {
 		NewUserJoinEvent userList = objectMapper.convertValue(event.getData(), NewUserJoinEvent.class);
-		messagingService.sendMessage("role-change", userList.getRoomId(), userList);
+		messagingService.sendMessage("user-list", userList.getRoomId(), userList);
 	}
 }
