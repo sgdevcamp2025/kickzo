@@ -6,7 +6,7 @@ import { UserResponseDto } from '@/api/endpoints/user/user.interface';
 interface UserStore {
   user: UserResponseDto | null;
   setUser: (user: UserResponseDto) => void;
-  fetchMyProfile: () => Promise<void>;
+  fetchMyProfile: () => Promise<UserResponseDto | undefined>;
   clear: () => void;
 }
 
@@ -20,6 +20,7 @@ export const useUserStore = create(
           const data = await userApi.getMyProfile();
           console.log(data);
           set({ user: data });
+          return data;
         } catch (error) {
           console.error(error);
         }

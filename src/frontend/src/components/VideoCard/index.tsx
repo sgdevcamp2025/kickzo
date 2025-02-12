@@ -24,14 +24,7 @@ export const VideoCard = ({ video, onClick }: IVideoCard) => {
       </Thumbnail>
       <VideoInfo>
         <Profile>
-          <img
-            src={
-              video.profileImageUrl && video.profileImageUrl !== 'default-profile-image-url'
-                ? video.profileImageUrl
-                : DefaultProfile
-            }
-            alt={video.creator}
-          />
+          <img src={video.profileImageUrl ?? DefaultProfile} alt={video.creator} />
         </Profile>
         <div>
           <Title className="clamp-2">{video.title}</Title>

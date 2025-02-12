@@ -1,84 +1,124 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { IconButton } from '@/components/IconButton';
 import {
   Container,
   Profile,
-  Profile__Header,
-  Profile__Header__Img,
-  Profile__Header__ButtonContainer,
-  Profile__MyNickname,
-  Profile__MyIntroduce,
+  Header,
+  ProfileImage,
+  HeaderButtonContainer,
+  NicknameText,
+  StateMessageText,
+  NicknameInput,
+  StateMessageInput,
+  StateMessagePlus,
 } from './index.css';
 
 import Edit from '@/assets/img/Edit.svg';
 import Check from '@/assets/img/Check.svg';
 import Setting from '@/assets/img/Setting.svg';
-import Cancel from '@/assets/img/Cancel.svg';
-
-const detailProfile = {
-  imgUrl:
-    'https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMDA3MjVfMTQ5%2FMDAxNTk1Njc4MzEyNzA4.knqIC64twrLoZDviHrAUSrEbgtxNp8h4nGsT-4mrWgkg.VImfsqV3F5GqyCPCIN4Xfid4TpUXQkljevfhuX_HK4gg.JPEG.haha9558%2FIMG_0114.JPG&type=a340',
-  nickname: '이노',
-  introduce: '저는 이제 집으로 갑니다',
-};
+import Cancel from '@/assets/img/CancelSmall.svg';
+import { useUserStore } from '@/stores/useUserStore';
+import DefaultProfile from '@/assets/img/DefaultProfile.svg';
+import AddIcon from '@/assets/img/Add.svg';
 
 export const MyProfile = () => {
-  const [isEditing, setIsEditing] = useState(false);
-  const [nickname, setNickname] = useState(detailProfile.nickname);
-  const [introduce, setIntroduce] = useState(detailProfile.introduce);
+  const { user } = useUserStore();
+  const navigate = useNavigate();
+  const [isEditMode, setIsEditMode] = useState(false);
+  const [nickname, setNickname] = useState(user?.nickname);
+  const [stateMessage, setStateMessage] = useState(user?.stateMessage);
+  const [isChanged, setIsChanged] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      const nicknameChanged = nickname !== user.nickname;
+      const stateMessageChanged = stateMessage !== user.stateMessage;
+      setIsChanged(nicknameChanged || stateMessageChanged);
+    }
+  }, [nickname, stateMessage, user]);
+
+  if (!user) {
+    return;
+  }
 
   const handleSave = () => {
-    setIsEditing(false);
+    setIsEditMode(false);
+    if (nickname === user?.nickname && stateMessage === user?.stateMessage) {
+      return;
+    }
     alert('닉네임과 상태 메시지가 저장되었습니다.');
   };
 
   return (
     <Container>
       <Profile>
-        <Profile__Header>
-          <Profile__Header__Img src={detailProfile.imgUrl} />
-          <Profile__Header__ButtonContainer>
+        <Header>
+          <ProfileImage src={user.profileImageUrl ?? DefaultProfile} />
+          <HeaderButtonContainer>
             <IconButton
-              beforeImgUrl={isEditing ? Check : Edit}
-              afterImgUrl={isEditing ? Check : Edit}
+              beforeImgUrl={isEditMode ? Check : Edit}
+              afterImgUrl={isEditMode ? Check : Edit}
+              backgroundColor={
+                isEditMode
+                  ? isChanged
+                    ? 'var(--palette-primary-normal)'
+                    : 'var(--palette-label-disable)'
+                  : 'var(--palette-line-solid-alternative)'
+              }
               onClick={() => {
-                if (isEditing) {
+                if (isEditMode) {
                   handleSave();
                 } else {
-                  setIsEditing(true);
+                  setIsEditMode(true);
                 }
               }}
             />
             <IconButton
-              beforeImgUrl={isEditing ? Cancel : Setting}
-              afterImgUrl={isEditing ? Cancel : Setting}
+              beforeImgUrl={isEditMode ? Cancel : Setting}
+              afterImgUrl={isEditMode ? Cancel : Setting}
               onClick={() => {
-                if (isEditing) {
-                  setIsEditing(false);
-                  setNickname(detailProfile.nickname);
-                  setIntroduce(detailProfile.introduce);
+                if (isEditMode) {
+                  setIsEditMode(false);
+                  setNickname(user?.nickname);
+                  setStateMessage(user?.stateMessage);
                 } else {
-                  alert('환경설정 페이지로 이동');
+                  navigate('/setting');
                 }
               }}
             />
-          </Profile__Header__ButtonContainer>
-        </Profile__Header>
-
-        <Profile__MyNickname
-          type="text"
-          value={nickname}
-          onChange={e => setNickname(e.target.value)}
-          placeholder="닉네임을 입력하세요"
-          $isEditing={isEditing}
-        />
-        <Profile__MyIntroduce
-          type="text"
-          value={introduce}
-          onChange={e => setIntroduce(e.target.value)}
-          placeholder="상태 메시지를 입력하세요"
-          $isEditing={isEditing}
-        />
+          </HeaderButtonContainer>
+        </Header>
+        {isEditMode ? (
+          <>
+            <NicknameInput
+              type="text"
+              value={nickname}
+              onChange={e => setNickname(e.target.value)}
+              placeholder="닉네임을 입력하세요"
+              $isEditMode={isEditMode}
+            />
+            <StateMessageInput
+              type="text"
+              value={stateMessage}
+              onChange={e => setStateMessage(e.target.value)}
+              placeholder="상태 메시지를 입력하세요"
+              $isEditMode={isEditMode}
+            />
+          </>
+        ) : (
+          <>
+            <NicknameText>{nickname}</NicknameText>
+            {stateMessage ? (
+              <StateMessageText>{stateMessage}</StateMessageText>
+            ) : (
+              <StateMessagePlus onClick={() => setIsEditMode(true)}>
+                <img src={AddIcon} alt="plus" />
+                상태 추가하기
+              </StateMessagePlus>
+            )}
+          </>
+        )}
       </Profile>
     </Container>
   );

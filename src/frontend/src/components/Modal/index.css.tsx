@@ -59,7 +59,6 @@ export const RelativeModalContainer = styled.div`
   align-items: center;
   justify-content: center;
   gap: 10px;
-  padding: 20px 20px 0px 20px;
   background: var(--palette-static-white);
   z-index: 1000;
   cursor: default;
