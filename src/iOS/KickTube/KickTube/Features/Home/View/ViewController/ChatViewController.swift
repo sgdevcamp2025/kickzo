@@ -16,6 +16,22 @@ final class ChatViewController: BaseViewController<ChatReactor> {
     private lazy var chatCollectionView = UICollectionView(frame: .zero, collectionViewLayout: .chatCollectionViewLayout()).then {
         $0.register(ChatCollectionViewCell.self, forCellWithReuseIdentifier: ChatCollectionViewCell.reuseIdentifier)
     }
+    private lazy var dataSource = RxCollectionViewSectionedAnimatedDataSource<ChatMessageSection> (configureCell: { _, collecitonView, indexPath, item in
+        guard let cell = self.chatCollectionView.dequeueReusableCell(withReuseIdentifier: ChatCollectionViewCell.reuseIdentifier, for: indexPath) as? ChatCollectionViewCell else {
+            return UICollectionViewCell()
+        }
+        
+        switch item {
+        case let .localMessage(message):
+            cell.setContent(message)
+        case let .unreadMessage(message):
+            cell.setContent(message)
+        case let .newMessage(message):
+            cell.setContent(message)
+        }
+        
+        return cell
+    })
     private let fileAddButton = UIButton().then {
         $0.setImage(.create, for: .normal)
         $0.tintColor = .kGray
@@ -48,6 +64,22 @@ final class ChatViewController: BaseViewController<ChatReactor> {
     }
     
     override func bindState(reactor: ChatReactor) {
+        reactor.state.map { $0.messages }
+            .do(onNext: { [weak self] messages in
+                guard let self else { return }
+                
+                if !messages.isEmpty {
+                    let lastSectionIndex = messages.count - 1
+                    let lastItemIndex = messages[lastSectionIndex].items.count - 1
+                    let lastIndexPath = IndexPath(item: lastItemIndex, section: lastSectionIndex)
+                    
+                    DispatchQueue.main.async {
+                        self.chatCollectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: true)
+                    }
+                }
+            })
+            .bind(to: chatCollectionView.rx.items(dataSource: dataSource))
+            .disposed(by: disposeBag)
     }
     
     
