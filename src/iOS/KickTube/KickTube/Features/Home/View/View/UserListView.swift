@@ -45,7 +45,6 @@ final class UserListView: BaseView<UserListReactor> {
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         userlistCollectionView.rx.itemSelected
-            .distinctUntilChanged()
             .map { Reactor.Action.profileCellTapped(idx: $0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
