@@ -169,7 +169,7 @@ final class ChatViewController: BaseViewController<ChatReactor> {
         messageInputView.snp.makeConstraints { make in
             make.top.equalTo(chatCollectionView.snp.bottom)
             make.horizontalEdges.equalToSuperview().inset(8)
-            make.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
+            make.bottom.equalTo(view.keyboardLayoutGuide.snp.top).offset(-4)
             make.height.equalTo(ComponentSize.messageTextView.size.height)
         }
         fileAddButton.snp.makeConstraints { make in
