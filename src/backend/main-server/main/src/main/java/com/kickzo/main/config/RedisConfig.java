@@ -4,11 +4,18 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
+import org.springframework.data.redis.serializer.Jackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
+
+import com.fasterxml.jackson.annotation.JsonAutoDetect;
+import com.fasterxml.jackson.annotation.JsonTypeInfo;
+import com.fasterxml.jackson.annotation.PropertyAccessor;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
+import com.kickzo.main.dto.data.InvitationData;
 
 @Configuration
 public class RedisConfig {
@@ -21,31 +28,34 @@ public class RedisConfig {
 
 	@Bean
 	public RedisConnectionFactory redisConnectionFactory() {
-		LettuceConnectionFactory factory = new LettuceConnectionFactory(host, port);
-		factory.setDatabase(3);
-		return factory;
+		RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(host, port);
+		configuration.setDatabase(3);
+		return new LettuceConnectionFactory(configuration);
 	}
 
+
 	@Bean
-	public RedisTemplate<String, Object> redisTemplateObject(RedisConnectionFactory connectionFactory) {
-		RedisTemplate<String, Object> template = new RedisTemplate<>();
+	public RedisTemplate<String, InvitationData> redisInvitationTemplate(RedisConnectionFactory connectionFactory) {
+		RedisTemplate<String, InvitationData> template = new RedisTemplate<>();
 		template.setConnectionFactory(connectionFactory);
+
+		// Key는 String 직렬화
 		template.setKeySerializer(new StringRedisSerializer());
-		template.setHashKeySerializer(new StringRedisSerializer());
-		template.setValueSerializer(new GenericJackson2JsonRedisSerializer()); // Object 직렬화 지원
+
+		// 커스텀 ObjectMapper 설정
+		ObjectMapper objectMapper = new ObjectMapper();
+		objectMapper.setVisibility(PropertyAccessor.ALL, JsonAutoDetect.Visibility.ANY);
+		objectMapper.activateDefaultTyping(
+			LaissezFaireSubTypeValidator.instance,
+			ObjectMapper.DefaultTyping.NON_FINAL,
+			JsonTypeInfo.As.PROPERTY
+		);
+
+		// Value는 InvitationData로 직렬화 및 역직렬화
+		Jackson2JsonRedisSerializer<InvitationData> serializer = new Jackson2JsonRedisSerializer<>(InvitationData.class);
+		template.setValueSerializer(serializer);
+
+		template.afterPropertiesSet();
 		return template;
-	}
-
-
-	@Bean
-	public RedisTemplate<String, String> redisTemplate(RedisConnectionFactory connectionFactory) {
-		RedisTemplate<String, String> template = new RedisTemplate<>();
-		template.setConnectionFactory(connectionFactory);
-		return template;
-	}
-
-	@Bean
-	public StringRedisTemplate stringRedisTemplate(RedisConnectionFactory connectionFactory) {
-		return new StringRedisTemplate(connectionFactory);
 	}
 }

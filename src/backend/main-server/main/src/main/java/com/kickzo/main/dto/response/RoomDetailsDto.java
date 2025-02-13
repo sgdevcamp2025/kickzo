@@ -2,7 +2,7 @@ package com.kickzo.main.dto.response;
 
 import java.util.List;
 
-import com.kickzo.main.dto.event.PlaylistItem;
+import com.kickzo.main.dto.data.PlaylistItem;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

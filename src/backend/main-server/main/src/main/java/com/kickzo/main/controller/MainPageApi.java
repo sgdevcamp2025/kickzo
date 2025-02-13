@@ -41,7 +41,7 @@ public interface MainPageApi {
 		@ApiResponse(responseCode = "MAIN-500-999", description = ApiResponseConstants.UNEXPECTED_ERROR_MESSAGE)
 	})
 	ResponseEntity<List<RoomResponseDto>> getUserRooms(
-		@RequestHeader(value = "x-user-id", required = true) Long userId
+		@RequestHeader(value = "x-user-id") Long userId
 	);
 
 	@Operation(summary = "방 생성", description = "사용자가 새로운 방을 생성합니다.")
@@ -56,7 +56,7 @@ public interface MainPageApi {
 		@ApiResponse(responseCode = "MAIN-500-999", description = ApiResponseConstants.UNEXPECTED_ERROR_MESSAGE)
 	})
 	ResponseEntity<CreateRoomResponseDto> createRoom(
-		@RequestHeader(value = "x-user-id", required = true) Long userId,
+		@RequestHeader(value = "x-user-id") Long userId,
 		@RequestBody CreateRoomRequestDto requestDto
 	);
 }

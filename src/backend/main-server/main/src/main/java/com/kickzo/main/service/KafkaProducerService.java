@@ -8,7 +8,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.kickzo.main.dto.event.NewUserJoinEvent;
-import com.kickzo.main.dto.event.PlaylistItem;
+import com.kickzo.main.dto.data.PlaylistItem;
 import com.kickzo.main.dto.event.PlaylistUpdateEvent;
 import com.kickzo.main.dto.event.RoleChangeEvent;
 import com.kickzo.main.dto.event.RoomEvent;
@@ -26,52 +26,49 @@ public class KafkaProducerService {
 
 	private final KafkaTemplate<String, String> kafkaTemplate;
 	private final ObjectMapper objectMapper;
+
+	// Topics
 	private static final String TOPIC_ROOM = "room";
 	private static final String TOPIC_PLAYLIST = "playlist";
+	private static final String TOPIC_INVITATION = "invitation";
 
-	public void sendRoomUpdateMessage(Object eventData) {
-		try {
-			RoomEvent roomEvent = new RoomEvent("room-update", eventData);
-			String message = objectMapper.writeValueAsString(roomEvent);
-			kafkaTemplate.send(TOPIC_ROOM, message);
-			log.info("Kafka Room Update Event Sent: {}", message);
-		} catch (JsonProcessingException e) {
-			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
-		}
+	// Event Types
+	private static final String EVENT_TYPE_ROOM_UPDATE = "room-update";
+	private static final String EVENT_TYPE_ROLE_CHANGE = "role-change";
+	private static final String EVENT_TYPE_USER_LIST = "user-list";
+	private static final String EVENT_TYPE_PLAYLIST_UPDATE = "playlist-update";
+
+	public void sendRoomUpdateMessage(Object event) {
+		sendEvent(TOPIC_ROOM, EVENT_TYPE_ROOM_UPDATE, event);
 	}
 
 	public void sendRoleChangeEvent(Long roomId, Long targetUserId, int newRole) {
 		RoleChangeEvent event = new RoleChangeEvent(roomId, targetUserId, newRole);
-		RoomEvent roomEvent = new RoomEvent("role-change", event);
-		try {
-			String message = objectMapper.writeValueAsString(roomEvent);
-			kafkaTemplate.send(TOPIC_ROOM, message);
-			log.info("Kafka Role Change Event Sent: {}", message);
-		} catch (JsonProcessingException e) {
-			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
-		}
+		sendEvent(TOPIC_ROOM, EVENT_TYPE_ROLE_CHANGE, event);
 	}
 
 	public void sendRoomUserList(Long roomId, List<UserListDto> userList) {
 		NewUserJoinEvent event = new NewUserJoinEvent(roomId, userList);
-		RoomEvent roomEvent = new RoomEvent("user-list", event);
-		try {
-			String message = objectMapper.writeValueAsString(roomEvent);
-			kafkaTemplate.send(TOPIC_ROOM, message);
-			log.info("Kafka New User join UserList Sent: {}", message);
-		} catch (JsonProcessingException e) {
-			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
-		}
+		sendEvent(TOPIC_ROOM, EVENT_TYPE_USER_LIST, event);
 	}
 
 	public void sendPlaylistUpdate(Long roomId, List<PlaylistItem> playlistJson) {
 		PlaylistUpdateEvent event = new PlaylistUpdateEvent(roomId, playlistJson);
-		// Kafka 메시지 발행
+		sendEvent(TOPIC_PLAYLIST, EVENT_TYPE_PLAYLIST_UPDATE, event);
+	}
+
+	public void sendRoomInvitation(String invitationData) {
+		kafkaTemplate.send(TOPIC_INVITATION, invitationData);
+	}
+
+	private void sendEvent(String topic, String eventType, Object eventData) {
 		try {
-			String message = objectMapper.writeValueAsString(event);
-			kafkaTemplate.send(TOPIC_PLAYLIST, message);
-			log.info("Kafka Playlist Change Event Sent: {}", message);
+			RoomEvent roomEvent = new RoomEvent(eventType, eventData);
+			String message = objectMapper.writeValueAsString(roomEvent);
+			kafkaTemplate.send(topic, message);
+			log.info("Kafka Event Sent [{}]: {}", eventType, message);
 		} catch (JsonProcessingException e) {
+			log.error("Failed to process JSON for event [{}]: {}", eventType, e.getMessage(), e);
 			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
 		}
 	}

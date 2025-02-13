@@ -27,5 +27,8 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 	Long findRoomIdByRoomCode(@Param("roomCode") String roomCode);
 
 	List<Room> findAllByCreator(String creatorNickname);
+
+	@Query(value = "SELECT EXISTS (SELECT 1 FROM room r WHERE r.id = :roomId AND r.code = :roomCode)", nativeQuery = true)
+	Integer existsByRoomIdAndRoomCode(@Param("roomId") Long roomId, @Param("roomCode") String roomCode);
 }
 
