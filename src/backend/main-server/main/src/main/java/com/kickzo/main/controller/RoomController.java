@@ -18,7 +18,7 @@ import com.kickzo.main.dto.request.RoomJoinRequestDto;
 import com.kickzo.main.dto.request.RoomPlaylistRequestDto;
 import com.kickzo.main.dto.request.RoomUpdateRequestDto;
 import com.kickzo.main.dto.response.RoomEntryResponseDto;
-import com.kickzo.main.dto.response.UserListDto;
+import com.kickzo.main.dto.response.UserInfoDto;
 import com.kickzo.main.service.PlaylistService;
 import com.kickzo.main.service.RoomService;
 import com.kickzo.main.service.RoomUserService;
@@ -84,7 +84,7 @@ public class RoomController implements RoomApi {
 
 	@Override
 	@GetMapping("/participants")
-	public ResponseEntity<List<UserListDto>> getRoomParticipants(
+	public ResponseEntity<List<UserInfoDto>> getRoomParticipants(
 		@RequestParam Long roomId) {
 		return ResponseEntity.ok(roomService.getRoomParticipants(roomId));
 	}

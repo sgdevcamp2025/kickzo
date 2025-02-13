@@ -10,7 +10,7 @@ import lombok.Data;
 @Data
 @AllArgsConstructor
 public class RoomDetailsDto {
-	private List<UserListDto> userList;
+	private List<UserInfoDto> userList;
 	private List<RoomInfoDto> roomInfo;
 	private List<PlaylistItem> playlist;
 }

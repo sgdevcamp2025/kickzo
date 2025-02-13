@@ -8,7 +8,7 @@ import com.kickzo.main.dto.request.RoomJoinRequestDto;
 import com.kickzo.main.dto.request.RoomPlaylistRequestDto;
 import com.kickzo.main.dto.request.RoomUpdateRequestDto;
 import com.kickzo.main.dto.response.RoomEntryResponseDto;
-import com.kickzo.main.dto.response.UserListDto;
+import com.kickzo.main.dto.response.UserInfoDto;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -101,7 +101,7 @@ public interface RoomApi {
 	);
 
 	@Operation(summary = "방의 userList 제공", description = "방에 소속한 participant의 userList를 제공합니다.")
-	ResponseEntity<List<UserListDto>> getRoomParticipants(
+	ResponseEntity<List<UserInfoDto>> getRoomParticipants(
 		@RequestParam Long roomId
 	);
 }
