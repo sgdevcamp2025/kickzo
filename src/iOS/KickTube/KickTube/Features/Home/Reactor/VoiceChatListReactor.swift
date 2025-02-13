@@ -73,10 +73,6 @@ final class VoiceChatListReactor: Reactor {
             let user = newState.userList[idx.row]
             
             newState.selectedCell = VoiceChatUserStateViewModel(userID: user.userID, role: user.role, micOn: user.micStatus, headsetOn: user.headsetStatus)
-        case .userOverview(let idx):
-            let user = newState.userList[idx.row]
-            
-            newState.selectedCell = VoiceChatUserStateViewModel(userID: user.userID, role: user.role, micOn: user.micStatus, headsetOn: user.headsetStatus)
         case .setMicState:
             if newState.myVoiceChattingState {
                 newState.myMicState.toggle()

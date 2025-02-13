@@ -64,4 +64,26 @@ extension UICollectionViewLayout {
     static func userCollectionViewLayout() -> UICollectionViewLayout {
         UICollectionViewCompositionalLayout(section: userCollectionViewSection())
     }
+    
+    static func chatCollectionViewSection() -> NSCollectionLayoutSection {
+        let itemSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .estimated(ComponentSize.homeProfileImage.size.height)
+        )
+        let item = NSCollectionLayoutItem(layoutSize: itemSize)
+        item.contentInsets = NSDirectionalEdgeInsets(top: 4, leading: 4, bottom: 4, trailing: 4)
+        
+        let groupSize = NSCollectionLayoutSize(
+            widthDimension: .fractionalWidth(1.0),
+            heightDimension: .estimated(ComponentSize.homeProfileImage.size.height)
+        )
+        let group = NSCollectionLayoutGroup.vertical(layoutSize: groupSize, subitems: [item])
+        
+        let section = NSCollectionLayoutSection(group: group)
+        return section
+    }
+
+    static func chatCollectionViewLayout() -> UICollectionViewLayout {
+        UICollectionViewCompositionalLayout(section: chatCollectionViewSection())
+    }
 }

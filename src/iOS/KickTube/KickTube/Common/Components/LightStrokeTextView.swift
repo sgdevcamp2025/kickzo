@@ -71,7 +71,7 @@ final class LightStrokeTextView: UIView {
     
     private func configureLayout() {
         textView.snp.makeConstraints { make in
-            make.edges.equalToSuperview().inset(10)
+            make.edges.equalToSuperview().inset(8)
         }
         
         placeholderLabel.snp.makeConstraints { make in

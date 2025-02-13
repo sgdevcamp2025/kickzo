@@ -20,6 +20,13 @@ enum ComponentSize {
         }
         return UIScreen.main.bounds.size.height
     }
+    static var safearea: UIEdgeInsets {
+        if let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene,
+           let safearea = windowScene.keyWindow?.safeAreaInsets {
+            return safearea
+        }
+        return UIEdgeInsets(top: 0, left: 0, bottom: 0, right: 0)
+    }
     
     case navigationItem
     case alarmNavigtionItem
@@ -33,6 +40,9 @@ enum ComponentSize {
     case userCollectionViewCell
     case userOverviewProfileImage
     case userlistBottomSheet
+    case chatBtoomSheet
+    case messageTextView
+    
 }
 
 extension ComponentSize {
@@ -71,6 +81,10 @@ extension ComponentSize {
                 return CGSize(width: ComponentSize.screenWidth, height: ComponentSize.screenHeight / 5 * 2)
             }
             return CGSize(width: ComponentSize.screenWidth, height: ComponentSize.screenHeight / 3)
+        case .chatBtoomSheet:
+            return CGSize(width: ComponentSize.screenWidth, height: ComponentSize.screenHeight - ComponentSize.safearea.top - ComponentSize.safearea.bottom - ComponentSize.youtubePlayer.size.height)
+        case .messageTextView:
+            return CGSize(width: 0, height: 48)
         }
     }
     
