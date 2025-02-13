@@ -26,13 +26,13 @@ public class RedisService {
     private int redisPort;
 
     //사용자 상태 저장 (case JOIN)
-    public void saveUserState(String userId, String status, String serverPort, String timestamp) {
+    public void saveUserState(Long userId, String status, String serverPort, Long timestamp) {
         String key = "user:state:" + userId;
 
-        Map<String, String> stateData = new HashMap<>();
+        Map<String, Object> stateData = new HashMap<>();
         stateData.put("status", status);
         stateData.put("serverPort", serverPort);
-        stateData.put("timestamp", timestamp);
+        stateData.put("timestamp", String.valueOf(timestamp));
 
         // Redis 연결 정보 로그 출력
         logger.info("Connecting to Redis at {}:{}", redisHost, redisPort);
@@ -48,7 +48,7 @@ public class RedisService {
     //사용자 상태 조회
 
     // 사용자 상태 삭제 (case LEAVE)
-    public void deleteUserState(String userId) {
+    public void deleteUserState(Long userId) {
         String key = "user:state:" + userId;
         // 사용자 상태 삭제
         redisTemplate.delete(key);
