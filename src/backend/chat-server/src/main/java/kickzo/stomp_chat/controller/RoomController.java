@@ -12,20 +12,20 @@ import org.springframework.stereotype.Controller;
 public class RoomController {
 
     private final SimpMessagingTemplate messagingTemplate;
-    private final RoomManager roomManager;  // RoomManager를 선언
+    private final RoomManager roomManager;
     private final ObjectMapper objectMapper;
 
     public RoomController(SimpMessagingTemplate messagingTemplate, RoomManager roomManager) {
         this.messagingTemplate = messagingTemplate;
-        this.roomManager = roomManager;  // RoomManager 주입
+        this.roomManager = roomManager;
         this.objectMapper = new ObjectMapper();
     }
 
     @MessageMapping("/joinRoom")
     public void joinRoom(String payload, SimpMessageHeaderAccessor headerAccessor) throws Exception {
         JsonNode jsonNode = objectMapper.readTree(payload);
-        String roomId = jsonNode.get("roomId").asText();
-        String userId = jsonNode.get("userId").asText();
+        long roomId = jsonNode.get("roomId").asLong();
+        long userId = jsonNode.get("userId").asLong();
 
         // 세션에 사용자 정보 저장
         headerAccessor.getSessionAttributes().put("userId", userId);
@@ -40,9 +40,9 @@ public class RoomController {
     @MessageMapping("/sendMessage")
     public void sendMessage(String payload, SimpMessageHeaderAccessor headerAccessor) throws Exception {
         JsonNode jsonNode = objectMapper.readTree(payload);
-        String roomId = jsonNode.get("roomId").asText();
+        long roomId = jsonNode.get("roomId").asLong();
         String message = jsonNode.get("message").asText();
-        String userId = (String) headerAccessor.getSessionAttributes().get("userId");
+        long userId = (Long) headerAccessor.getSessionAttributes().get("userId");
 
         // RoomManager에 메시지 전송 (Kafka로 메시지 전송)
         roomManager.sendMessage(roomId, userId, message);
@@ -53,15 +53,15 @@ public class RoomController {
     }
 
     public static class MessageResponse {
-        private String userId;
+        private long userId;
         private String message;
 
-        public MessageResponse(String userId, String message) {
+        public MessageResponse(long userId, String message) {
             this.userId = userId;
             this.message = message;
         }
 
-        public String getUserId() {
+        public long getUserId() {
             return userId;
         }
 
