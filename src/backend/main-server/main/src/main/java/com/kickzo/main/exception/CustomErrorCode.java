@@ -30,6 +30,7 @@ public enum CustomErrorCode {
 	DUPLICATE_INVITATION("MAIN-409-001", "이미 초대가 진행 중입니다.", HttpStatus.CONFLICT),
 	INVITATION_REJECTED("MAIN-409-002", "이 초대는 이미 거절되었습니다.", HttpStatus.CONFLICT),
 	EXISTING_ROOM_USER("MAIN-409-003", "유저가 해당 방에 이미 소속되어 있습니다.", HttpStatus.CONFLICT),
+	ALREADY_PROCESSED("MAIN-409-004", "이미 처리된 요청입니다.", HttpStatus.CONFLICT),
 
 	FAILED_CREATE_INVITATION("MAIN-422-001", "초대 상태를 업데이트하는 중 오류가 발생했습니다.", HttpStatus.UNPROCESSABLE_ENTITY),
 

@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -28,12 +29,15 @@ public class InvitationService {
 	private final RedisTemplate<String, InvitationData> redisTemplate;
 	private final UserRepository userRepository;
 	private final KafkaProducerService kafkaProducerService;
-
-	private static final int TTL_EXPIRE_DAY = 7;
 	private final ObjectMapper objectMapper = new ObjectMapper();
 	private final RoomUserRepository roomUserRepository;
 	private final RoomRepository roomRepository;
 
+	private static final int TTL_EXPIRE_DAY = 7;
+	private static final int NOT_EXISTS = 0;
+	private static final int EXISTS = 1;
+
+	@Transactional
 	public void sendInvitation(Long senderId, RoomInviteRequestDto inviteRequestDto) {
 		ensureSenderIdMatch(senderId, inviteRequestDto);
 		// roomId와 roomCode 일치하는 확인
@@ -48,6 +52,10 @@ public class InvitationService {
 		InvitationData invitationData = createInvitationData(inviteRequestDto);
 		saveInvitationData(key, invitationData);
 
+		sendInvitationToKafka(invitationData);
+	}
+
+	public void sendInvitationToKafka(InvitationData invitationData) {
 		try {
 			kafkaProducerService.sendRoomInvitation(objectMapper.writeValueAsString(invitationData));
 		} catch (JsonProcessingException e) {
@@ -56,10 +64,12 @@ public class InvitationService {
 		log.info("Invitation saved and sent to Kafka: {}", invitationData);
 	}
 
+	@Transactional
 	public void acceptInvitation(Long receiverId, RoomInviteRequestDto inviteRequestDto) {
 		handleInvitation(receiverId, inviteRequestDto, InvitationStatus.ACCEPTED);
 	}
 
+	@Transactional
 	public void rejectInvitation(Long receiverId, RoomInviteRequestDto inviteRequestDto) {
 		handleInvitation(receiverId, inviteRequestDto, InvitationStatus.REJECTED);
 	}
@@ -84,7 +94,7 @@ public class InvitationService {
 	private void checkRoomIdAndRoomCode(RoomInviteRequestDto inviteRequestDto) {
 		Long roomId = inviteRequestDto.getRoomId();
 		String roomCode = inviteRequestDto.getRoomCode();
-		if (roomRepository.existsByRoomIdAndRoomCode(roomId, roomCode) == 0) {
+		if (roomRepository.existsByRoomIdAndRoomCode(roomId, roomCode) == NOT_EXISTS) {
 			throw new CustomException(CustomErrorCode.INVALID_ROOM);
 		}
 	}
@@ -94,21 +104,21 @@ public class InvitationService {
 		Long senderId = inviteRequestDto.getSenderId();
 		Long receiverId = inviteRequestDto.getReceiverId();
 		// 초대 보낸 유저가 해당 방에 있어야 함
-		if (roomUserRepository.existsByUserIdAndRoomId(roomId, senderId) == 0) {
+		if (roomUserRepository.existsByUserIdAndRoomId(roomId, senderId) == NOT_EXISTS) {
 			throw new CustomException(CustomErrorCode.SENDER_NOT_FOUND);
 		}
 		// 초대 받은 유저가 해당 방에 없어야 함
-		if (roomUserRepository.existsByUserIdAndRoomId(roomId, receiverId) == 1) {
+		if (roomUserRepository.existsByUserIdAndRoomId(roomId, receiverId) == EXISTS) {
 			throw new CustomException(CustomErrorCode.EXISTING_ROOM_USER);
 		}
 	}
 
 	private void validateExistingInvitation(String key) {
-		Optional<InvitationData> existingInvitation = getInvitationDataFromRedis(key);
-		existingInvitation.ifPresent(invitation -> {
-			switch (invitation.getStatus()) {
-				case PENDING -> throw new CustomException(CustomErrorCode.DUPLICATE_INVITATION);
-				case REJECTED -> throw new CustomException(CustomErrorCode.INVITATION_REJECTED);
+		getInvitationDataFromRedis(key).ifPresent(invitation -> {
+			if (invitation.getStatus() == InvitationStatus.PENDING) {
+				throw new CustomException(CustomErrorCode.DUPLICATE_INVITATION);
+			} else if (invitation.getStatus() == InvitationStatus.REJECTED) {
+				throw new CustomException(CustomErrorCode.INVITATION_REJECTED);
 			}
 		});
 	}
@@ -143,6 +153,9 @@ public class InvitationService {
 			if (invitationData == null) {
 				log.warn("Invitation not found for key: {}", key);
 				throw new CustomException(CustomErrorCode.INVITATION_NOT_FOUND);
+			}
+			if (invitationData.getStatus() != InvitationStatus.PENDING) {
+				throw new CustomException(CustomErrorCode.ALREADY_PROCESSED);
 			}
 			invitationData.setStatus(newStatus);
 			saveInvitationData(key, invitationData);
