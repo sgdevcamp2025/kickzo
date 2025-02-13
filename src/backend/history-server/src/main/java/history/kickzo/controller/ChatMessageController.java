@@ -18,7 +18,7 @@ public class ChatMessageController {
 
     @GetMapping("/api/messages/{roomId}")
     public List<ChatMessage> getMessages(
-            @PathVariable String roomId,
+            @PathVariable long roomId,
             @RequestParam(required = false) Long cursor,  // cursor는 이전 메시지의 타임스탬프
             @RequestParam(defaultValue = "10") int limit) {
 

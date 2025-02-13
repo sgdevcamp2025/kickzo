@@ -8,19 +8,17 @@ public class ChatMessage {
 
     @Id
     private String id;  // MongoDB 자동 생성 필드
-    private String roomId;  // 방 ID
-    private String userId;  // 사용자 ID
-    private String content;  // 메시지 내용
+    private Long roomId;  // 방 ID (Long으로 변경)
+    private Long userId;  // 사용자 ID (Long으로 변경)
+    private String message;  // 메시지 내용 (content -> message로 변경)
     private long timestamp;  // 메시지 전송 시간 (타임스탬프)
-    private String type;  // 메시지 타입 (optional, 예: "message" 등)
 
     // 생성자
-    public ChatMessage(String roomId, String userId, String content, long timestamp, String type) {
+    public ChatMessage(Long roomId, Long userId, String message, long timestamp) {
         this.roomId = roomId;
         this.userId = userId;
-        this.content = content;
+        this.message = message;
         this.timestamp = timestamp;
-        this.type = type;
     }
 
     // Getter와 Setter
@@ -33,28 +31,28 @@ public class ChatMessage {
         this.id = id;
     }
 
-    public String getRoomId() {
+    public Long getRoomId() {
         return roomId;
     }
 
-    public void setRoomId(String roomId) {
+    public void setRoomId(Long roomId) {
         this.roomId = roomId;
     }
 
-    public String getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(String userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
-    public String getContent() {
-        return content;
+    public String getMessage() {
+        return message;
     }
 
-    public void setContent(String content) {
-        this.content = content;
+    public void setMessage(String message) {
+        this.message = message;
     }
 
     public long getTimestamp() {
@@ -63,14 +61,6 @@ public class ChatMessage {
 
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
-    }
-
-    public String getType() {
-        return type;
-    }
-
-    public void setType(String type) {
-        this.type = type;
     }
 
     // 타임스탬프 설정
