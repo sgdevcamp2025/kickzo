@@ -32,7 +32,9 @@ final class ChatViewController: BaseViewController<ChatReactor> {
         
         return cell
     })
-    private let messageInputView = UIView()
+    private let messageInputView = UIView().then {
+        $0.backgroundColor = .white
+    }
     private let fileAddButton = UIButton().then {
         $0.setImage(.create, for: .normal)
         $0.tintColor = .kGray
@@ -165,6 +167,7 @@ final class ChatViewController: BaseViewController<ChatReactor> {
             make.height.equalTo(ComponentSize.chatBtoomSheet.size.height - ComponentSize.messageTextView.size.height - 28)
         }
         messageInputView.snp.makeConstraints { make in
+            make.top.equalTo(chatCollectionView.snp.bottom)
             make.horizontalEdges.equalToSuperview().inset(8)
             make.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
             make.height.equalTo(ComponentSize.messageTextView.size.height)
