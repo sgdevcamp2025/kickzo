@@ -11,5 +11,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class NewUserJoinEvent {
 	private Long roomId;
-	private UserInfoDto userList;
+	private UserInfoDto userInfo;
 }
