@@ -3,4 +3,9 @@ npm-debug.log
 .DS_Store
 dist/
 mysql_data
-.idea/
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
