@@ -11,19 +11,15 @@ import RxSwift
 import RxCocoa
 
 class KickRoomMainScrollView: UIView {
-    private let scrollView: UIScrollView = {
-        let scrollView = UIScrollView()
-        scrollView.showsHorizontalScrollIndicator = false
-        scrollView.isPagingEnabled = true
-        return scrollView
-    }()
-    private let stackView: UIStackView = {
-        let stackView = UIStackView()
-        stackView.axis = .horizontal
-        stackView.alignment = .fill
-        stackView.distribution = .fillEqually
-        return stackView
-    }()
+    private let scrollView = UIScrollView().then {
+        $0.showsHorizontalScrollIndicator = false
+        $0.isPagingEnabled = true
+    }
+    private let stackView = UIStackView().then {
+        $0.axis = .horizontal
+        $0.alignment = .fill
+        $0.distribution = .fillEqually
+    }
     private let descriptionView: DescriptionView
     private let playlistView = PlaylistView()
     private let voiceChatView = VoiceChatListView(VoiceChatListReactor())
