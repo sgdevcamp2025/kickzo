@@ -32,6 +32,7 @@ final class ChatViewController: BaseViewController<ChatReactor> {
         
         return cell
     })
+    private let messageInputView = UIView()
     private let fileAddButton = UIButton().then {
         $0.setImage(.create, for: .normal)
         $0.tintColor = .kGray
@@ -40,6 +41,13 @@ final class ChatViewController: BaseViewController<ChatReactor> {
     }
     private let messageTextView = LightStrokeTextView().then {
         $0.setPlaceholder("채팅 보내기")
+    }
+    
+    
+    // MARK: - initialize
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
     }
     
     
@@ -60,7 +68,6 @@ final class ChatViewController: BaseViewController<ChatReactor> {
                 }
             }
             .disposed(by: disposeBag)
-        
     }
     
     override func bindState(reactor: ChatReactor) {
@@ -83,32 +90,100 @@ final class ChatViewController: BaseViewController<ChatReactor> {
     }
     
     
+    // MARK: - private method
+    
+    private func setupKeyboardObservers() {
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillShow(_:)),
+            name: UIResponder.keyboardWillShowNotification,
+            object: nil
+        )
+        
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(keyboardWillHide(_:)),
+            name: UIResponder.keyboardWillHideNotification,
+            object: nil
+        )
+    }
+    
+    @objc
+    private func keyboardWillShow(_ notification: Notification) {
+        guard let userInfo = notification.userInfo,
+              let keyboardFrame = userInfo[UIResponder.keyboardFrameEndUserInfoKey] as? CGRect else {
+            return
+        }
+        
+        let keyboardHeight = keyboardFrame.height
+        
+        chatCollectionView.snp.updateConstraints { make in
+            make.height.equalTo(ComponentSize.chatBtoomSheet.size.height - ComponentSize.messageTextView.size.height - 28 - keyboardHeight)
+        }
+        
+        view.snp.remakeConstraints { make in
+            make.height.equalTo(ComponentSize.chatBtoomSheet.size.height - keyboardHeight)
+            make.width.equalTo(self.view.frame.width)
+            make.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
+        }
+        
+        self.view.layoutIfNeeded()
+    }
+    
+    @objc
+    private func keyboardWillHide(_ notification: Notification) {
+        chatCollectionView.snp.remakeConstraints { make in
+            make.height.equalTo(ComponentSize.chatBtoomSheet.size.height - ComponentSize.messageTextView.size.height - 28)
+            make.top.equalToSuperview().offset(16)
+            make.horizontalEdges.equalToSuperview()
+        }
+        
+        view.snp.remakeConstraints { make in
+            make.height.equalTo(ComponentSize.chatBtoomSheet.size.height + ComponentSize.safearea.bottom)
+            make.width.equalTo(self.view.frame.width)
+        }
+        
+        self.view.layoutIfNeeded()
+    }
+    
+    
     // MARK: - configure UI
     
     override func configureHierarchy() {
-        [chatCollectionView, fileAddButton, messageTextView].forEach {
+        [chatCollectionView, messageInputView].forEach {
             view.addSubview($0)
+        }
+        [fileAddButton, messageTextView].forEach {
+            messageInputView.addSubview($0)
         }
     }
     
     override func configureLayout() {
-        let safeArea = view.safeAreaLayoutGuide
-        
         chatCollectionView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(16)
             make.horizontalEdges.equalToSuperview()
-            make.bottom.equalTo(messageTextView.snp.top).offset(-8)
+            make.height.equalTo(ComponentSize.chatBtoomSheet.size.height - ComponentSize.messageTextView.size.height - 28)
+        }
+        messageInputView.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview().inset(8)
+            make.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
+            make.height.equalTo(ComponentSize.messageTextView.size.height)
         }
         fileAddButton.snp.makeConstraints { make in
             make.size.equalTo(CGSize(width: ComponentSize.messageTextView.size.height/2, height: ComponentSize.messageTextView.size.height/2))
-            make.top.equalTo(chatCollectionView.snp.bottom).offset(ComponentSize.messageTextView.size.height / 4 + 8)
-            make.leading.equalToSuperview().offset(16)
+            make.top.equalToSuperview().offset(ComponentSize.messageTextView.size.height / 4)
+            make.leading.equalToSuperview().offset(12)
         }
         messageTextView.snp.makeConstraints { make in
             make.leading.equalTo(fileAddButton.snp.trailing).offset(12)
             make.trailing.equalToSuperview().offset(-12)
-            make.bottom.equalTo(safeArea)
+            make.top.equalToSuperview().offset(4)
+            make.bottom.equalToSuperview().offset(-4)
             make.height.equalTo(ComponentSize.messageTextView.size.height)
         }
+    }
+    
+    override func configureUI() {
+        setupKeyboardObservers()
     }
 }

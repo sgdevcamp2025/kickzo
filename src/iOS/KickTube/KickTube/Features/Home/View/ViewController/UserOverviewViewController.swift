@@ -49,13 +49,13 @@ final class UserOverviewViewController: BaseViewController<UserOverviewReactor> 
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
-
+    
     override func bindState(reactor: UserOverviewReactor) {
         reactor.state
             .map { $0.userProfile }
             .compactMap { $0 }
             .subscribe(with: self) { owner, value in
-//                thumbnailView.image = value.profileImageData
+                //                thumbnailView.image = value.profileImageData
                 owner.nameLabel.text = value.nickname
                 owner.descriptionLabel.text = value.stateMessage
             }
@@ -78,14 +78,12 @@ final class UserOverviewViewController: BaseViewController<UserOverviewReactor> 
     }
     
     override func configureLayout() {
-        let safeArea = view.safeAreaLayoutGuide
-        
         thumbnailView.snp.makeConstraints { make in
-            make.top.leading.equalTo(safeArea).inset(20)
+            make.top.leading.equalToSuperview().inset(20)
             make.size.equalTo(ComponentSize.userOverviewProfileImage.size)
         }
         inviteButton.snp.makeConstraints { make in
-            make.top.trailing.equalTo(safeArea).inset(20)
+            make.top.trailing.equalToSuperview().inset(20)
             make.size.equalTo(CGSize(width: 40, height: 40))
         }
         nameLabel.snp.makeConstraints { make in
@@ -97,7 +95,7 @@ final class UserOverviewViewController: BaseViewController<UserOverviewReactor> 
             make.leading.equalToSuperview().offset(22)
         }
         banButton.snp.makeConstraints { make in
-            make.bottom.equalTo(safeArea).offset(-12)
+            make.bottom.equalToSuperview().offset(-12)
             make.horizontalEdges.equalToSuperview().inset(20)
             make.height.equalTo(ComponentSize.optionButton.size.height)
         }

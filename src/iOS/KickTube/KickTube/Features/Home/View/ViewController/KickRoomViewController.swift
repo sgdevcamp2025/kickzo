@@ -204,6 +204,8 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             sheet.prefersGrabberVisible = true
         }
         
+        vc.modalPresentationStyle = .custom
+        
         self.present(vc, animated: true)
     }
     
