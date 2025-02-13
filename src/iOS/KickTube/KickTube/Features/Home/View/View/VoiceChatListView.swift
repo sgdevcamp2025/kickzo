@@ -36,6 +36,13 @@ final class VoiceChatListView: BaseView<VoiceChatListReactor> {
     private let entryButton = RoundButton("입장", bgColor: .primary, titleColor: .white, toggleBgColor: .kDarkgray, toggleTitleColor: .white)
     
     
+    // MARK: - initializer
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+    
+    
     // MARK: - configure reactor
 
     override func bindAction(reactor: VoiceChatListReactor) {
@@ -71,6 +78,7 @@ final class VoiceChatListView: BaseView<VoiceChatListReactor> {
         reactor.state
             .map { $0.selectedCell }
             .compactMap { $0 }
+            .subscribe(on: MainScheduler.instance)
             .subscribe(with: self) { owner, value in
                 NotificationCenter.default.post(name: .presentVoiceUserOverview, object: nil, userInfo: ["voiceState": value])
             }
@@ -78,6 +86,7 @@ final class VoiceChatListView: BaseView<VoiceChatListReactor> {
         reactor.state
             .map { $0.myMicState }
             .distinctUntilChanged { _, _ in false }
+            .subscribe(on: MainScheduler.instance)
             .subscribe(with: self) { owner, value in
                 if value {
                     owner.micButton.setImage(.micOn, for: .normal)
@@ -89,6 +98,7 @@ final class VoiceChatListView: BaseView<VoiceChatListReactor> {
         reactor.state
             .map { $0.myHeadsetState }
             .distinctUntilChanged()
+            .subscribe(on: MainScheduler.instance)
             .subscribe(with: self) { owner, value in
                 if value {
                     owner.headsetButton.setImage(.headsetOn, for: .normal)
@@ -100,6 +110,7 @@ final class VoiceChatListView: BaseView<VoiceChatListReactor> {
         reactor.state
             .map { $0.myVoiceChattingState }
             .distinctUntilChanged()
+            .subscribe(on: MainScheduler.instance)
             .subscribe(with: self) { owner, value in
                 if value {
                     owner.entryButton.setTitle("나가기")

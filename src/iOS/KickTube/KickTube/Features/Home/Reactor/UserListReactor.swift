@@ -22,7 +22,7 @@ final class UserListReactor: Reactor {
         case userOverview(_ idx: IndexPath)
     }
     
-    struct State{
+    struct State {
         var userList: [KickRoomUserViewModel]
         var searchUserResult: [KickRoomUserViewModel] = []
         var selectedCell: (id: Int, role: UserRole)?
@@ -65,8 +65,14 @@ final class UserListReactor: Reactor {
                 
                 newState.searchUserResult = result
             }
+            newState.selectedCell = nil
         case .userOverview(let idx):
-            let user = newState.userList[idx.row]
+            var user: KickRoomUserViewModel
+            if newState.searchUserResult.count == 0 {
+                user = newState.searchUserResult[idx.row]
+            } else {
+                user = newState.userList[idx.row]
+            }
             
             newState.selectedCell = (id: user.userID, role: user.role)
         }
