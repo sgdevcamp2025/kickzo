@@ -2,6 +2,8 @@ import styled from 'styled-components';
 
 interface VideoItemContainerProps {
   $active?: boolean;
+  $isDragging?: boolean;
+  $isPreview?: boolean;
 }
 
 export const Container = styled.div<VideoItemContainerProps>`
@@ -10,20 +12,41 @@ export const Container = styled.div<VideoItemContainerProps>`
   gap: 5px;
   padding: 10px;
   border-radius: 5px;
-  background-color: ${({ $active }) => ($active ? '#f8d7da' : '#fff')};
-  border: ${({ $active }) => ($active ? '2px solid #ff0000' : '1px solid #ddd')};
+  background-color: ${({ $isPreview }) =>
+    $isPreview ? 'var(--palette-line-normal-normal)' : 'var(--palette-static-white)'};
+  border: 1px solid #ddd
   cursor: pointer;
-  position: relative; /* 자식 요소의 위치 조정을 위해 추가 */
+  position: relative;
+  transition: all 0.2s ease;
 
-  &:hover .button-container {
-    opacity: 1; /* hover 시 버튼 보이기 */
-    visibility: visible;
+  &.dragging {
+    opacity: 0.3;
+  }
+
+  &.preview-item {
+    opacity: 0.5;
+    background-color: var(--color-gray);
+  }
+
+  &.shift-down {
+    transform: translateY(100%);
+    transition: transform 0.2s ease;
+  }
+
+  &.shift-up {
+    transform: translateY(-100%);
+    transition: transform 0.2s ease;
+  }
+
+   &:hover .button-container {
+    opacity: ${({ $isDragging }) => ($isDragging ? 0 : 1)};
+    visibility: ${({ $isDragging }) => ($isDragging ? 'hidden' : 'visible')};
   }
 `;
 
 export const Thumbnail = styled.img`
   width: 100px;
-  height: 56px;
+  aspect-ratio: 16/9;
   object-fit: cover;
   border-radius: 5px;
 `;
@@ -38,7 +61,7 @@ export const PreviewInfo = styled.div`
 export const Playlist__Title = styled.div`
   font-size: 12px;
   font-weight: 700;
-  line-height: 14.52px;
+  line-height: 15px;
   text-align: left;
   text-underline-position: from-font;
   text-decoration-skip-ink: none;
@@ -48,7 +71,7 @@ export const Playlist__Title = styled.div`
 export const Playlist__Youtuber = styled.div`
   font-size: 12px;
   font-weight: 500;
-  line-height: 14.52px;
+  line-height: 15px;
   text-align: left;
   text-underline-position: from-font;
   text-decoration-skip-ink: none;

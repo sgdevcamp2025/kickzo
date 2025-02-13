@@ -37,7 +37,8 @@ export const Playlist = () => {
   const [thumbnailPreview, setThumbnailPreview] = useState('');
   const [videoTitle, setVideoTitle] = useState('');
   const [videoYoutuber, setVideoYoutuber] = useState('');
-  const debouncedInputUrl = useDebounce(inputUrl, 1000);
+  const debouncedInputUrl = useDebounce(inputUrl, 500);
+
   const {
     videoQueue,
     currentIndex,
@@ -128,13 +129,20 @@ export const Playlist = () => {
   };
 
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   const handleDragStart = useCallback((index: number) => {
     setDraggedIndex(index);
   }, []);
 
-  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>, index: number) => {
     e.preventDefault();
+    setDragOverIndex(index);
+  }, []);
+
+  const handleDragEnd = useCallback(() => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   }, []);
 
   const handleDrop = useCallback(
@@ -160,6 +168,7 @@ export const Playlist = () => {
         return { videoQueue: updatedQueue, currentIndex: newCurrentIndex };
       });
       setDraggedIndex(null);
+      setDragOverIndex(null);
     },
     [draggedIndex],
   );
@@ -170,23 +179,35 @@ export const Playlist = () => {
     ChangeToWebSocketType();
   };
 
+  const getReorderedVideos = useCallback(() => {
+    if (draggedIndex === null || dragOverIndex === null) return videoQueue;
+
+    const reorderedVideos = [...videoQueue];
+    const [draggedVideo] = reorderedVideos.splice(draggedIndex, 1);
+    reorderedVideos.splice(dragOverIndex, 0, draggedVideo);
+    return reorderedVideos;
+  }, [videoQueue, draggedIndex, dragOverIndex]);
+
   return (
     <Container>
       <Wrapper>
-        {videoQueue.map((video, index) =>
+        {getReorderedVideos().map((video, index) =>
           index > 0 ? (
             <PlaylistItem
               key={`${video.id}-${index}`}
               video={video}
               index={index}
               active={index === currentIndex}
-              onDragStart={() => handleDragStart(index)}
-              onDragOver={handleDragOver}
-              onDrop={() => handleDrop(index)}
+              isDragging={index === draggedIndex}
+              isPreview={draggedIndex !== null && index === dragOverIndex}
               onClick={() => handleSetCurrentVideo(index)}
               onMoveUp={() => moveVideoUp(index)}
               onMoveDown={() => moveVideoDown(index)}
               onRemove={() => handleRemoveVideo(index)}
+              onDragStart={() => handleDragStart(index)}
+              onDragOver={e => handleDragOver(e, index)}
+              onDragEnd={handleDragEnd}
+              onDrop={() => handleDrop(index)}
             />
           ) : null,
         )}
@@ -196,7 +217,6 @@ export const Playlist = () => {
           <PreviewContainer>
             <Overlay onClick={handleAddVideo}>추가하기</Overlay>
             <CommonButton
-              onClick={handleAddVideo}
               color={ButtonColor.DARKGRAY}
               padding="10px"
               width="100%"

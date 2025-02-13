@@ -13,7 +13,6 @@ export const Wrapper = styled.div`
   width: 100%;
   display: flex;
   flex-direction: column;
-  gap: 10px;
   overflow-y: auto;
 `;
 
@@ -32,13 +31,10 @@ export const SearchInput = styled.input`
 `;
 
 export const PreviewContainer = styled.div`
-  display: block;
+  position: relative;
+  display: inline-block;
   width: 100%;
   overflow: hidden;
-  &:hover .overlay {
-    opacity: 1;
-    cursor: pointer;
-  }
 `;
 
 export const PreviewImg = styled.img`
@@ -90,4 +86,10 @@ export const Overlay = styled.div`
   border-radius: 8px;
   opacity: 0;
   transition: opacity 0.3s ease;
+  cursor: pointer;
+
+  &:hover {
+    opacity: 1;
+    cursor: pointer;
+  }
 `;

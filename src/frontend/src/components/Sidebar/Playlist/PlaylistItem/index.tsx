@@ -23,13 +23,16 @@ interface IPlaylistItem {
   };
   index: number;
   active: boolean;
-  onDragStart: (index: number) => void;
-  onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
-  onDrop: (index: number) => void;
+  isDragging?: boolean;
+  isPreview?: boolean;
   onClick: (index: number) => void;
   onMoveUp: (index: number) => void;
   onMoveDown: (index: number) => void;
   onRemove: (index: number) => void;
+  onDragStart: (index: number) => void;
+  onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragEnd?: () => void;
+  onDrop: (index: number) => void;
 }
 
 export const PlaylistItem = (props: IPlaylistItem) => {
@@ -38,9 +41,12 @@ export const PlaylistItem = (props: IPlaylistItem) => {
       draggable
       onDragStart={() => props.onDragStart(props.index)}
       onDragOver={props.onDragOver}
+      onDragEnd={props.onDragEnd}
       onDrop={() => props.onDrop(props.index)}
       onClick={() => props.onClick(props.index)}
       $active={props.active}
+      $isDragging={props.isDragging}
+      $isPreview={props.isPreview}
     >
       <Thumbnail src={props.video.thumbnail} alt={`Video ${props.video.id}`} />
       <PreviewInfo>
