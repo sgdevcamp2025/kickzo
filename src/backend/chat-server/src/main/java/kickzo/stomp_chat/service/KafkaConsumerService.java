@@ -23,7 +23,6 @@ public class KafkaConsumerService {
 	public void consumePlaylistEvents(ConsumerRecord<String, String> record) {
 		try {
 			RoomEvent event = objectMapper.readValue(record.value(), RoomEvent.class);
-			// PlaylistUpdateEvent event = objectMapper.readValue(record.value(), PlaylistUpdateEvent.class);
 			log.info("Received Playlist Update Event: {}", event);
 			playlistEventHandler.handleEvent(event);
 		} catch (Exception e) {
