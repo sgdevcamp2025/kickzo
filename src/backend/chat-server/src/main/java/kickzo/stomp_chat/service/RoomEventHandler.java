@@ -28,8 +28,8 @@ public class RoomEventHandler {
 			case "role-change":
 				handleRoleChange(event);
 				break;
-			case "user-list":
-				handleUserList(event);
+			case "user-join":
+				handleUserJoin(event);
 				break;
 			default:
 				log.warn("Unknown event type: {}", event.getEventType());
@@ -46,8 +46,8 @@ public class RoomEventHandler {
 		messagingService.sendMessage("role-change", roleChange.getRoomId(), roleChange);
 	}
 
-	private void handleUserList(RoomEvent event) throws JsonProcessingException {
-		NewUserJoinEvent userList = objectMapper.convertValue(event.getData(), NewUserJoinEvent.class);
-		messagingService.sendMessage("user-list", userList.getRoomId(), userList);
+	private void handleUserJoin(RoomEvent event) throws JsonProcessingException {
+		NewUserJoinEvent userInfo = objectMapper.convertValue(event.getData(), NewUserJoinEvent.class);
+		messagingService.sendMessage("user-join", userInfo.getRoomId(), userInfo);
 	}
 }
