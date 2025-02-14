@@ -22,7 +22,7 @@ class RBNode<T> {
   }
 }
 
-class RedBlackTree<T> {
+class RedBlackTree<T extends { nickname: string }> {
   root: RBNode<T> | null = null;
   compare: (a: T, b: T) => number;
 
