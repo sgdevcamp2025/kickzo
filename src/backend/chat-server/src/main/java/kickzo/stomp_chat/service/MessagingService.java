@@ -19,7 +19,7 @@ public class MessagingService {
 
 	public void sendMessage(String topic, Long roomId, Object data) throws JsonProcessingException {
 		String jsonResponse = objectMapper.writeValueAsString(data);
-		log.info("Sending message to /topic/{}/{}: {}", roomId, topic, jsonResponse);
+		log.info("Sending message to /topic/room/{}/{}: {}", roomId, topic, jsonResponse);
 		messagingTemplate.convertAndSend("/topic/room/" + roomId + "/" + topic, data);
 	}
 }
