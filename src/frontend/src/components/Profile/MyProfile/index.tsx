@@ -21,9 +21,10 @@ import Cancel from '@/assets/img/CancelSmall.svg';
 import { useUserStore } from '@/stores/useUserStore';
 import DefaultProfile from '@/assets/img/DefaultProfile.svg';
 import AddIcon from '@/assets/img/Add.svg';
+import { AxiosError } from 'axios';
 
 export const MyProfile = () => {
-  const { user } = useUserStore();
+  const { user, updateMyProfile } = useUserStore();
   const navigate = useNavigate();
   const [isEditMode, setIsEditMode] = useState(false);
   const [nickname, setNickname] = useState(user?.nickname);
@@ -42,12 +43,29 @@ export const MyProfile = () => {
     return;
   }
 
-  const handleSave = () => {
-    setIsEditMode(false);
+  const handleSave = async () => {
     if (nickname === user?.nickname && stateMessage === user?.stateMessage) {
+      setIsEditMode(false);
       return;
     }
-    alert('닉네임과 상태 메시지가 저장되었습니다.');
+    try {
+      await updateMyProfile({
+        nickname,
+        stateMessage,
+      });
+      setIsEditMode(false);
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        handleCancel();
+        alert(error.response?.data.message);
+      }
+    }
+  };
+
+  const handleCancel = () => {
+    setIsEditMode(false);
+    setNickname(user?.nickname);
+    setStateMessage(user?.stateMessage);
   };
 
   return (
@@ -79,9 +97,7 @@ export const MyProfile = () => {
               afterImgUrl={isEditMode ? Cancel : Setting}
               onClick={() => {
                 if (isEditMode) {
-                  setIsEditMode(false);
-                  setNickname(user?.nickname);
-                  setStateMessage(user?.stateMessage);
+                  handleCancel();
                 } else {
                   navigate('/setting');
                 }
