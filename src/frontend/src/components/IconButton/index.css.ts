@@ -1,12 +1,5 @@
 import { styled } from 'styled-components';
-
-const darkenColor = (color: string): string => {
-  const [r, g, b] = color
-    .match(/\w\w/g)!
-    .map(hex => parseInt(hex, 16))
-    .map(value => Math.max(0, value - 30)); // Reduce brightness
-  return `rgb(${r}, ${g}, ${b})`;
-};
+import { darkenColor } from '@/utils/colorUtils';
 
 export const CircleButton = styled.button<{ $backgroundColor?: string }>`
   width: 40px;
