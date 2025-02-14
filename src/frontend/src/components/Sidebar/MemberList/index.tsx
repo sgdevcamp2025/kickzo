@@ -10,11 +10,7 @@ import { UserRole } from '@/types/enums/UserRole';
 import { useUserList, IUser } from '@/hooks/utils/useUserList';
 import { Container, UserList, ProfileWrapper } from './index.css';
 
-interface IMemberListProps {
-  sidebarType: SidebarType;
-}
-
-export const MemberList = ({ sidebarType }: IMemberListProps) => {
+export const MemberList = () => {
   const { users, addUser, removeUser } = useUserList();
   const [activeProfile, setActiveProfile] = useState<number | null>(null);
   const [nickname, setNickname] = useState('');
@@ -40,9 +36,7 @@ export const MemberList = ({ sidebarType }: IMemberListProps) => {
           <ProfileWrapper key={member.id}>
             <div onClick={() => handleProfileClick(member.id)}>
               <SmallProfile
-                type={
-                  sidebarType === SidebarType.VOICECHAT ? ProfileType.VOICECHAT : ProfileType.MEMBER
-                }
+                type={ProfileType.MEMBER}
                 role={member.role}
                 nickname={member.nickname}
                 imgUrl={member.profileImg}
@@ -54,7 +48,7 @@ export const MemberList = ({ sidebarType }: IMemberListProps) => {
                   userId={member.id}
                   userRole={member.role}
                   myRole={UserRole.CREATOR}
-                  sidebarType={sidebarType}
+                  sidebarType={SidebarType.MEMBER}
                 />
               </div>
             )}
@@ -72,8 +66,7 @@ export const MemberList = ({ sidebarType }: IMemberListProps) => {
         style={{ marginLeft: '10px', padding: '5px', width: '120px' }}
       />
       <button onClick={() => removeUser(nickname)}>삭제</button>
-      {/* 테스트용 버튼 end */}
-      <MemberListFooter sidebarType={sidebarType} />
+      <MemberListFooter sidebarType={SidebarType.MEMBER} />
     </Container>
   );
 };
