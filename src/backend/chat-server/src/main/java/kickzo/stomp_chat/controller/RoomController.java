@@ -1,13 +1,21 @@
 package kickzo.stomp_chat.controller;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import kickzo.stomp_chat.dto.MessageResponseDto;
 import kickzo.stomp_chat.service.RoomManager;
+import lombok.extern.slf4j.Slf4j;
+
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
+@Slf4j
 @Controller
 public class RoomController {
 
@@ -48,25 +56,21 @@ public class RoomController {
         roomManager.sendMessage(roomId, userId, message);
 
         // 메시지 브로드캐스트
-        MessageResponse response = new MessageResponse(userId, message);
+
+        MessageResponseDto messageResponseDto = new MessageResponseDto(userId, message);
         //messagingTemplate.convertAndSend("/topic/" + roomId, response);
     }
 
-    public static class MessageResponse {
-        private long userId;
-        private String message;
+    @MessageMapping("/playlistTime")
+    public void playlistTime(String payload) throws Exception {
+        JsonNode jsonNode = objectMapper.readTree(payload);
+        long roomId = jsonNode.get("roomId").asLong();
+        long playlistTime = jsonNode.get("playlistTime").asLong();
 
-        public MessageResponse(long userId, String message) {
-            this.userId = userId;
-            this.message = message;
-        }
-
-        public long getUserId() {
-            return userId;
-        }
-
-        public String getMessage() {
-            return message;
-        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("roomId", roomId);
+        response.put("playlistTime", playlistTime);
+        log.info("Received roomId : {}, playlist time: {}", roomId, playlistTime);
+        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/playlistTime", response);
     }
 }
