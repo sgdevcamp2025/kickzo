@@ -12,6 +12,7 @@ import {
   NicknameInput,
   StateMessageInput,
   StateMessagePlus,
+  ErrorMessage,
 } from './index.css';
 
 import Edit from '@/assets/img/Edit.svg';
@@ -30,6 +31,7 @@ export const MyProfile = () => {
   const [nickname, setNickname] = useState(user?.nickname);
   const [stateMessage, setStateMessage] = useState(user?.stateMessage);
   const [isChanged, setIsChanged] = useState(false);
+  const [errorMessage, setErrorMessage] = useState('');
 
   useEffect(() => {
     if (user) {
@@ -38,6 +40,14 @@ export const MyProfile = () => {
       setIsChanged(nicknameChanged || stateMessageChanged);
     }
   }, [nickname, stateMessage, user]);
+
+  useEffect(() => {
+    if (errorMessage) {
+      setTimeout(() => {
+        setErrorMessage('');
+      }, 2000);
+    }
+  }, [errorMessage]);
 
   if (!user) {
     return;
@@ -57,7 +67,7 @@ export const MyProfile = () => {
     } catch (error) {
       if (error instanceof AxiosError) {
         handleCancel();
-        alert(error.response?.data.message);
+        setErrorMessage(error.response?.data.message);
       }
     }
   };
@@ -136,6 +146,7 @@ export const MyProfile = () => {
           </>
         )}
       </Profile>
+      {errorMessage && <ErrorMessage>{errorMessage}</ErrorMessage>}
     </Container>
   );
 };

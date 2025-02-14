@@ -31,6 +31,18 @@ export const HeaderButtonContainer = styled.div`
   gap: 8px;
 `;
 
+export const ErrorMessage = styled.p`
+  position: absolute;
+  bottom: -36px;
+  left: 0;
+  color: var(--palette-static-white);
+  font-size: 0.875rem;
+  padding: 8px;
+  border-radius: 8px;
+  background-color: var(--palette-label-neutral);
+  width: 100%;
+`;
+
 export const NicknameText = styled.p`
   padding: 4px;
   font-size: 18px;
