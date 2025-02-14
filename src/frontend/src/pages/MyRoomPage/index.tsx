@@ -1,18 +1,36 @@
-import { myRoomListTest } from '@/assets/data/myRoomListTest';
+import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { MyRoomCard } from '@/components/MyRoomCard';
-import { MyRoomDto } from '@/types/dto/MyRoom.dto';
 import { Wrapper, Container, Title, SubTitle, CommonParagraph } from './index.css';
+import { useUserStore } from '@/stores/useUserStore';
+import { MyRoomDto } from '@/api/endpoints/room/room.interface';
+import { MyRoomSkeleton } from './MyRoomSkeleton';
+import { useDelayedLoading } from '@/hooks/utils/useDelayedLoading';
+import { useMyRooms } from '@/hooks/queries/useMyRooms';
 
 export const MyRoomPage = () => {
-  const myRooms: MyRoomDto[] = myRoomListTest;
+  const navigate = useNavigate();
+  const getMyRooms = useMyRooms();
+  const { user } = useUserStore();
+  const [myRoomList, setMyRoomList] = useState<MyRoomDto[]>([]);
+  const showSkeleton = useDelayedLoading(getMyRooms.data);
 
-  const userInfo = {
-    id: 1,
-    nickname: '니노',
-    profileImageUrl: 'https://picsum.photos/40/40?random=1',
-  };
+  useEffect(() => {
+    if (!user) {
+      navigate('/login');
+      return;
+    }
 
-  const myRoomList = myRooms;
+    getMyRooms.refetch().then(({ data }) => {
+      if (data) {
+        setMyRoomList(data);
+      }
+    });
+  }, [user, navigate, getMyRooms]);
+
+  if (showSkeleton) {
+    return <MyRoomSkeleton />;
+  }
 
   return (
     <Wrapper>
@@ -20,20 +38,20 @@ export const MyRoomPage = () => {
         <Title>내 방</Title>
         <div>
           <SubTitle>내가 만든 방</SubTitle>
-          {myRoomList.filter(room => room.creator === userInfo.nickname).length > 0 ? (
+          {myRoomList.filter(room => room.creator === user?.nickname).length > 0 ? (
             myRoomList
-              .filter(room => room.creator === userInfo.nickname)
-              .map(room => <MyRoomCard key={room.id} room={room} />)
+              .filter(room => room.creator === user?.nickname)
+              .map(room => <MyRoomCard key={room.roomId} room={room} />)
           ) : (
             <CommonParagraph>🥹 내가 만든 방이 없습니다.</CommonParagraph>
           )}
         </div>
         <div>
           <SubTitle>참여 중인 방</SubTitle>
-          {myRoomList.filter(room => room.creator !== userInfo.nickname).length > 0 ? (
+          {myRoomList.filter(room => room.creator !== user?.nickname).length > 0 ? (
             myRoomList
-              .filter(room => room.creator !== userInfo.nickname)
-              .map(room => <MyRoomCard key={room.id} room={room} />)
+              .filter(room => room.creator !== user?.nickname)
+              .map(room => <MyRoomCard key={room.roomId} room={room} />)
           ) : (
             <CommonParagraph>🥹 참여 중인 방이 없습니다.</CommonParagraph>
           )}

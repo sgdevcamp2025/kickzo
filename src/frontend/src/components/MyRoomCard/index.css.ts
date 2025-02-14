@@ -3,7 +3,7 @@ import { styled } from 'styled-components';
 export const Card = styled.div`
   display: flex;
   align-items: stretch;
-  padding: 0.625rem 0;
+  padding: 1rem 0;
   border-bottom: 1px solid #ddd;
   position: relative;
   cursor: pointer;
@@ -27,7 +27,7 @@ export const Thumbnail = styled.div`
 export const Info = styled.div`
   flex: 1;
   padding: 0.25rem 0;
-  margin-left: 0.625rem;
+  margin-left: 1rem;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -36,7 +36,7 @@ export const Info = styled.div`
 export const Title = styled.h3`
   margin-bottom: 0.375rem;
   font-size: 1rem;
-  font-weight: bold;
+  font-weight: 600;
 `;
 
 export const Creator = styled.p`
@@ -58,7 +58,7 @@ export const ActionButtons = styled.div<{ $isHovered: boolean }>`
   top: 0px;
   right: 0px;
   height: 100%;
-  padding: 0.25rem 0;
+  padding: 1rem 0;
   display: flex;
   flex-direction: column;
   justify-content: space-between;

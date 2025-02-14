@@ -69,8 +69,15 @@ export class UserService {
   }
 
   // NOTE: pagination 필요할 경우 추가
-  async findAll() {
-    return this.userRepository.find();
+  async findAll(page: number = 0, size: number = 10) {
+    const [users, total] = await this.userRepository.findAndCount({
+      skip: page * size,
+      take: size,
+    });
+    return {
+      users,
+      total,
+    };
   }
 
   async getUserById(id: number) {

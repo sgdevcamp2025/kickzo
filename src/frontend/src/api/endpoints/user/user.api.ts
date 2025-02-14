@@ -4,19 +4,25 @@ import { UpdateUserRequestDto, UserResponseDto } from './user.interface';
 export const userApi = {
   // 내 프로필 조회
   getMyProfile: async () => {
-    const { data } = await instance.get<UserResponseDto>('users/profile');
+    const { data } = await instance.get<UserResponseDto>('users/me');
     return data;
   },
 
   // 내 프로필 수정
   updateMyProfile: async (updateUserRequestDto: UpdateUserRequestDto) => {
-    const { data } = await instance.patch(`users/profile`, updateUserRequestDto);
+    const { data } = await instance.patch(`users/me`, updateUserRequestDto);
+    return data;
+  },
+
+  // 전체 유저 조회
+  getUsers: async (page: number = 0, size: number = 10) => {
+    const { data } = await instance.get(`users`, { params: { page, size } });
     return data;
   },
 
   // 프로필 조회
   getProfile: async (userId: string) => {
-    const { data } = await instance.get<UserResponseDto>(`users/profile/${userId}`);
+    const { data } = await instance.get<UserResponseDto>(`users/${userId}`);
     return data;
   },
 

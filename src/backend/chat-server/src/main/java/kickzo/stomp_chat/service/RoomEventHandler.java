@@ -5,7 +5,6 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import kickzo.stomp_chat.dto.NewUserJoinEvent;
 import kickzo.stomp_chat.dto.RoleChangeEvent;
 import kickzo.stomp_chat.dto.RoomData;
 import kickzo.stomp_chat.dto.RoomEvent;
@@ -22,14 +21,12 @@ public class RoomEventHandler {
 
 	public void handleEvent(RoomEvent event) throws JsonProcessingException {
 		switch (event.getEventType()) {
+
 			case "room-update":
 				handleRoomUpdate(event);
 				break;
 			case "role-change":
 				handleRoleChange(event);
-				break;
-			case "user-list":
-				handleUserList(event);
 				break;
 			default:
 				log.warn("Unknown event type: {}", event.getEventType());
@@ -44,10 +41,5 @@ public class RoomEventHandler {
 	private void handleRoleChange(RoomEvent event) throws JsonProcessingException {
 		RoleChangeEvent roleChange = objectMapper.convertValue(event.getData(), RoleChangeEvent.class);
 		messagingService.sendMessage("role-change", roleChange.getRoomId(), roleChange);
-	}
-
-	private void handleUserList(RoomEvent event) throws JsonProcessingException {
-		NewUserJoinEvent userList = objectMapper.convertValue(event.getData(), NewUserJoinEvent.class);
-		messagingService.sendMessage("user-list", userList.getRoomId(), userList);
 	}
 }

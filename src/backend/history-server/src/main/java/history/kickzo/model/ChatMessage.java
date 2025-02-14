@@ -61,6 +61,8 @@ public class ChatMessage {
         return timestamp;
     }
 
+    // TODO[SMG-C]: setter 사용 지양
+    // 참고 : https://velog.io/@langoustine/setter-%EC%A7%80%EC%96%91-%EC%9D%B4%EC%9C%A0
     public void setTimestamp(long timestamp) {
         this.timestamp = timestamp;
     }

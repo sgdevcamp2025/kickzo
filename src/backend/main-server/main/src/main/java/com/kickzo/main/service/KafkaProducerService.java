@@ -44,6 +44,10 @@ public class KafkaProducerService {
 		RoleChangeEvent event = new RoleChangeEvent(roomId, targetUserId, newRole);
 		RoomEvent roomEvent = new RoomEvent("role-change", event);
 		try {
+			// TODO[SMG-C]: kafka send 역할 분리
+			// KafkaRepository로 분리해서 사용하면 좋을거 같아요
+			// KafkaRepository 에서 object를 string 으로 바꾸고 보내기까지 세트로 해주면 될거 같아요
+			// kafkaRepository.send(topci, messageObject);
 			String message = objectMapper.writeValueAsString(roomEvent);
 			kafkaTemplate.send(TOPIC_ROOM, message);
 			log.info("Kafka Role Change Event Sent: {}", message);

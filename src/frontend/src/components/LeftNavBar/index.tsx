@@ -28,7 +28,7 @@ export const LeftNavBar = () => {
           <ButtonBox $isActive={isMyRoom}>
             <img src={isMyRoom ? PlaylistFillIcon : PlaylistLineIcon} alt="my Room" />
           </ButtonBox>
-          <p>마이</p>
+          <p>MY</p>
         </Link>
       </ButtonWrapper>
       <ButtonWrapper>

@@ -17,6 +17,7 @@ import com.kickzo.main.dto.event.PlaylistItem;
 import com.kickzo.main.dto.event.RoomUpdateEvent;
 import com.kickzo.main.dto.request.RoomUpdateRequestDto;
 import com.kickzo.main.dto.response.RoomDetailsDto;
+import com.kickzo.main.dto.response.RoomEntryResponseDto;
 import com.kickzo.main.dto.response.RoomInfoDto;
 import com.kickzo.main.dto.response.UserListDto;
 import com.kickzo.main.entity.Room;
@@ -45,55 +46,11 @@ public class RoomService {
 
 	private static final int ROLE_MEMBER = 2;
 
-	// roomCode에 따른 방의 정보와 유저 list 전달
 	@Transactional
-	public RoomDetailsDto getRoomDetails(int myRole, String roomCode) {
-		System.out.println("RoomCode : " + roomCode);
-		if (roomCode == null || roomCode.isBlank()) {
-			throw new CustomException(CustomErrorCode.INVALID_ROOM_CODE);
-		}
-		// Step 1: RoomCode로 RoomID 검색
-		Long roomId = getRoomId(roomCode);
-
-		// Step 2: RoomID로 UserID와 Role 목록 검색
-		List<Object[]> userIdRoles = roomUserRepository.findUsersByRoomId(roomId);
-
-		// Step 3: UserID로 Nickname 검색
-		List<UserListDto> userList = getUserInfoList(userIdRoles);
-
-		// Step 4: RoomID로 Room 정보와 Playlist Order 검색
-		List<RoomInfoDto> roomInfo = getRoomInfoByRoomId(roomId);
-		List<PlaylistItem> playlist = null;
-		try {
-			playlist = getPlaylistByRoomId(roomId);
-		} catch (JsonProcessingException e) {
-			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
-		}
-
-		if (myRole == ROLE_MEMBER) {
-			kafkaProducerService.sendRoomUserList(roomId, userList);
-		}
-
-		// 결과를 조합하여 반환
-		return new RoomDetailsDto(userList, roomInfo, playlist);
-	}
-
-	// 방에 유저 소속 여부에 따른 작업과 role 전달
-	@Transactional
-	public int getUserRole(String roomCode, Long userId) {
-		Long roomId = getRoomId(roomCode);
-		// Step 1: 해당 방에서 유저의 역할(Role)을 찾음
-		Integer role = roomUserRepository.findRoleByUserIdAndRoomId(roomId, userId);
-		if (role != null) {
-			// Step 2: 역할(Role)이 존재하면 반환
-			return role;
-		} else {
-			// Step 3: 역할(Role)이 존재하지 않으면 새 사용자 추가
-			saveUserCount(roomId);
-			saveNewRoomUser(roomId, userId);
-			// 새로운 사람이 들어왔으므로 kafka로 현재 방의 UserList 보내기
-			return ROLE_MEMBER;
-		}
+	public RoomEntryResponseDto getRoomJoinResponse(String roomCode, Long userId){
+		int myRole = determineUserRole(roomCode, userId);
+		RoomDetailsDto roomDetails = assembleRoomDetails(myRole, roomCode);
+		return new RoomEntryResponseDto(myRole, roomDetails);
 	}
 
 	@Transactional
@@ -129,33 +86,74 @@ public class RoomService {
 		kafkaProducerService.sendRoomUpdateMessage(event);
 	}
 
-	/**
-	 * roomCode에 따른 방의 정보와 유저 list 전달
-	 * 1. roomCode로 roomId 뽑아오기 : getRoomId
-	 * 2. UserId를 기반으로 닉네임 매핑 : mapNicknames
-	 * 3. room 테이블에서 받아온 data를 dto로 변환 : getRoomInfoByRoomId
-	 * 4. playlist 테이블에서 받아온 data를 dto로 변환 : getPlaylistByRoomId
-	 */
-	private Long getRoomId(String roomCode) {
-		return Optional.ofNullable(roomRepository.findRoomIdByRoomCode(roomCode))
-			.orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
+	@Transactional(readOnly = true)
+	public List<UserListDto> getRoomParticipants(Long roomId) {
+		return fetchUserList(roomId);
 	}
 
-	private List<UserListDto> getUserInfoList(List<Object[]> userIdRoles) {
-		// UserID를 기반으로 Nickname을 매핑하는 로직
+	/**
+	 * roomCode에 따른 방의 정보와 유저 list 전달
+	 * 1. 사용자 역할(Role) 확인, 비로그인 유저인 경우 기본 Role(99) 반환 : determineUserRole
+	 * 2. 사용자 역할(Role) 조회, 존재하지 않으면 새 사용자로 등록 후 기본 Role(ROLE_MEMBER) 반환 : findOrAssignUserRole
+	 * 3. 주어진 역할(Role)과 방 코드를 기반으로 Room의 전체 세부 정보 생성 : assembleRoomDetails
+	 * 4. Room ID를 기준으로 방에 참여한 유저의 ID, Role, 닉네임, 프로필 이미지 조회 : fetchUserList
+	 * 5. Room ID로 방의 정보를 조회하고 RoomInfoDto 리스트로 변환 : fetchRoomInfo
+	 * 6. Room ID를 기반으로 Playlist 정보를 JSON에서 List<PlaylistItem> 형태로 변환 : fetchPlaylist
+	 * 7. Room Code로 Room ID 조회, 존재하지 않으면 예외 발생 : getRoomId
+	 * 8. 방 생성자의 닉네임을 기반으로 프로필 이미지 URL 조회, 없으면 기본 이미지 반환 : getCreatorProfileImage
+	 * 9. 유저 ID를 기반으로 프로필 이미지 URL 조회, 없으면 기본 이미지 반환 : getUserProfileImage
+	 * 10. Room ID를 기준으로 방의 유저 수를 1 증가시키고, 변경된 정보 저장 : saveUserCount
+	 * 11. RoomUser 엔티티를 생성하여 새로운 사용자를 방에 추가하고 기본 Role(ROLE_MEMBER)로 저장 : saveNewRoomUser
+	 */
+	private int determineUserRole(String roomCode, Long userId) {
+		if (userId == null) {
+			return 99; // 비로그인 유저는 role = 99
+		}
+		Long roomId = getRoomId(roomCode);
+		return findOrAssignUserRole(roomId, userId);
+	}
+
+	private int findOrAssignUserRole(Long roomId, Long userId) {
+		// Step 1: 해당 방에서 유저의 역할(Role)을 찾음
+		Integer role = roomUserRepository.findRoleByUserIdAndRoomId(roomId, userId);
+		if (role != null) {
+			// Step 2: 역할(Role)이 존재하면 반환
+			return role;
+		}
+		// Step 3: 역할(Role)이 존재하지 않으면 새 사용자 추가
+		saveUserCount(roomId);
+		saveNewRoomUser(roomId, userId);
+		return ROLE_MEMBER;
+	}
+
+	private RoomDetailsDto assembleRoomDetails(int myRole, String roomCode) {
+		Long roomId = getRoomId(roomCode);
+
+		List<UserListDto> userList = fetchUserList(roomId);
+		List<RoomInfoDto> roomInfo = fetchRoomInfo(roomId);
+		List<PlaylistItem> playlist = fetchPlaylist(roomId);
+
+		if (myRole == ROLE_MEMBER) {
+			kafkaProducerService.sendRoomUserList(roomId, userList);
+		}
+
+		return new RoomDetailsDto(userList, roomInfo, playlist);
+	}
+
+	private List<UserListDto> fetchUserList(Long roomId) {
+		List<Object[]> userIdRoles = roomUserRepository.findUsersByRoomId(roomId);
 		return userIdRoles.stream()
 			.map(userRole -> {
-				Long userId = (Long)userRole[0];
-				int role = (int)userRole[1];
-				// UserRepository를 통해 UserID로 Nickname 조회
+				Long userId = (Long) userRole[0];
+				int role = (int) userRole[1];
 				String nickname = userRepository.findNicknameById(userId);
-				String profileImageUrl= getUserProfileImage(userId);
+				String profileImageUrl = getUserProfileImage(userId);
 				return new UserListDto(userId, role, nickname, profileImageUrl);
 			})
 			.collect(Collectors.toList());
 	}
 
-	private List<RoomInfoDto> getRoomInfoByRoomId(Long roomId) {
+	private List<RoomInfoDto> fetchRoomInfo(Long roomId) {
 		return roomRepository.findRoomById(roomId)
 			.stream()
 			.map(room -> RoomInfoDto.builder()
@@ -170,12 +168,22 @@ public class RoomService {
 			.collect(Collectors.toList());
 	}
 
-	private List<PlaylistItem> getPlaylistByRoomId(Long roomId) throws JsonProcessingException {
+	private List<PlaylistItem> fetchPlaylist(Long roomId) {
 		String playlistJson = playlistRepository.findOrderById(roomId);
 		if (playlistJson == null || playlistJson.isBlank()) {
-			return new ArrayList<>();  // null 또는 빈 값 처리
+			return new ArrayList<>();
 		}
-		return objectMapper.readValue(playlistJson, new TypeReference<>() {});
+
+		try {
+			return objectMapper.readValue(playlistJson, new TypeReference<>() {});
+		} catch (JsonProcessingException e) {
+			throw new CustomException(CustomErrorCode.JSON_PROCESSING_ERROR);
+		}
+	}
+
+	private Long getRoomId(String roomCode) {
+		return Optional.ofNullable(roomRepository.findRoomIdByRoomCode(roomCode))
+			.orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
 	}
 
 	private String getCreatorProfileImage(String creator) {
@@ -188,10 +196,6 @@ public class RoomService {
 			.orElse("default-profile-image-url"); // 기본 이미지 설정
 	}
 
-	/**
-	 *  새로 들어온 user -> count 증가
-	 * 새로 들어온 user -> room_user DB에 저장
-	 */
 	private void saveUserCount(Long roomId){
 		Room room = roomRepository.findById(roomId)
 			.orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));

@@ -23,6 +23,9 @@ public class RoomController {
 
     @MessageMapping("/joinRoom")
     public void joinRoom(String payload, SimpMessageHeaderAccessor headerAccessor) throws Exception {
+
+        // TODO[SMG-C]: jsonNode, map 사용 지양
+        // objectmapper.read 활용해서 object로 사용
         JsonNode jsonNode = objectMapper.readTree(payload);
         String roomId = jsonNode.get("roomId").asText();
         String userId = jsonNode.get("userId").asText();
@@ -51,6 +54,11 @@ public class RoomController {
         MessageResponse response = new MessageResponse(userId, message);
         //messagingTemplate.convertAndSend("/topic/" + roomId, response);
     }
+
+
+    // TODO[SMG-C]: record 사용
+    // MessageResponse이거를 아래처럼 간단히 가능합니다.
+    record MessageResponseTest(String userId, String message) {}
 
     public static class MessageResponse {
         private String userId;

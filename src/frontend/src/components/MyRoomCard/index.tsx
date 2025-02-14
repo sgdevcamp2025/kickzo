@@ -1,10 +1,12 @@
-import { MyRoomDto } from '@/types/dto/MyRoom.dto';
-import UserIcon from '@/assets/img/UsersLine.svg';
 import { useState } from 'react';
+import UserIcon from '@/assets/img/UsersLine.svg';
 import TrashcanIcon from '@/assets/img/Trashcan.svg';
 import ShareIcon from '@/assets/img/ShareLink.svg';
-import { RoomDeleteModal } from '../Modal/RoomDeleteModal';
+import { RoomDeleteModal } from '@/components/Modal/RoomDeleteModal';
 import { useNavigate } from 'react-router-dom';
+import { MyRoomDto } from '@/api/endpoints/room/room.interface';
+import DefaultThumbnail from '@/assets/img/DefaultThumbnail.svg';
+
 import {
   ActionButton,
   ActionButtons,
@@ -32,7 +34,7 @@ export const MyRoomCard = ({ room }: { room: MyRoomDto }) => {
 
     try {
       await navigator.clipboard.writeText(url);
-      console.log(room.id, '공유');
+      console.log(room.roomId, '공유');
       alert('링크가 클립보드에 복사되었습니다!'); // 혹은 토스트 메시지
     } catch (err) {
       console.error('클립보드 복사 실패:', err);
@@ -42,13 +44,14 @@ export const MyRoomCard = ({ room }: { room: MyRoomDto }) => {
 
   const handleDelete = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.stopPropagation();
-    console.log(room.id, '삭제');
+    console.log(room.roomId, '삭제');
     setIsClickDelete(true);
   };
 
   const handleCancel = () => {
     setIsClickDelete(false);
   };
+
   return (
     <>
       <Card
@@ -57,7 +60,7 @@ export const MyRoomCard = ({ room }: { room: MyRoomDto }) => {
         onMouseLeave={() => setIsHovered(false)}
       >
         <Thumbnail>
-          <img src={room.playlistUrl} alt={room.title} />
+          <img src={room.playlistUrl ? room.playlistUrl : DefaultThumbnail} alt={room.title} />
         </Thumbnail>
         <Info>
           <div>
@@ -78,7 +81,7 @@ export const MyRoomCard = ({ room }: { room: MyRoomDto }) => {
           </ActionButton>
         </ActionButtons>
       </Card>
-      {isClickDelete && <RoomDeleteModal roomId={room.id} onCancel={handleCancel} />}
+      {isClickDelete && <RoomDeleteModal roomId={room.roomId} onCancel={handleCancel} />}
     </>
   );
 };

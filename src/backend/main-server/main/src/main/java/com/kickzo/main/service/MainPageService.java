@@ -41,6 +41,9 @@ public class MainPageService {
 	private static final int MAX_ROOMS_PER_USER = 5;
 	private static final int ROLE_CREATOR = 0;
 
+	// TODO[SMG-C]: bean 사용 권장
+	// JacksonAutoConfiguration 에서 objectMapper 빈 등록해줘서 재활용 해주시면 좋을거 같아요
+	// objectMapper는 기본적으로 thread-safe 해서, 프로젝트에서 하나 만든거를 재활용 하는게 좋아요
 	static final ObjectMapper objectMapper = new ObjectMapper();
 
 	// 메인 페이지 방 list 제공

@@ -62,6 +62,7 @@ public class KafkaConsumerConfig {
             @Override
             public void onMessage(ConsumerRecord<String, String> record) {
                 String message = record.value();
+                // TODO[SMG-C]: logger 권장. @Slf4j 사용하시면 편합니다.
                 System.out.println("1: Received Kafka message: " + message);
                 chatMessageService.saveMessage(message);
             }

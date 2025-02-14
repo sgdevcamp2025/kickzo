@@ -6,6 +6,7 @@ import java.util.Objects;
 public class FriendId implements Serializable {
     private Long friend1;
     private Long friend2;
+    // TODO[SMG-Q]: 1,2 구분이 뭔지랑, Friend 엔티티랑 뭔 차이인가요?
 
     public FriendId() {}
 

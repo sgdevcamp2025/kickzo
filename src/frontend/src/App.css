@@ -59,6 +59,7 @@
   color: var(--palette-static-black);
 }
 
+textarea::placeholder,
 input::placeholder {
   color: var(--palette-label-assistive);
 }

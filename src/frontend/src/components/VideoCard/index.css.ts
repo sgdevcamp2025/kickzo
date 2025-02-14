@@ -1,6 +1,7 @@
 import { styled } from 'styled-components';
 
 export const VideoCardContainer = styled.div`
+  width: 100%;
   padding: 0.625rem;
   background: var(--palette-static-white);
   border-radius: 0.625rem;

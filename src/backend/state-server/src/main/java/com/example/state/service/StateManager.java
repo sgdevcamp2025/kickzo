@@ -9,6 +9,9 @@ import java.util.List;
 
 @Service
 public class StateManager {
+    // TODO[SMG-C]: 네이밍 변경
+    // 여러 repository를 활용해서 비즈니스 로직을 구현한 계층이라 Service 네이밍을 넣으면 좋을거 같아요
+    // 참고 : https://medium.com/@ankitpal181/service-repository-pattern-802540254019
 
     private final RedisService redisService;
     private final ObjectMapper objectMapper;
@@ -27,12 +30,17 @@ public class StateManager {
     public void consumeMessage(String message) {
         // 메시지 처리
         try {
+            // TODO[SMG-C]: json > model 변환
+            // object 변환해서 사용하는게 더 편하실거에요
+            // ex. objectMapper.readValue(message, Message.class);
             JsonNode jsonNode = objectMapper.readTree(message);
             String eventType = jsonNode.get("eventType").asText();
             String userId = jsonNode.get("userId").asText();
             String serverPort = jsonNode.get("serverPort").asText();
             String timestamp = jsonNode.get("timestamp").asText();
 
+            // TODO[SMG-C]: logger 사용 권장
+            // system out 대신 logger 사용 권장. @Slf4j 참고
             System.out.println("Processing event: " + eventType + " for user: " + userId);
 
             if ("JOIN".equals(eventType)) {
@@ -52,6 +60,9 @@ public class StateManager {
             }
         } catch (Exception e) {
             e.printStackTrace();
+
+            // TODO[SMG-C]: logger 사용 권장
+            // ex. log.error("Error processing message: {}", e.getMessage(), e);
         }
     }
 }

@@ -6,7 +6,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.kickzo.main.dto.request.CreateRoomRequestDto;
@@ -27,22 +30,27 @@ public class MainPageController implements MainPageApi {
 	private final MainPageService mainPageService;
 
 	@Override
-	@GetMapping("/list/all")
-	public ResponseEntity<List<RoomResponseDto>> getAllRooms(int page, int size) {
+	@GetMapping("/all")
+	public ResponseEntity<List<RoomResponseDto>> getAllRooms(
+		@RequestParam(defaultValue = "0") int page,
+		@RequestParam(defaultValue = "10") int size) {
 		log.info("get all rooms. page: {}, size: {}", page, size);
 		return ResponseEntity.ok(mainPageService.getAllRooms(PageRequest.of(page, size)));
 	}
 
 	@Override
-	@GetMapping("/list/my")
-	public ResponseEntity<List<RoomResponseDto>> getUserRooms(Long userId) {
+	@GetMapping("/me")
+	public ResponseEntity<List<RoomResponseDto>> getUserRooms(
+		@RequestHeader(value = "x-user-id", required = true) Long userId) {
 		log.info("get user rooms. userId: {}", userId);
 		return ResponseEntity.ok(mainPageService.getUserRooms(userId));
 	}
 
 	@Override
 	@PostMapping("/create-room")
-	public ResponseEntity<CreateRoomResponseDto> createRoom(Long userId, @Valid CreateRoomRequestDto requestDto) {
+	public ResponseEntity<CreateRoomResponseDto> createRoom(
+		@RequestHeader(value = "x-user-id", required = true) Long userId,
+		@Valid @RequestBody CreateRoomRequestDto requestDto) {
 		log.info("create room for userId: {}", userId);
 		return ResponseEntity.ok(mainPageService.createRoom(userId, requestDto));
 	}

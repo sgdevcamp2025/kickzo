@@ -1,21 +1,40 @@
 import { VideoGridContainer } from './index.css';
 import { VideoCard } from '@/components/VideoCard';
-import { VideoCardDto } from '@/types/dto/VideoCard.dto';
-import { videoListTest } from '@/assets/data/videoListTest';
 import { useNavigate } from 'react-router-dom';
+import { useRooms } from '@/hooks/queries/useRooms';
+import { useEffect, useState } from 'react';
+import { RoomDto } from '@/api/endpoints/room/room.interface';
+import { HomeSkeleton } from './HomeSkeleton';
+import { useDelayedLoading } from '@/hooks/utils/useDelayedLoading';
 
 export const HomePage = () => {
   const navigate = useNavigate();
-  const videos: VideoCardDto[] = videoListTest;
+  const getRooms = useRooms();
+  const showSkeleton = useDelayedLoading(getRooms.data);
+  const [videos, setVideos] = useState<RoomDto[]>([]);
 
-  const handleVideoCardClick = (videoId: string) => {
-    navigate(`/room?code=${videoId}`);
+  const handleVideoCardClick = (code: string) => {
+    navigate(`/room?code=${code}`);
   };
+
+  useEffect(() => {
+    if (getRooms.data) {
+      setVideos(getRooms.data.pages.flatMap(page => page));
+    }
+  }, [getRooms.data]);
+
+  if (showSkeleton) {
+    return <HomeSkeleton />;
+  }
 
   return (
     <VideoGridContainer>
       {videos.map(video => (
-        <VideoCard key={video.id} video={video} onClick={() => handleVideoCardClick(video.code)} />
+        <VideoCard
+          key={video.roomId}
+          video={video}
+          onClick={() => handleVideoCardClick(video.code)}
+        />
       ))}
     </VideoGridContainer>
   );

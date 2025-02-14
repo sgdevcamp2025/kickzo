@@ -48,4 +48,27 @@ public class KafkaProducerConfig {
     public KafkaTemplate<String, UserStatusUpdateDto> userStatusKafkaTemplate() {
         return new KafkaTemplate<>(userStatusProducerFactory());
     }
+
+
+    // TODO[SMG-C]: kafka message용 interface
+    // dto 마다 factory를 만들지 않고, kafka message 공통 interface를 만들어서 받으시면 편하실거 같아요
+    // 보낼 떄는 kafkaMessageTemplate.send(topic, message)로 보내시면 됩니다.
+    interface KafkaMessage {
+        String getTopic();
+        String getVersion();
+    }
+
+    public ProducerFactory<String, KafkaMessage> kafkaMessageProducerFactory() {
+        Map<String, Object> configProps = new HashMap<>();
+        configProps.put(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, KAFKA_BROKER);
+        configProps.put(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class);
+        configProps.put(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, JsonSerializer.class); // JSON 직렬화
+
+        return new DefaultKafkaProducerFactory<>(configProps);
+    }
+
+    @Bean
+    public KafkaTemplate<String, KafkaMessage> kafkaMessageTemplate() {
+        return new KafkaTemplate<>(kafkaMessageProducerFactory());
+    }
 }

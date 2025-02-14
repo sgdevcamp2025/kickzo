@@ -4,6 +4,7 @@ import org.springframework.stereotype.Service;
 import history.kickzo.model.ChatMessage;
 import history.kickzo.repository.ChatMessageRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 
 import java.util.List;
 
@@ -12,6 +13,7 @@ public class ChatMessageService {
     private final ChatMessageRepository repository;
     private final ObjectMapper objectMapper;
 
+    // TODO[SMG-C]: @RequiredArgsConstructor 사용 권장. 이게 편해요
     public ChatMessageService(ChatMessageRepository repository, ObjectMapper objectMapper) {
         this.repository = repository;
         this.objectMapper = objectMapper;
@@ -24,6 +26,7 @@ public class ChatMessageService {
             chatMessage.setTimestamp(System.currentTimeMillis());  // 현재 시간으로 타임스탬프 설정 (필요 시)
 
             // 저장할 데이터 출력
+            // TODO[SMG-C]: logger 사용 권장. ex. @Slf4j
             System.out.println("Saving message to DB: ");
             System.out.println("ID: " + chatMessage.getId());
             System.out.println("User: " + chatMessage.getUserId());
@@ -35,6 +38,8 @@ public class ChatMessageService {
         } catch (Exception e) {
             e.printStackTrace();
             System.out.println("Error parsing message: " + e.getMessage());
+            // TODO[SMG-C]: logger 사용 권장. ex. @Slf4j
+            // log.error("Error parsing message: " + e.getMessage(), e);
         }
     }
 
