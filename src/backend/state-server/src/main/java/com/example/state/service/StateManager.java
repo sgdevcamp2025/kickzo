@@ -29,24 +29,24 @@ public class StateManager {
         try {
             JsonNode jsonNode = objectMapper.readTree(message);
             String eventType = jsonNode.get("eventType").asText();
-            String userId = jsonNode.get("userId").asText();
+            Long userId = jsonNode.get("userId").asLong();  // userId를 Long으로 변환
             String serverPort = jsonNode.get("serverPort").asText();
-            String timestamp = jsonNode.get("timestamp").asText();
+            Long timestamp = jsonNode.get("timestamp").asLong();  // timestamp를 Long으로 변환
 
             System.out.println("Processing event: " + eventType + " for user: " + userId);
 
             if ("JOIN".equals(eventType)) {
-                //online 상태 저장
-                redisService.saveUserState(userId, "online", serverPort, String.valueOf(timestamp));
+                // 온라인 상태 저장
+                redisService.saveUserState(userId, "online", serverPort, timestamp);
 
-                List<String> friends = friendService.getFriends(userId);
+                List<Long> friends = friendService.getFriends(userId);  // 친구 리스트도 Long 타입으로 변경
                 UserStatusUpdateDto statusUpdateDto = new UserStatusUpdateDto(userId, "online", friends, timestamp);
                 kafkaProducerService.sendUserStatus(statusUpdateDto);
             } else {
-                //유저 상태 제거 ("LEAVE")
+                // 유저 상태 제거 ("LEAVE")
                 redisService.deleteUserState(userId);
 
-                List<String> friends = friendService.getFriends(userId);
+                List<Long> friends = friendService.getFriends(userId);  // 친구 리스트도 Long 타입으로 변경
                 UserStatusUpdateDto statusUpdateDto = new UserStatusUpdateDto(userId, "offline", friends, timestamp);
                 kafkaProducerService.sendUserStatus(statusUpdateDto);
             }

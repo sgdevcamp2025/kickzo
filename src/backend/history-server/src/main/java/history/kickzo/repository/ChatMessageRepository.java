@@ -10,5 +10,5 @@ import java.util.List;
 public interface ChatMessageRepository extends MongoRepository<ChatMessage, String> {
 
     // 특정 방의 메시지들을 타임스탬프 기준으로 정렬하여 가져오는 메서드
-    List<ChatMessage> findByRoomIdOrderByTimestampDesc(String roomId);
+    List<ChatMessage> findByRoomIdOrderByTimestampDesc(long roomId);
 }

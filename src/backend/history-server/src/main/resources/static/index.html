@@ -91,7 +91,7 @@
 
     // 전역 변수로 cursor를 관리
     let cursor = null; // 마지막 메시지의 timestamp
-    const roomId = "1"; // roomId를 1로 설정
+    const roomId = 1; // roomId를 1로 설정
     const initialLimit = 5; // 처음 로드할 메시지 수
     const loadMoreLimit = 2; // "더 받아오기" 버튼을 눌렀을 때 로드할 메시지 수
     let cursor2 = null;
@@ -136,7 +136,7 @@
         messages.forEach((message) => {
             const messageElement = document.createElement("div");
             messageElement.className = `message ${message.type || ""}`;
-            messageElement.textContent = `${message.userId || "System"}: ${message.content}`;
+            messageElement.textContent = `${message.userId || "System"}: ${message.message}`;
             fragment.prepend(messageElement); // 메시지를 위쪽에 추가
         });
 
