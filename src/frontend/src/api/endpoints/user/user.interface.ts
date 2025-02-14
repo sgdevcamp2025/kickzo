@@ -1,5 +1,5 @@
 export interface UpdateUserRequestDto {
-  name?: string;
+  nickname?: string;
   stateMessage?: string;
 }
 

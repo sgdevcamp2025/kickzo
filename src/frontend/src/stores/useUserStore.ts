@@ -1,12 +1,15 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { userApi } from '@/api/endpoints/user/user.api';
-import { UserResponseDto } from '@/api/endpoints/user/user.interface';
+import { UpdateUserRequestDto, UserResponseDto } from '@/api/endpoints/user/user.interface';
 
 interface UserStore {
   user: UserResponseDto | null;
   setUser: (user: UserResponseDto) => void;
-  fetchMyProfile: () => Promise<void>;
+  fetchMyProfile: () => Promise<UserResponseDto | undefined>;
+  updateMyProfile: (
+    updateUserRequestDto: UpdateUserRequestDto,
+  ) => Promise<UserResponseDto | undefined>;
   clear: () => void;
 }
 
@@ -20,9 +23,15 @@ export const useUserStore = create(
           const data = await userApi.getMyProfile();
           console.log(data);
           set({ user: data });
+          return data;
         } catch (error) {
           console.error(error);
         }
+      },
+      updateMyProfile: async (updateUserRequestDto: UpdateUserRequestDto) => {
+        const data = await userApi.updateMyProfile(updateUserRequestDto);
+        set({ user: data });
+        return data;
       },
       clear: () => {
         set({ user: null });

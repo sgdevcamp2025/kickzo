@@ -3,7 +3,14 @@ import { styled } from 'styled-components';
 export const NotiContainer = styled.div`
   position: relative;
   max-height: 260px;
+  padding: 20px 20px 0px 20px;
   overflow-y: auto;
+`;
+
+export const NotiTitle = styled.h2`
+  font-size: 1.25rem;
+  font-weight: 600;
+  margin: 10px 0;
 `;
 
 export const NotiParagraph = styled.p`

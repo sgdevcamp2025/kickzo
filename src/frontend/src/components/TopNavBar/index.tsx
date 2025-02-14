@@ -15,14 +15,14 @@ import DefaultProfile from '@/assets/img/DefaultProfile.svg';
 import { RoomCreateModal } from '@/components/Modal/RoomCreateModal';
 import { NotificationModal } from '@/components/Modal/NotificationModal';
 import { SearchBar } from '@/components/Search/SearchBar';
-import { userApi } from '@/api/endpoints/user/user.api';
 import { useUserStore } from '@/stores/useUserStore';
 import { useAuthStore } from '@/stores/useAuthStore';
-
+import { ProfileModal } from '@/components/Modal/ProfileModal';
 export const TopNavBar = () => {
   const { user, fetchMyProfile, clear } = useUserStore();
   const [isRoomCreateModalOpen, setIsRoomCreateModalOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const accessToken = useAuthStore(state => state.accessToken);
 
   useEffect(() => {
@@ -43,9 +43,13 @@ export const TopNavBar = () => {
     setIsNotificationModalOpen(false);
   };
 
-  const handleProfile = async () => {
-    const profile = await userApi.getMyProfile();
-    console.log(profile);
+  const clickProfile = async () => {
+    setIsProfileModalOpen(true);
+  };
+
+  const handleCancelProfile = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    setIsProfileModalOpen(false);
   };
 
   return (
@@ -64,12 +68,9 @@ export const TopNavBar = () => {
             {isNotificationModalOpen && <NotificationModal onCancel={handleCancelNotification} />}
           </ButtonBox>
           {user ? (
-            <ProfileButton onClick={handleProfile}>
-              {user.profileImageUrl ? (
-                <img src={user.profileImageUrl} alt="Profile" />
-              ) : (
-                <img src={DefaultProfile} alt="Profile" />
-              )}
+            <ProfileButton onClick={clickProfile}>
+              <img src={user.profileImageUrl ?? DefaultProfile} alt="Profile" />
+              {isProfileModalOpen && <ProfileModal onCancel={handleCancelProfile} />}
             </ProfileButton>
           ) : (
             <LoginButton>

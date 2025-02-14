@@ -1,6 +1,6 @@
 import { useState } from 'react';
-import { NotiContainer, NotiParagraph } from './index.css';
-import { RelativeModalContainer, Background, Title } from '@/components/Modal/index.css';
+import { NotiContainer, NotiParagraph, NotiTitle } from './index.css';
+import { RelativeModalContainer, Background } from '@/components/Modal/index.css';
 import { NotificationCard } from './NotificationCard';
 import { notificationListTest } from '@/assets/data/notificationListTest';
 
@@ -34,8 +34,8 @@ export const NotificationModal = ({ onCancel }: INotification) => {
     <>
       <Background $hasBackground={false} onClick={props.onCancel} />
       <RelativeModalContainer>
-        <Title>알림</Title>
         <NotiContainer>
+          <NotiTitle>알림</NotiTitle>
           {notiList.length > 0 ? (
             <>
               {notiList.map(noti => (
