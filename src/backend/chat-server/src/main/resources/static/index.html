@@ -1,10 +1,15 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Group Chat</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
     <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
         #messages {
             border: 1px solid #ccc;
             padding: 10px;
@@ -13,15 +18,10 @@
             margin-bottom: 10px;
             background-color: #f9f9f9;
         }
-        #messageInput {
-            width: 300px;
+        input, button {
             padding: 10px;
-            margin-right: 10px;
-        }
-        button {
-            padding: 10px;
-            margin-right: 5px;
-            cursor: pointer;
+            margin: 5px 0;
+            font-size: 16px;
         }
         #status {
             margin-top: 10px;
@@ -38,90 +38,140 @@
     </style>
 </head>
 <body>
+
 <h1>Group Chat</h1>
 
-<div id="messages"></div>
-
+<!-- User ID 입력 -->
 <div>
-    <input type="text" id="messageInput" placeholder="Enter your message" />
-    <button onclick="sendMessage()">Send</button>
+    <input type="text" id="userIdInput" placeholder="Enter your User ID" />
+    <button onclick="connect()">Connect</button>
 </div>
 
-<div>
-    <button id="connectBtn" onclick="connect()">Connect</button>
-    <button id="disconnectBtn" onclick="disconnect()" disabled>Disconnect</button>
+<div id="roomButtons" style="display: none;">
+    <h2>Select a Room:</h2>
+    <button onclick="subscribeToRoom(1)">Join Room 1</button>
+    <button onclick="subscribeToRoom(2)">Join Room 2</button>
+    <button onclick="subscribeToRoom(3)">Join Room 3</button>
+</div>
+
+<div id="chatSection" style="display: none;">
+    <h2>Room Chat</h2>
+    <div id="messages"></div>
+    <input type="text" id="messageInput" placeholder="Enter your message" />
+    <button onclick="sendMessage()">Send</button>
+    <button onclick="sendPlaylistTime(12)">Send Playlist Time (12 sec)</button>
 </div>
 
 <div id="status">Status: Disconnected</div>
 
 <script>
     let stompClient = null;
-    let userId = 1;  // 숫자로 변경
-    let roomId = 1;  // 숫자로 변경
+    let userId = '';
+    let roomId = null;
 
     function connect() {
+        userId = document.getElementById('userIdInput').value.trim();
+        if (!userId) {
+            alert('Please enter your User ID');
+            return;
+        }
+
         const socket = new SockJS('/api/chat/ws');
         stompClient = Stomp.over(socket);
         stompClient.connect({}, () => {
-            console.log('Connected');
+            console.log('Connected as User:', userId);
             document.getElementById('status').textContent = 'Status: Connected';
-
-            // 버튼 상태 변경
-            document.getElementById('connectBtn').disabled = true;
-            document.getElementById('disconnectBtn').disabled = false;
-
-            stompClient.subscribe(`/topic/${roomId}`, (message) => {
-                console.log('Received WebSocket message:', message.body);
-                const payload = JSON.parse(message.body);
-
-                if (typeof payload === 'string') {
-                    showMessage(payload, 'system');
-                } else {
-                    showMessage(payload.message, payload.userId);
-                }
-            });
-
+            document.getElementById('roomButtons').style.display = 'block';
             // 방 참여 메시지 전송
-            stompClient.send('/app/joinRoom', {}, JSON.stringify({
-                roomId: roomId,
+            stompClient.send('/app/connect', {}, JSON.stringify({
                 userId: userId
             }));
-        }, (error) => {
+            }, (error) => {
             console.error('Connection error:', error);
             document.getElementById('status').textContent = 'Status: Connection Failed';
-
-            // 자동 재연결 (예: 3초 후 재시도)
-            setTimeout(connect, 3000);
         });
+
     }
 
-    function disconnect() {
-        if (stompClient !== null) {
-            stompClient.disconnect();
+    function subscribeToRoom(selectedRoomId) {
+        if (!stompClient) {
+            alert('You must connect first!');
+            return;
         }
-        document.getElementById('status').textContent = 'Status: Disconnected';
-        console.log('Disconnected');
 
-        // 버튼 상태 변경
-        document.getElementById('connectBtn').disabled = false;
-        document.getElementById('disconnectBtn').disabled = true;
+        roomId = selectedRoomId;
+        document.getElementById('chatSection').style.display = 'block';
+        document.getElementById('messages').innerHTML = ''; // 기존 메시지 지우기
+        console.log(`Subscribed to room ${roomId}`);
+
+        stompClient.subscribe(`/topic/user/${userId}/friend-state`, (message) => {
+            const payload = JSON.parse(message.body);
+            showMessage(payload.message, payload.userId);
+        });
+        stompClient.subscribe(`/topic/user/${userId}/notification`, (message) => {
+            const payload = JSON.parse(message.body);
+            showMessage(payload.message, payload.userId);
+        });
+
+        stompClient.subscribe(`/topic/room/${roomId}`, (message) => {
+            const payload = JSON.parse(message.body);
+            showMessage(payload.message, payload.userId);
+        });
+        stompClient.subscribe(`/topic/room/${roomId}/user-info`, (message) => {
+            const payload = JSON.parse(message.body);
+            showMessage(payload.message, payload.userId);
+        });
+        stompClient.subscribe(`/topic/room/${roomId}/room-update`, (message) => {
+            const payload = JSON.parse(message.body);
+            showMessage(payload.message, payload.userId);
+        });
+        stompClient.subscribe(`/topic/room/${roomId}/role-change`, (message) => {
+            const payload = JSON.parse(message.body);
+            showMessage(payload.message, payload.userId);
+        });
+        stompClient.subscribe(`/topic/room/${roomId}/playlist-update`, (message) => {
+            const payload = JSON.parse(message.body);
+            showMessage(payload.message, payload.userId);
+        });
+        stompClient.subscribe(`/topic/room/${roomId}/play-time`, (message) => {
+            const payload = JSON.parse(message.body);
+            showMessage(payload.message, payload.userId);
+        });
+        stompClient.subscribe(`/topic/room/${roomId}/chat`, (message) => {
+            const payload = JSON.parse(message.body);
+            showMessage(payload.message, payload.userId);
+        });
     }
 
     function sendMessage() {
         const message = document.getElementById('messageInput').value.trim();
-        if (message === '') {
-            return; // 빈 메시지 전송 방지
+        if (!message || !roomId) {
+            alert('Enter a message and select a room');
+            return;
         }
 
-        stompClient.send('/app/sendMessage', {}, JSON.stringify({
+        const payload = JSON.stringify({
             roomId: roomId,
             userId: userId,
             message: message
-        }));
+        });
 
-        // 메시지 전송 후 입력 필드 비우기
+        stompClient.send('/app/sendMessage', {}, payload);
         document.getElementById('messageInput').value = '';
-        document.getElementById('messageInput').focus();
+        console.log('Sent message:', payload);
+    }
+
+    function sendPlaylistTime(playlistTime) {
+        if (stompClient && stompClient.connected) {
+            const payload = JSON.stringify({
+                roomId: roomId,
+                playlistTime: playlistTime
+            });
+            stompClient.send('/app/play-time', {}, payload);
+            console.log('Sent playlistTime:', payload);
+        } else {
+            console.error('WebSocket not connected.');
+        }
     }
 
     function showMessage(message, sender) {
@@ -133,17 +183,7 @@
         timeElement.classList.add('time');
         timeElement.textContent = ` [${new Date().toLocaleTimeString()}] `;
 
-        if (sender === userId) {
-            messageElement.textContent = `${sender}: ${message}`;
-            messageElement.style.color = 'blue';
-        } else if (sender === 'system') {
-            messageElement.textContent = `System: ${message}`;
-            messageElement.style.color = 'gray';
-        } else {
-            messageElement.textContent = `${sender}: ${message}`;
-            messageElement.style.color = 'green';
-        }
-
+        messageElement.textContent = `${sender}: ${message}`;
         messageElement.prepend(timeElement);
         messagesDiv.appendChild(messageElement);
         messagesDiv.scrollTop = messagesDiv.scrollHeight;
