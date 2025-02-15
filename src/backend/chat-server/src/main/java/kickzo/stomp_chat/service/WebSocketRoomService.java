@@ -1,9 +1,5 @@
 package kickzo.stomp_chat.service;
 
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -19,7 +15,6 @@ import lombok.extern.slf4j.Slf4j;
 @RequiredArgsConstructor
 public class WebSocketRoomService {
 
-	private final Map<Long, Set<Long>> rooms = new HashMap<>();
 	private final KafkaRepository kafkaRepository;
 
 	@Value("${server.port}")  // 현재 서버 포트 번호 주입

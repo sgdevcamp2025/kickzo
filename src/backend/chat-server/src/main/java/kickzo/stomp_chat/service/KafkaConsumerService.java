@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import kickzo.stomp_chat.dto.ChatMessage;
 import kickzo.stomp_chat.dto.InvitationData;
 import kickzo.stomp_chat.dto.RoomEvent;
 import lombok.RequiredArgsConstructor;
@@ -57,5 +58,22 @@ public class KafkaConsumerService {
 		Long receiverId = message.getReceiverId();
 		messagingService.sendInvitationMessage(receiverId, message);
 		log.info("Sent notification to user {}: {}", receiverId, message);
+	}
+
+	@KafkaListener(topics = "chatting")
+	public void consumeChattingEvents(ConsumerRecord<String, String> record) {
+		try {
+			ChatMessage chatMessage = objectMapper.readValue(record.value(), ChatMessage.class);
+			log.info("Received Chat Message: {}", chatMessage);
+			sendChatMessageToWebSocket(chatMessage);
+		} catch (Exception e) {
+			log.error("Error processing Kafka message", e);
+		}
+	}
+
+	private void sendChatMessageToWebSocket(ChatMessage chatMessage) {
+		Long roomId = chatMessage.roomId();
+		messagingService.sendChatMessage(roomId, chatMessage);
+		log.info("Sent Chat Message: {}", chatMessage);
 	}
 }
