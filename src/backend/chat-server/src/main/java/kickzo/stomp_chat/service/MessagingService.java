@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import kickzo.stomp_chat.dto.InvitationData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -20,6 +21,10 @@ public class MessagingService {
 	public void sendMessage(String topic, Long roomId, Object data) throws JsonProcessingException {
 		String jsonResponse = objectMapper.writeValueAsString(data);
 		log.info("Sending message to /topic/room/{}/{}: {}", roomId, topic, jsonResponse);
-		messagingTemplate.convertAndSend("/topic/room/" + roomId + "/" + topic, data);
+		messagingTemplate.convertAndSend("/topic/room/" + roomId + "/" + topic, jsonResponse);
+	}
+
+	public void sendInvitationMessage(Long receiverId, InvitationData invitationMessage) {
+		messagingTemplate.convertAndSend("/topic/user" + receiverId + "/notification", invitationMessage);
 	}
 }

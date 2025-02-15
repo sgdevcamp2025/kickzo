@@ -1,13 +1,11 @@
 package kickzo.stomp_chat.controller;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import kickzo.stomp_chat.dto.MessageResponseDto;
 import kickzo.stomp_chat.service.RoomManager;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
@@ -17,17 +15,12 @@ import org.springframework.stereotype.Controller;
 
 @Slf4j
 @Controller
+@RequiredArgsConstructor
 public class RoomController {
 
     private final SimpMessagingTemplate messagingTemplate;
     private final RoomManager roomManager;
     private final ObjectMapper objectMapper;
-
-    public RoomController(SimpMessagingTemplate messagingTemplate, RoomManager roomManager) {
-        this.messagingTemplate = messagingTemplate;
-        this.roomManager = roomManager;
-        this.objectMapper = new ObjectMapper();
-    }
 
     @MessageMapping("/joinRoom")
     public void joinRoom(String payload, SimpMessageHeaderAccessor headerAccessor) throws Exception {
@@ -63,14 +56,13 @@ public class RoomController {
 
     @MessageMapping("/playlistTime")
     public void playlistTime(String payload) throws Exception {
-        JsonNode jsonNode = objectMapper.readTree(payload);
-        long roomId = jsonNode.get("roomId").asLong();
-        long playlistTime = jsonNode.get("playlistTime").asLong();
+        PlaylistTimeRequest request = objectMapper.readValue(payload, PlaylistTimeRequest.class);
+        log.info("Received roomId : {}, playlist time: {}", request.roomId(), request.playlistTime());
 
-        Map<String, Object> response = new HashMap<>();
-        response.put("roomId", roomId);
-        response.put("playlistTime", playlistTime);
-        log.info("Received roomId : {}, playlist time: {}", roomId, playlistTime);
-        messagingTemplate.convertAndSend("/topic/room/" + roomId + "/playlistTime", response);
+        PlaylistTimeResponse response = new PlaylistTimeResponse(request.roomId(), request.playlistTime());
+        messagingTemplate.convertAndSend("/topic/room/" + request.roomId() + "/playlistTime", response);
     }
+
+    public record PlaylistTimeRequest(long roomId, long playlistTime) {}
+    public record PlaylistTimeResponse(long roomId, long playlistTime) {}
 }

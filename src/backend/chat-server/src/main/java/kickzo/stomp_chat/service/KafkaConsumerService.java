@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import kickzo.stomp_chat.dto.InvitationData;
 import kickzo.stomp_chat.dto.RoomEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,6 +19,7 @@ public class KafkaConsumerService {
 	private final ObjectMapper objectMapper;
 	private final RoomEventHandler roomEventHandler;
 	private final PlaylistEventHandler playlistEventHandler;
+	private final MessagingService messagingService;
 
 	@KafkaListener(topics = "playlist")
 	public void consumePlaylistEvents(ConsumerRecord<String, String> record) {
@@ -39,5 +41,21 @@ public class KafkaConsumerService {
 		} catch (Exception e) {
 			log.error("Error processing room event", e);
 		}
+	}
+
+	@KafkaListener(topics = "invitation")
+	public void consumeInvitationEvents(String invitationMessage) {
+		try {
+			InvitationData message = objectMapper.readValue(invitationMessage, InvitationData.class);
+			processInvitationMessage(message);
+		} catch (Exception e) {
+			log.error("Error processing Kafka message", e);
+		}
+	}
+
+	private void processInvitationMessage(InvitationData message) {
+		Long receiverId = message.getReceiverId();
+		messagingService.sendInvitationMessage(receiverId, message);
+		log.info("Sent notification to user {}: {}", receiverId, message);
 	}
 }
