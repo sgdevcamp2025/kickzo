@@ -5,6 +5,7 @@ import { ChatInput } from '@/components/Sidebar/Chating/ChatInput';
 import { ChatMessages } from '@/components/Sidebar/Chating/ChatMessages';
 import { UserRole } from '@/types/enums/UserRole';
 import { ChatContainer, ChatScrollArea, Blank } from './index.css';
+import { DoublyLinkedList } from '@/components/Sidebar/Chating/doublyLinkedList';
 
 const MemoizedChatMessages = React.memo(ChatMessages);
 
@@ -21,9 +22,16 @@ const initialChatData = Array.from({ length: 100 }, (_, i) => ({
 }));
 
 export const ChatBox = () => {
-  const [chatData, setChatData] = useState(initialChatData);
-  const [visibleChat, setVisibleChat] = useState(chatData.slice(-INITIAL_CHAT_NUM));
-  const [startIndex, setStartIndex] = useState(chatData.length - INITIAL_CHAT_NUM);
+  const chatListRef = useRef(new DoublyLinkedList(initialChatData));
+  const [visibleChat, setVisibleChat] = useState(
+    chatListRef.current.slice(
+      Math.max(chatListRef.current.length - INITIAL_CHAT_NUM, 0),
+      chatListRef.current.length,
+    ),
+  );
+  const [startIndex, setStartIndex] = useState(
+    Math.max(chatListRef.current.length - INITIAL_CHAT_NUM, 0),
+  );
   const [extraTopNum, setExtraTopNum] = useState(0);
   const [extraDownNum, setExtraDownNum] = useState(0);
   const [status, setStatus] = useState<string>('Disconnected');
@@ -70,17 +78,15 @@ export const ChatBox = () => {
         sendMessage(message);
       }
 
-      setChatData(prev => {
-        const updated = [...prev, newChat];
-        if (sender === 'Me' || isAtBottom()) {
-          const newStartIndex = updated.length > MAX_CHAT_NUM ? updated.length - MAX_CHAT_NUM : 0;
-          setStartIndex(newStartIndex);
-          setVisibleChat(updated.slice(newStartIndex, updated.length));
+      chatListRef.current.push(newChat);
+      const newLength = chatListRef.current.length;
 
-          scrollToBottom();
-        }
-        return updated;
-      });
+      if (sender === 'Me' || isAtBottom()) {
+        const newStartIndex = newLength > MAX_CHAT_NUM ? newLength - MAX_CHAT_NUM : 0;
+        setStartIndex(newStartIndex);
+        setVisibleChat(chatListRef.current.slice(newStartIndex, newLength));
+        scrollToBottom();
+      }
     },
     [isAtBottom, sendMessage],
   );
@@ -144,7 +150,7 @@ export const ChatBox = () => {
           setExtraDownNum(prev => prev + EXTRA_CHAT_NUM);
         }
         setStartIndex(newStartIndex);
-        setVisibleChat(chatData.slice(newStartIndex, newStartIndex + MAX_CHAT_NUM));
+        setVisibleChat(chatListRef.current.slice(newStartIndex, newStartIndex + MAX_CHAT_NUM));
         requestAnimationFrame(() => {
           if (chatContainerRef.current) {
             const newHeight = chatContainerRef.current.scrollHeight;
@@ -162,7 +168,7 @@ export const ChatBox = () => {
         topObserver.unobserve(topSentinelRef.current);
       }
     };
-  }, [chatData, startIndex, visibleChat]);
+  }, [startIndex, visibleChat]);
 
   useEffect(() => {
     const observerOptions = {
@@ -171,15 +177,18 @@ export const ChatBox = () => {
     };
     const bottomObserver = new IntersectionObserver(entries => {
       const entry = entries[0];
-      if (entry.isIntersecting && startIndex < chatData.length - MAX_CHAT_NUM) {
-        const newStartIndex = Math.min(startIndex + EXTRA_CHAT_NUM, chatData.length - MAX_CHAT_NUM);
+      if (entry.isIntersecting && startIndex < chatListRef.current.length - MAX_CHAT_NUM) {
+        const newStartIndex = Math.min(
+          startIndex + EXTRA_CHAT_NUM,
+          chatListRef.current.length - MAX_CHAT_NUM,
+        );
         const prevHeight = chatContainerRef.current?.scrollHeight || 0;
         if (visibleChat.length === MAX_CHAT_NUM) {
           setExtraDownNum(prev => Math.max(prev - EXTRA_CHAT_NUM, 0));
           setExtraTopNum(prev => prev + EXTRA_CHAT_NUM);
         }
         setStartIndex(newStartIndex);
-        setVisibleChat(chatData.slice(newStartIndex, newStartIndex + MAX_CHAT_NUM));
+        setVisibleChat(chatListRef.current.slice(newStartIndex, newStartIndex + MAX_CHAT_NUM));
         requestAnimationFrame(() => {
           if (chatContainerRef.current) {
             const newHeight = chatContainerRef.current.scrollHeight;
@@ -198,7 +207,7 @@ export const ChatBox = () => {
         bottomObserver.unobserve(bottomSentinelRef.current);
       }
     };
-  }, [chatData, startIndex, visibleChat]);
+  }, [startIndex, visibleChat]);
 
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
