@@ -7,7 +7,6 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import kickzo.stomp_chat.dto.ChatMessage;
-import kickzo.stomp_chat.dto.InvitationData;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -25,8 +24,10 @@ public class MessagingService {
 		messagingTemplate.convertAndSend("/topic/room/" + roomId + "/" + topic, jsonResponse);
 	}
 
-	public void sendInvitationMessage(Long receiverId, InvitationData invitationMessage) {
-		messagingTemplate.convertAndSend("/topic/user" + receiverId + "/notification", invitationMessage);
+	public void sendUserMessage(String topic, Long receiverId, Object data) throws JsonProcessingException {
+		String jsonResponse = objectMapper.writeValueAsString(data);
+		log.info("Sending message to /topic/user/{}/{}: {}", receiverId, topic, jsonResponse);
+		messagingTemplate.convertAndSend("/topic/user/" + receiverId + "/" + topic, jsonResponse);
 	}
 
 	public void sendChatMessage(Long roomId, ChatMessage chatMessage) {

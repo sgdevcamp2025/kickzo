@@ -9,7 +9,6 @@ import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Controller;
 
 @Slf4j
@@ -17,7 +16,6 @@ import org.springframework.stereotype.Controller;
 @RequiredArgsConstructor
 public class WebSocketController {
 
-    private final SimpMessagingTemplate messagingTemplate;
     private final ObjectMapper objectMapper;
     private final WebSocketRoomService webSocketRoomService;
 
@@ -65,7 +63,7 @@ public class WebSocketController {
         }
     }
 
-    @MessageMapping("/playlistTime")
+    @MessageMapping("/play-time")
     public void playlistTime(String payload) throws Exception {
         PlaylistTimeRequest request = objectMapper.readValue(payload, PlaylistTimeRequest.class);
         log.info("Received roomId : {}, playlist time: {}", request.roomId(), request.playlistTime());

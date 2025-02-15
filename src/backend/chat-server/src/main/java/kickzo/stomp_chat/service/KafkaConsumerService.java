@@ -4,11 +4,14 @@ import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import kickzo.stomp_chat.dto.ChatMessage;
+import kickzo.stomp_chat.dto.FriendNotification;
 import kickzo.stomp_chat.dto.InvitationData;
 import kickzo.stomp_chat.dto.RoomEvent;
+import kickzo.stomp_chat.dto.UserStatusEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -54,9 +57,9 @@ public class KafkaConsumerService {
 		}
 	}
 
-	private void processInvitationMessage(InvitationData message) {
+	private void processInvitationMessage(InvitationData message) throws JsonProcessingException {
 		Long receiverId = message.getReceiverId();
-		messagingService.sendInvitationMessage(receiverId, message);
+		messagingService.sendUserMessage("notification", receiverId, message);
 		log.info("Sent notification to user {}: {}", receiverId, message);
 	}
 
@@ -75,5 +78,30 @@ public class KafkaConsumerService {
 		Long roomId = chatMessage.roomId();
 		messagingService.sendChatMessage(roomId, chatMessage);
 		log.info("Sent Chat Message: {}", chatMessage);
+	}
+
+	@KafkaListener(topics = "friend_online_notify")
+	public void consumeFriendOnlineNotifyEvents(ConsumerRecord<String, String> record) {
+		try {
+			UserStatusEvent userStatusEvent = objectMapper.readValue(record.value(), UserStatusEvent.class);
+			notifyFriends(userStatusEvent);
+		} catch (JsonProcessingException e) {
+			log.error("Error processing Kafka message", e);
+		}
+	}
+
+	private void notifyFriends(UserStatusEvent userStatusEvent) {
+		long userId = userStatusEvent.getUserId();
+		String status = userStatusEvent.getStatus();
+
+		FriendNotification friendStatus = new FriendNotification(userId, status);
+
+		userStatusEvent.getFriends().forEach(friendId -> {
+			try {
+				messagingService.sendUserMessage("friend-state", friendId, friendStatus);
+			} catch (JsonProcessingException e) {
+				throw new RuntimeException(e);
+			}
+		});
 	}
 }
