@@ -70,13 +70,11 @@ public class WebSocketController {
         PlaylistTimeRequest request = objectMapper.readValue(payload, PlaylistTimeRequest.class);
         log.info("Received roomId : {}, playlist time: {}", request.roomId(), request.playlistTime());
 
-        PlaylistTimeResponse response = new PlaylistTimeResponse(request.roomId(), request.playlistTime());
-        messagingTemplate.convertAndSend("/topic/room/" + request.roomId() + "/playlistTime", response);
+        webSocketRoomService.sendPlaylistTime(request.roomId(), request.playlistTime());
     }
 
     public record UserConnectRequest(long userId) {}
     public record SendMessageRequest(long roomId, long userId, String content, String message) {}
 
     public record PlaylistTimeRequest(long roomId, long playlistTime) {}
-    public record PlaylistTimeResponse(long roomId, long playlistTime) {}
 }

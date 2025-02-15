@@ -7,6 +7,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import kickzo.stomp_chat.dto.ChatMessage;
 import kickzo.stomp_chat.dto.ConnectionEvent;
+import kickzo.stomp_chat.dto.RoomEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
@@ -18,6 +19,7 @@ public class KafkaRepository {
 	private final ObjectMapper objectMapper;
 	private static final String TOPIC_CHAT = "chatting";
 	private static final String TOPIC_CONNECTION = "connection";
+	private static final String TOPIC_PLAYLIST = "playlist";
 
 	public void sendConnectionEvent(ConnectionEvent event) {
 		try {
@@ -36,6 +38,16 @@ public class KafkaRepository {
 			log.info("Kafka message sent: {}", jsonMessage);
 		} catch (Exception e) {
 			log.error("Failed to send Kafka chat message: {}", e.getMessage());
+		}
+	}
+
+	public void sendPlaylistTime(RoomEvent playTimeEvent) {
+		try {
+			String jsonMessage = objectMapper.writeValueAsString(playTimeEvent);
+			kafkaTemplate.send(TOPIC_PLAYLIST, jsonMessage);
+			log.info("Kafka playlist time sent: {}", jsonMessage);
+		} catch (Exception e) {
+			log.error("Failed to send Kafka playlist time: {}", e.getMessage());
 		}
 	}
 }
