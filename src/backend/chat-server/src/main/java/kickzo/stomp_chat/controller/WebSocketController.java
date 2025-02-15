@@ -2,7 +2,7 @@ package kickzo.stomp_chat.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import kickzo.stomp_chat.enums.UserEventType;
+import kickzo.stomp_chat.enums.EventType;
 import kickzo.stomp_chat.service.WebSocketRoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +30,7 @@ public class WebSocketController {
             // 세션에 사용자 정보 저장
             headerAccessor.getSessionAttributes().put("userId", userId);
 
-            webSocketRoomService.sendConnection(userId, UserEventType.JOIN);
+            webSocketRoomService.sendConnection(userId, EventType.JOIN);
             log.info("User {} connected and is now online.", userId);
         } catch (Exception e) {
             log.error("Error processing connect message", e);

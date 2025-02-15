@@ -7,7 +7,7 @@ import kickzo.stomp_chat.dto.ChatMessage;
 import kickzo.stomp_chat.dto.ConnectionEvent;
 import kickzo.stomp_chat.dto.PlaylistTime;
 import kickzo.stomp_chat.dto.RoomEvent;
-import kickzo.stomp_chat.enums.UserEventType;
+import kickzo.stomp_chat.enums.EventType;
 import kickzo.stomp_chat.repository.KafkaRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +27,7 @@ public class WebSocketRoomService {
 	 */
 	public void leavePage(long userId) {
 		log.info("User {} leave service", userId);
-		sendConnection(userId, UserEventType.LEAVE);
+		sendConnection(userId, EventType.LEAVE);
 	}
 
 	/**
@@ -41,8 +41,8 @@ public class WebSocketRoomService {
 	/**
 	 * Kafka에 사용자 연결 상태 전송
 	 */
-	public void sendConnection(long userId, UserEventType userEventType) {
-		ConnectionEvent event = new ConnectionEvent(userId, userEventType, serverPort);
+	public void sendConnection(long userId, EventType eventType) {
+		ConnectionEvent event = new ConnectionEvent(userId, eventType, serverPort);
 		kafkaRepository.sendConnectionEvent(event);
 	}
 
