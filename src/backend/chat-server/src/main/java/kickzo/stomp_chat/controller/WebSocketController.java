@@ -51,7 +51,7 @@ public class WebSocketController {
     //     }
     // }
 
-    @MessageMapping("/sendMessage")
+    @MessageMapping("/send-message")
     public void sendMessage(String payload, SimpMessageHeaderAccessor headerAccessor) {
         try {
             SendMessageRequest request = objectMapper.readValue(payload, SendMessageRequest.class);
@@ -64,15 +64,15 @@ public class WebSocketController {
     }
 
     @MessageMapping("/play-time")
-    public void playlistTime(String payload) throws Exception {
-        PlaylistTimeRequest request = objectMapper.readValue(payload, PlaylistTimeRequest.class);
-        log.info("Received roomId : {}, playlist time: {}", request.roomId(), request.playlistTime());
+    public void playTime(String payload) throws Exception {
+        PlayTimeRequest request = objectMapper.readValue(payload, PlayTimeRequest.class);
+        log.info("Received roomId : {}, play time: {}", request.roomId(), request.playTime());
 
-        webSocketRoomService.sendPlaylistTime(request.roomId(), request.playlistTime());
+        webSocketRoomService.sendPlayTime(request.roomId(), request.playTime());
     }
 
     public record UserConnectRequest(long userId) {}
     public record SendMessageRequest(long roomId, long userId, String content, String message) {}
 
-    public record PlaylistTimeRequest(long roomId, long playlistTime) {}
+    public record PlayTimeRequest(long roomId, long playTime) {}
 }

@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class PlaylistTime {
+public class PlayTime {
 	private long roomId;
-	private long playlistTime;
+	private long playTime;
 }

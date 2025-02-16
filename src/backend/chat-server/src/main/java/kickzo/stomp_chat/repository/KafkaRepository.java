@@ -41,13 +41,13 @@ public class KafkaRepository {
 		}
 	}
 
-	public void sendPlaylistTime(RoomEvent playTimeEvent) {
+	public void sendPlayTime(RoomEvent playTimeEvent) {
 		try {
 			String jsonMessage = objectMapper.writeValueAsString(playTimeEvent);
 			kafkaTemplate.send(TOPIC_PLAYLIST, jsonMessage);
-			log.info("Kafka playlist time sent: {}", jsonMessage);
+			log.info("Kafka play time sent: {}", jsonMessage);
 		} catch (Exception e) {
-			log.error("Failed to send Kafka playlist time: {}", e.getMessage());
+			log.error("Failed to send Kafka play time: {}", e.getMessage());
 		}
 	}
 }

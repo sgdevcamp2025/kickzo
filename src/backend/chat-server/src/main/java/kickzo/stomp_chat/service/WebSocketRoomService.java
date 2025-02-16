@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 
 import kickzo.stomp_chat.dto.room.ChatMessage;
 import kickzo.stomp_chat.dto.user.ConnectionEvent;
-import kickzo.stomp_chat.dto.playlist.PlaylistTime;
+import kickzo.stomp_chat.dto.playlist.PlayTime;
 import kickzo.stomp_chat.dto.RoomEvent;
 import kickzo.stomp_chat.enums.EventType;
 import kickzo.stomp_chat.repository.KafkaRepository;
@@ -49,10 +49,10 @@ public class WebSocketRoomService {
 	/**
 	 * Kafka에 playlistTime 전송
 	 */
-	public void sendPlaylistTime (long roomId, long playlistTime){
-		PlaylistTime playlistTimeObject = new PlaylistTime(roomId, playlistTime);
+	public void sendPlayTime (long roomId, long playTime){
+		PlayTime playTimeObject = new PlayTime(roomId, playTime);
 
-		RoomEvent roomEvent = new RoomEvent("play-time", playlistTimeObject);
-		kafkaRepository.sendPlaylistTime(roomEvent);
+		RoomEvent roomEvent = new RoomEvent("play-time", playTimeObject);
+		kafkaRepository.sendPlayTime(roomEvent);
 	}
 }

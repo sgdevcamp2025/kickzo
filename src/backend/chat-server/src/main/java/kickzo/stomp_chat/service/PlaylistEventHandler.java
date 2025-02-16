@@ -5,7 +5,7 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import kickzo.stomp_chat.dto.playlist.PlaylistTime;
+import kickzo.stomp_chat.dto.playlist.PlayTime;
 import kickzo.stomp_chat.dto.playlist.PlaylistUpdateEvent;
 import kickzo.stomp_chat.dto.RoomEvent;
 import lombok.RequiredArgsConstructor;
@@ -38,7 +38,7 @@ public class PlaylistEventHandler {
 	}
 
 	private void handlePlaylistTime(RoomEvent event) throws JsonProcessingException {
-		PlaylistTime playTimeData = objectMapper.convertValue(event.getData(), PlaylistTime.class);
+		PlayTime playTimeData = objectMapper.convertValue(event.getData(), PlayTime.class);
 		messagingService.sendMessage("play-time", playTimeData.getRoomId(), playTimeData);
 	}
 }
