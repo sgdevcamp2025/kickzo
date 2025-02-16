@@ -1,4 +1,4 @@
-package kickzo.stomp_chat.dto;
+package kickzo.stomp_chat.dto.room;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;

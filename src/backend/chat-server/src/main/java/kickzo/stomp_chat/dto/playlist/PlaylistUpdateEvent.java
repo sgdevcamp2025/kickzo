@@ -1,4 +1,6 @@
-package kickzo.stomp_chat.dto;
+package kickzo.stomp_chat.dto.playlist;
+
+import java.util.List;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -7,7 +9,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-public class NewUserJoinEvent {
+public class PlaylistUpdateEvent {
 	private Long roomId;
-	private UserInfoDto userInfo;
+	private List<PlaylistItem> playlistJson;
 }

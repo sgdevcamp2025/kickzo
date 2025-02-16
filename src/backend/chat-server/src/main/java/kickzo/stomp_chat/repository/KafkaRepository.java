@@ -5,8 +5,8 @@ import org.springframework.stereotype.Component;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import kickzo.stomp_chat.dto.ChatMessage;
-import kickzo.stomp_chat.dto.ConnectionEvent;
+import kickzo.stomp_chat.dto.room.ChatMessage;
+import kickzo.stomp_chat.dto.user.ConnectionEvent;
 import kickzo.stomp_chat.dto.RoomEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

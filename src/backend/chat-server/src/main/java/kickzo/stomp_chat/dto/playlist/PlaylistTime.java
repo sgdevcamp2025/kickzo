@@ -1,4 +1,4 @@
-package kickzo.stomp_chat.dto;
+package kickzo.stomp_chat.dto.playlist;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

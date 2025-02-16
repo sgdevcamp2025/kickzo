@@ -7,11 +7,11 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import kickzo.stomp_chat.dto.ChatMessage;
-import kickzo.stomp_chat.dto.FriendNotification;
-import kickzo.stomp_chat.dto.InvitationData;
+import kickzo.stomp_chat.dto.room.ChatMessage;
+import kickzo.stomp_chat.dto.user.FriendNotification;
+import kickzo.stomp_chat.dto.user.InvitationData;
 import kickzo.stomp_chat.dto.RoomEvent;
-import kickzo.stomp_chat.dto.UserStatusEvent;
+import kickzo.stomp_chat.dto.user.UserStatusEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 

@@ -3,9 +3,9 @@ package kickzo.stomp_chat.service;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import kickzo.stomp_chat.dto.ChatMessage;
-import kickzo.stomp_chat.dto.ConnectionEvent;
-import kickzo.stomp_chat.dto.PlaylistTime;
+import kickzo.stomp_chat.dto.room.ChatMessage;
+import kickzo.stomp_chat.dto.user.ConnectionEvent;
+import kickzo.stomp_chat.dto.playlist.PlaylistTime;
 import kickzo.stomp_chat.dto.RoomEvent;
 import kickzo.stomp_chat.enums.EventType;
 import kickzo.stomp_chat.repository.KafkaRepository;

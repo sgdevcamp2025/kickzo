@@ -5,8 +5,8 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import kickzo.stomp_chat.dto.PlaylistTime;
-import kickzo.stomp_chat.dto.PlaylistUpdateEvent;
+import kickzo.stomp_chat.dto.playlist.PlaylistTime;
+import kickzo.stomp_chat.dto.playlist.PlaylistUpdateEvent;
 import kickzo.stomp_chat.dto.RoomEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

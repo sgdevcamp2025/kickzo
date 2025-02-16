@@ -1,4 +1,4 @@
-package kickzo.stomp_chat.dto;
+package kickzo.stomp_chat.dto.user;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
