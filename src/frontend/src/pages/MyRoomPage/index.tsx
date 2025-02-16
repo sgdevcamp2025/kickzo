@@ -1,5 +1,4 @@
 import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { MyRoomCard } from '@/components/MyRoomCard';
 import { Wrapper, Container, Title, SubTitle, CommonParagraph } from './index.css';
 import { useUserStore } from '@/stores/useUserStore';
@@ -9,24 +8,18 @@ import { useDelayedLoading } from '@/hooks/utils/useDelayedLoading';
 import { useMyRooms } from '@/hooks/queries/useMyRooms';
 
 export const MyRoomPage = () => {
-  const navigate = useNavigate();
   const getMyRooms = useMyRooms();
   const { user } = useUserStore();
   const [myRoomList, setMyRoomList] = useState<MyRoomDto[]>([]);
   const showSkeleton = useDelayedLoading(getMyRooms.data);
 
   useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
-    }
-
     getMyRooms.refetch().then(({ data }) => {
       if (data) {
         setMyRoomList(data);
       }
     });
-  }, [user, navigate, getMyRooms]);
+  }, [getMyRooms]);
 
   if (showSkeleton) {
     return <MyRoomSkeleton />;
