@@ -116,7 +116,7 @@ final class CreateRoomViewController: BaseViewController<CreateRoomReactor> {
                     let vc = AlertViewController(.createLimit)
                     
                     vc.acceptAction = {
-                        owner.changeRootViewController()
+                        owner.changeRootViewController(0)
                     }
                     vc.modalPresentationStyle = .overFullScreen
                     
@@ -132,16 +132,6 @@ final class CreateRoomViewController: BaseViewController<CreateRoomReactor> {
     private func togglepublicStatus(_ isPublic: Bool) {
         publicButton.toggleButtonStatus(isPublic)
         privateButton.toggleButtonStatus(isPublic)
-    }
-    
-    private func changeRootViewController() {
-        let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
-        let sceneDelegate = windowScene?.delegate as? SceneDelegate
-        let rootviewController = TabBarViewController()
-        
-        rootviewController.selectedIndex = 0
-        sceneDelegate?.window?.rootViewController = rootviewController
-        sceneDelegate?.window?.makeKeyAndVisible()
     }
     
     
