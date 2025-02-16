@@ -1,14 +1,21 @@
 import { useState } from 'react';
-import { CommonButton } from '@/components/common/Button';
+import { CircleButton } from './index.css';
 
 interface IconButtonProps {
   beforeImgUrl: string;
   afterImgUrl?: string;
+  backgroundColor?: string;
   onToggle?: () => void;
   onClick?: () => void;
 }
 
-export const IconButton = ({ beforeImgUrl, afterImgUrl, onToggle, onClick }: IconButtonProps) => {
+export const IconButton = ({
+  beforeImgUrl,
+  afterImgUrl,
+  backgroundColor,
+  onToggle,
+  onClick,
+}: IconButtonProps) => {
   const [isBeforeIcon, setIsBeforeIcon] = useState(true);
 
   const handleClick = () => {
@@ -18,8 +25,10 @@ export const IconButton = ({ beforeImgUrl, afterImgUrl, onToggle, onClick }: Ico
   };
 
   return (
-    <CommonButton onClick={handleClick} width="40px" height="40px" borderradius="100px">
-      <img src={isBeforeIcon ? beforeImgUrl : afterImgUrl} alt="icon" />
-    </CommonButton>
+    <CircleButton onClick={handleClick} $backgroundColor={backgroundColor}>
+      <div>
+        <img src={isBeforeIcon ? beforeImgUrl : afterImgUrl} alt="icon" />
+      </div>
+    </CircleButton>
   );
 };

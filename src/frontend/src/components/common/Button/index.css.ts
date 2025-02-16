@@ -1,6 +1,6 @@
 import styled, { css } from 'styled-components';
 import { ButtonColor } from '@/types/enums/ButtonColor';
-
+import { darkenColor } from '@/utils/colorUtils';
 /** 버튼 스타일 */
 export const StyledButton = styled.button<{
   $color: ButtonColor;
@@ -46,12 +46,3 @@ export const StyledButton = styled.button<{
       cursor: not-allowed;
     `}
 `;
-
-/** 색상을 어둡게 변환하는 함수 */
-const darkenColor = (color: string): string => {
-  const [r, g, b] = color
-    .match(/\w\w/g)!
-    .map(hex => parseInt(hex, 16))
-    .map(value => Math.max(0, value - 30)); // 밝기를 줄임
-  return `rgb(${r}, ${g}, ${b})`;
-};

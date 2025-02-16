@@ -1,0 +1,15 @@
+name: kickzo
+
+services:
+  friend:
+    build:
+      context: .
+    container_name: friend
+    ports:
+      - "${FRIEND_PORT}:${FRIEND_PORT}"
+    networks:
+      - kickzo-network
+
+networks:
+  kickzo-network:
+    driver: bridge

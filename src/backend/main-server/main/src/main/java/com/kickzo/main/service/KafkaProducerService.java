@@ -12,7 +12,7 @@ import com.kickzo.main.dto.data.PlaylistItem;
 import com.kickzo.main.dto.event.PlaylistUpdateEvent;
 import com.kickzo.main.dto.event.RoleChangeEvent;
 import com.kickzo.main.dto.event.RoomEvent;
-import com.kickzo.main.dto.response.UserListDto;
+import com.kickzo.main.dto.response.UserInfoDto;
 import com.kickzo.main.exception.CustomErrorCode;
 import com.kickzo.main.exception.CustomException;
 
@@ -35,7 +35,7 @@ public class KafkaProducerService {
 	// Event Types
 	private static final String EVENT_TYPE_ROOM_UPDATE = "room-update";
 	private static final String EVENT_TYPE_ROLE_CHANGE = "role-change";
-	private static final String EVENT_TYPE_USER_LIST = "user-list";
+	private static final String EVENT_TYPE_USER_JOIN = "user-join";
 	private static final String EVENT_TYPE_PLAYLIST_UPDATE = "playlist-update";
 
 	public void sendRoomUpdateMessage(Object event) {
@@ -47,9 +47,9 @@ public class KafkaProducerService {
 		sendEvent(TOPIC_ROOM, EVENT_TYPE_ROLE_CHANGE, event);
 	}
 
-	public void sendRoomUserList(Long roomId, List<UserListDto> userList) {
-		NewUserJoinEvent event = new NewUserJoinEvent(roomId, userList);
-		sendEvent(TOPIC_ROOM, EVENT_TYPE_USER_LIST, event);
+	public void sendRoomUserInfo(Long roomId, UserInfoDto userInfo) {
+		NewUserJoinEvent event = new NewUserJoinEvent(roomId, userInfo);
+		sendEvent(TOPIC_ROOM, EVENT_TYPE_USER_JOIN, event);
 	}
 
 	public void sendPlaylistUpdate(Long roomId, List<PlaylistItem> playlistJson) {

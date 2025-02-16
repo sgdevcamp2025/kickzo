@@ -15,7 +15,7 @@ import com.kickzo.main.dto.request.RoomUpdateRequestDto;
 import com.kickzo.main.dto.response.RoomDetailsDto;
 import com.kickzo.main.dto.response.RoomEntryResponseDto;
 import com.kickzo.main.dto.response.RoomInfoDto;
-import com.kickzo.main.dto.response.UserListDto;
+import com.kickzo.main.dto.response.UserInfoDto;
 import com.kickzo.main.entity.Room;
 import com.kickzo.main.entity.RoomUser;
 import com.kickzo.main.entity.RoomUserId;
@@ -46,7 +46,7 @@ public class RoomService {
 	@Transactional
 	public RoomEntryResponseDto getRoomJoinResponse(String roomCode, Long userId){
 		int myRole = determineUserRole(roomCode, userId);
-		RoomDetailsDto roomDetails = assembleRoomDetails(myRole, roomCode);
+		RoomDetailsDto roomDetails = assembleRoomDetails(roomCode);
 		return new RoomEntryResponseDto(myRole, roomDetails);
 	}
 
@@ -84,7 +84,7 @@ public class RoomService {
 	}
 
 	@Transactional(readOnly = true)
-	public List<UserListDto> getRoomParticipants(Long roomId) {
+	public List<UserInfoDto> getRoomParticipants(Long roomId) {
 		return fetchUserList(roomId);
 	}
 
@@ -120,32 +120,34 @@ public class RoomService {
 		// Step 3: 역할(Role)이 존재하지 않으면 새 사용자 추가
 		saveUserCount(roomId);
 		saveNewRoomUser(roomId, userId);
+		sendRoomUserInfoToKafka(roomId, userId);
 		return ROLE_MEMBER;
 	}
 
-	private RoomDetailsDto assembleRoomDetails(int myRole, String roomCode) {
+	private void sendRoomUserInfoToKafka(Long roomId, Long userId) {
+		String nickName = getUserNickname(userId);
+		kafkaProducerService.sendRoomUserInfo(roomId, new UserInfoDto(userId, ROLE_MEMBER, nickName, getUserProfileImage(userId)));
+	}
+
+	private RoomDetailsDto assembleRoomDetails(String roomCode) {
 		Long roomId = getRoomId(roomCode);
 
-		List<UserListDto> userList = fetchUserList(roomId);
+		List<UserInfoDto> userList = fetchUserList(roomId);
 		List<RoomInfoDto> roomInfo = fetchRoomInfo(roomId);
 		List<PlaylistItem> playlist = fetchPlaylist(roomId);
-
-		if (myRole == ROLE_MEMBER) {
-			kafkaProducerService.sendRoomUserList(roomId, userList);
-		}
 
 		return new RoomDetailsDto(userList, roomInfo, playlist);
 	}
 
-	private List<UserListDto> fetchUserList(Long roomId) {
+	private List<UserInfoDto> fetchUserList(Long roomId) {
 		List<Object[]> userIdRoles = roomUserRepository.findUsersByRoomId(roomId);
 		return userIdRoles.stream()
 			.map(userRole -> {
 				Long userId = (Long) userRole[0];
 				int role = (int) userRole[1];
-				String nickname = userRepository.findNicknameById(userId);
+				String nickname = getUserNickname(userId);
 				String profileImageUrl = getUserProfileImage(userId);
-				return new UserListDto(userId, role, nickname, profileImageUrl);
+				return new UserInfoDto(userId, role, nickname, profileImageUrl);
 			})
 			.collect(Collectors.toList());
 	}
@@ -184,6 +186,9 @@ public class RoomService {
 		return userRepository.findProfileImageUrlById(userId);
 	}
 
+	private String getUserNickname(Long userId) {
+		return userRepository.findNicknameById(userId);
+	}
 
 	private void saveUserCount(Long roomId){
 		Room room = roomRepository.findById(roomId)

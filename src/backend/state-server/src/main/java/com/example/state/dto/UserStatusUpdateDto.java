@@ -10,8 +10,8 @@ import java.util.List;
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserStatusUpdateDto {
-    private String userId;
+    private Long userId; // userId를 Long으로 변경
     private String status;
-    private List<String> friends;
-    private String timestamp;
+    private List<Long> friends; // friends 리스트 안의 값도 Long으로 변경
+    private Long timestamp; // timestamp를 Long으로 변경
 }

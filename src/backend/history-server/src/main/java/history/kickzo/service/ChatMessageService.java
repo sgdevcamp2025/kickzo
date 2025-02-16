@@ -27,7 +27,7 @@ public class ChatMessageService {
             System.out.println("Saving message to DB: ");
             System.out.println("ID: " + chatMessage.getId());
             System.out.println("User: " + chatMessage.getUserId());
-            System.out.println("Message: " + chatMessage.getContent());
+            System.out.println("Message: " + chatMessage.getMessage());  // content 대신 message 사용
             System.out.println("Timestamp: " + chatMessage.getTimestamp());
 
             // DB에 저장
@@ -38,7 +38,7 @@ public class ChatMessageService {
         }
     }
 
-    public List<ChatMessage> getMessages(String roomId, long cursor, int limit) {
+    public List<ChatMessage> getMessages(long roomId, long cursor, int limit) {
         List<ChatMessage> messages = repository.findByRoomIdOrderByTimestampDesc(roomId);
         System.out.println("Fetching messages before timestamp: " + cursor);
         // cursor 값에 따라 메시지 필터링

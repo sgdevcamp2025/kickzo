@@ -5,15 +5,15 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class FriendService {
     private final FriendRepository friendRepository;
 
-    public List<String> getFriends(String userId) {
-        List<Long> friendIds = friendRepository.findFriendsByUserId(Long.parseLong(userId));
-        return friendIds.stream().map(String::valueOf).collect(Collectors.toList());
+    // userId를 Long 타입으로 변경
+    public List<Long> getFriends(Long userId) {
+        // friendRepository에서 반환되는 friendIds도 Long 타입으로 변경
+        return friendRepository.findFriendsByUserId(userId);
     }
 }

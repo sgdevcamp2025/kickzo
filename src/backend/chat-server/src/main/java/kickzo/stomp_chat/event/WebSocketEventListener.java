@@ -29,8 +29,8 @@ public class WebSocketEventListener implements WebSocketMessageBrokerConfigurer 
     public void handleWebSocketDisconnectListener(SessionDisconnectEvent event) {
         // WebSocket 연결 해제 시
         SimpMessageHeaderAccessor headerAccessor = SimpMessageHeaderAccessor.wrap(event.getMessage());
-        String userId = (String) headerAccessor.getSessionAttributes().get("userId");
-        String roomId = "1"; // 예시로 단일 방 사용
+        Long userId = (Long) headerAccessor.getSessionAttributes().get("userId");  // 형 변환
+        long roomId = 1L; // 예시로 단일 방 사용
 
         if (userId != null) {
             roomManager.leaveRoom(roomId, userId);
@@ -51,4 +51,3 @@ public class WebSocketEventListener implements WebSocketMessageBrokerConfigurer 
         registry.addEndpoint("/stomp-chat").withSockJS();
     }
 }
-

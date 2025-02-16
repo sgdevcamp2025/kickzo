@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import kickzo.stomp_chat.dto.PlaylistUpdateEvent;
 import kickzo.stomp_chat.dto.RoomEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,7 +22,7 @@ public class KafkaConsumerService {
 	@KafkaListener(topics = "playlist")
 	public void consumePlaylistEvents(ConsumerRecord<String, String> record) {
 		try {
-			PlaylistUpdateEvent event = objectMapper.readValue(record.value(), PlaylistUpdateEvent.class);
+			RoomEvent event = objectMapper.readValue(record.value(), RoomEvent.class);
 			log.info("Received Playlist Update Event: {}", event);
 			playlistEventHandler.handleEvent(event);
 		} catch (Exception e) {
