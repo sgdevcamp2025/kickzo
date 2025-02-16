@@ -1,32 +1,8 @@
 import { useNavigate } from 'react-router-dom';
-import styled from 'styled-components';
-import Logo from '@/assets/img/Logo.svg'; // 로고 경로는 프로젝트에 맞게 수정
+import Logo from '@/assets/img/Logo.svg';
 import { CommonButton } from '@/components/common/Button';
 import { ButtonColor } from '@/types/enums/ButtonColor';
-
-const Container = styled.div`
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  height: 100vh;
-  text-align: center;
-`;
-
-const LogoImg = styled.img`
-  width: 150px;
-  margin-bottom: 2rem;
-`;
-
-const Title = styled.h1`
-  font-size: 1.5rem;
-  margin-bottom: 1.5rem;
-`;
-
-const Message = styled.p`
-  margin-bottom: 3rem;
-  color: var(--palette-font-gray);
-`;
+import { Container, LogoImg, Title, Message } from './index.css';
 
 export const NotFoundPage = () => {
   const navigate = useNavigate();
