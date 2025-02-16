@@ -6,7 +6,7 @@ import { LoginPage } from '@/pages/LoginPage';
 import { RegisterPage } from '@/pages/RegisterPage';
 import { NotFoundPage } from '@/pages/NotFoundPage';
 import { HomePage } from '@/pages/HomePage';
-import { Room } from '@/pages/RoomPage';
+import { RoomPage } from '@/pages/RoomPage';
 import { FriendPage } from '@/pages/FriendPage';
 import { SettingPage } from '@/pages/SettingPage';
 import { MyRoomPage } from '@/pages/MyRoomPage';
@@ -46,7 +46,7 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="room" element={<Room />} />
+            <Route path="room" element={<RoomPage />} />
             <Route
               path="friend"
               element={
