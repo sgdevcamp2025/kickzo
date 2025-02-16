@@ -28,12 +28,19 @@
         <button id="connectBtn" class="btn btn-primary">CONN</button>
       </div>
 
+      <h2>SUBSCRIBE</h2>
+      <div id="subscriptionList"></div>
+      <div class="input-group mb-3">
+        <button id="addSubscriptionBtn" class="btn btn-secondary">ADD</button>
+      </div>
+
       <h2>자주 사용하는 요청</h2>
       <div class="mb-3">
         <select id="commonRequests" class="form-select">
           <option value="">선택하세요</option>
           <optgroup label="Publish (Send)">
-            <option value="connect">초기 연결 (/app/joinRoom)</option>
+            <option value="connect">초기 연결 v1 (/app/joinRoom)</option>
+            <option value="connect2">초기 연결 v2 (/app/connect)</option>
             <option value="sendMessage">채팅 전송 (/app/sendMessage)</option>
             <option value="playlistTime">
               영상 시간 전송 (/app/playlistTime)
@@ -58,18 +65,12 @@
             <option value="playlistUpdate">
               플레이리스트 업데이트 구독 (/topic/room/{roomId}/playlist-update)
             </option>
-            <option value="playlistTime">
+            <option value="playlistTimeUpdate">
               영상 시간 구독 (/topic/room/{roomId}/playlistTime)
             </option>
             <option value="chat">채팅 구독 (/topic/room/{roomId}/chat)</option>
           </optgroup>
         </select>
-      </div>
-
-      <h2>SUBSCRIBE</h2>
-      <div id="subscriptionList"></div>
-      <div class="input-group mb-3">
-        <button id="addSubscriptionBtn" class="btn btn-secondary">ADD</button>
       </div>
 
       <h2>SEND MESSAGE</h2>
@@ -108,6 +109,12 @@
           template: {
             userId: 2,
             roomId: 1,
+          },
+        },
+        connect2: {
+          path: "/app/connect",
+          template: {
+            userId: 2,
           },
         },
         sendMessage: {
@@ -150,6 +157,10 @@
           path: "/topic/room/{roomId}/playlist-update",
           placeholder: "방 ID를 입력하세요",
         },
+        playlistTimeUpdate: {
+          path: "/topic/room/{roomId}/playlistTime",
+          placeholder: "방 ID를 입력하세요",
+        },
         chat: {
           path: "/topic/room/{roomId}/chat",
           placeholder: "방 ID를 입력하세요",
@@ -173,6 +184,64 @@
               2
             );
           }
+
+          // localStorage에 선택된 값 저장
+          localStorage.setItem("selectedRequest", e.target.value);
+          localStorage.setItem("destinationPath", selected.path || "");
+          localStorage.setItem(
+            "messageContent",
+            selected.template ? JSON.stringify(selected.template) : ""
+          );
+        });
+
+      // 페이지 로드 시 저장된 값 복원
+      document.addEventListener("DOMContentLoaded", function () {
+        // WebSocket URL 복원
+        const savedUrl = localStorage.getItem("websocketUrl");
+        if (savedUrl) {
+          document.getElementById("websocketUrl").value = savedUrl;
+        }
+
+        // 선택된 요청 복원
+        const savedRequest = localStorage.getItem("selectedRequest");
+        if (savedRequest) {
+          document.getElementById("commonRequests").value = savedRequest;
+          document.getElementById("destinationPath").value =
+            localStorage.getItem("destinationPath") || "";
+
+          const savedMessage = localStorage.getItem("messageContent");
+          if (savedMessage) {
+            try {
+              document.getElementById("message").value = JSON.stringify(
+                JSON.parse(savedMessage),
+                null,
+                2
+              );
+            } catch (e) {
+              console.error("Failed to parse saved message:", e);
+            }
+          }
+        }
+
+        // 저장된 구독 경로들 복원
+        try {
+          const savedPaths =
+            JSON.parse(localStorage.getItem("subscriptionPaths")) || [];
+          if (savedPaths.length > 0) {
+            savedPaths.forEach((path) => {
+              addSubscription(path);
+            });
+          }
+        } catch (e) {
+          console.error("Failed to restore subscription paths:", e);
+        }
+      });
+
+      // WebSocket URL 변경 시 저장
+      document
+        .getElementById("websocketUrl")
+        .addEventListener("input", function (e) {
+          localStorage.setItem("websocketUrl", e.target.value);
         });
 
       document.getElementById("connectBtn").addEventListener("click", connect);
@@ -204,22 +273,39 @@
         );
       }
 
-      function addSubscription() {
+      function addSubscription(savedPath = "") {
+        // 이벤트 객체가 전달된 경우 빈 문자열로 처리
+        if (typeof savedPath === "object") {
+          savedPath = "";
+        }
+
         const subscriptionList = document.getElementById("subscriptionList");
         const subscriptionDiv = document.createElement("div");
         subscriptionDiv.className = "input-group mb-2";
         subscriptionDiv.innerHTML = `
-                <input type="text" class="form-control subscription-path" placeholder="/sub/chat/room">
-                <button class="btn btn-primary subscribe-btn">SUBSCRIBE</button>
-                <button class="btn btn-danger unsubscribe-btn">UNSUBSCRIBE</button>
-            `;
+      <input type="text" class="form-control subscription-path" placeholder="/sub/chat/room" value="${savedPath}">
+    <button class="btn btn-primary subscribe-btn">SUBSCRIBE</button>
+    <button class="btn btn-danger unsubscribe-btn">UNSUBSCRIBE</button>
+    <button class="btn btn-secondary delete-btn">DELETE</button>
+    `;
 
         const subscribeBtn = subscriptionDiv.querySelector(".subscribe-btn");
         const unsubscribeBtn =
           subscriptionDiv.querySelector(".unsubscribe-btn");
+        const deleteBtn = subscriptionDiv.querySelector(".delete-btn");
+
         const pathInput = subscriptionDiv.querySelector(".subscription-path");
 
+        // 구독 경로 변경 시 저장
+        pathInput.addEventListener("input", () => {
+          saveSubscriptionPaths();
+        });
+
         subscribeBtn.addEventListener("click", () => {
+          if (!stompClient) {
+            alert("웹소켓 연결이 필요합니다.");
+            return;
+          }
           const subscription = stompClient.subscribe(
             pathInput.value,
             function (message) {
@@ -230,6 +316,8 @@
           );
           subscriptions.push({ path: pathInput.value, subscription });
           subscribeBtn.disabled = true;
+          unsubscribeBtn.disabled = false;
+          saveSubscriptionPaths();
         });
 
         unsubscribeBtn.addEventListener("click", () => {
@@ -239,11 +327,36 @@
           if (index !== -1) {
             subscriptions[index].subscription.unsubscribe();
             subscriptions.splice(index, 1);
-            subscribeBtn.disabled = false;
           }
+          subscribeBtn.disabled = false;
+          unsubscribeBtn.disabled = true;
+          saveSubscriptionPaths();
         });
 
+        deleteBtn.addEventListener("click", () => {
+          // div 요소 제거 전에 구독 해제
+          const index = subscriptions.findIndex(
+            (sub) => sub.path === pathInput.value
+          );
+          if (index !== -1) {
+            subscriptions[index].subscription.unsubscribe();
+            subscriptions.splice(index, 1);
+          }
+          subscriptionDiv.remove();
+          saveSubscriptionPaths();
+        });
+
+        // 초기 상태에서는 UNSUBSCRIBE 버튼 비활성화 안함
+        unsubscribeBtn.disabled = true;
         subscriptionList.appendChild(subscriptionDiv);
+      }
+
+      function saveSubscriptionPaths() {
+        const subscriptionPaths = subscriptions.map((sub) => sub.path);
+        localStorage.setItem(
+          "subscriptionPaths",
+          JSON.stringify(subscriptionPaths)
+        );
       }
 
       function sendMessage() {
