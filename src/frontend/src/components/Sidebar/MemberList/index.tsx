@@ -11,7 +11,7 @@ import { useUserList, IUser } from '@/hooks/utils/useUserList';
 import { Container, UserList, ProfileWrapper } from './index.css';
 
 export const MemberList = () => {
-  const { users, addUser } = useUserList();
+  const { addUser, getSortedUsers } = useUserList();
   const [activeProfile, setActiveProfile] = useState<number | null>(null);
 
   const handleProfileClick = (id: number) => {
@@ -27,6 +27,8 @@ export const MemberList = () => {
     };
     addUser(newUser);
   };
+
+  const users = getSortedUsers();
 
   return (
     <Container>

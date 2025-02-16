@@ -17,36 +17,24 @@ const compareUsers = (a: IUser, b: IUser): number => {
 };
 
 export const useUserList = () => {
-  const treeRef = useRef<RedBlackTree<IUser>>();
-  const [users, setUsers] = useState<IUser[]>([]);
+  const treeRef = useRef<RedBlackTree<IUser> | null>(null);
+  const [, setVersion] = useState(0);
 
   useEffect(() => {
-    let initialUsers: IUser[] = [];
-    const stored = localStorage.getItem('userList');
-    if (stored) {
-      try {
-        initialUsers = JSON.parse(stored);
-      } catch (e) {
-        console.error('저장된 유저 리스트 파싱 에러', e);
-        initialUsers = memberListTest;
-      }
-    } else {
-      initialUsers = memberListTest;
-      localStorage.setItem('userList', JSON.stringify(initialUsers));
-    }
-    const tree = new RedBlackTree<IUser>(compareUsers);
-    initialUsers.forEach(user => tree.insert(user));
-    treeRef.current = tree;
-    setUsers(tree.inOrderTraversal());
+    treeRef.current = new RedBlackTree<IUser>(compareUsers);
+    memberListTest.forEach(user => treeRef.current?.insert(user));
+    setVersion(v => v + 1);
   }, []);
 
   const addUser = (user: IUser) => {
     if (!treeRef.current) return;
     treeRef.current.insert(user);
-    const updatedUsers = treeRef.current.inOrderTraversal();
-    setUsers(updatedUsers);
-    localStorage.setItem('userList', JSON.stringify(updatedUsers));
+    setVersion(v => v + 1);
   };
 
-  return { users, addUser };
+  const getSortedUsers = (): IUser[] => {
+    return treeRef.current ? treeRef.current.inOrderTraversal() : [];
+  };
+
+  return { addUser, getSortedUsers };
 };
