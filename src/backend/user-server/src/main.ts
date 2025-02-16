@@ -1,9 +1,14 @@
 import { NestFactory } from "@nestjs/core";
 import { AppModule } from "./app.module";
 import { MicroserviceOptions, Transport } from "@nestjs/microservices";
+import { VersioningType } from "@nestjs/common";
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
+  app.enableVersioning({
+    type: VersioningType.HEADER,
+    header: "version",
+  });
   app.connectMicroservice<MicroserviceOptions>({
     transport: Transport.TCP,
     options: {

@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
   UsePipes,
   ValidationPipe,
+  VERSION_NEUTRAL,
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { Authorization } from "./decorator/authorization.decorator";
@@ -23,7 +24,7 @@ import {
 import { DeviceType } from "./enum/device-type.enum";
 import { Request, Response } from "express";
 
-@Controller("api/auth")
+@Controller({ path: "api/auth", version: VERSION_NEUTRAL })
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 

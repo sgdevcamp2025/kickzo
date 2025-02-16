@@ -24,7 +24,9 @@ import { UnauthorizedException } from "@nestjs/common";
 import { CheckExistsDto } from "./dto/check-exists.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { MESSAGES } from "./constants/constants";
-@Controller("api/users")
+import { VERSION_NEUTRAL } from "@nestjs/common";
+
+@Controller({ path: "api/users", version: VERSION_NEUTRAL })
 @UseInterceptors(ClassSerializerInterceptor)
 export class UserController {
   constructor(private readonly userService: UserService) {}
