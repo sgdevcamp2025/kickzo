@@ -35,3 +35,34 @@ export interface RoomDto {
   userCount: number;
   playlistUrl?: string;
 }
+
+export interface CurrentRoomUserDto {
+  userId: number;
+  role: number;
+  nickname: string;
+  profileImageUrl: string;
+}
+
+export interface CurrentRoomInfoDto {
+  roomId: number;
+  code: string;
+  title: string;
+  description: string;
+  userCount: number;
+  creator: string;
+  profileImageUrl: string;
+}
+
+export interface CurrentRoomPlaylistDto {
+  url: string;
+  order: number;
+}
+
+export interface CurrentRoomDto {
+  myRole: number;
+  roomDetails: {
+    userList: CurrentRoomUserDto[];
+    roomInfo: CurrentRoomInfoDto[];
+    playlist: CurrentRoomPlaylistDto[];
+  };
+}
