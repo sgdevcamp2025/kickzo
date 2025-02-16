@@ -12,27 +12,31 @@ import ManipulateDataModel
 // MARK: - 추후 분리 및 위치 변경 예정
 
 
-@EncodeDTO
-struct LoginRequestModel: DomainMappable {
-    let id: String
-    let pw: String
-}
-
-@ConvertToDTOModel<LoginRequestModel>
-struct LoginDomainModel {
-    var id: String
-    var pw: String
-}
 
 struct LoginViewModel {
-    var id: String?
-    var pw: String?
+    var userID: String
+    var password: String
     
-    func toModel() -> LoginDomainModel? {
-        if let id, let pw {
-            return .init(id: id, pw: pw)
-        }
-        
-        return nil
+    var isEmpty: Bool {
+        userID == "" && password == ""
     }
 }
+
+@EncodeDTO
+struct LoginRequestModel {
+    let device = "mobile"
+}
+
+
+@DecodeDTO
+@ConvertToDomainModel<TokenDomainModel>
+struct TokenResponseModel {
+    let accessToken: String
+    let refreshToken: String
+}
+
+struct TokenDomainModel: DTOMappable {
+    var accessToken: String
+    var refreshToken: String
+}
+

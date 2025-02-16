@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		5305C58C2D62471500144DFF /* ManipulateDataModel in Frameworks */ = {isa = PBXBuildFile; productRef = 53C955992D40BC23004D4DA2 /* ManipulateDataModel */; };
 		5320CF812D5206BB00EF722E /* YouTubeiOSPlayerHelper in Frameworks */ = {isa = PBXBuildFile; productRef = 5320CF802D5206BB00EF722E /* YouTubeiOSPlayerHelper */; };
 		532D560A2D37BBC300B78EA6 /* SampleTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 532D56092D37BBC300B78EA6 /* SampleTest.swift */; };
 		532F31812D364BB200D2C67E /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 532F31802D364BB200D2C67E /* SnapKit */; };
@@ -15,7 +16,6 @@
 		532F31892D364BCE00D2C67E /* ReactorKit in Frameworks */ = {isa = PBXBuildFile; productRef = 532F31882D364BCE00D2C67E /* ReactorKit */; };
 		532F318B2D364C2E00D2C67E /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 532F318A2D364C2E00D2C67E /* .gitignore */; };
 		53A863DC2D4FB72E009FF8E2 /* RxDataSources in Frameworks */ = {isa = PBXBuildFile; productRef = 53A863DB2D4FB72E009FF8E2 /* RxDataSources */; };
-		53C9559A2D40BC23004D4DA2 /* ManipulateDataModel in Frameworks */ = {isa = PBXBuildFile; productRef = 53C955992D40BC23004D4DA2 /* ManipulateDataModel */; };
 		53FDEFDD2D3E12C400825962 /* ManipulateDataModel in Frameworks */ = {isa = PBXBuildFile; productRef = 5351F2E02D392C600093EB87 /* ManipulateDataModel */; };
 /* End PBXBuildFile section */
 
@@ -92,13 +92,13 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				5305C58C2D62471500144DFF /* ManipulateDataModel in Frameworks */,
 				53FDEFDD2D3E12C400825962 /* ManipulateDataModel in Frameworks */,
 				532F31862D364BC200D2C67E /* RxSwift in Frameworks */,
 				532F31842D364BC200D2C67E /* RxCocoa in Frameworks */,
 				5320CF812D5206BB00EF722E /* YouTubeiOSPlayerHelper in Frameworks */,
 				532F31892D364BCE00D2C67E /* ReactorKit in Frameworks */,
 				53A863DC2D4FB72E009FF8E2 /* RxDataSources in Frameworks */,
-				53C9559A2D40BC23004D4DA2 /* ManipulateDataModel in Frameworks */,
 				532F31812D364BB200D2C67E /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

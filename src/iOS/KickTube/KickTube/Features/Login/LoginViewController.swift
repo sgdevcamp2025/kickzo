@@ -115,7 +115,7 @@ final class LoginViewController: BaseViewController<LoginReactor> {
         pwTextField.textfield.rx.text
             .orEmpty
             .distinctUntilChanged()
-            .map { Reactor.Action.setIDText($0) }
+            .map { Reactor.Action.setPWText($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         loginButton.rx.tap
@@ -127,8 +127,18 @@ final class LoginViewController: BaseViewController<LoginReactor> {
     override func bindState(reactor: LoginReactor) {
         super.bindAction(reactor: reactor)
         
-        reactor.state.map { $0.isIDSave }
+        reactor.state
+            .map { $0.isIDSave }
             .bind(to: saveIDCheckBox.isChecked)
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .map { $0.loginResponse }
+            .asDriver(onErrorJustReturn: false)
+            .filter { $0 }
+            .drive(with: self) { owner, value in
+                owner.changeRootViewController(2)
+            }
             .disposed(by: disposeBag)
     }
 }
