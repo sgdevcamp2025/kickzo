@@ -25,6 +25,7 @@ import { CheckExistsDto } from "./dto/check-exists.dto";
 import { UpdateUserDto } from "./dto/update-user.dto";
 import { MESSAGES } from "./constants/constants";
 import { VERSION_NEUTRAL } from "@nestjs/common";
+import { ApiBearerAuth, ApiOperation } from "@nestjs/swagger";
 
 @Controller({ path: "api/users", version: VERSION_NEUTRAL })
 @UseInterceptors(ClassSerializerInterceptor)
@@ -32,12 +33,15 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post("register")
+  @ApiOperation({ summary: "회원가입" })
   @UsePipes(ValidationPipe)
   registerUser(@Body() createUserDto: CreateUserDto) {
     return this.userService.create(createUserDto);
   }
 
   @Delete("unregister")
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "회원탈퇴" })
   async deleteUser(@Req() req: Request) {
     const userId = req.headers["x-user-id"];
     if (!userId) {
@@ -47,6 +51,9 @@ export class UserController {
   }
 
   @Get("exists")
+  @ApiOperation({
+    summary: "닉네임, 이메일 중복 체크(닉네임 또는 이메일 중 하나만 전달)",
+  })
   @UsePipes(new ValidationPipe({ transform: true }))
   async checkExists(@Query() query: CheckExistsDto) {
     if (query.nickname && query.email) {
@@ -62,6 +69,8 @@ export class UserController {
   }
 
   @Get("me")
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "내 정보 조회" })
   async getMyInfo(@Req() req: Request) {
     const id = req.headers["x-user-id"];
     if (!id) {
@@ -71,6 +80,8 @@ export class UserController {
   }
 
   @Patch("me")
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "내 정보 수정" })
   @UsePipes(ValidationPipe)
   async updateProfile(
     @Req() req: Request,
@@ -87,6 +98,7 @@ export class UserController {
   }
 
   @Get()
+  @ApiOperation({ summary: "모든 유저 조회" })
   async findAll(
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number = 0,
     @Query("size", new DefaultValuePipe(10), ParseIntPipe) size: number = 10,
@@ -95,6 +107,7 @@ export class UserController {
   }
 
   @Get(":id")
+  @ApiOperation({ summary: "유저 조회" })
   async getUserById(@Param("id", ParseIntPipe) id: string) {
     return this.userService.getUserById(+id);
   }
