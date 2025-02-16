@@ -23,14 +23,9 @@ const initialChatData = Array.from({ length: 100 }, (_, i) => ({
 
 export const ChatBox = () => {
   const chatListRef = useRef(new DoublyLinkedList(initialChatData));
+  const startIndexRef = useRef(Math.max(chatListRef.current.length - INITIAL_CHAT_NUM, 0));
   const [visibleChat, setVisibleChat] = useState(
-    chatListRef.current.slice(
-      Math.max(chatListRef.current.length - INITIAL_CHAT_NUM, 0),
-      chatListRef.current.length,
-    ),
-  );
-  const [startIndex, setStartIndex] = useState(
-    Math.max(chatListRef.current.length - INITIAL_CHAT_NUM, 0),
+    chatListRef.current.slice(startIndexRef.current, chatListRef.current.length),
   );
   const [extraTopNum, setExtraTopNum] = useState(0);
   const [extraDownNum, setExtraDownNum] = useState(0);
@@ -83,7 +78,7 @@ export const ChatBox = () => {
 
       if (sender === 'Me' || isAtBottom()) {
         const newStartIndex = newLength > MAX_CHAT_NUM ? newLength - MAX_CHAT_NUM : 0;
-        setStartIndex(newStartIndex);
+        startIndexRef.current = newStartIndex;
         setVisibleChat(chatListRef.current.slice(newStartIndex, newLength));
         scrollToBottom();
       }
@@ -136,6 +131,7 @@ export const ChatBox = () => {
     }
   }, []);
 
+  // 상단 감지 Observer
   useEffect(() => {
     const observerOptions = {
       root: chatContainerRef.current,
@@ -143,13 +139,13 @@ export const ChatBox = () => {
     };
     const topObserver = new IntersectionObserver(entries => {
       const entry = entries[0];
-      if (entry.isIntersecting && startIndex > 0) {
-        const newStartIndex = Math.max(0, startIndex - EXTRA_CHAT_NUM);
+      if (entry.isIntersecting && startIndexRef.current > 0) {
+        const newStartIndex = Math.max(0, startIndexRef.current - EXTRA_CHAT_NUM);
         const prevHeight = chatContainerRef.current?.scrollHeight || 0;
         if (visibleChat.length === MAX_CHAT_NUM) {
           setExtraDownNum(prev => prev + EXTRA_CHAT_NUM);
         }
-        setStartIndex(newStartIndex);
+        startIndexRef.current = newStartIndex;
         setVisibleChat(chatListRef.current.slice(newStartIndex, newStartIndex + MAX_CHAT_NUM));
         requestAnimationFrame(() => {
           if (chatContainerRef.current) {
@@ -168,8 +164,9 @@ export const ChatBox = () => {
         topObserver.unobserve(topSentinelRef.current);
       }
     };
-  }, [startIndex, visibleChat]);
+  }, [visibleChat]);
 
+  // 하단 감지 Observer
   useEffect(() => {
     const observerOptions = {
       root: chatContainerRef.current,
@@ -177,9 +174,12 @@ export const ChatBox = () => {
     };
     const bottomObserver = new IntersectionObserver(entries => {
       const entry = entries[0];
-      if (entry.isIntersecting && startIndex < chatListRef.current.length - MAX_CHAT_NUM) {
+      if (
+        entry.isIntersecting &&
+        startIndexRef.current < chatListRef.current.length - MAX_CHAT_NUM
+      ) {
         const newStartIndex = Math.min(
-          startIndex + EXTRA_CHAT_NUM,
+          startIndexRef.current + EXTRA_CHAT_NUM,
           chatListRef.current.length - MAX_CHAT_NUM,
         );
         const prevHeight = chatContainerRef.current?.scrollHeight || 0;
@@ -187,7 +187,7 @@ export const ChatBox = () => {
           setExtraDownNum(prev => Math.max(prev - EXTRA_CHAT_NUM, 0));
           setExtraTopNum(prev => prev + EXTRA_CHAT_NUM);
         }
-        setStartIndex(newStartIndex);
+        startIndexRef.current = newStartIndex;
         setVisibleChat(chatListRef.current.slice(newStartIndex, newStartIndex + MAX_CHAT_NUM));
         requestAnimationFrame(() => {
           if (chatContainerRef.current) {
@@ -207,11 +207,11 @@ export const ChatBox = () => {
         bottomObserver.unobserve(bottomSentinelRef.current);
       }
     };
-  }, [startIndex, visibleChat]);
+  }, [visibleChat]);
 
   const scrollToBottom = () => {
     if (chatContainerRef.current) {
-      setExtraTopNum(extraTopNum + extraDownNum);
+      setExtraTopNum(prev => prev + extraDownNum);
       setExtraDownNum(0);
       chatContainerRef.current.scrollTo({
         top: chatContainerRef.current.scrollHeight,
