@@ -1,13 +1,14 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Stomp, { Client, Message } from 'stompjs';
 import SockJS from 'sockjs-client';
 import { ChatInput } from '@/components/Sidebar/Chating/ChatInput';
 import { ChatMessages } from '@/components/Sidebar/Chating/ChatMessages';
 import { UserRole } from '@/types/enums/UserRole';
 import { ChatContainer, ChatScrollArea, Blank } from './index.css';
-import { DoublyLinkedList } from '@/components/Sidebar/Chating/doublyLinkedList';
+import { DoublyLinkedList } from '@/hooks/utils/DoublyLinkedList';
 
-const MemoizedChatMessages = React.memo(ChatMessages);
+const BATCH_INTERVAL = 100;
+const MAX_BATCH_SIZE = 20;
 
 const INITIAL_CHAT_NUM = 20;
 const EXTRA_CHAT_NUM = 5;
@@ -25,8 +26,12 @@ export const ChatBox = () => {
   const chatListRef = useRef(new DoublyLinkedList(initialChatData));
   const startIndexRef = useRef(Math.max(chatListRef.current.length - INITIAL_CHAT_NUM, 0));
   const [visibleChat, setVisibleChat] = useState(
-    chatListRef.current.slice(startIndexRef.current, chatListRef.current.length),
+    chatListRef.current.slice(
+      Math.max(chatListRef.current.length - INITIAL_CHAT_NUM, 0),
+      chatListRef.current.length,
+    ),
   );
+
   const [extraTopNum, setExtraTopNum] = useState(0);
   const [extraDownNum, setExtraDownNum] = useState(0);
   const [status, setStatus] = useState<string>('Disconnected');
@@ -35,9 +40,10 @@ export const ChatBox = () => {
   const stompClientRef = useRef<Client | null>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const bottomSentinelRef = useRef<HTMLDivElement>(null);
+  const incomingQueueRef = useRef<{ content: string; userId: string }[]>([]);
 
-  const userId = useRef(`user${Math.floor(Math.random() * 1000)}`);
   const roomId = '1';
+  const userId = useRef(`user${Math.floor(Math.random() * 1000)}`);
 
   const isAtBottom = useCallback(() => {
     if (!chatContainerRef.current) return false;
@@ -45,11 +51,10 @@ export const ChatBox = () => {
     return scrollHeight - scrollTop - clientHeight < 10;
   }, []);
 
-  // WebSocket을 통한 메시지 전송
   const sendMessage = useCallback(
     (message: string) => {
       if (!stompClientRef.current || !stompClientRef.current.connected) {
-        console.warn('웹소켓 연결이 되지 않아 메세지를 보낼 수 없습니다.');
+        console.warn('웹소켓 연결이 되지 않아 메시지 전송 불가');
         return;
       }
       stompClientRef.current.send('/app/sendMessage', {}, JSON.stringify({ roomId, message }));
@@ -57,9 +62,8 @@ export const ChatBox = () => {
     [roomId],
   );
 
-  // 새 메시지 추가
   const addMessage = useCallback(
-    (message: string, sender: string = 'Me') => {
+    (message: string, sender: string = 'Me', _isBatch: boolean = false) => {
       if (sender !== 'Me' && sender === userId.current) return;
 
       const newChat = {
@@ -76,15 +80,33 @@ export const ChatBox = () => {
       chatListRef.current.push(newChat);
       const newLength = chatListRef.current.length;
 
-      if (sender === 'Me' || isAtBottom()) {
-        const newStartIndex = newLength > MAX_CHAT_NUM ? newLength - MAX_CHAT_NUM : 0;
-        startIndexRef.current = newStartIndex;
-        setVisibleChat(chatListRef.current.slice(newStartIndex, newLength));
-        scrollToBottom();
-      }
+      setTimeout(() => {
+        if (sender === 'Me' || isAtBottom()) {
+          const newStartIndex = newLength > MAX_CHAT_NUM ? newLength - MAX_CHAT_NUM : 0;
+          startIndexRef.current = newStartIndex;
+          setVisibleChat(chatListRef.current.slice(newStartIndex, newLength));
+          scrollToBottom();
+        }
+      }, 0);
     },
     [isAtBottom, sendMessage],
   );
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (incomingQueueRef.current.length > 0) {
+        const batch = incomingQueueRef.current.splice(0, MAX_BATCH_SIZE);
+
+        setTimeout(() => {
+          batch.forEach(msg => {
+            addMessage(msg.content, msg.userId, true);
+          });
+        }, 0);
+      }
+    }, BATCH_INTERVAL);
+
+    return () => clearInterval(intervalId);
+  }, [addMessage]);
 
   // WebSocket 연결
   const connect = useCallback(() => {
@@ -104,7 +126,7 @@ export const ChatBox = () => {
       const subscription = client.subscribe(`/topic/${roomId}`, (message: Message) => {
         try {
           const payload = JSON.parse(message.body);
-          addMessage(payload.content, payload.userId);
+          incomingQueueRef.current.push({ content: payload.content, userId: payload.userId });
         } catch (error) {
           console.error('❌: ', error);
         }
@@ -116,7 +138,7 @@ export const ChatBox = () => {
         subscription.unsubscribe();
       };
     });
-  }, [roomId, addMessage]);
+  }, [roomId]);
 
   // WebSocket 연결 해제
   const disconnect = useCallback(() => {
@@ -133,10 +155,7 @@ export const ChatBox = () => {
 
   // 상단 감지 Observer
   useEffect(() => {
-    const observerOptions = {
-      root: chatContainerRef.current,
-      threshold: 1.0,
-    };
+    const observerOptions = { root: chatContainerRef.current, threshold: 1.0 };
     const topObserver = new IntersectionObserver(entries => {
       const entry = entries[0];
       if (entry.isIntersecting && startIndexRef.current > 0) {
@@ -168,10 +187,7 @@ export const ChatBox = () => {
 
   // 하단 감지 Observer
   useEffect(() => {
-    const observerOptions = {
-      root: chatContainerRef.current,
-      threshold: 1.0,
-    };
+    const observerOptions = { root: chatContainerRef.current, threshold: 1.0 };
     const bottomObserver = new IntersectionObserver(entries => {
       const entry = entries[0];
       if (
@@ -209,7 +225,7 @@ export const ChatBox = () => {
     };
   }, [visibleChat]);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     if (chatContainerRef.current) {
       setExtraTopNum(prev => prev + extraDownNum);
       setExtraDownNum(0);
@@ -218,18 +234,18 @@ export const ChatBox = () => {
         behavior: 'smooth',
       });
     }
-  };
+  }, [extraDownNum]);
 
   return (
     <ChatContainer>
       <ChatScrollArea ref={chatContainerRef}>
         <Blank $blankPadding={`${CHAT_HEIGHT * extraTopNum}px`} />
         <div ref={topSentinelRef} style={{ height: 1 }} />
-        <MemoizedChatMessages chatData={visibleChat} />
+        <ChatMessages chatData={visibleChat} />
         <div ref={bottomSentinelRef} style={{ height: 1 }} />
         <Blank $blankPadding={`${CHAT_HEIGHT * extraDownNum}px`} />
       </ChatScrollArea>
-      <ChatInput onSendMessage={addMessage} />
+      <ChatInput onSendMessage={msg => addMessage(msg, 'Me')} />
       <button onClick={connect}>연결하기</button>
       <button onClick={disconnect}>연결 끊기</button>
       <p>Status: {status}</p>
