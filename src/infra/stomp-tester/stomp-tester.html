@@ -39,12 +39,9 @@
         <select id="commonRequests" class="form-select">
           <option value="">선택하세요</option>
           <optgroup label="Publish (Send)">
-            <option value="connect">초기 연결 v1 (/app/joinRoom)</option>
-            <option value="connect2">초기 연결 v2 (/app/connect)</option>
-            <option value="sendMessage">채팅 전송 (/app/sendMessage)</option>
-            <option value="playlistTime">
-              영상 시간 전송 (/app/playlistTime)
-            </option>
+            <option value="connect">초기 연결 (/app/connect)</option>
+            <option value="sendMessage">채팅 전송 (/app/send-message)</option>
+            <option value="playTime">영상 시간 전송 (/app/play-time)</option>
           </optgroup>
           <optgroup label="Subscribe">
             <option value="notification">
@@ -65,8 +62,8 @@
             <option value="playlistUpdate">
               플레이리스트 업데이트 구독 (/topic/room/{roomId}/playlist-update)
             </option>
-            <option value="playlistTimeUpdate">
-              영상 시간 구독 (/topic/room/{roomId}/playlistTime)
+            <option value="playTimeUpdate">
+              영상 시간 구독 (/topic/room/{roomId}/play-time)
             </option>
             <option value="chat">채팅 구독 (/topic/room/{roomId}/chat)</option>
           </optgroup>
@@ -105,20 +102,13 @@
 
       const messageTemplates = {
         connect: {
-          path: "/app/joinRoom",
-          template: {
-            userId: 2,
-            roomId: 1,
-          },
-        },
-        connect2: {
           path: "/app/connect",
           template: {
             userId: 2,
           },
         },
         sendMessage: {
-          path: "/app/sendMessage",
+          path: "/app/send-message",
           template: {
             roomId: 1,
             userId: 2,
@@ -126,11 +116,11 @@
             message: "메시지 내용",
           },
         },
-        playlistTime: {
-          path: "/app/playlistTime",
+        playTime: {
+          path: "/app/play-time",
           template: {
             roomId: 1,
-            playlistTime: 79,
+            playTime: 79,
           },
         },
         notification: {
@@ -157,8 +147,8 @@
           path: "/topic/room/{roomId}/playlist-update",
           placeholder: "방 ID를 입력하세요",
         },
-        playlistTimeUpdate: {
-          path: "/topic/room/{roomId}/playlistTime",
+        playTimeUpdate: {
+          path: "/topic/room/{roomId}/play-time",
           placeholder: "방 ID를 입력하세요",
         },
         chat: {
