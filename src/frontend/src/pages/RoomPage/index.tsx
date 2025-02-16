@@ -30,7 +30,7 @@ export const RoomPage = () => {
           <YouTubePlayer />
           <RoomDetail />
           {/* NOTE: 채팅 메시지 테스트 용 */}
-          {messages && messages.map(message => <p>{message.message}</p>)}
+          <ul>{messages && messages.map((message, i) => <li key={i}>{message.message}</li>)}</ul>
         </Wrapper>
         <Sidebar />
       </Container>
