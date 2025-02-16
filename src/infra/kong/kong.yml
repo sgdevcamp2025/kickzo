@@ -79,6 +79,31 @@ services:
               uri_param_names: []
           - name: custom-jwt-header
 
+    # friend Service
+  - name: friend-service
+    url: http://friend:8107 # FRIEND_PORT=8107
+    routes:
+      - name: friend-private-route
+        paths:
+          - /api/friends
+        strip_path: false
+        protocols:
+          - http
+          - https
+        plugins:
+          - name: jwt
+            config:
+              key_claim_name: kid
+              claims_to_verify:
+                - exp
+              secret_is_base64: false
+              anonymous: null
+              header_names:
+                - Authorization
+              cookie_names: []
+              uri_param_names: []
+          - name: custom-jwt-header
+
   - name: chat-service
     url: http://chat-service-upstream # upstream 이름
     routes:
