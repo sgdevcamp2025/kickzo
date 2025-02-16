@@ -163,12 +163,13 @@ export const ChatBox = () => {
         const prevHeight = chatContainerRef.current?.scrollHeight || 0;
         if (visibleChat.length === MAX_CHAT_NUM) {
           setExtraDownNum(prev => prev + EXTRA_CHAT_NUM);
+          setExtraTopNum(prev => Math.max(prev - EXTRA_CHAT_NUM, 0));
         }
         startIndexRef.current = newStartIndex;
         setVisibleChat(chatListRef.current.slice(newStartIndex, newStartIndex + MAX_CHAT_NUM));
         requestAnimationFrame(() => {
           if (chatContainerRef.current) {
-            const newHeight = chatContainerRef.current.scrollHeight;
+            const newHeight = chatContainerRef.current.scrollHeight + extraTopNum * CHAT_HEIGHT;
             chatContainerRef.current.scrollTop = newHeight - prevHeight;
           }
         });
@@ -240,7 +241,7 @@ export const ChatBox = () => {
     <ChatContainer>
       <ChatScrollArea ref={chatContainerRef}>
         <Blank $blankPadding={`${CHAT_HEIGHT * extraTopNum}px`} />
-        <div ref={topSentinelRef} style={{ height: 1 }} />
+        <div ref={topSentinelRef} style={{ height: 100 }} />
         <ChatMessages chatData={visibleChat} />
         <div ref={bottomSentinelRef} style={{ height: 1 }} />
         <Blank $blankPadding={`${CHAT_HEIGHT * extraDownNum}px`} />
