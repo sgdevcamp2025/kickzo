@@ -1,4 +1,4 @@
-import { Wrapper, Container, Title, SubTitle } from '../index.css';
+import { Wrapper, Container, Title, SubTitle } from '@/ui/Common.css';
 import {
   SkeletonCard,
   SkeletonThumbnail,
