@@ -29,7 +29,7 @@ struct KickRoomDetailResponseDTO {
     func toModel() -> KickRoomDetailDomainModel {
         .init(userList: self.userList.map { $0.toModel() },
               roomInfo: self.roomInfo.map { $0.toModel() }[0],
-              playlist: self.playlist.map { $0.toModel() }[0])
+              playlist: self.playlist.map { $0.toModel() })
     }
 }
 
@@ -38,18 +38,20 @@ struct KickRoomUserResponseDTO {
     @Key("userId") let userID: Int
     let role: Int
     let nickname: String
+    @Key("profileImageUrl") let profileImageURL: String?
     
     func toModel() -> KickRoomUserDomainModel {
         .init(userID: self.userID,
               role: UserRole(rawValue: self.role) ?? .member,
-              nickname: self.nickname)
+              nickname: self.nickname,
+              userProfileImageURL: self.profileImageURL)
     }
 }
 
 @DecodeDTO
 @ConvertToDomainModel<KickRoomInfoDomainModel>
 struct KickRoomInfoResponseDTO {
-    @Key("id") let roomID: Int
+    @Key("roomId") let roomID: Int
     let code: String
     let title: String
     let description: String?
@@ -59,28 +61,8 @@ struct KickRoomInfoResponseDTO {
 }
 
 @DecodeDTO
+@ConvertToDomainModel<KickRoomPlaylistDomainModel>
 struct KickRoomPlaylistResponseDTO {
-    let order: [KickRoomPlaylistItemResponseDTO]
-    
-    init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let orderString = try container.decode(String.self, forKey: .order)
-        if let jsonData = orderString.data(using: .utf8) {
-            self.order = try JSONDecoder().decode([KickRoomPlaylistItemResponseDTO].self, from: jsonData)
-        } else {
-            self.order = []
-        }
-    }
-    
-    func toModel() -> KickRoomPlaylistDomainModel {
-        .init(order: self.order.map { $0.toModel() })
-    }
-}
-
-
-@DecodeDTO
-@ConvertToDomainModel<KickRoomPlaylistItemDomainModel>
-struct KickRoomPlaylistItemResponseDTO {
-   let url: String
-   let order: Int
+    let url: String
+    let order: Int
 }

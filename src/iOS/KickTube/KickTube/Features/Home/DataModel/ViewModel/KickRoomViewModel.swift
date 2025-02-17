@@ -15,7 +15,7 @@ struct KickRoomViewModel {
 struct KickRoomDetailViewModel {
     var userList: [KickRoomUserViewModel]
     var roomInfo: KickRoomInfoViewModel
-    var playlist: KickRoomPlaylistViewModel
+    var playlist: [KickRoomPlaylistViewModel]
 }
 
 struct KickRoomUserViewModel  {
@@ -42,10 +42,6 @@ struct KickRoomInfoViewModel {
 }
 
 struct KickRoomPlaylistViewModel {
-    var order: [KickRoomPlaylistItemViewModel]
-}
-
-struct KickRoomPlaylistItemViewModel {
     let url: String
     var order: Int
 }
