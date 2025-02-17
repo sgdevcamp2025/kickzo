@@ -6,3 +6,8 @@ scrape_configs:
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['history:8080']  # Spring Boot 컨테이너 주소
+
+  - job_name: 'state-monitoring'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['state:8080']  # Spring Boot 컨테이너 주소
