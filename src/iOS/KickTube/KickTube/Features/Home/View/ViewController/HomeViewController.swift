@@ -31,18 +31,31 @@ final class HomeViewController: BaseViewController<HomeReactor> {
     }
     private let homeCollectionView = UICollectionView(frame: .zero, collectionViewLayout: .homeCollectionViewLayout()).then {
         $0.register(HomeVideoCollectionViewCell.self, forCellWithReuseIdentifier: HomeVideoCollectionViewCell.reuseIdentifier)
+        $0.showsVerticalScrollIndicator = false
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        reactor.action.onNext(.getRoom)
+    }
     
     // MARK: - configure Reactor
     
     override func bindAction(reactor: HomeReactor) {
-        Observable.just(HomeReactor.Action.viewDidLoad)
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
         homeCollectionView.rx.itemSelected
             .map { Reactor.Action.homeCellTapped(idx: $0) }
             .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        homeCollectionView.rx.prefetchItems
+            .subscribe(onNext: { [weak self] indexPaths in
+                guard let self else { return }
+                
+                let lastIndexPath = indexPaths.last?.row ?? 0
+               
+                if lastIndexPath >= self.reactor.currentState.rooms.count - 4 {
+                    reactor.action.onNext(.getRoom)
+                }
+            })
             .disposed(by: disposeBag)
     }
     

@@ -1,35 +1,13 @@
 //
-//  HomeDataModel.swift
+//  HomeRoomDomainModel.swift
 //  KickTube
 //
-//  Created by 김수경 on 1/30/25.
+//  Created by 김수경 on 2/17/25.
 //
 
 import Foundation
 
 import ManipulateDataModel
-
-
-// MARK: - 추후 분리 및 위치 변경 예정
-
-struct HomeRoomViewModel: Equatable {
-    let roomID: String
-    let code: String
-    var title: String
-    var description: String?
-    let creatorName: String
-    var profileImageURL: URL?
-    var userCount: Int
-    var playlistURL: String?
-    
-    var videoID: String? {
-        playlistURL?.youtubeID
-    }
-    var videoThumbnail: Data?
-    var participatedUserCount: String {
-        "\(userCount)"
-    }
-}
 
 struct HomeRoomDomainModel: DTOMappable {
     let roomID: Int
@@ -57,17 +35,4 @@ struct HomeRoomDomainModel: DTOMappable {
                      userCount: self.userCount,
                      playlistURL: self.playlistURL)
     }
-}
-
-@DecodeDTO
-@ConvertToDomainModel<HomeRoomDomainModel>
-struct HomeRoomResponse {
-    @Key("id") let roomID: Int
-    let code: String
-    let title: String
-    let description: String?
-    let creator: String
-    @Key("profileImageUrl") let profileImageURL: String
-    let userCount: Int
-    @Key("playlistUrl") let playlistURL: String?
 }

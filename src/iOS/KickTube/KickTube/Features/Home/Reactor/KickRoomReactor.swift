@@ -43,28 +43,7 @@ final class KickRoomReactor: Reactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewWillAppear:
-            let joinRoomRequest = DefaultRequest<KickRoomResponseDTO>(method: .post, path: ["api", "rooms", "join"], header: [.json, .authorizationAccessToken], body: JoinRoomRequestDTO(roomCode: currentState.roomCode))
-            
-            do {
-                return Observable.create { [weak self] observer in
-                    guard let self else { return Disposables.create() }
-                    
-                    Task {
-                        do {
-                            let createRoomResponse = try await self.session.send(joinRoomRequest)
-                            
-                            observer.onNext(Mutation.setRoomInformation(createRoomResponse.toModel()))
-                            observer.onCompleted()
-                        } catch NetworkError.createRoom {
-                            observer.onCompleted()
-                        } catch {
-                            print("*****", error)
-                        }
-                    }
-                    return Disposables.create()
-                }
-            }
-            
+            return joinRoom()
         case .stopPlayer(let state):
             return .just(.setVideoPlayer(state))
         case .playPlayer(let state):
@@ -91,6 +70,28 @@ final class KickRoomReactor: Reactor {
         }
     
         return newState
+    }
+    
+    private func joinRoom() -> Observable<Mutation> {
+        let joinRoomRequest = DefaultRequest<KickRoomResponseDTO>(method: .post, path: ["api", "rooms", "join"], header: [.json, .authorizationAccessToken], body: JoinRoomRequestDTO(roomCode: currentState.roomCode))
+        
+        do {
+            return Observable.create { [weak self] observer in
+                guard let self else { return Disposables.create() }
+                
+                Task {
+                    do {
+                        let createRoomResponse = try await self.session.send(joinRoomRequest)
+                        
+                        observer.onNext(Mutation.setRoomInformation(createRoomResponse.toModel()))
+                        observer.onCompleted()
+                    } catch NetworkError.createRoom {
+                        observer.onCompleted()
+                    }
+                }
+                return Disposables.create()
+            }
+        }
     }
 }
 
