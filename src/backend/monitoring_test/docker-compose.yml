@@ -13,6 +13,35 @@ services:
     networks:
       - kickzo_kickzo-network
 
+  mysql-exporter:
+    container_name: mysql-exporter
+    image: prom/mysqld-exporter
+    command:
+      - "--mysqld.username=kickzo:test123"
+      - "--mysqld.address=mysql:3306"
+    ports:
+      - "9104:9104"
+    networks:
+      - kickzo_kickzo-network
+
+  redis-exporter:
+    image: oliver006/redis_exporter
+    container_name: redis-exporter
+    ports:
+      - "9121:9121"
+    networks:
+      - kickzo_kickzo-network
+
+  kafka-exporter:
+    image: danielqsj/kafka-exporter
+    container_name: kafka-exporter
+    ports:
+      - "9308:9308"
+    command:
+      - "--kafka.server=kafka:9092"
+    networks:
+      - kickzo_kickzo-network
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus

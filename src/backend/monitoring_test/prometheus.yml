@@ -27,6 +27,18 @@ scrape_configs:
     static_configs:
       - targets: ['main:8080']  # Spring Boot 컨테이너 주소
 
+  - job_name: 'mysql-monitoring'
+    static_configs:
+      - targets: ['mysql-exporter:9104']
+
   - job_name: 'mongodb-monitoring'
     static_configs:
       - targets: ['mongodb-exporter:9216']
+
+  - job_name: 'redis-monitoring'
+    static_configs:
+      - targets: ['redis-exporter:9121']
+
+  - job_name: 'kafka-monitoring'
+    static_configs:
+      - targets: ['kafka-exporter:9308']
