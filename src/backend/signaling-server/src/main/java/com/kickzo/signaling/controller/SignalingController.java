@@ -10,6 +10,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import com.kickzo.signaling.model.Room;
 import com.kickzo.signaling.model.UserSession;
+import com.kickzo.signaling.repository.RedisRepository;
 import com.kickzo.signaling.service.RoomManager;
 import com.kickzo.signaling.service.UserSessionManager;
 
@@ -22,6 +23,7 @@ import lombok.extern.slf4j.Slf4j;
 public class SignalingController {
 	private final RoomManager roomManager;
 	private final UserSessionManager userRegistry;
+	private final RedisRepository redisRepository;
 
 	// 하나의 엔드포인트에서 모든 WebSocket 메시지를 처리
 	@MessageMapping("/signal")
@@ -76,10 +78,19 @@ public class SignalingController {
 		final UserSession user = room.join(name, sessionId);
 
 		userRegistry.register(user);
+
+		// Redis에 사용자 추가
+		redisRepository.addUserToRoom(roomCode, name);
+		log.info("Added {} to Redis for room {}", name, roomCode);
 	}
 
 	private void leaveRoom(UserSession user) {
 		final Room room = roomManager.getRoom(user.getRoomCode());
+
+		// Redis에서 사용자 제거
+		redisRepository.removeUserFromRoom(user.getRoomCode(), user.getName());
+		log.info("Removed {} from Redis for room {}", user.getName(), user.getRoomCode());
+
 		room.leave(user);
 		if (room.getParticipants().isEmpty()) {
 			roomManager.removeRoom(room);
