@@ -1,0 +1,8 @@
+global:
+  scrape_interval: 5s # 5초마다 데이터를 수집
+
+scrape_configs:
+  - job_name: 'history-monitoring'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['history:8080']  # Spring Boot 컨테이너 주소
