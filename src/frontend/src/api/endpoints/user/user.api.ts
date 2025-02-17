@@ -1,5 +1,5 @@
 import instance from '@/api/axios.instance';
-import { UpdateUserRequestDto, UserResponseDto } from './user.interface';
+import { RegisterDto, UpdateUserRequestDto, UserResponseDto } from './user.interface';
 
 export const userApi = {
   // 내 프로필 조회
@@ -35,6 +35,12 @@ export const userApi = {
   // 닉네임 존재 여부 확인
   checkNicknameExists: async (nickname: string) => {
     const { data } = await instance.get(`users/exists?nickname=${nickname}`);
+    return data;
+  },
+
+  // 회원가입
+  register: async (registerDto: RegisterDto) => {
+    const { data } = await instance.post<UserResponseDto>(`users/register`, registerDto);
     return data;
   },
 };

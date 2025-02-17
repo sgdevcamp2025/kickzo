@@ -12,3 +12,9 @@ export interface UserResponseDto {
   profileImages: string[] | null;
   stateMessage: string;
 }
+
+export interface RegisterDto {
+  email: string;
+  password: string;
+  nickname: string;
+}
