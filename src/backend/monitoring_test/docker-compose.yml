@@ -1,6 +1,18 @@
 version: '3.8'
 
 services:
+
+  # MongoDB Exporter
+  mongodb-exporter:
+    image: bitnami/mongodb-exporter
+    container_name: mongodb-exporter
+    ports:
+      - "9216:9216"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017  # MongoDB 컨테이너에 연결
+    networks:
+      - kickzo_kickzo-network
+
   prometheus:
     image: prom/prometheus:latest
     container_name: prometheus
