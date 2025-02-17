@@ -16,35 +16,40 @@ export const VoiceChat = () => {
     setActiveProfile(prevId => (prevId === id ? null : id));
   };
 
+  const sortedUsers = memberListTest.sort((a, b) => {
+    if (a.role !== b.role) {
+      return a.role - b.role;
+    }
+    return a.nickname.localeCompare(b.nickname, 'ko');
+  });
+
   return (
     <Container>
       <UserList>
-        {memberListTest
-          .sort((a, b) => a.role - b.role)
-          .map(member => (
-            <ProfileWrapper key={member.id}>
-              <div onClick={() => handleProfileClick(member.id)}>
-                <SmallProfile
-                  type={ProfileType.VOICECHAT}
-                  role={member.role}
-                  nickname={member.nickname}
-                  imgUrl={member.profileImg}
+        {sortedUsers.map(member => (
+          <ProfileWrapper key={member.id}>
+            <div onClick={() => handleProfileClick(member.id)}>
+              <SmallProfile
+                type={ProfileType.VOICECHAT}
+                role={member.role}
+                nickname={member.nickname}
+                imgUrl={member.profileImg}
+              />
+            </div>
+            {activeProfile === member.id ? (
+              <div className={`profile-detail ${activeProfile === member.id ? 'active' : ''}`}>
+                <ProfileDetail
+                  userId={member.id}
+                  userRole={member.role}
+                  myRole={UserRole.CREATOR}
+                  sidebarType={SidebarType.VOICECHAT}
                 />
               </div>
-              {activeProfile === member.id ? (
-                <div className={`profile-detail ${activeProfile === member.id ? 'active' : ''}`}>
-                  <ProfileDetail
-                    userId={member.id}
-                    userRole={member.role}
-                    myRole={UserRole.CREATOR}
-                    sidebarType={SidebarType.VOICECHAT}
-                  />
-                </div>
-              ) : (
-                ''
-              )}
-            </ProfileWrapper>
-          ))}
+            ) : (
+              ''
+            )}
+          </ProfileWrapper>
+        ))}
       </UserList>
       <MemberListFooter sidebarType={SidebarType.VOICECHAT} />
     </Container>
