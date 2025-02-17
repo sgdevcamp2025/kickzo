@@ -34,6 +34,7 @@ export const TopNavBar = () => {
 
     if (!accessToken) {
       clearProfile();
+      return;
     }
 
     const initializeUser = async () => {
