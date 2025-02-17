@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class KurentoConfig {
 
-	@Value("${KURENTO_URI}")  // 환경 변수에서 KMS 주소 가져오기
+	@Value(value = "${KURENTO_URI:ws://localhost:8888/kurento}")  // 환경 변수에서 KMS 주소 가져오기
 	private String kurentoUri;
 
 	@Bean
