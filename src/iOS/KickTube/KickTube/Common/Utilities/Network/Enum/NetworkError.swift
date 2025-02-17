@@ -8,6 +8,8 @@
 import Foundation
 
 enum NetworkError: Error {
+    case unknown
+    
     case notFoundBaseURL
     case urlBuild
     case urlRequstBuild
@@ -17,6 +19,7 @@ enum NetworkError: Error {
     
     case emptyYoutubeThumbnail
     case emtpyThumbnail
+    case createRoom
     
     case emptyToken
     case refreshToken
@@ -25,6 +28,8 @@ enum NetworkError: Error {
 extension NetworkError: CustomStringConvertible {
     var description: String {
         switch self {
+        case .unknown:
+            return "unknown: 알 수 없는 에러"
         case .notFoundBaseURL:
             return "notFoundBaseURL: BaseURL을 찾을 수 없습니다."
         case .urlBuild:
@@ -45,6 +50,8 @@ extension NetworkError: CustomStringConvertible {
             return "token 없음"
         case .refreshToken:
             return "refreshToken: Token refresh 실패"
+        case .createRoom:
+            return "createRoom: 생성할 수 있는 방 제한"
         }
     }
 }

@@ -32,6 +32,8 @@ extension Request {
         
         pipelines.append(contentsOf: [
             .redirector(RefreshTokenRedirector()),
+            .redirector(AccessTokenRedirector()),
+            .redirector(CreateLimitFiveRedirector()),
             .terminator(dataParser)
         ])
         

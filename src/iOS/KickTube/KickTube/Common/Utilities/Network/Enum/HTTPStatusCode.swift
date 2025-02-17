@@ -12,6 +12,7 @@ enum HTTPStatusCode: Int {
     /// User Error
     case badRequest = 400
     case unauthorized = 401
+    case createRoomLimit = 403
     
     /// Server Error
     case internalServerError = 500

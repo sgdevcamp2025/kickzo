@@ -10,7 +10,7 @@ import Foundation
 enum HeaderContent {
     case json
     case login(LoginViewModel)
-    case authorizationAccessToekn
+    case authorizationAccessToken
     case authorizationRefreshToken
 }
 
@@ -27,7 +27,7 @@ extension HeaderContent {
             }
             
             return [:]
-        case .authorizationAccessToekn:
+        case .authorizationAccessToken:
             if let accessToken = KeyChainManager.shared.read(key: .accessToken) {
                 return ["Authorization": "Bearer \(accessToken)"]
             }

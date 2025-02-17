@@ -105,7 +105,7 @@ final class LoginReactor: Reactor {
                     
                     observer.onNext(Mutation.setUserInformation(loginResponse.toModel()))
                     
-                    let myProfileRequest = DefaultRequest<UserProfileResponse>(method: .get, path: ["api", "users", "me"], header: [.json, .authorizationAccessToekn])
+                    let myProfileRequest = API.User.myProfile
                     let myProfileResponse = try await self.session.send(myProfileRequest)
                     
                     observer.onNext(Mutation.sestMyProfile(myProfileResponse.toModel()))
