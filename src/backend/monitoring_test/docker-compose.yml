@@ -9,7 +9,7 @@ services:
     ports:
       - "9216:9216"
     environment:
-      - MONGODB_URI=mongodb://mongodb:27017  # MongoDB 컨테이너에 연결
+      - MONGODB_URI=mongodb://mongodb:27017  # MongoDB 인증 정보 추가
     networks:
       - kickzo_kickzo-network
 
@@ -29,6 +29,8 @@ services:
     container_name: redis-exporter
     ports:
       - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis://redis:6379
     networks:
       - kickzo_kickzo-network
 
