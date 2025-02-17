@@ -10,8 +10,10 @@ import Foundation
 import ReactorKit
 
 final class CreateRoomReactor: Reactor {
+    private let session = Session()
+    
     enum Action {
-        case writeTitle(_ text: String?)
+        case writeTitle(_ text: String)
         case writeDescription(_ text: String?)
         case publicButtonTapped
         case privateButtonTapped
@@ -19,23 +21,21 @@ final class CreateRoomReactor: Reactor {
     }
     
     enum Mutation {
-        case setTitle(_ text: String?)
+        case setTitle(_ text: String)
         case setDescription(_ text: String?)
         case setRoomMode(_ isPublic: Bool)
-        case checkForm
+        case createdRoom(CreateRoomDomainModel)
+        case createRoomFailed
     }
     
     struct State {
-        var title: String?
-        var description: String?
-        var publicRoomMode: Bool
-        var createResult: Bool
+        var room: CreateRoomRequestDTO
+        var roomCode: String? = nil
+        var createLimit: Bool? = nil
     }
     
     var initialState: State = State(
-        title: nil,
-        publicRoomMode: true,
-        createResult: false
+        room: CreateRoomRequestDTO(title: "", isPublic: true)
     )
     
     func mutate(action: Action) -> Observable<Mutation> {
@@ -49,7 +49,11 @@ final class CreateRoomReactor: Reactor {
         case .privateButtonTapped:
             return .just(Mutation.setRoomMode(false))
         case .createButtonTapped:
-            return .just(Mutation.checkForm)
+            if currentState.room.title != "" {
+                return createRoom(currentState.room)
+            }
+            
+            return .empty()
         }
     }
     
@@ -58,19 +62,38 @@ final class CreateRoomReactor: Reactor {
         
         switch mutation {
         case .setTitle(let title):
-            newState.title = title
+            newState.room.title = title
         case .setDescription(let description):
-            newState.description = description
+            newState.room.description = description
         case .setRoomMode(let isPublic):
-            newState.publicRoomMode = isPublic
-        case .checkForm:
-            if newState.title != "" {
-                newState.createResult = true
-            } else {
-                newState.createResult = false
-            }
+            newState.room.isPublic = isPublic
+        case .createdRoom(let value):
+            newState.roomCode = value.code
+        case .createRoomFailed:
+            newState.createLimit = true
         }
         
         return newState
+    }
+    
+    private func createRoom(_ room: CreateRoomRequestDTO) -> Observable<Mutation> {
+        let createRequest = DefaultRequest<CreateRoomResponseDTO>(method: .post, path: ["api", "rooms", "create-room"], header: [.json, .authorizationAccessToken], body: currentState.room)
+                 
+        return Observable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            
+            Task {
+                do {
+                    let createRoomResponse = try await self.session.send(createRequest)
+                    
+                    observer.onNext(Mutation.createdRoom(createRoomResponse.toModel()))
+                    observer.onCompleted()
+                } catch NetworkError.createRoom {
+                    observer.onNext(Mutation.createRoomFailed)
+                    observer.onCompleted()
+                } 
+            }
+            return Disposables.create()
+        }
     }
 }

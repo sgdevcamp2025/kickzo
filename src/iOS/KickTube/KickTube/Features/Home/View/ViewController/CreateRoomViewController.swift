@@ -60,6 +60,7 @@ final class CreateRoomViewController: BaseViewController<CreateRoomReactor> {
     
     override func bindAction(reactor: CreateRoomReactor) {
         titleTextField.textfield.rx.text
+            .orEmpty
             .map { Reactor.Action.writeTitle($0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
@@ -83,21 +84,21 @@ final class CreateRoomViewController: BaseViewController<CreateRoomReactor> {
     
     override func bindState(reactor: CreateRoomReactor) {
         reactor.state
-            .map { $0.title ?? "" }
+            .map { $0.room.title }
             .asDriver(onErrorJustReturn: "")
             .drive(with: self) { owner, value in
                 owner.titleLimitLabel.text = "\(value.count) / 50"
             }
             .disposed(by: disposeBag)
         reactor.state
-            .map { $0.description ?? "" }
+            .map { $0.room.description ?? "" }
             .asDriver(onErrorJustReturn: "")
             .drive(with: self) { owner, value in
                 owner.descriptionLimitLabel.text = "\(value.count) / 200"
             }
             .disposed(by: disposeBag)
         reactor.state
-            .map { $0.publicRoomMode }
+            .map { $0.room.isPublic }
             .distinctUntilChanged()
             .asDriver(onErrorJustReturn: true)
             .drive(with: self) { owner, value in
@@ -105,8 +106,15 @@ final class CreateRoomViewController: BaseViewController<CreateRoomReactor> {
             }
             .disposed(by: disposeBag)
         reactor.state
-            .map { $0.createResult }
-            .distinctUntilChanged()
+            .compactMap { $0.roomCode }
+            .subscribe(with: self) { owner, value in
+                // TODO: 방 입장
+                
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .compactMap { $0.createLimit }
             .filter { $0 }
             .asDriver(onErrorJustReturn: true)
             .drive(with: self) { owner, value in
