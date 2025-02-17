@@ -15,23 +15,34 @@ import DefaultProfile from '@/assets/img/DefaultProfile.svg';
 import { RoomCreateModal } from '@/components/Modal/RoomCreateModal';
 import { NotificationModal } from '@/components/Modal/NotificationModal';
 import { SearchBar } from '@/components/Search/SearchBar';
+import { ProfileModal } from '@/components/Modal/ProfileModal';
 import { useUserStore } from '@/stores/useUserStore';
 import { useAuthStore } from '@/stores/useAuthStore';
-import { ProfileModal } from '@/components/Modal/ProfileModal';
+import { useMyRoomsStore } from '@/stores/useMyRoomsStore';
+import { useWebSocketStore } from '@/stores/useWebSocketStore';
 export const TopNavBar = () => {
-  const { user, fetchMyProfile, clear } = useUserStore();
+  const { user, fetchMyProfile, clearProfile } = useUserStore();
+  const { fetchMyRooms } = useMyRoomsStore();
+  const { connect } = useWebSocketStore();
   const [isRoomCreateModalOpen, setIsRoomCreateModalOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const accessToken = useAuthStore(state => state.accessToken);
 
   useEffect(() => {
-    if (accessToken) {
-      fetchMyProfile();
-    } else {
-      clear();
+    connect();
+
+    if (!accessToken) {
+      clearProfile();
+      return;
     }
-  }, [accessToken, fetchMyProfile, clear]);
+
+    const initializeUser = async () => {
+      await fetchMyProfile();
+      await fetchMyRooms();
+    };
+    initializeUser();
+  }, [accessToken]);
 
   const clickNotification = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();

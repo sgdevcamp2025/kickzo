@@ -1,5 +1,5 @@
 import instance from '@/api/axios.instance';
-import { PlaylistDto, RoomRequestDto, MyRoomDto, RoomDto } from './room.interface';
+import { PlaylistDto, RoomRequestDto, MyRoomDto, RoomDto, CurrentRoomDto } from './room.interface';
 
 export const roomApi = {
   // 방 생성
@@ -25,7 +25,7 @@ export const roomApi = {
 
   // 방 입장
   joinRoom: async (roomCode: string) => {
-    const { data } = await instance.post(`/rooms/join`, { roomCode });
+    const { data } = await instance.post<CurrentRoomDto>(`/rooms/join`, { roomCode });
     return data;
   },
 

@@ -1,32 +1,25 @@
-import { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { MyRoomCard } from '@/components/MyRoomCard';
-import { Wrapper, Container, Title, SubTitle, CommonParagraph } from './index.css';
+import { Wrapper, Container, Title, SubTitle, CommonParagraph } from '@/ui/Common.css';
 import { useUserStore } from '@/stores/useUserStore';
-import { MyRoomDto } from '@/api/endpoints/room/room.interface';
 import { MyRoomSkeleton } from './MyRoomSkeleton';
 import { useDelayedLoading } from '@/hooks/utils/useDelayedLoading';
 import { useMyRooms } from '@/hooks/queries/useMyRooms';
+import { useMyRoomsStore } from '@/stores/useMyRoomsStore';
 
 export const MyRoomPage = () => {
-  const navigate = useNavigate();
-  const getMyRooms = useMyRooms();
+  const { data } = useMyRooms();
   const { user } = useUserStore();
-  const [myRoomList, setMyRoomList] = useState<MyRoomDto[]>([]);
-  const showSkeleton = useDelayedLoading(getMyRooms.data);
+  const { myRooms, setMyRooms, clearMyRooms } = useMyRoomsStore();
+  const showSkeleton = useDelayedLoading(data);
 
   useEffect(() => {
-    if (!user) {
-      navigate('/login');
-      return;
+    if (data) {
+      setMyRooms(data);
+    } else {
+      clearMyRooms();
     }
-
-    getMyRooms.refetch().then(({ data }) => {
-      if (data) {
-        setMyRoomList(data);
-      }
-    });
-  }, [user, navigate, getMyRooms]);
+  }, [clearMyRooms, setMyRooms, data]);
 
   if (showSkeleton) {
     return <MyRoomSkeleton />;
@@ -38,8 +31,8 @@ export const MyRoomPage = () => {
         <Title>내 방</Title>
         <div>
           <SubTitle>내가 만든 방</SubTitle>
-          {myRoomList.filter(room => room.creator === user?.nickname).length > 0 ? (
-            myRoomList
+          {myRooms.filter(room => room.creator === user?.nickname).length > 0 ? (
+            myRooms
               .filter(room => room.creator === user?.nickname)
               .map(room => <MyRoomCard key={room.roomId} room={room} />)
           ) : (
@@ -48,8 +41,8 @@ export const MyRoomPage = () => {
         </div>
         <div>
           <SubTitle>참여 중인 방</SubTitle>
-          {myRoomList.filter(room => room.creator !== user?.nickname).length > 0 ? (
-            myRoomList
+          {myRooms.filter(room => room.creator !== user?.nickname).length > 0 ? (
+            myRooms
               .filter(room => room.creator !== user?.nickname)
               .map(room => <MyRoomCard key={room.roomId} room={room} />)
           ) : (
