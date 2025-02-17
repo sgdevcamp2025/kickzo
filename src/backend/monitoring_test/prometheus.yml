@@ -21,3 +21,8 @@ scrape_configs:
     metrics_path: '/actuator/prometheus'
     static_configs:
       - targets: ['chat-2:8080']  # Spring Boot 컨테이너 주소
+
+  - job_name: 'main-monitoring'
+    metrics_path: '/actuator/prometheus'
+    static_configs:
+      - targets: ['main:8080']  # Spring Boot 컨테이너 주소
