@@ -27,10 +27,12 @@ final class LoginViewController: BaseViewController<LoginReactor> {
     }
     private let idTextField = LightStrokeTextField().then {
         $0.setPlacehodler("아이디")
+        $0.textfield.text = "a@sg.com"
     }
     private let pwTextField = LightStrokeTextField().then {
         $0.setPlacehodler("비밀번호")
         $0.setPWStyle()
+        $0.textfield.text = "!1234qwer"
     }
     private let saveIDCheckBox = CheckBoxView("아이디 저장")
     private let loginButton = RoundButton("로그인")
@@ -138,6 +140,7 @@ final class LoginViewController: BaseViewController<LoginReactor> {
             .filter { $0 }
             .drive(with: self) { owner, value in
                 owner.changeRootViewController(2)
+                
             }
             .disposed(by: disposeBag)
     }

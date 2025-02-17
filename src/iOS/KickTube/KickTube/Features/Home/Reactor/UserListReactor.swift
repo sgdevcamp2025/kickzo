@@ -52,7 +52,7 @@ final class UserListReactor: Reactor {
         
         switch mutation {
         case .setUserList:
-            if let myInformation = newState.userList.enumerated().filter({ $0.element.userID == UserDefaultsManager.shared.userProfile.userID }).first {
+            if let myInformation = newState.userList.enumerated().filter({ $0.element.userID == UserDefaultsManager.shared.myProfile.userID }).first {
                 newState.userList.remove(at: myInformation.offset)
                 newState.userList.insert(myInformation.element, at: 0)
             }

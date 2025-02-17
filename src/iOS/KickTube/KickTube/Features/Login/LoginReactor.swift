@@ -5,11 +5,13 @@
 //  Created by 김수경 on 1/22/25.
 //
 
-import Foundation
+import UIKit
 
 import ReactorKit
 
 final class LoginReactor: Reactor {
+    private let session = Session()
+    
     enum Action {
         case saveIDButtonTap
         case setIDText(String)
@@ -22,6 +24,7 @@ final class LoginReactor: Reactor {
         case setID(String)
         case setPW(String)
         case setUserInformation(TokenDomainModel)
+        case sestMyProfile(UserProfileDomainModel)
     }
     
     struct State {
@@ -67,6 +70,13 @@ final class LoginReactor: Reactor {
             KeyChainManager.shared.save(key: .accessToken, value: data.accessToken)
             KeyChainManager.shared.save(key: .refreshToken, value: data.refreshToken)
             
+            print(data.accessToken)
+        case .sestMyProfile(let data):
+            var loginData = data.toModel()
+            
+            loginData.profileImageData = UIImage.defaultProfile.toData()
+            UserDefaultsManager.shared.myProfile = loginData
+            
             newState.loginResponse = true
         }
         
@@ -86,12 +96,19 @@ final class LoginReactor: Reactor {
             body: LoginRequestBody()
         )
         
-        return Observable.create { observer in
+        return Observable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            
             Task {
                 do {
-                    let response = try await Session().send(request)
+                    let loginResponse = try await self.session.send(request)
                     
-                    observer.onNext(Mutation.setUserInformation(response.toModel()))
+                    observer.onNext(Mutation.setUserInformation(loginResponse.toModel()))
+                    
+                    let myProfileRequest = DefaultRequest<UserProfileResponse>(method: .get, path: ["api", "users", "me"], header: [.json, .authorizationAccessToekn])
+                    let myProfileResponse = try await self.session.send(myProfileRequest)
+                    
+                    observer.onNext(Mutation.sestMyProfile(myProfileResponse.toModel()))
                     observer.onCompleted()
                 } catch {
                     observer.onCompleted()

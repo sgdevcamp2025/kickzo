@@ -32,7 +32,7 @@ class RefreshTokenRedirector: ResponsePipelineRedirector {
             return
         }
         
-        let request = DefaultRequest<TokenResponseModel>(method: .post, path: ["api", "auth", "token", "refresh"], header: [.json, .authorization], body: RefreshTokenRequestBody(refreshToken: refreshToken))
+        let request = DefaultRequest<TokenResponseModel>(method: .post, path: ["api", "auth", "token", "refresh"], header: [.json, .authorizationRefreshToken], body: RefreshTokenRequestBody(refreshToken: refreshToken))
         
         let result = try await Session().send(request)
         

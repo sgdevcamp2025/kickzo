@@ -17,7 +17,7 @@ struct UserProfileResponse {
     let nickname: String
     let role: Int
     @Key("profileImageUrl") let profileImageURL: String?
-    let profileImages: String?
+    let profileImages: [String]?
     let stateMessage: String?
 }
 
@@ -27,7 +27,7 @@ struct UserProfileDomainModel: DTOMappable {
     let nickname: String
     let role: Int
     let profileImageURL: String?
-    let profileImages: String?
+    let profileImages: [String]?
     let stateMessage: String?
     
     func toModel() -> UserProfileViewModel {
@@ -39,12 +39,15 @@ struct UserProfileDomainModel: DTOMappable {
     }
 }
 
-struct UserProfileViewModel {
+
+import UIKit
+
+struct UserProfileViewModel: Codable {
     let userID: Int
     let email: String
     let nickname: String
     let profileImageURL: String?
     let stateMessage: String?
     
-    var profileImageData: Data?
+    var profileImageData: Data? = UIImage.profile.toData()
 }
