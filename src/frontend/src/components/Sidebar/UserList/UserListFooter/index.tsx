@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CommonInput } from '@/components/common/Input';
-import { MemberFooter, VoiceChatFooter, ActionButton, JoinButton } from '../index.css';
+import { UserFooter, VoiceChatFooter, ActionButton, JoinButton } from '../index.css';
 
 import { SidebarType } from '@/types/enums/SidebarType';
 
@@ -10,23 +10,23 @@ import HeadphoneOn from '@/assets/img/HeadphoneOn.svg';
 import MicrophoneOffRed from '@/assets/img/MicrophoneOffRed.svg';
 import HeadphoneOffRed from '@/assets/img/HeadphoneOffRed.svg';
 
-interface IMemberListFooter {
+interface IUserListFooter {
   sidebarType: SidebarType;
 }
 
-export const MemberListFooter = (props: IMemberListFooter) => {
+export const UserListFooter = (props: IUserListFooter) => {
   const [micOn, setMicOn] = useState(true);
   const [soundOn, setSoundOn] = useState(true);
 
   const handleMicrophone = () => setMicOn(!micOn);
   const handleSound = () => setSoundOn(!soundOn);
 
-  if (props.sidebarType === SidebarType.MEMBER) {
+  if (props.sidebarType === SidebarType.USERLIST) {
     return (
-      <MemberFooter>
+      <UserFooter>
         <img src={AddUserIcon} alt="Add User" />
         <CommonInput placeholder="룸 유저 검색" design={1} />
-      </MemberFooter>
+      </UserFooter>
     );
   }
 

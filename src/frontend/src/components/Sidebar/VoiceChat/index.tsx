@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { SmallProfile } from '@/components/common/SmallProfile';
 import { ProfileDetail } from '@/components/common/ProfileDetail';
-import { MemberListFooter } from '@/components/Sidebar/MemberList/MemberListFooter';
+import { UserListFooter } from '@/components/Sidebar/UserList/UserListFooter';
 
 import { SidebarType } from '@/types/enums/SidebarType';
 import { ProfileType } from '@/types/enums/ProfileType';
@@ -51,7 +51,7 @@ export const VoiceChat = () => {
           </ProfileWrapper>
         ))}
       </UserList>
-      <MemberListFooter sidebarType={SidebarType.VOICECHAT} />
+      <UserListFooter sidebarType={SidebarType.VOICECHAT} />
     </Container>
   );
 };

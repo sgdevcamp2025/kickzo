@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { ChatBox } from './Chating';
-import { MemberList } from './MemberList';
+import { UserList } from './UserList';
 import { Playlist } from './Playlist';
 import { VoiceChat } from './VoiceChat';
 import SidebarChat from '@/assets/img/SidebarChat.svg';
@@ -17,7 +17,7 @@ export const Sidebar = () => {
     [SidebarType.CHAT]: ChatBox,
     [SidebarType.PLAYLIST]: Playlist,
     [SidebarType.VOICECHAT]: VoiceChat,
-    [SidebarType.MEMBER]: MemberList,
+    [SidebarType.USERLIST]: UserList,
   };
 
   const renderContent = () => {
@@ -28,7 +28,7 @@ export const Sidebar = () => {
   return (
     <Wrapper>
       <Nav>
-        {[SidebarType.CHAT, SidebarType.PLAYLIST, SidebarType.VOICECHAT, SidebarType.MEMBER].map(
+        {[SidebarType.CHAT, SidebarType.PLAYLIST, SidebarType.VOICECHAT, SidebarType.USERLIST].map(
           (type, index) => (
             <NavButton
               key={index}

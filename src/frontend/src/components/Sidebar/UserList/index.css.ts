@@ -8,14 +8,14 @@ export const Container = styled.div`
   justify-content: space-between;
 `;
 
-export const UserList = styled.div`
+export const UserListContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
   overflow-y: auto;
 `;
 
-export const MemberFooter = styled.div`
+export const UserFooter = styled.div`
   width: 100%;
   display: flex;
   align-items: center;

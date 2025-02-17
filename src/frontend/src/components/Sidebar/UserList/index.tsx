@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { SmallProfile } from '@/components/common/SmallProfile';
 import { ProfileDetail } from '@/components/common/ProfileDetail';
-import { MemberListFooter } from '@/components/Sidebar/MemberList/MemberListFooter';
+import { UserListFooter } from '@/components/Sidebar/UserList/UserListFooter';
 import { RedBlackTree } from '@/hooks/utils/RedBlackTree';
 
 import { SidebarType } from '@/types/enums/SidebarType';
@@ -9,7 +9,7 @@ import { ProfileType } from '@/types/enums/ProfileType';
 import { UserRole } from '@/types/enums/UserRole';
 
 import { memberListTest } from '@/assets/data/memberListTest';
-import { Container, UserList, ProfileWrapper } from './index.css';
+import { Container, UserListContainer, ProfileWrapper } from './index.css';
 
 interface IUser {
   id: number;
@@ -25,7 +25,7 @@ const compareUsers = (a: IUser, b: IUser): number => {
   return a.id - b.id;
 };
 
-export const MemberList = () => {
+export const UserList = () => {
   const treeRef = useRef<RedBlackTree<IUser> | null>(null);
   const [, setVersion] = useState(0);
 
@@ -64,7 +64,7 @@ export const MemberList = () => {
 
   return (
     <Container>
-      <UserList>
+      <UserListContainer>
         {users.map(member => (
           <ProfileWrapper key={member.id}>
             <div onClick={() => handleProfileClick(member.id)}>
@@ -80,14 +80,14 @@ export const MemberList = () => {
                 userId={member.id}
                 userRole={member.role}
                 myRole={UserRole.CREATOR}
-                sidebarType={SidebarType.MEMBER}
+                sidebarType={SidebarType.USERLIST}
               />
             )}
           </ProfileWrapper>
         ))}
-      </UserList>
+      </UserListContainer>
       <button onClick={handleAddUser}>랜덤 유저 추가</button>
-      <MemberListFooter sidebarType={SidebarType.MEMBER} />
+      <UserListFooter sidebarType={SidebarType.USERLIST} />
     </Container>
   );
 };
