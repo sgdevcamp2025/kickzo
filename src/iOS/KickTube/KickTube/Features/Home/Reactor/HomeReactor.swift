@@ -22,17 +22,17 @@ final class HomeReactor: Reactor {
         case getRoomList([HomeRoomDomainModel])
         case setVideoImage(data: Data, idx: Int)
         case setImageError(error: Error, idx: Int)
-        case enterRoom(KickRoomDomainModel)
+        case joinRoom
     }
     
     struct State {
         var rooms: [HomeRoomViewModel]
-        var enterRoom: KickRoomViewModel?
+        var joinRoomCode: String?
     }
     
     let initialState: State = State(
         rooms: [],
-        enterRoom: nil
+        joinRoomCode: nil
     )
     
     func mutate(action: Action) -> Observable<Mutation> {
@@ -80,7 +80,7 @@ final class HomeReactor: Reactor {
             }
         case .homeCellTapped(let idx):
             let roomID = currentState.rooms[idx.item].roomID
-            return .just(.enterRoom(SampleTest.createdRoom))
+            return .just(.joinRoom)
         }
     }
     
@@ -94,8 +94,9 @@ final class HomeReactor: Reactor {
             newState.rooms[idx].videoThumbnail = data
         case .setImageError(_, let idx):
             newState.rooms[idx].videoThumbnail = nil
-        case .enterRoom(let room):
-            newState.enterRoom = room.toModel()
+        case .joinRoom:
+//            newState.enterRoom = room.toModel()
+            break
         }
         
         return newState

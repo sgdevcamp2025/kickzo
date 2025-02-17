@@ -66,9 +66,10 @@ final class HomeViewController: BaseViewController<HomeReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
-            .map { $0.enterRoom }
+            .map { $0.joinRoomCode }
             .compactMap { $0 }
-            .bind(with: self) { owner, value in
+            .asDriver(onErrorJustReturn: "")
+            .drive(with: self) { owner, value in
                 let vc = KickRoomViewController(KickRoomReactor(value))
                 
                 owner.navigationController?.pushViewController(vc, animated: false)

@@ -107,9 +107,17 @@ final class CreateRoomViewController: BaseViewController<CreateRoomReactor> {
             .disposed(by: disposeBag)
         reactor.state
             .compactMap { $0.roomCode }
-            .subscribe(with: self) { owner, value in
-                // TODO: 방 입장
+            .asDriver(onErrorJustReturn: "")
+            .drive(with: self) { owner, value in
+                guard let pvc = owner.presentingViewController as? UITabBarController else { return }
                 
+                owner.dismiss(animated: false) {
+                    if let mainVC = pvc.viewControllers?[2] as? UINavigationController {
+                        let vc = KickRoomViewController(KickRoomReactor(value))
+                        
+                        mainVC.pushViewController(vc, animated: true)
+                    }
+                }
             }
             .disposed(by: disposeBag)
         

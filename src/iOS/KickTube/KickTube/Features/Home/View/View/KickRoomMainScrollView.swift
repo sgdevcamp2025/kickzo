@@ -27,8 +27,8 @@ class KickRoomMainScrollView: UIView {
     
     var didUpdatePageIndex: ((Int) -> Void)?
     
-    init(roomInfo: KickRoomInfoViewModel) {
-        self.descriptionView = DescriptionView(roomInfo.description)
+    init(roomInfo: KickRoomInfoViewModel?) {
+        self.descriptionView = DescriptionView(roomInfo?.description)
         
         super.init(frame: .zero)
         

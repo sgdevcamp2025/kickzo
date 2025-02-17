@@ -13,6 +13,9 @@ import RxSwift
 import YouTubeiOSPlayerHelper
 
 final class KickRoomViewController: BaseViewController<KickRoomReactor> {
+    private let emptyPlayerView = UIView().then {
+        $0.backgroundColor = .black
+    }
     private let playerView = YTPlayerView()
     private let titleLabel = UILabel().then {
         $0.font = KFont.middle16
@@ -55,7 +58,8 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         
         return segmented
     }()
-    private let mainScrollView: KickRoomMainScrollView
+    
+    private lazy var mainScrollView = KickRoomMainScrollView(roomInfo: reactor.currentState.roomInfo?.roomDetail.roomInfo)
     private var previousTime: TimeInterval = 0
     private var timeTrackingTimer: Timer?
     
@@ -63,8 +67,6 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     // MARK: - init
     
     override init(_ reactor: KickRoomReactor) {
-        mainScrollView = KickRoomMainScrollView(roomInfo: reactor.initialState.roomInfo.roomDetail.roomInfo)
-        
         super.init(reactor)
     }
     
@@ -84,6 +86,8 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         
         tabBarController?.tabBar.isHidden = true
         navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        reactor.action.onNext(.viewWillAppear)
     }
     
     override func viewDidLoad() {
@@ -114,16 +118,19 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     
     override func bindState(reactor: KickRoomReactor) {
         reactor.state
-            .map { $0.roomInfo }
-            .bind(with: self) { owner, value in
+            .compactMap { $0.roomInfo }
+            .observe(on: MainScheduler.instance)
+            .subscribe(with: self, onNext: { owner, value in
+                owner.setMainScrollView()
                 owner.setRoomInformationSection(value.roomDetail.roomInfo)
+                
                 switch value.myRole {
                 case .member:
                     owner.playerView.isUserInteractionEnabled = false
                 default:
                     break
                 }
-            }
+            })
             .disposed(by: disposeBag)
         
         reactor.state
@@ -179,6 +186,28 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
                 }
             })
             .disposed(by: disposeBag)
+    }
+    
+    private func setMainScrollView() {
+        view.addSubview(mainScrollView)
+        
+        mainScrollView.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview()
+            make.top.equalTo(creatorImage.snp.bottom)
+            make.bottom.equalTo(menuSegmentedControl.snp.top)
+        }
+        
+        mainScrollView.didUpdatePageIndex = { [weak self] pageIndex in
+            guard let self else { return }
+            
+            DispatchQueue.main.async {
+                self.menuSegmentedControl.selectedSegmentIndex = pageIndex
+                
+                if pageIndex == 0 {
+                    self.presentChattingView()
+                }
+            }
+        }
     }
     
     private func setNotification() {
@@ -242,7 +271,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     // MARK: - configure UI
     
     override func configureHierarchy() {
-        [playerView, titleLabel, creatorImage, creatorNameLabel, participatedCountLabel, menuSegmentedControl, mainScrollView].forEach {
+        [emptyPlayerView, playerView, titleLabel, creatorImage, creatorNameLabel, participatedCountLabel, menuSegmentedControl].forEach {
             view.addSubview($0)
         }
     }
@@ -250,6 +279,10 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     override func configureLayout() {
         let safeArea = view.safeAreaLayoutGuide
         
+        emptyPlayerView.snp.makeConstraints { make in
+            make.top.horizontalEdges.equalTo(safeArea)
+            make.height.equalTo(ComponentSize.youtubePlayer.size.height)
+        }
         playerView.snp.makeConstraints { make in
             make.top.horizontalEdges.equalTo(safeArea)
             make.height.equalTo(ComponentSize.youtubePlayer.size.height)
@@ -276,28 +309,11 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             make.bottom.equalTo(safeArea).offset(-12)
             make.height.equalTo(50)
         }
-        mainScrollView.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview()
-            make.top.equalTo(creatorImage.snp.bottom)
-            make.bottom.equalTo(menuSegmentedControl.snp.top)
-        }
     }
     
     override func configureUI() {
         playerView.delegate = self
         setupSegmentedControl()
-        
-        mainScrollView.didUpdatePageIndex = { [weak self] pageIndex in
-            guard let self else { return }
-            
-            DispatchQueue.main.async {
-                self.menuSegmentedControl.selectedSegmentIndex = pageIndex
-                
-                if pageIndex == 0 {
-                    self.presentChattingView()
-                }
-            }
-        }
     }
 }
 
