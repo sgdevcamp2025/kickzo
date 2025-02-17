@@ -1,17 +1,49 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { SmallProfile } from '@/components/common/SmallProfile';
 import { ProfileDetail } from '@/components/common/ProfileDetail';
 import { MemberListFooter } from '@/components/Sidebar/MemberList/MemberListFooter';
+import { RedBlackTree } from '@/hooks/utils/RedBlackTree';
 
 import { SidebarType } from '@/types/enums/SidebarType';
 import { ProfileType } from '@/types/enums/ProfileType';
 import { UserRole } from '@/types/enums/UserRole';
 
-import { useUserList, IUser } from '@/hooks/utils/useUserList';
+import { memberListTest } from '@/assets/data/memberListTest';
 import { Container, UserList, ProfileWrapper } from './index.css';
 
+interface IUser {
+  id: number;
+  role: number;
+  nickname: string;
+  profileImg: string;
+}
+
+const compareUsers = (a: IUser, b: IUser): number => {
+  if (a.role !== b.role) return a.role - b.role;
+  const nicknameCompare = a.nickname.localeCompare(b.nickname, 'ko');
+  if (nicknameCompare !== 0) return nicknameCompare;
+  return a.id - b.id;
+};
+
 export const MemberList = () => {
-  const { addUser, getSortedUsers } = useUserList();
+  const treeRef = useRef<RedBlackTree<IUser> | null>(null);
+  const [, setVersion] = useState(0);
+
+  useEffect(() => {
+    treeRef.current = new RedBlackTree<IUser>(compareUsers);
+    memberListTest.forEach(user => treeRef.current?.insert(user));
+    setVersion(v => v + 1);
+  }, []);
+
+  const addUser = (user: IUser) => {
+    if (!treeRef.current) return;
+    treeRef.current.insert(user);
+    setVersion(v => v + 1);
+  };
+
+  const getSortedUsers = (): IUser[] => {
+    return treeRef.current ? treeRef.current.inOrderTraversal() : [];
+  };
   const [activeProfile, setActiveProfile] = useState<number | null>(null);
 
   const handleProfileClick = (id: number) => {
