@@ -9,7 +9,7 @@ services:
     ports:
       - "${SIGNAL_PORT}:${SIGNAL_PORT}"
     environment:
-      SPRING_PROFILES_ACTIVE: prod
+      SPRING_PROFILES_ACTIVE: docker
       KURENTO_URI: ws://kurento:${KURENTO_PORT}/kurento
     depends_on:
       - kurento
