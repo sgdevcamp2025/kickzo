@@ -1,4 +1,4 @@
-from fastapi import FastAPI, HTTPException, Depends
+from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import aiomysql
@@ -48,14 +48,14 @@ class FriendRequestBody(BaseModel):
 class UserRequest(BaseModel):
     user_id: int
 
-@app.get("/api/friends/unread/{userId}") # notifications/unread
-async def get_friend_requests(userId: int, redis=Depends(get_redis)):
+@app.get("/api/friends/unread") # notifications/unread
+async def get_friend_requests(x_user_id: int = Header(...), redis=Depends(get_redis)):
     # 친구 요청 키 조회
-    friend_pattern = f"friend_request:*:{userId}"
+    friend_pattern = f"friend_request:*:{x_user_id}"
     friend_keys = await redis.keys(friend_pattern)
     
     # 방 초대 요청 키 조회
-    room_pattern = f"room_request:*:{userId}:*"
+    room_pattern = f"room_request:*:{x_user_id}:*"
     room_keys = await redis.keys(room_pattern)
 
     unread_count = 0
@@ -74,14 +74,14 @@ async def get_friend_requests(userId: int, redis=Depends(get_redis)):
 
     return {"unread_count": unread_count}
 
-@app.get("/api/friends/requests/{userId}") # notifications
-async def get_friend_requests(userId: int, redis=Depends(get_redis)):
+@app.get("/api/friends/requests") # notifications
+async def get_friend_requests(x_user_id: int = Header(...), redis=Depends(get_redis)):
     # 친구 요청 키 조회
-    friend_pattern = f"friend_request:*:{userId}"
+    friend_pattern = f"friend_request:*:{x_user_id}"
     friend_keys = await redis.keys(friend_pattern)
     
     # 방 초대 요청 키 조회
-    room_pattern = f"room_request:*:{userId}:*"
+    room_pattern = f"room_request:*:{x_user_id}:*"
     room_keys = await redis.keys(room_pattern)
 
     all_requests = []
@@ -223,15 +223,15 @@ async def reject_friend_request(data: FriendRequestBody, redis=Depends(get_redis
 
     return {"message": "친구 요청을 거절했습니다."}
 
-@app.get("/api/friends/list/{userId}") # friends/me
-async def get_friend_list(userId: int, db=Depends(get_db), redis=Depends(get_user_state_redis)):
+@app.get("/api/friends/list") # friends/me
+async def get_friend_list(x_user_id: int = Header(...), db=Depends(get_db), redis=Depends(get_user_state_redis)):
     async with db.cursor(aiomysql.DictCursor) as cursor:
-        await cursor.execute("SELECT * FROM friend WHERE friend_1 = %s OR friend_2 = %s", (userId, userId))
+        await cursor.execute("SELECT * FROM friend WHERE friend_1 = %s OR friend_2 = %s", (x_user_id, x_user_id))
         friends = await cursor.fetchall()
     
     friend_list = []
     for friend in friends:
-        friend_id = friend['friend_2'] if friend['friend_1'] == userId else friend['friend_1']
+        friend_id = friend['friend_2'] if friend['friend_1'] == x_user_id else friend['friend_1']
         
         # Redis에서 친구의 온라인 상태 조회
         state_key = f"user:state:{friend_id}"

@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { ChatBox } from './Chating';
-import { MemberList } from './MemberList';
+import { UserList } from './UserList';
 import { Playlist } from './Playlist';
+import { VoiceChat } from './VoiceChat';
 import SidebarChat from '@/assets/img/SidebarChat.svg';
 import SidebarPlaylist from '@/assets/img/SidebarPlaylist.svg';
 import SidebarVoicechat from '@/assets/img/SidebarVoicechat.svg';
@@ -12,25 +13,22 @@ import { SidebarType } from '@/types/enums/SidebarType';
 export const Sidebar = () => {
   const [interfaceType, setInterfaceType] = useState<SidebarType>(SidebarType.CHAT);
 
+  const contentComponents = {
+    [SidebarType.CHAT]: ChatBox,
+    [SidebarType.PLAYLIST]: Playlist,
+    [SidebarType.VOICECHAT]: VoiceChat,
+    [SidebarType.USERLIST]: UserList,
+  };
+
   const renderContent = () => {
-    switch (interfaceType) {
-      case SidebarType.CHAT:
-        return <ChatBox />;
-      case SidebarType.PLAYLIST:
-        return <Playlist />;
-      case SidebarType.VOICECHAT:
-        return <MemberList sidebarType={SidebarType.VOICECHAT} />;
-      case SidebarType.MEMBER:
-        return <MemberList sidebarType={SidebarType.MEMBER} />;
-      default:
-        return null;
-    }
+    const Component = contentComponents[interfaceType];
+    return Component ? <Component /> : null;
   };
 
   return (
     <Wrapper>
       <Nav>
-        {[SidebarType.CHAT, SidebarType.PLAYLIST, SidebarType.VOICECHAT, SidebarType.MEMBER].map(
+        {[SidebarType.CHAT, SidebarType.PLAYLIST, SidebarType.VOICECHAT, SidebarType.USERLIST].map(
           (type, index) => (
             <NavButton
               key={index}

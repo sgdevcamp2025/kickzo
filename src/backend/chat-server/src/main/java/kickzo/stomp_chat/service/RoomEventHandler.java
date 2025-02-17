@@ -5,9 +5,9 @@ import org.springframework.stereotype.Service;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
-import kickzo.stomp_chat.dto.NewUserJoinEvent;
-import kickzo.stomp_chat.dto.RoleChangeEvent;
-import kickzo.stomp_chat.dto.RoomData;
+import kickzo.stomp_chat.dto.room.NewUserJoinEvent;
+import kickzo.stomp_chat.dto.room.RoleChangeEvent;
+import kickzo.stomp_chat.dto.room.RoomData;
 import kickzo.stomp_chat.dto.RoomEvent;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -48,6 +48,6 @@ public class RoomEventHandler {
 
 	private void handleUserJoin(RoomEvent event) throws JsonProcessingException {
 		NewUserJoinEvent userInfo = objectMapper.convertValue(event.getData(), NewUserJoinEvent.class);
-		messagingService.sendMessage("user-join", userInfo.getRoomId(), userInfo);
+		messagingService.sendMessage("user-info", userInfo.getRoomId(), userInfo);
 	}
 }

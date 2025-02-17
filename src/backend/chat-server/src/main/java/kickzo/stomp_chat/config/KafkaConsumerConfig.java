@@ -2,19 +2,13 @@ package kickzo.stomp_chat.config;
 
 import jakarta.annotation.PostConstruct;
 import org.apache.kafka.clients.consumer.ConsumerConfig;
-import org.apache.kafka.clients.consumer.ConsumerRecord;
 import org.apache.kafka.common.serialization.StringDeserializer;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.kafka.annotation.EnableKafka;
 import org.springframework.kafka.core.ConsumerFactory;
 import org.springframework.kafka.core.DefaultKafkaConsumerFactory;
-import org.springframework.kafka.listener.ConcurrentMessageListenerContainer;
-import org.springframework.kafka.listener.ContainerProperties;
-import org.springframework.kafka.listener.MessageListener;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -38,9 +32,6 @@ public class KafkaConsumerConfig {
         groupId = "my-group-" + serverPort; // 서버 포트에 따라 groupId 설정
     }
 
-    @Autowired
-    private SimpMessagingTemplate messagingTemplate; // Injected by Spring
-
     @Bean
     public ConsumerFactory<String, String> consumerFactory() {
         // Kafka Consumer 설정
@@ -52,33 +43,33 @@ public class KafkaConsumerConfig {
         return new DefaultKafkaConsumerFactory<>(configProps);
     }
 
-    @Bean
-    public ConcurrentMessageListenerContainer<String, String> messageListenerContainer() {
-        MessageListener<String, String> messageListener = new MessageListener<String, String>() {
-            @Override
-            public void onMessage(ConsumerRecord<String, String> record) {
-                String message = record.value();
-                System.out.println("Received Kafka message: " + message);
-
-
-                // 메시지를 처리하는 로직을 여기에 추가
-                String roomId = "1";
-
-                if (roomId != null && !roomId.isEmpty()) {
-                    // WebSocket으로 메시지 전송
-                    messagingTemplate.convertAndSend("/topic/" + roomId, message);
-                    System.out.println("Message sent to WebSocket topic: /topic/" + roomId);
-                    System.out.println("Broadcasting message: " + message);
-                } else {
-                    System.err.println("Failed to send message: roomId is null or empty.");
-                }
-            }
-        };
-
-        ContainerProperties containerProps = new ContainerProperties("chatting");
-        containerProps.setMessageListener(messageListener);
-        containerProps.setGroupId(groupId); // groupId 설정
-
-        return new ConcurrentMessageListenerContainer<>(consumerFactory(), containerProps);
-    }
+    // @Bean
+    // public ConcurrentMessageListenerContainer<String, String> messageListenerContainer() {
+    //     MessageListener<String, String> messageListener = new MessageListener<String, String>() {
+    //         @Override
+    //         public void onMessage(ConsumerRecord<String, String> record) {
+    //             String message = record.value();
+    //             System.out.println("Received Kafka message: " + message);
+    //
+    //
+    //             // 메시지를 처리하는 로직을 여기에 추가
+    //             String roomId = "1";
+    //
+    //             if (roomId != null && !roomId.isEmpty()) {
+    //                 // WebSocket으로 메시지 전송
+    //                 messagingTemplate.convertAndSend("/topic/" + roomId, message);
+    //                 System.out.println("Message sent to WebSocket topic: /topic/" + roomId);
+    //                 System.out.println("Broadcasting message: " + message);
+    //             } else {
+    //                 System.err.println("Failed to send message: roomId is null or empty.");
+    //             }
+    //         }
+    //     };
+    //
+    //     ContainerProperties containerProps = new ContainerProperties("chatting");
+    //     containerProps.setMessageListener(messageListener);
+    //     containerProps.setGroupId(groupId); // groupId 설정
+    //
+    //     return new ConcurrentMessageListenerContainer<>(consumerFactory(), containerProps);
+    // }
 }

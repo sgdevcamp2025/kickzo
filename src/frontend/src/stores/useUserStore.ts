@@ -10,7 +10,7 @@ interface UserStore {
   updateMyProfile: (
     updateUserRequestDto: UpdateUserRequestDto,
   ) => Promise<UserResponseDto | undefined>;
-  clear: () => void;
+  clearProfile: () => void;
 }
 
 export const useUserStore = create(
@@ -33,7 +33,7 @@ export const useUserStore = create(
         set({ user: data });
         return data;
       },
-      clear: () => {
+      clearProfile: () => {
         set({ user: null });
       },
     }),

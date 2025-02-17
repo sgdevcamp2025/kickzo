@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>STOMP 테스트</title>
+    <!-- Bootstrap CSS -->
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+    <!-- STOMP 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <!-- SockJS 라이브러리 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.6.1/sockjs.min.js"></script>
+  </head>
+  <body>
+    <div class="container">
+      <h1>WebSocket CONNECT</h1>
+      <div class="mb-3 input-group" style="width: 500px">
+        <input
+          type="text"
+          id="websocketUrl"
+          value="http://localhost:8000/api/chat/ws"
+          placeholder="http://localhost:8000/api/chat/ws"
+          class="form-control"
+        />
+        <button id="connectBtn" class="btn btn-primary">CONN</button>
+      </div>
+
+      <h2>SUBSCRIBE</h2>
+      <div id="subscriptionList"></div>
+      <div class="input-group mb-3">
+        <button id="addSubscriptionBtn" class="btn btn-secondary">ADD</button>
+      </div>
+
+      <h2>자주 사용하는 요청</h2>
+      <div class="mb-3">
+        <select id="commonRequests" class="form-select">
+          <option value="">선택하세요</option>
+          <optgroup label="Publish (Send)">
+            <option value="connect">초기 연결 (/app/connect)</option>
+            <option value="sendMessage">채팅 전송 (/app/send-message)</option>
+            <option value="playTime">영상 시간 전송 (/app/play-time)</option>
+          </optgroup>
+          <optgroup label="Subscribe">
+            <option value="notification">
+              알림 구독 (/topic/user/{userId}/notification)
+            </option>
+            <option value="friendState">
+              친구 상태 구독 (/topic/user/{userId}/friend-state)
+            </option>
+            <option value="roomUserInfo">
+              방 유저 정보 구독 (/topic/room/{roomId}/user-info)
+            </option>
+            <option value="roomUpdate">
+              방 업데이트 구독 (/topic/room/{roomId}/room-update)
+            </option>
+            <option value="roleChange">
+              역할 변경 구독 (/topic/room/{roomId}/role-change)
+            </option>
+            <option value="playlistUpdate">
+              플레이리스트 업데이트 구독 (/topic/room/{roomId}/playlist-update)
+            </option>
+            <option value="playTimeUpdate">
+              영상 시간 구독 (/topic/room/{roomId}/play-time)
+            </option>
+            <option value="chat">채팅 구독 (/topic/room/{roomId}/chat)</option>
+          </optgroup>
+        </select>
+      </div>
+
+      <h2>SEND MESSAGE</h2>
+      <div class="mb-3">
+        <label for="destinationPath" class="form-label"
+          >DESTINATION PATH:</label
+        >
+        <input
+          type="text"
+          id="destinationPath"
+          class="form-control"
+          placeholder="/app/connect"
+        />
+      </div>
+      <div class="mb-3">
+        <label for="message" class="form-label">MESSAGE(JSON):</label>
+        <textarea id="message" class="form-control" rows="5"></textarea>
+      </div>
+      <button id="sendBtn" class="btn btn-success">SEND</button>
+
+      <h2 class="mt-4">MESSAGES</h2>
+      <div
+        id="messageBox"
+        class="border p-3"
+        style="height: 300px; overflow-y: auto"
+      ></div>
+    </div>
+
+    <script>
+      let stompClient = null;
+      let subscriptions = [];
+
+      const messageTemplates = {
+        connect: {
+          path: "/app/connect",
+          template: {
+            userId: 2,
+          },
+        },
+        sendMessage: {
+          path: "/app/send-message",
+          template: {
+            roomId: 1,
+            userId: 2,
+            content: "image",
+            message: "메시지 내용",
+          },
+        },
+        playTime: {
+          path: "/app/play-time",
+          template: {
+            roomId: 1,
+            playTime: 79,
+          },
+        },
+        notification: {
+          path: "/topic/user/{userId}/notification",
+          placeholder: "사용자 ID를 입력하세요",
+        },
+        friendState: {
+          path: "/topic/user/{userId}/friend-state",
+          placeholder: "사용자 ID를 입력하세요",
+        },
+        roomUserInfo: {
+          path: "/topic/room/{roomId}/user-info",
+          placeholder: "방 ID를 입력하세요",
+        },
+        roomUpdate: {
+          path: "/topic/room/{roomId}/room-update",
+          placeholder: "방 ID를 입력하세요",
+        },
+        roleChange: {
+          path: "/topic/room/{roomId}/role-change",
+          placeholder: "방 ID를 입력하세요",
+        },
+        playlistUpdate: {
+          path: "/topic/room/{roomId}/playlist-update",
+          placeholder: "방 ID를 입력하세요",
+        },
+        playTimeUpdate: {
+          path: "/topic/room/{roomId}/play-time",
+          placeholder: "방 ID를 입력하세요",
+        },
+        chat: {
+          path: "/topic/room/{roomId}/chat",
+          placeholder: "방 ID를 입력하세요",
+        },
+      };
+
+      document
+        .getElementById("commonRequests")
+        .addEventListener("change", function (e) {
+          const selected = messageTemplates[e.target.value];
+          if (!selected) return;
+
+          if (selected.path) {
+            document.getElementById("destinationPath").value = selected.path;
+          }
+
+          if (selected.template) {
+            document.getElementById("message").value = JSON.stringify(
+              selected.template,
+              null,
+              2
+            );
+          }
+
+          // localStorage에 선택된 값 저장
+          localStorage.setItem("selectedRequest", e.target.value);
+          localStorage.setItem("destinationPath", selected.path || "");
+          localStorage.setItem(
+            "messageContent",
+            selected.template ? JSON.stringify(selected.template) : ""
+          );
+        });
+
+      // 페이지 로드 시 저장된 값 복원
+      document.addEventListener("DOMContentLoaded", function () {
+        // WebSocket URL 복원
+        const savedUrl = localStorage.getItem("websocketUrl");
+        if (savedUrl) {
+          document.getElementById("websocketUrl").value = savedUrl;
+        }
+
+        // 선택된 요청 복원
+        const savedRequest = localStorage.getItem("selectedRequest");
+        if (savedRequest) {
+          document.getElementById("commonRequests").value = savedRequest;
+          document.getElementById("destinationPath").value =
+            localStorage.getItem("destinationPath") || "";
+
+          const savedMessage = localStorage.getItem("messageContent");
+          if (savedMessage) {
+            try {
+              document.getElementById("message").value = JSON.stringify(
+                JSON.parse(savedMessage),
+                null,
+                2
+              );
+            } catch (e) {
+              console.error("Failed to parse saved message:", e);
+            }
+          }
+        }
+
+        // 저장된 구독 경로들 복원
+        try {
+          const savedPaths =
+            JSON.parse(localStorage.getItem("subscriptionPaths")) || [];
+          if (savedPaths.length > 0) {
+            savedPaths.forEach((path) => {
+              addSubscription(path);
+            });
+          }
+        } catch (e) {
+          console.error("Failed to restore subscription paths:", e);
+        }
+      });
+
+      // WebSocket URL 변경 시 저장
+      document
+        .getElementById("websocketUrl")
+        .addEventListener("input", function (e) {
+          localStorage.setItem("websocketUrl", e.target.value);
+        });
+
+      document.getElementById("connectBtn").addEventListener("click", connect);
+      document
+        .getElementById("addSubscriptionBtn")
+        .addEventListener("click", addSubscription);
+      document.getElementById("sendBtn").addEventListener("click", sendMessage);
+
+      function connect() {
+        const websocketUrl = document.getElementById("websocketUrl").value;
+        const socket = new SockJS(websocketUrl);
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect(
+          {},
+          function (frame) {
+            console.log("Connected: " + frame);
+            document.getElementById("connectBtn").textContent = "CONNECTED";
+            document
+              .getElementById("connectBtn")
+              .classList.replace("btn-primary", "btn-success");
+          },
+          function (error) {
+            console.error("STOMP error: " + error);
+            document.getElementById(
+              "messageBox"
+            ).innerHTML += `<div class="text-danger">Error: ${error}</div>`;
+          }
+        );
+      }
+
+      function addSubscription(savedPath = "") {
+        // 이벤트 객체가 전달된 경우 빈 문자열로 처리
+        if (typeof savedPath === "object") {
+          savedPath = "";
+        }
+
+        const subscriptionList = document.getElementById("subscriptionList");
+        const subscriptionDiv = document.createElement("div");
+        subscriptionDiv.className = "input-group mb-2";
+        subscriptionDiv.innerHTML = `
+      <input type="text" class="form-control subscription-path" placeholder="/sub/chat/room" value="${savedPath}">
+    <button class="btn btn-primary subscribe-btn">SUBSCRIBE</button>
+    <button class="btn btn-danger unsubscribe-btn">UNSUBSCRIBE</button>
+    <button class="btn btn-secondary delete-btn">DELETE</button>
+    `;
+
+        const subscribeBtn = subscriptionDiv.querySelector(".subscribe-btn");
+        const unsubscribeBtn =
+          subscriptionDiv.querySelector(".unsubscribe-btn");
+        const deleteBtn = subscriptionDiv.querySelector(".delete-btn");
+
+        const pathInput = subscriptionDiv.querySelector(".subscription-path");
+
+        // 구독 경로 변경 시 저장
+        pathInput.addEventListener("input", () => {
+          saveSubscriptionPaths();
+        });
+
+        subscribeBtn.addEventListener("click", () => {
+          if (!stompClient) {
+            alert("웹소켓 연결이 필요합니다.");
+            return;
+          }
+          const subscription = stompClient.subscribe(
+            pathInput.value,
+            function (message) {
+              document.getElementById(
+                "messageBox"
+              ).innerHTML += `<div>Received from ${pathInput.value}: ${message.body}</div>`;
+            }
+          );
+          subscriptions.push({ path: pathInput.value, subscription });
+          subscribeBtn.disabled = true;
+          unsubscribeBtn.disabled = false;
+          saveSubscriptionPaths();
+        });
+
+        unsubscribeBtn.addEventListener("click", () => {
+          const index = subscriptions.findIndex(
+            (sub) => sub.path === pathInput.value
+          );
+          if (index !== -1) {
+            subscriptions[index].subscription.unsubscribe();
+            subscriptions.splice(index, 1);
+          }
+          subscribeBtn.disabled = false;
+          unsubscribeBtn.disabled = true;
+          saveSubscriptionPaths();
+        });
+
+        deleteBtn.addEventListener("click", () => {
+          // div 요소 제거 전에 구독 해제
+          const index = subscriptions.findIndex(
+            (sub) => sub.path === pathInput.value
+          );
+          if (index !== -1) {
+            subscriptions[index].subscription.unsubscribe();
+            subscriptions.splice(index, 1);
+          }
+          subscriptionDiv.remove();
+          saveSubscriptionPaths();
+        });
+
+        // 초기 상태에서는 UNSUBSCRIBE 버튼 비활성화 안함
+        unsubscribeBtn.disabled = true;
+        subscriptionList.appendChild(subscriptionDiv);
+      }
+
+      function saveSubscriptionPaths() {
+        const subscriptionPaths = subscriptions.map((sub) => sub.path);
+        localStorage.setItem(
+          "subscriptionPaths",
+          JSON.stringify(subscriptionPaths)
+        );
+      }
+
+      function sendMessage() {
+        const destination = document.getElementById("destinationPath").value;
+        const message = document.getElementById("message").value;
+
+        try {
+          const jsonMessage = JSON.parse(message);
+          stompClient.send(destination, {}, JSON.stringify(jsonMessage));
+          document.getElementById(
+            "messageBox"
+          ).innerHTML += `<div>Sent to ${destination}: ${message}</div>`;
+        } catch (e) {
+          document.getElementById(
+            "messageBox"
+          ).innerHTML += `<div class="text-danger">Error: Invalid JSON format</div>`;
+        }
+      }
+    </script>
+  </body>
+</html>

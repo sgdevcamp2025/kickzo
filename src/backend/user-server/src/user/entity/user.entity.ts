@@ -1,3 +1,4 @@
+import { ApiHideProperty } from "@nestjs/swagger";
 import { Exclude, Expose } from "class-transformer";
 import {
   Entity,
@@ -22,6 +23,7 @@ export class User {
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   @Exclude()
+  @ApiHideProperty()
   nicknameUpdatedAt: Date; // 최근 별명 업데이트 시간
 
   @Column({ type: "int", default: 0 })
@@ -35,14 +37,17 @@ export class User {
 
   @Column({ type: "char", length: 64, select: false })
   @Exclude()
+  @ApiHideProperty()
   salt: string; // 솔트값
 
   @Column({ type: "char", length: 64, select: false }) // select: false -> 쿼리할 때 제외
   @Exclude()
+  @ApiHideProperty()
   password: string; // 해싱된 비밀번호
 
   @Column({ type: "timestamp", default: () => "CURRENT_TIMESTAMP" })
   @Exclude()
+  @ApiHideProperty()
   passwordUpdatedAt: Date; // 비밀번호 변경 시각
 
   @Column({ type: "varchar", length: 100, nullable: true })
@@ -50,14 +55,17 @@ export class User {
 
   @CreateDateColumn({ type: "timestamp" })
   @Exclude()
+  @ApiHideProperty()
   createdAt: Date; // 유저 생성 시각
 
   @UpdateDateColumn({ type: "timestamp" })
   @Exclude()
+  @ApiHideProperty()
   accessedAt: Date; // 마지막 접근 시각
 
   @DeleteDateColumn({ type: "datetime", nullable: true })
   @Exclude()
+  @ApiHideProperty()
   deletedAt: Date; // 탈퇴 시간(soft delete)
 
   getPassword(): string {

@@ -55,3 +55,15 @@ class BaseViewController<R: Reactor>: UIViewController, View {
     
     func bindState(reactor: R) {}
 }
+
+extension BaseViewController {
+    func changeRootViewController(_ idx: Int) {
+        let windowScene = UIApplication.shared.connectedScenes.first as? UIWindowScene
+        let sceneDelegate = windowScene?.delegate as? SceneDelegate
+        let rootviewController = TabBarViewController()
+        
+        rootviewController.selectedIndex = idx
+        sceneDelegate?.window?.rootViewController = rootviewController
+        sceneDelegate?.window?.makeKeyAndVisible()
+    }
+}

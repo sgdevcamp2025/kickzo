@@ -34,8 +34,14 @@ export const authApi = {
 
   // 토큰 갱신
   refreshToken: async () => {
-    const { data } = await instance.post('/auth/token/refresh');
-    return data;
+    try {
+      const { data } = await instance.post('/auth/token/refresh');
+      return data;
+    } catch (error) {
+      console.error('토큰 갱신 실패:', error);
+      useAuthStore.getState().clear();
+      throw error;
+    }
   },
 
   // 토큰 검증

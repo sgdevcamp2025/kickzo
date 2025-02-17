@@ -8,6 +8,7 @@ import {
   UnauthorizedException,
   UsePipes,
   ValidationPipe,
+  VERSION_NEUTRAL,
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { Authorization } from "./decorator/authorization.decorator";
@@ -22,12 +23,15 @@ import {
 } from "./constants/constants";
 import { DeviceType } from "./enum/device-type.enum";
 import { Request, Response } from "express";
+import { ApiBasicAuth, ApiBearerAuth, ApiOperation } from "@nestjs/swagger";
 
-@Controller("api/auth")
+@Controller({ path: "api/auth", version: VERSION_NEUTRAL })
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post("login")
+  @ApiBasicAuth()
+  @ApiOperation({ summary: "로그인" })
   @UsePipes(ValidationPipe)
   async loginUser(
     @Authorization() token: string,
@@ -55,6 +59,8 @@ export class AuthController {
 
   @Post("logout")
   @HttpCode(200)
+  @ApiBearerAuth("access")
+  @ApiOperation({ summary: "로그아웃" })
   async logout(
     @Authorization() accessToken: string,
     @Res({ passthrough: true }) res: Response,
@@ -70,6 +76,9 @@ export class AuthController {
   }
 
   @Post("token/refresh")
+  @HttpCode(200)
+  @ApiBearerAuth("refresh")
+  @ApiOperation({ summary: "토큰 갱신" })
   async rotateAccessToken(
     @Req() req: Request,
     @Res({ passthrough: true }) res: Response,
@@ -121,6 +130,8 @@ export class AuthController {
 
   @Post("token/verify")
   @HttpCode(200)
+  @ApiBearerAuth("access")
+  @ApiOperation({ summary: "토큰 검증" })
   async verifyAccessToken(@Authorization() accessToken: string) {
     if (!accessToken) {
       throw new UnauthorizedException(MESSAGES.INVALID_TOKEN);

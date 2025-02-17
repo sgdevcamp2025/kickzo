@@ -1,12 +1,14 @@
-import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect, useCallback } from 'react';
 import Stomp, { Client, Message } from 'stompjs';
 import SockJS from 'sockjs-client';
 import { ChatInput } from '@/components/Sidebar/Chating/ChatInput';
 import { ChatMessages } from '@/components/Sidebar/Chating/ChatMessages';
 import { UserRole } from '@/types/enums/UserRole';
 import { ChatContainer, ChatScrollArea, Blank } from './index.css';
+import { DoublyLinkedList } from '@/hooks/utils/DoublyLinkedList';
 
-const MemoizedChatMessages = React.memo(ChatMessages);
+const BATCH_INTERVAL = 100;
+const MAX_BATCH_SIZE = 20;
 
 const INITIAL_CHAT_NUM = 20;
 const EXTRA_CHAT_NUM = 5;
@@ -21,9 +23,15 @@ const initialChatData = Array.from({ length: 100 }, (_, i) => ({
 }));
 
 export const ChatBox = () => {
-  const [chatData, setChatData] = useState(initialChatData);
-  const [visibleChat, setVisibleChat] = useState(chatData.slice(-INITIAL_CHAT_NUM));
-  const [startIndex, setStartIndex] = useState(chatData.length - INITIAL_CHAT_NUM);
+  const chatListRef = useRef(new DoublyLinkedList(initialChatData));
+  const startIndexRef = useRef(Math.max(chatListRef.current.length - INITIAL_CHAT_NUM, 0));
+  const [visibleChat, setVisibleChat] = useState(
+    chatListRef.current.slice(
+      Math.max(chatListRef.current.length - INITIAL_CHAT_NUM, 0),
+      chatListRef.current.length,
+    ),
+  );
+
   const [extraTopNum, setExtraTopNum] = useState(0);
   const [extraDownNum, setExtraDownNum] = useState(0);
   const [status, setStatus] = useState<string>('Disconnected');
@@ -32,9 +40,10 @@ export const ChatBox = () => {
   const stompClientRef = useRef<Client | null>(null);
   const topSentinelRef = useRef<HTMLDivElement>(null);
   const bottomSentinelRef = useRef<HTMLDivElement>(null);
+  const incomingQueueRef = useRef<{ content: string; userId: string }[]>([]);
 
-  const userId = useRef(`user${Math.floor(Math.random() * 1000)}`);
   const roomId = '1';
+  const userId = useRef(`user${Math.floor(Math.random() * 1000)}`);
 
   const isAtBottom = useCallback(() => {
     if (!chatContainerRef.current) return false;
@@ -42,11 +51,10 @@ export const ChatBox = () => {
     return scrollHeight - scrollTop - clientHeight < 10;
   }, []);
 
-  // WebSocket을 통한 메시지 전송
   const sendMessage = useCallback(
     (message: string) => {
       if (!stompClientRef.current || !stompClientRef.current.connected) {
-        console.warn('웹소켓 연결이 되지 않아 메세지를 보낼 수 없습니다.');
+        console.warn('웹소켓 연결이 되지 않아 메시지 전송 불가');
         return;
       }
       stompClientRef.current.send('/app/sendMessage', {}, JSON.stringify({ roomId, message }));
@@ -54,9 +62,8 @@ export const ChatBox = () => {
     [roomId],
   );
 
-  // 새 메시지 추가
   const addMessage = useCallback(
-    (message: string, sender: string = 'Me') => {
+    (message: string, sender: string = 'Me', _isBatch: boolean = false) => {
       if (sender !== 'Me' && sender === userId.current) return;
 
       const newChat = {
@@ -70,20 +77,36 @@ export const ChatBox = () => {
         sendMessage(message);
       }
 
-      setChatData(prev => {
-        const updated = [...prev, newChat];
-        if (sender === 'Me' || isAtBottom()) {
-          const newStartIndex = updated.length > MAX_CHAT_NUM ? updated.length - MAX_CHAT_NUM : 0;
-          setStartIndex(newStartIndex);
-          setVisibleChat(updated.slice(newStartIndex, updated.length));
+      chatListRef.current.push(newChat);
+      const newLength = chatListRef.current.length;
 
+      setTimeout(() => {
+        if (sender === 'Me' || isAtBottom()) {
+          const newStartIndex = newLength > MAX_CHAT_NUM ? newLength - MAX_CHAT_NUM : 0;
+          startIndexRef.current = newStartIndex;
+          setVisibleChat(chatListRef.current.slice(newStartIndex, newLength));
           scrollToBottom();
         }
-        return updated;
-      });
+      }, 0);
     },
     [isAtBottom, sendMessage],
   );
+
+  useEffect(() => {
+    const intervalId = setInterval(() => {
+      if (incomingQueueRef.current.length > 0) {
+        const batch = incomingQueueRef.current.splice(0, MAX_BATCH_SIZE);
+
+        setTimeout(() => {
+          batch.forEach(msg => {
+            addMessage(msg.content, msg.userId, true);
+          });
+        }, 0);
+      }
+    }, BATCH_INTERVAL);
+
+    return () => clearInterval(intervalId);
+  }, [addMessage]);
 
   // WebSocket 연결
   const connect = useCallback(() => {
@@ -103,7 +126,7 @@ export const ChatBox = () => {
       const subscription = client.subscribe(`/topic/${roomId}`, (message: Message) => {
         try {
           const payload = JSON.parse(message.body);
-          addMessage(payload.content, payload.userId);
+          incomingQueueRef.current.push({ content: payload.content, userId: payload.userId });
         } catch (error) {
           console.error('❌: ', error);
         }
@@ -115,7 +138,7 @@ export const ChatBox = () => {
         subscription.unsubscribe();
       };
     });
-  }, [roomId, addMessage]);
+  }, [roomId]);
 
   // WebSocket 연결 해제
   const disconnect = useCallback(() => {
@@ -130,24 +153,23 @@ export const ChatBox = () => {
     }
   }, []);
 
+  // 상단 감지 Observer
   useEffect(() => {
-    const observerOptions = {
-      root: chatContainerRef.current,
-      threshold: 1.0,
-    };
+    const observerOptions = { root: chatContainerRef.current, threshold: 1.0 };
     const topObserver = new IntersectionObserver(entries => {
       const entry = entries[0];
-      if (entry.isIntersecting && startIndex > 0) {
-        const newStartIndex = Math.max(0, startIndex - EXTRA_CHAT_NUM);
+      if (entry.isIntersecting && startIndexRef.current > 0) {
+        const newStartIndex = Math.max(0, startIndexRef.current - EXTRA_CHAT_NUM);
         const prevHeight = chatContainerRef.current?.scrollHeight || 0;
         if (visibleChat.length === MAX_CHAT_NUM) {
           setExtraDownNum(prev => prev + EXTRA_CHAT_NUM);
+          setExtraTopNum(prev => Math.max(prev - EXTRA_CHAT_NUM, 0));
         }
-        setStartIndex(newStartIndex);
-        setVisibleChat(chatData.slice(newStartIndex, newStartIndex + MAX_CHAT_NUM));
+        startIndexRef.current = newStartIndex;
+        setVisibleChat(chatListRef.current.slice(newStartIndex, newStartIndex + MAX_CHAT_NUM));
         requestAnimationFrame(() => {
           if (chatContainerRef.current) {
-            const newHeight = chatContainerRef.current.scrollHeight;
+            const newHeight = chatContainerRef.current.scrollHeight + extraTopNum * CHAT_HEIGHT;
             chatContainerRef.current.scrollTop = newHeight - prevHeight;
           }
         });
@@ -162,24 +184,28 @@ export const ChatBox = () => {
         topObserver.unobserve(topSentinelRef.current);
       }
     };
-  }, [chatData, startIndex, visibleChat]);
+  }, [visibleChat]);
 
+  // 하단 감지 Observer
   useEffect(() => {
-    const observerOptions = {
-      root: chatContainerRef.current,
-      threshold: 1.0,
-    };
+    const observerOptions = { root: chatContainerRef.current, threshold: 1.0 };
     const bottomObserver = new IntersectionObserver(entries => {
       const entry = entries[0];
-      if (entry.isIntersecting && startIndex < chatData.length - MAX_CHAT_NUM) {
-        const newStartIndex = Math.min(startIndex + EXTRA_CHAT_NUM, chatData.length - MAX_CHAT_NUM);
+      if (
+        entry.isIntersecting &&
+        startIndexRef.current < chatListRef.current.length - MAX_CHAT_NUM
+      ) {
+        const newStartIndex = Math.min(
+          startIndexRef.current + EXTRA_CHAT_NUM,
+          chatListRef.current.length - MAX_CHAT_NUM,
+        );
         const prevHeight = chatContainerRef.current?.scrollHeight || 0;
         if (visibleChat.length === MAX_CHAT_NUM) {
           setExtraDownNum(prev => Math.max(prev - EXTRA_CHAT_NUM, 0));
           setExtraTopNum(prev => prev + EXTRA_CHAT_NUM);
         }
-        setStartIndex(newStartIndex);
-        setVisibleChat(chatData.slice(newStartIndex, newStartIndex + MAX_CHAT_NUM));
+        startIndexRef.current = newStartIndex;
+        setVisibleChat(chatListRef.current.slice(newStartIndex, newStartIndex + MAX_CHAT_NUM));
         requestAnimationFrame(() => {
           if (chatContainerRef.current) {
             const newHeight = chatContainerRef.current.scrollHeight;
@@ -198,29 +224,29 @@ export const ChatBox = () => {
         bottomObserver.unobserve(bottomSentinelRef.current);
       }
     };
-  }, [chatData, startIndex, visibleChat]);
+  }, [visibleChat]);
 
-  const scrollToBottom = () => {
+  const scrollToBottom = useCallback(() => {
     if (chatContainerRef.current) {
-      setExtraTopNum(extraTopNum + extraDownNum);
+      setExtraTopNum(prev => prev + extraDownNum);
       setExtraDownNum(0);
       chatContainerRef.current.scrollTo({
         top: chatContainerRef.current.scrollHeight,
         behavior: 'smooth',
       });
     }
-  };
+  }, [extraDownNum]);
 
   return (
     <ChatContainer>
       <ChatScrollArea ref={chatContainerRef}>
         <Blank $blankPadding={`${CHAT_HEIGHT * extraTopNum}px`} />
-        <div ref={topSentinelRef} style={{ height: 1 }} />
-        <MemoizedChatMessages chatData={visibleChat} />
+        <div ref={topSentinelRef} style={{ height: 100 }} />
+        <ChatMessages chatData={visibleChat} />
         <div ref={bottomSentinelRef} style={{ height: 1 }} />
         <Blank $blankPadding={`${CHAT_HEIGHT * extraDownNum}px`} />
       </ChatScrollArea>
-      <ChatInput onSendMessage={addMessage} />
+      <ChatInput onSendMessage={msg => addMessage(msg, 'Me')} />
       <button onClick={connect}>연결하기</button>
       <button onClick={disconnect}>연결 끊기</button>
       <p>Status: {status}</p>
