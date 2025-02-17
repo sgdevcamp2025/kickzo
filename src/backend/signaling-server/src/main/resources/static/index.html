@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Kurento WebRTC Multi-User Chat</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.5.1/sockjs.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/stomp.js/2.3.3/stomp.min.js"></script>
+    <style>
+        video {
+            width: 300px;
+            height: 200px;
+            border: 2px solid black;
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+<h1>WebRTC Video & Audio Chat (Kurento SFU)</h1>
+<div id="loginForm">
+    <label for="username">User name:</label>
+    <input type="text" id="username" placeholder="Enter your name" required>
+    <br><br>
+    <label for="roomname">Room name:</label>
+    <input type="text" id="roomname" placeholder="Enter room name" required>
+    <br><br>
+    <button onclick="enterRoom()">Enter Room</button>
+</div>
+
+<div id="videoContainer" style="display:none;">
+    <h2>Room: <span id="currentRoom"></span></h2>
+    <button onclick="leaveRoom()">Exit Room</button>
+    <div id="videoGrid"></div>
+</div>
+
+<script>
+    let stompClient = null;
+    let peerConnection = null;
+    let username = "";
+    let roomname = "";
+
+    const iceServers = {
+        iceServers: [
+            {urls: "stun:stun.l.google.com:19302"},
+            {urls: "turn:coturn:3478", username: "kickzo", credential: "kickick"}
+        ]
+    };
+
+    function enterRoom() {
+        username = document.getElementById('username').value.trim();
+        roomname = document.getElementById('roomname').value.trim();
+
+        if (!username || !roomname) {
+            alert('Please enter a username and room name!');
+            return;
+        }
+
+        console.log("🔹 Entering Room:", roomname);
+
+        window.history.pushState({}, roomname, `/room/${roomname}`);
+
+        connectToWebSocket();
+    }
+
+    function connectToWebSocket() {
+        console.log("🔹 Connecting to WebSocket...");
+
+        const socket = new SockJS('/api/signal/ws');
+        stompClient = Stomp.over(socket);
+
+        stompClient.connect({}, (frame) => {
+            console.log('✅ WebSocket Connected:', frame);
+            joinRoom();
+        }, (error) => {
+            console.error('❌ Connection error:', error);
+        });
+    }
+
+    function joinRoom() {
+        console.log(`📡 Joining room: ${roomname}`);
+        document.getElementById('loginForm').style.display = 'none';
+        document.getElementById('videoContainer').style.display = 'block';
+        document.getElementById('currentRoom').innerText = roomname;
+
+        // ✅ WebSocket 메시지 구독을 먼저 실행
+        subscribeToMessages();
+
+        stompClient.send('/app/signal', {}, JSON.stringify({
+            id: "joinRoom",
+            userName: username,
+            roomCode: roomname
+        }));
+
+        setupWebRTC();
+    }
+
+    function setupWebRTC() {
+        console.log("🔹 Setting up WebRTC...");
+
+        navigator.mediaDevices.getUserMedia({video: true, audio: true})
+            .then((stream) => {
+                console.log("🎥 Local media stream acquired.");
+                createVideoElement(username, stream);
+
+                peerConnection = new RTCPeerConnection(iceServers);
+                stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+
+                peerConnection.onicecandidate = (event) => {
+                    if (event.candidate) {
+                        if (peerConnection.localDescription && peerConnection.localDescription.type === 'offer') {
+                            console.log("📡 Sending ICE Candidate:", event.candidate);
+                            stompClient.send('/app/signal', {}, JSON.stringify({
+                                id: "onIceCandidate",
+                                roomCode: roomname,
+                                sender: username,
+                                candidate: {
+                                    candidate: event.candidate.candidate,
+                                    sdpMid: event.candidate.sdpMid,
+                                    sdpMLineIndex: event.candidate.sdpMLineIndex
+                                }
+                            }));
+                        } else {
+                            console.warn("⚠️ SDP Offer not yet sent. Waiting...");
+                        }
+                    }
+                };
+
+                peerConnection.ontrack = (event) => {
+                    console.log("🎥 Receiving remote video stream");
+
+                    event.streams.forEach(stream => {
+                        createVideoElement("remote-" + username, stream);
+                    });
+                };
+
+                peerConnection.createOffer().then((offer) => {
+                    return peerConnection.setLocalDescription(offer);
+                }).then(() => {
+                    console.log("📡 Sending SDP Offer...");
+                    stompClient.send('/app/signal', {}, JSON.stringify({
+                        id: "sdpOffer",
+                        roomCode: roomname,
+                        sender: username,
+                        sdpOffer: peerConnection.localDescription.sdp
+                    }));
+                });
+
+            }).catch((error) => {
+            console.error("❌ Failed to access camera/microphone:", error);
+        });
+    }
+
+    function subscribeToMessages() {
+        console.log("🔹 Subscribing to WebSocket messages...");
+
+        stompClient.subscribe(`/topic/room/${roomname}`, (message) => {
+            const data = JSON.parse(message.body);
+            console.log("📡 Received room update:", data);
+
+            if (data.id === "existingParticipants") {
+                console.log(`👥 Existing participants in room: ${data.participants}`);
+
+                data.participants.forEach(peerName => {
+                    if (peerName !== username) {
+                        createPeerConnection(peerName, true); // ✅ 기존 참가자들에게 SDP Offer 전송
+                    }
+                });
+            }
+
+            if (data.id === "userJoined") {
+                console.log(`📡 New user joined: ${data.name}, current user: ${username}`);
+
+                if (data.name !== username) {
+                    createPeerConnection(data.name, false); // ✅ 새 참가자에게는 SDP Offer 전송 안함
+                }
+            }
+
+            if (data.id == "iceCandidate") {
+                const candidateData = JSON.parse(message.body);
+                console.log("❄️ Received ICE Candidate from Kurento:", candidateData);
+
+                const candidate = new RTCIceCandidate(candidateData.candidate);
+
+                if (peerConnection) {
+                    peerConnection.addIceCandidate(candidate).then(() => {
+                        console.log("✅ ICE Candidate added successfully.");
+                    }).catch(err => {
+                        console.error("❌ Failed to add ICE Candidate:", err);
+                    });
+                }
+            }
+
+            if (data.id == "receiveAudioAnswer") {
+                const sdpData = JSON.parse(message.body);
+                console.log("📡 Received SDP Answer from Kurento:", sdpData.sdpAnswer);
+
+                if (peerConnection) {
+                    if (peerConnection.signalingState !== "have-local-offer") {
+                        console.warn(`⚠️ Received SDP Answer but signalingState is ${peerConnection.signalingState}. Skipping...`);
+                        return;
+                    }
+
+                    peerConnection.setRemoteDescription(new RTCSessionDescription({
+                        type: 'answer',
+                        sdp: sdpData.sdpAnswer
+                    })).then(() => {
+                        console.log("✅ Remote SDP set successfully.");
+                    }).catch(err => {
+                        console.error("❌ Failed to set remote SDP:", err);
+                    });
+                }
+
+            }
+        });
+
+        console.log("✅ WebSocket subscriptions completed.");
+    }
+
+    function createPeerConnection(peerUsername, sendOffer) {
+        console.log(`🔹 Creating PeerConnection for: ${peerUsername}`);
+
+        const peerConnection = new RTCPeerConnection(iceServers);
+        peerConnections[peerUsername] = peerConnection;
+
+        navigator.mediaDevices.getUserMedia({video: true, audio: true})
+            .then((stream) => {
+                console.log(`🎥 Local stream added for ${peerUsername}`);
+                stream.getTracks().forEach(track => peerConnection.addTrack(track, stream));
+            })
+            .catch((error) => console.error("❌ Error accessing media devices:", error));
+
+        peerConnection.ontrack = (event) => {
+            console.log(`🎥 Received stream from ${peerUsername}`);
+            createVideoElement(peerUsername, event.streams[0]);
+        };
+
+        peerConnection.onicecandidate = (event) => {
+            if (event.candidate) {
+                console.log(`📡 Sending ICE Candidate from ${peerUsername}:`, event.candidate);
+                stompClient.send('/app/signal', {}, JSON.stringify({
+                    id: "onIceCandidate",
+                    roomCode: roomname,
+                    sender: username,
+                    receiver: peerUsername,
+                    candidate: {
+                        candidate: event.candidate.candidate,
+                        sdpMid: event.candidate.sdpMid,
+                        sdpMLineIndex: event.candidate.sdpMLineIndex
+                    }
+                }));
+            }
+        };
+        if (sendOffer) {
+            peerConnection.createOffer()
+                .then((offer) => {
+                    return peerConnection.setLocalDescription(offer);
+                })
+                .then(() => {
+                    console.log(`📡 Sending SDP Offer to ${peerUsername}`);
+                    stompClient.send('/app/signal', {}, JSON.stringify({
+                        id: "sdpOffer",
+                        roomCode: roomname,
+                        sender: username,
+                        receiver: peerUsername,
+                        sdpOffer: peerConnection.localDescription.sdp
+                    }));
+                });
+        }
+    }
+
+
+    function createVideoElement(peerUsername, stream) {
+        if (document.getElementById(`video-${peerUsername}`)) return;
+
+        console.log(`🎥 Creating video element for: ${peerUsername}`);
+
+        let video = document.createElement("video");
+        video.id = `video-${peerUsername}`;
+        video.autoplay = true;
+        video.playsInline = true;
+        video.srcObject = stream;
+        document.getElementById("videoGrid").appendChild(video);
+    }
+
+    function leaveRoom() {
+        console.log("🚪 Leaving Room:", roomname);
+        stompClient.send('/app/signal', {}, JSON.stringify({id: "leaveRoom"}));
+
+        if (peerConnection) {
+            peerConnection.close();
+            peerConnection = null;
+        }
+
+        document.getElementById('videoGrid').innerHTML = "";
+        document.getElementById('loginForm').style.display = "block";
+        document.getElementById('videoContainer').style.display = "none";
+    }
+</script>
+</body>
+</html>
