@@ -12,6 +12,7 @@ export const UserList = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  overflow-y: auto;
 `;
 
 export const MemberFooter = styled.div`
