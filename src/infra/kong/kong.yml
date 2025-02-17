@@ -117,6 +117,13 @@ services:
               uri_param_names: []
           - name: custom-jwt-header
 
+  - name: signaling-service
+    url: http://signaling:8105 # SIGNAL_PORT=8105
+    routes:
+      - name: signal-public-route
+        paths:
+          - /api/signal
+
   - name: chat-service
     url: http://chat-service-upstream # upstream 이름
     routes:
@@ -194,3 +201,4 @@ plugins:
       credentials: true
       max_age: 3600
       preflight_continue: false
+
