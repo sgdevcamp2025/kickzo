@@ -33,8 +33,8 @@ public class WebSocketRoomService {
 	/**
 	 * 방에 메시지 전송
 	 */
-	public void handleMessageSend(long roomId, long userId, String content, String msg) {
-		ChatMessage chatMessage = new ChatMessage(roomId, userId, content, msg);
+	public void handleMessageSend(long roomId, long userId, String nickname, int role, String profileImageUrl, String content, String message) {
+		ChatMessage chatMessage = new ChatMessage(roomId, userId, nickname, role, profileImageUrl, content, message);
 		kafkaRepository.sendChatMessage(chatMessage);
 	}
 

@@ -57,7 +57,8 @@ public class WebSocketController {
             SendMessageRequest request = objectMapper.readValue(payload, SendMessageRequest.class);
             long userId = (Long) headerAccessor.getSessionAttributes().get("userId");
 
-            webSocketRoomService.handleMessageSend(request.roomId(), userId, request.content(), request.message());
+            webSocketRoomService.handleMessageSend(request.roomId(), userId, request.nickname(), request.role(),
+                request.profileImageUrl(), request.content(), request.message());
         } catch (Exception e) {
             log.error("Error processing sendMessage message", e);
         }
@@ -72,7 +73,7 @@ public class WebSocketController {
     }
 
     public record UserConnectRequest(long userId) {}
-    public record SendMessageRequest(long roomId, long userId, String content, String message) {}
+    public record SendMessageRequest(long roomId, long userId, String nickname, int role, String profileImageUrl, String content, String message) {}
 
     public record PlayTimeRequest(long roomId, long playTime, String playerState) {}
 }
