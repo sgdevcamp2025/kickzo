@@ -1,5 +1,5 @@
 //
-//  ChatMessageResponse.swift
+//  ChatMessageResponseDTO.swift
 //  KickTube
 //
 //  Created by 김수경 on 2/11/25.
@@ -10,7 +10,7 @@ import Foundation
 import ManipulateDataModel
 
 @DecodeDTO
-struct ChatMessageResponse {
+struct ChatMessageResponseDTO {
     @Key("id") let messageID: String
     @Key("roomId") let roomID: Int
     @Key("userId") let userID: Int

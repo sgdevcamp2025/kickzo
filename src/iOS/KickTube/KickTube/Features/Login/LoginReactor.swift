@@ -86,14 +86,10 @@ final class LoginReactor: Reactor {
     // MARK: - private method
     
     private func login(_ login: LoginViewModel) -> Observable<Mutation> {
-        struct LoginRequestBody: Encodable {
-            let device: String = "mobile"
-        }
-        
-        let request = LoginRequest(
+      let request = LoginRequest(
             method: .post, path: ["api", "auth", "login"],
             header: [.json, .login(currentState.loginInformation)],
-            body: LoginRequestBody()
+            body: LoginRequestDTO()
         )
         
         return Observable.create { [weak self] observer in

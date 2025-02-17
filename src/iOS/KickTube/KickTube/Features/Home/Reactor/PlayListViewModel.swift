@@ -88,7 +88,7 @@ final class PlayListViewModel {
                                 return
                             }
 
-                            let searchResponse = try await self.networkManager.getDecodedData(request: request, to: YouTubeVideoResponse.self)
+                            let searchResponse = try await self.networkManager.getDecodedData(request: request, to: YouTubeVideoResponseDTO.self)
                             
                             if !searchResponse.items.isEmpty {
                                 var searchModel = searchResponse.toModel().toModel()

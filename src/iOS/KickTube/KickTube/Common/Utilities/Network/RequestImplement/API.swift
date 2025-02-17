@@ -28,6 +28,6 @@ struct API {
     }
     
     struct User {
-        static let myProfile = DefaultRequest<UserProfileResponse>(method: .get, path: ["api", "users", "me"], header: [.json, .authorizationAccessToken])
+        static let myProfile = DefaultRequest<UserProfileResponseDTO>(method: .get, path: ["api", "users", "me"], header: [.json, .authorizationAccessToken])
     }
 }

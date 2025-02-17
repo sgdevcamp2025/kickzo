@@ -1,5 +1,5 @@
 //
-//  KickRoomResponse.swift
+//  KickRoomResponseDTO.swift
 //  KickTube
 //
 //  Created by 김수경 on 2/4/25.
@@ -10,9 +10,9 @@ import Foundation
 import ManipulateDataModel
 
 @DecodeDTO
-struct KickRoomResponse {
+struct KickRoomResponseDTO {
     let myRole: Int
-    @Key("roomDetails") var roomDetail: KickRoomDetailResponse
+    @Key("roomDetails") var roomDetail: KickRoomDetailResponseDTO
     
     func toModel() -> KickRoomDomainModel {
         .init(myRole: UserRole(rawValue: self.myRole) ?? .member,
@@ -21,10 +21,10 @@ struct KickRoomResponse {
 }
 
 @DecodeDTO
-struct KickRoomDetailResponse {
-    let userList: [KickRoomUserResponse]
-    let roomInfo: [KickRoomInfoResponse]
-    let playlist: [KickRoomPlaylistResponse]
+struct KickRoomDetailResponseDTO {
+    let userList: [KickRoomUserResponseDTO]
+    let roomInfo: [KickRoomInfoResponseDTO]
+    let playlist: [KickRoomPlaylistResponseDTO]
     
     func toModel() -> KickRoomDetailDomainModel {
         .init(userList: self.userList.map { $0.toModel() },
@@ -34,7 +34,7 @@ struct KickRoomDetailResponse {
 }
 
 @DecodeDTO
-struct KickRoomUserResponse {
+struct KickRoomUserResponseDTO {
     @Key("userId") let userID: Int
     let role: Int
     let nickname: String
@@ -48,7 +48,7 @@ struct KickRoomUserResponse {
 
 @DecodeDTO
 @ConvertToDomainModel<KickRoomInfoDomainModel>
-struct KickRoomInfoResponse {
+struct KickRoomInfoResponseDTO {
     @Key("id") let roomID: Int
     let code: String
     let title: String
@@ -59,14 +59,14 @@ struct KickRoomInfoResponse {
 }
 
 @DecodeDTO
-struct KickRoomPlaylistResponse {
-    let order: [KickRoomPlaylistItemResponse]
+struct KickRoomPlaylistResponseDTO {
+    let order: [KickRoomPlaylistItemResponseDTO]
     
     init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         let orderString = try container.decode(String.self, forKey: .order)
         if let jsonData = orderString.data(using: .utf8) {
-            self.order = try JSONDecoder().decode([KickRoomPlaylistItemResponse].self, from: jsonData)
+            self.order = try JSONDecoder().decode([KickRoomPlaylistItemResponseDTO].self, from: jsonData)
         } else {
             self.order = []
         }
@@ -80,7 +80,7 @@ struct KickRoomPlaylistResponse {
 
 @DecodeDTO
 @ConvertToDomainModel<KickRoomPlaylistItemDomainModel>
-struct KickRoomPlaylistItemResponse {
+struct KickRoomPlaylistItemResponseDTO {
    let url: String
    let order: Int
 }

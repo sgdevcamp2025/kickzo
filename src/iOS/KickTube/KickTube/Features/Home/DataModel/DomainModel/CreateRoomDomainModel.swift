@@ -7,6 +7,8 @@
 
 import Foundation
 
+import ManipulateDataModel
+
 struct CreateRoomDomainModel: DTOMappable {
     let code: String
     
