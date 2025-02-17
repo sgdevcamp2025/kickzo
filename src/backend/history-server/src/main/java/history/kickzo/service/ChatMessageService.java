@@ -21,13 +21,18 @@ public class ChatMessageService {
         try {
             // JSON 메시지를 ChatMessage 객체로 변환
             ChatMessage chatMessage = objectMapper.readValue(message, ChatMessage.class);
-            chatMessage.setTimestamp(System.currentTimeMillis());  // 현재 시간으로 타임스탬프 설정 (필요 시)
+            chatMessage.setTimestamp(System.currentTimeMillis());  // 현재 시간으로 타임스탬프 설정
 
             // 저장할 데이터 출력
             System.out.println("Saving message to DB: ");
             System.out.println("ID: " + chatMessage.getId());
-            System.out.println("User: " + chatMessage.getUserId());
-            System.out.println("Message: " + chatMessage.getMessage());  // content 대신 message 사용
+            System.out.println("Room ID: " + chatMessage.getRoomId());
+            System.out.println("User ID: " + chatMessage.getUserId());
+            System.out.println("Nickname: " + chatMessage.getNickname());
+            System.out.println("Profile Image URL: " + chatMessage.getProfileImageUrl());  // 프로필 이미지 출력
+            System.out.println("Role: " + chatMessage.getRole());
+            System.out.println("Message: " + chatMessage.getMessage());
+            System.out.println("Content: " + chatMessage.getContent());
             System.out.println("Timestamp: " + chatMessage.getTimestamp());
 
             // DB에 저장
@@ -37,6 +42,8 @@ public class ChatMessageService {
             System.out.println("Error parsing message: " + e.getMessage());
         }
     }
+
+
 
     public List<ChatMessage> getMessages(long roomId, long cursor, int limit) {
         List<ChatMessage> messages = repository.findByRoomIdOrderByTimestampDesc(roomId);
