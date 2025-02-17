@@ -156,7 +156,7 @@
             message: message
         });
 
-        stompClient.send('/app/sendMessage', {}, payload);
+        stompClient.send('/app/send-message', {}, payload);
         document.getElementById('messageInput').value = '';
         console.log('Sent message:', payload);
     }

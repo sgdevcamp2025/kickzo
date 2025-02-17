@@ -10,4 +10,5 @@ import lombok.NoArgsConstructor;
 public class PlayTime {
 	private long roomId;
 	private long playTime;
+	private String playerState;
 }

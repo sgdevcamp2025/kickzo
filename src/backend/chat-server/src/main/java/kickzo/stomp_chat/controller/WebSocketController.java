@@ -68,11 +68,11 @@ public class WebSocketController {
         PlayTimeRequest request = objectMapper.readValue(payload, PlayTimeRequest.class);
         log.info("Received roomId : {}, play time: {}", request.roomId(), request.playTime());
 
-        webSocketRoomService.sendPlayTime(request.roomId(), request.playTime());
+        webSocketRoomService.sendPlayTime(request.roomId(), request.playTime(), request.playerState());
     }
 
     public record UserConnectRequest(long userId) {}
     public record SendMessageRequest(long roomId, long userId, String content, String message) {}
 
-    public record PlayTimeRequest(long roomId, long playTime) {}
+    public record PlayTimeRequest(long roomId, long playTime, String playerState) {}
 }

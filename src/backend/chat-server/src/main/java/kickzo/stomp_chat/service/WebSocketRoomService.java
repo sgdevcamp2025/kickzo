@@ -49,8 +49,8 @@ public class WebSocketRoomService {
 	/**
 	 * Kafka에 playlistTime 전송
 	 */
-	public void sendPlayTime (long roomId, long playTime){
-		PlayTime playTimeObject = new PlayTime(roomId, playTime);
+	public void sendPlayTime (long roomId, long playTime, String playerState){
+		PlayTime playTimeObject = new PlayTime(roomId, playTime, playerState);
 
 		RoomEvent roomEvent = new RoomEvent("play-time", playTimeObject);
 		kafkaRepository.sendPlayTime(roomEvent);
