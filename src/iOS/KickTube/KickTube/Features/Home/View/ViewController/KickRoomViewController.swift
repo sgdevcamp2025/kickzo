@@ -106,13 +106,6 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         navigationController?.setNavigationBarHidden(false, animated: false)
     }
     
-    override func bindAction(reactor: KickRoomReactor) {
-        Observable<Int>.timer(.seconds(3), scheduler: MainScheduler.instance)
-            .subscribe(with: self) { owner, _ in
-                owner.presentChattingView()
-            }
-            .disposed(by: disposeBag)
-    }
     
     // MARK: - configure Reactor
     
@@ -123,6 +116,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             .subscribe(with: self, onNext: { owner, value in
                 owner.setMainScrollView()
                 owner.setRoomInformationSection(value.roomDetail.roomInfo)
+                owner.presentChattingView()
                 
                 switch value.myRole {
                 case .member:
@@ -226,10 +220,12 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     }
     
     private func presentChattingView() {
-        let vc = ChatViewController(ChatReactor())
+        guard let roomID = reactor.currentState.roomInfo?.roomDetail.roomInfo.roomID else { return }
+        
+        let vc = ChatViewController(ChatReactor(String(roomID)))
         if let sheet = vc.sheetPresentationController {
             sheet.detents = [.custom(resolver: { _ in
-                ComponentSize.chatBtoomSheet.size.height })]
+                ComponentSize.chatBottomSheet.size.height })]
             sheet.prefersGrabberVisible = true
         }
         

@@ -58,6 +58,7 @@ final class KickRoomReactor: Reactor {
         case .setRoomInformation(let value):
             newState.roomInfo = value.toModel()
             newState.youtubeID = value.roomDetail.playlist.first?.url.youtubeID
+            
             if newState.roomInfo?.myRole == .member {
                 newState.playerVars["controls"] = 0
             }

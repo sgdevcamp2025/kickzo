@@ -22,7 +22,6 @@ final class MyRoomReactor: Reactor {
     }
     
     enum Mutation {
-//        case setRooms([MyRoomSection])
         case setRooms([HomeRoomDomainModel])
         case setThunmbnailImage(data: Data, idx: IndexPath)
         case setImageError(error: Error, idx: IndexPath)
@@ -41,10 +40,6 @@ final class MyRoomReactor: Reactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewWillAppear:
-//            let myRoomList = SampleTest.roomlist.map { $0.toViewModel() }
-//            let sections = classifyRoom(myRoomList)
-            
-//            return .just(.setRooms(sections))
             return getMyRooms()
         case .getVideoThumbnail(let idx, let id):
             return Observable.create { [weak self] observer in
@@ -178,7 +173,7 @@ final class MyRoomReactor: Reactor {
     }
     
     private func getMyRooms() -> Observable<Mutation> {
-        var myRoomRequest = DefaultRequest<[HomeRoomResponseDTO]>(method: .get, path: ["api", "rooms", "me"], header: [.authorizationAccessToken])
+        let myRoomRequest = DefaultRequest<[HomeRoomResponseDTO]>(method: .get, path: ["api", "rooms", "me"], header: [.authorizationAccessToken])
         
         return Observable.create { [weak self] observer in
             guard let self else { return Disposables.create() }

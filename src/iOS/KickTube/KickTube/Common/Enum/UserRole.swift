@@ -8,7 +8,7 @@
 import Foundation
 
 enum UserRole: Int, Codable {
-    case none = -1
+    case nonmember = -1
     case creator = 0
     case manager
     case member
@@ -17,14 +17,14 @@ enum UserRole: Int, Codable {
 extension UserRole: CustomStringConvertible {
     var description: String {
         switch self {
+        case .nonmember:
+            return "비회원"
         case .creator:
             return "방장"
         case .manager:
             return "매니저"
         case .member:
             return "일반"
-        default:
-            return ""
         }
     }
 }
