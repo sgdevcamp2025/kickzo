@@ -26,11 +26,11 @@ struct HomeRoomDomainModel: DTOMappable {
             pURL = URL(string: url)
         }
         
-        return .init(roomID: String(self.roomID),
+        return .init(roomID: self.roomID,
                      code: self.code,
                      title: self.title,
                      description: self.description,
-                     creatorName: self.creator,
+                     creator: self.creator,
                      profileImageURL: pURL,
                      userCount: self.userCount,
                      playlistURL: self.playlistURL)

@@ -24,8 +24,8 @@ extension MyRoomSection: SectionModelType {
 }
 
 enum MyRoomSectionItem {
-    case created(MyRoomViewModel)
-    case participated(MyRoomViewModel)
+    case created(HomeRoomViewModel)
+    case participated(HomeRoomViewModel)
 }
 
 extension MyRoomSectionItem {

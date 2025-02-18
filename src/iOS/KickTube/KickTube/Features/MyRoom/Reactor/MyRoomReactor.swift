@@ -11,17 +11,19 @@ import ReactorKit
 import RxSwift
 
 final class MyRoomReactor: Reactor {
+    private let session = Session()
     private let networkManager = NetworkManager()
     
     enum Action {
-        case viewDidLoad
+        case viewWillAppear
         case getVideoThumbnail(idx: IndexPath, id: String)
         case deleteButtonTapped(idx: IndexPath)
         case leaveButtonTapped(idx: IndexPath)
     }
     
     enum Mutation {
-        case setRooms([MyRoomSection])
+//        case setRooms([MyRoomSection])
+        case setRooms([HomeRoomDomainModel])
         case setThunmbnailImage(data: Data, idx: IndexPath)
         case setImageError(error: Error, idx: IndexPath)
         case deleteRoom(_ idx: IndexPath)
@@ -38,11 +40,12 @@ final class MyRoomReactor: Reactor {
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .viewDidLoad:
-            let myRoomList = SampleTest.roomlist.map { $0.toViewModel() }
-            let sections = classifyRoom(myRoomList)
+        case .viewWillAppear:
+//            let myRoomList = SampleTest.roomlist.map { $0.toViewModel() }
+//            let sections = classifyRoom(myRoomList)
             
-            return .just(.setRooms(sections))
+//            return .just(.setRooms(sections))
+            return getMyRooms()
         case .getVideoThumbnail(let idx, let id):
             return Observable.create { [weak self] observer in
                 guard let self else {
@@ -79,7 +82,8 @@ final class MyRoomReactor: Reactor {
         
         switch mutation {
         case .setRooms(let sections):
-            newState.sections = sections
+            newState.sections = classifyRoom(sections.map { $0.toModel() })
+            
         case .setThunmbnailImage(let data, let idx):
             var updateSection = newState.sections[idx.section]
             let targetItem = updateSection.items[idx.row]
@@ -138,12 +142,12 @@ final class MyRoomReactor: Reactor {
     
     // MARK: - private method
     
-    private func classifyRoom(_ rooms: [MyRoomViewModel]) -> [MyRoomSection] {
+    private func classifyRoom(_ rooms: [HomeRoomViewModel]) -> [MyRoomSection] {
         var created = [MyRoomSectionItem]()
         var participated = [MyRoomSectionItem]()
         
         rooms.forEach {
-            if $0.creator == SampleTest.userDefaultsProfilename {
+            if $0.creator == UserDefaultsManager.shared.myProfile.nickname {
                 created.append(MyRoomSectionItem.created($0))
             } else {
                 participated.append(MyRoomSectionItem.participated($0))
@@ -171,5 +175,27 @@ final class MyRoomReactor: Reactor {
         }
         
         return sections
+    }
+    
+    private func getMyRooms() -> Observable<Mutation> {
+        var myRoomRequest = DefaultRequest<[HomeRoomResponseDTO]>(method: .get, path: ["api", "rooms", "me"], header: [.authorizationAccessToken])
+        
+        return Observable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            
+            Task {
+                do {
+                    let myRoomResponse = try await self.session.send(myRoomRequest)
+                    
+                    observer.onNext(Mutation.setRooms(myRoomResponse.map { $0.toModel() }))
+                    observer.onCompleted()
+                } catch {
+                    print(error)
+                    observer.onCompleted()
+                }
+            }
+         
+            return Disposables.create()
+        }
     }
 }

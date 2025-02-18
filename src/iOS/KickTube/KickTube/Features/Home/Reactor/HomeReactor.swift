@@ -104,10 +104,11 @@ final class HomeReactor: Reactor {
                     observer.onNext(Mutation.setRooms(mainRoomResponse.map { $0.toModel() }))
                     observer.onCompleted()
                 } catch {
-                    observer.onCompleted()
                     print(error)
+                    observer.onCompleted()
                 }
             }
+            
             return Disposables.create()
         }
     }

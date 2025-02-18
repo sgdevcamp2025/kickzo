@@ -8,20 +8,23 @@
 import Foundation
 
 struct HomeRoomViewModel: Equatable {
-    let roomID: String
+    let roomID: Int
     let code: String
     var title: String
     var description: String?
-    let creatorName: String
+    let creator: String
     var profileImageURL: URL?
     var userCount: Int
     var playlistURL: String?
     
+    var videoThumbnail: Data?
     var videoID: String? {
         playlistURL?.youtubeID
     }
-    var videoThumbnail: Data?
     var participatedUserCount: String {
         "\(userCount)"
+    }
+    var created: Bool {
+        creator == UserDefaultsManager.shared.myProfile.nickname ? true : false
     }
 }

@@ -59,7 +59,7 @@ final class HomeVideoCollectionViewCell: UICollectionViewCell {
         }
         userProfileThumbnailView.image = UIImage.defaultProfile.applyCornerRadiusToImage(radius: 8)
         titleLabel.text = room.title
-        usernameLabel.text = room.creatorName
+        usernameLabel.text = room.creator
     }
     
 
