@@ -50,3 +50,8 @@ scrape_configs:
   - job_name: "friend-monitoring"
     static_configs:
       - targets: ["friend:8107"]
+  
+  - job_name: "auth-monitoring"
+    metrics_path: '/api/auth/metrics'
+    static_configs:
+      - targets: ["auth:8101"]
