@@ -30,12 +30,11 @@ final class UserListView: BaseView<UserListReactor> {
         $0.showsVerticalScrollIndicator = false
         $0.showsHorizontalScrollIndicator = false
     }
-
     
     // MARK: - configure reactor
 
     override func bindAction(reactor: UserListReactor) {
-        Observable.just(UserListReactor.Action.loadView)
+        Observable.just(UserListReactor.Action.viewWillLoad)
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         searchRoomUserTextField.textfield.rx.text

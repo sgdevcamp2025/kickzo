@@ -59,7 +59,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         return segmented
     }()
     
-    private lazy var mainScrollView = KickRoomMainScrollView(roomInfo: reactor.currentState.roomInfo?.roomDetail.roomInfo)
+    private lazy var mainScrollView = KickRoomMainScrollView(roomInfo: reactor.currentState.roomInfo?.roomDetail)
     private var previousTime: TimeInterval = 0
     private var timeTrackingTimer: Timer?
     
