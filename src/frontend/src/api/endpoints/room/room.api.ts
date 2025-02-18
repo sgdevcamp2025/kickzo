@@ -1,5 +1,12 @@
 import instance from '@/api/axios.instance';
-import { PlaylistDto, RoomRequestDto, MyRoomDto, RoomDto, CurrentRoomDto } from './room.interface';
+import {
+  PlaylistDto,
+  RoomRequestDto,
+  MyRoomDto,
+  RoomDto,
+  CurrentRoomDto,
+  ReceiveMessageDto,
+} from './room.interface';
 
 export const roomApi = {
   // 방 생성
@@ -40,6 +47,14 @@ export const roomApi = {
   //   const { data } = await instance.delete(`/rooms/delete/${roomId}`);
   //   return data;
   // },
+
+  // 메시지 조회
+  getMessages: async (roomId: number, cursor?: number, limit?: number) => {
+    const { data } = await instance.get<ReceiveMessageDto[]>(`/messages/${roomId}`, {
+      params: { cursor, limit: limit ?? 10 },
+    });
+    return data;
+  },
 
   // 방 참여자 조회
   getParticipants: async (roomId: string) => {
