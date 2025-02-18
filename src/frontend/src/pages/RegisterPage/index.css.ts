@@ -104,8 +104,12 @@ export const IdSaveCheckBox = styled.label`
   }
 `;
 
-export const WarningMessage = styled.p<{ $isVisible: boolean }>`
+export const WarningMessage = styled.p<{ $isVisible: boolean; $color?: string }>`
+  width: 300px;
+  height: 0.75rem;
   font-size: 0.75rem;
-  color: var(--palette-status-negative);
+  color: ${({ $color = 'var(--palette-status-negative)' }) => $color};
   opacity: ${({ $isVisible }) => ($isVisible ? 1 : 0)};
+  text-align: right;
+  padding-right: 0.5rem;
 `;

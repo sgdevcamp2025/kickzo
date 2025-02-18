@@ -79,11 +79,24 @@ services:
               uri_param_names: []
           - name: custom-jwt-header
 
+  # History Service (보호된 서비스 예시)
+  - name: history-service
+    url: http://history:8300 # HISTORY_PORT=8300
+
+    routes:
+      - name: history-private-route
+        paths:
+          - /api/messages
+        strip_path: false
+        protocols:
+          - http
+          - https
+
     # friend Service
   - name: friend-service
     url: http://friend:8107 # FRIEND_PORT=8107
     routes:
-      - name: friend-private-route
+      - name: friend-private-routes
         paths:
           - /api/friends
         strip_path: false

@@ -11,12 +11,20 @@ import {
   WarningMessage,
   Wrapper,
 } from './index.css';
+import { userApi } from '@/api/endpoints/user/user.api';
+import { RegisterSuccessModal } from '@/components/Modal/RegisterSuccessModal';
+
+type CheckResult = {
+  checked: boolean;
+  isAvailable: boolean;
+  message: string;
+};
 
 export const RegisterPage = () => {
   const emailRef = useRef<HTMLInputElement>(null);
   const nicknameRef = useRef<HTMLInputElement>(null);
   const passwordRef = useRef<HTMLInputElement>(null);
-  const passwordCheckRef = useRef<HTMLInputElement>(null);
+  const confirmPasswordRef = useRef<HTMLInputElement>(null);
 
   const [isEmailValid, setIsEmailValid] = useState(false);
   const [isNicknameFilled, setIsNicknameFilled] = useState(false);
@@ -24,22 +32,84 @@ export const RegisterPage = () => {
   const [isPasswordCheckFilled, setIsPasswordCheckFilled] = useState(false);
   const [isPasswordMatched, setIsPasswordMatched] = useState(true);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    console.log('submit');
-    console.log('Email:', emailRef.current?.value);
-    console.log('Password:', passwordRef.current?.value);
-    console.log('Password:', passwordCheckRef.current?.value);
+  const [emailServerCheck, setEmailServerCheck] = useState<CheckResult>({
+    checked: false,
+    isAvailable: false,
+    message: '',
+  });
+
+  const [nicknameServerCheck, setNicknameServerCheck] = useState<CheckResult>({
+    checked: false,
+    isAvailable: false,
+    message: '',
+  });
+
+  const [isPasswordValid, setIsPasswordValid] = useState(true);
+  const [isAgreed, setIsAgreed] = useState(false);
+  const [onSuccessModal, setOnSuccessModal] = useState(false);
+
+  const isFormValid = () => {
+    return (
+      isEmailValid &&
+      emailServerCheck.isAvailable &&
+      isNicknameFilled &&
+      nicknameServerCheck.isAvailable &&
+      isPasswordFilled &&
+      isPasswordCheckFilled &&
+      isPasswordMatched &&
+      isPasswordValid &&
+      isAgreed
+    );
   };
 
-  const handleEmailCheck = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('email check:', emailRef.current?.value);
+    if (!isFormValid()) {
+      return;
+    }
+
+    try {
+      const result = await userApi.register({
+        email: emailRef.current?.value || '',
+        password: passwordRef.current?.value || '',
+        nickname: nicknameRef.current?.value || '',
+      });
+      if (result.userId) {
+        setOnSuccessModal(true);
+      }
+    } catch (_error) {
+      alert('회원가입에 실패했습니다.');
+    }
   };
 
-  const handleNicknameCheck = (e: React.MouseEvent<HTMLButtonElement>) => {
+  const handleEmailCheck = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
-    console.log('nickname check:', nicknameRef.current?.value);
+    const email = emailRef.current?.value || '';
+
+    if (isEmailValid && email) {
+      const result = await userApi.checkEmailExists(email);
+      console.log(result);
+      setEmailServerCheck({
+        checked: true,
+        isAvailable: result.isAvailable,
+        message: result.message,
+      });
+    }
+  };
+
+  const handleNicknameCheck = async (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.preventDefault();
+    const nickname = nicknameRef.current?.value || '';
+
+    if (isNicknameFilled && nickname) {
+      const result = await userApi.checkNicknameExists(nickname);
+      console.log(result);
+      setNicknameServerCheck({
+        checked: true,
+        isAvailable: result.isAvailable,
+        message: result.message,
+      });
+    }
   };
 
   const handleEmailChange = () => {
@@ -50,6 +120,11 @@ export const RegisterPage = () => {
     const isValid = emailRegex.test(email);
 
     setIsEmailValid(isFilled && isValid);
+    setEmailServerCheck({
+      checked: false,
+      isAvailable: false,
+      message: '',
+    });
   };
 
   const handleNicknameChange = () => {
@@ -57,21 +132,28 @@ export const RegisterPage = () => {
     const isFilled = nickname.trim() !== '';
 
     setIsNicknameFilled(isFilled);
+    setNicknameServerCheck({
+      checked: false,
+      isAvailable: false,
+      message: '',
+    });
   };
 
-  const handlePassword = () => {
+  const handlePasswordChange = () => {
     const password = passwordRef.current?.value || '';
     const isFilled = password.trim() !== '';
+    const passwordRegex = /^(?=.*[a-zA-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,20}$/;
 
     setIsPasswordFilled(isFilled);
+    setIsPasswordValid(passwordRegex.test(password));
   };
 
-  const handlePasswordCheck = () => {
-    const passwordCheck = passwordCheckRef.current?.value || '';
-    const isFilled = passwordCheck.trim() !== '';
+  const handleConfirmPasswordChange = () => {
+    const confirmPassword = confirmPasswordRef.current?.value || '';
+    const isFilled = confirmPassword.trim() !== '';
 
     setIsPasswordCheckFilled(isFilled);
-    setIsPasswordMatched(passwordRef.current?.value === passwordCheck);
+    setIsPasswordMatched(passwordRef.current?.value === confirmPassword);
   };
 
   return (
@@ -94,6 +176,16 @@ export const RegisterPage = () => {
               중복 확인
             </button>
           </InputBox>
+          <WarningMessage
+            $color={
+              emailServerCheck.isAvailable
+                ? 'var(--palette-status-positive)'
+                : 'var(--palette-status-negative)'
+            }
+            $isVisible={emailServerCheck.checked}
+          >
+            {emailServerCheck.message}
+          </WarningMessage>
         </div>
         <div>
           <CommonLabel htmlFor="nickname">닉네임</CommonLabel>
@@ -111,6 +203,16 @@ export const RegisterPage = () => {
               중복 확인
             </button>
           </InputBox>
+          <WarningMessage
+            $color={
+              nicknameServerCheck.isAvailable
+                ? 'var(--palette-status-positive)'
+                : 'var(--palette-status-negative)'
+            }
+            $isVisible={nicknameServerCheck.checked}
+          >
+            {nicknameServerCheck.message}
+          </WarningMessage>
         </div>
         <div>
           <CommonLabel htmlFor="password">비밀번호</CommonLabel>
@@ -121,20 +223,23 @@ export const RegisterPage = () => {
             autoComplete="new-password"
             ref={passwordRef}
             $isValid={isPasswordMatched}
-            onChange={handlePassword}
+            onChange={handlePasswordChange}
             required
           />
+          <WarningMessage $isVisible={!isPasswordValid}>
+            8-20자의 영문, 숫자, 특수문자(@$!%*?&)를 포함해야 합니다.
+          </WarningMessage>
         </div>
         <div>
-          <CommonLabel htmlFor="passwordCheck">비밀번호 재확인</CommonLabel>
+          <CommonLabel htmlFor="confirmPassword">비밀번호 재확인</CommonLabel>
           <CommonInput
-            id="passwordCheck"
+            id="confirmPassword"
             type="password"
             placeholder="비밀번호 다시 한번 입력해주세요."
             autoComplete="new-password"
-            ref={passwordCheckRef}
+            ref={confirmPasswordRef}
             $isValid={isPasswordMatched}
-            onChange={handlePasswordCheck}
+            onChange={handleConfirmPasswordChange}
             required
           />
           <WarningMessage $isVisible={!isPasswordMatched}>
@@ -142,7 +247,7 @@ export const RegisterPage = () => {
           </WarningMessage>
         </div>
         <IdSaveCheckBox>
-          <input type="checkbox" />
+          <input type="checkbox" id="agreement" onChange={e => setIsAgreed(e.target.checked)} />
           <span>이용약관</span>과 <span>개인정보처리방침</span>에 동의합니다.
         </IdSaveCheckBox>
         <CommonButton
@@ -151,19 +256,12 @@ export const RegisterPage = () => {
           width="300px"
           height="3rem"
           borderradius="0.625rem"
-          disabled={
-            !(
-              isEmailValid &&
-              isNicknameFilled &&
-              isPasswordFilled &&
-              isPasswordCheckFilled &&
-              isPasswordMatched
-            )
-          }
+          disabled={!isFormValid()}
         >
           가입하기
         </CommonButton>
       </form>
+      {onSuccessModal && <RegisterSuccessModal onCancel={() => setOnSuccessModal(false)} />}
     </Wrapper>
   );
 };
