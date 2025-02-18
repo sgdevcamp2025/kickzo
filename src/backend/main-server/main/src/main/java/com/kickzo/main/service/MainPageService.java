@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kickzo.main.RoomDocument;
+import com.kickzo.main.RoomSearchRepository;
 import com.kickzo.main.dto.data.PlaylistItem;
 import com.kickzo.main.dto.request.CreateRoomRequestDto;
 import com.kickzo.main.dto.response.CreateRoomResponseDto;
@@ -37,6 +39,7 @@ public class MainPageService {
 	private final RoomRepository roomRepository;
 	private final RoomUserRepository roomUserRepository;
 	private final UserRepository userRepository;
+	private final RoomSearchRepository roomSearchRepository; // Elasticsearch Repository
 
 	private static final int MAX_ROOMS_PER_USER = 5;
 	private static final int ROLE_CREATOR = 0;
@@ -69,6 +72,14 @@ public class MainPageService {
 
 		Room newRoom = saveNewRoom(creatorNickname, requestDto, randomCode);
 		saveRoomUser(newRoom.getId(), userId);
+
+		// Elasticsearch에도 저장
+		RoomDocument roomDocument = new RoomDocument();
+		roomDocument.setId(newRoom.getId());
+		roomDocument.setTitle(newRoom.getTitle());
+		roomDocument.setCreator(newRoom.getCreator());
+
+		roomSearchRepository.save(roomDocument);
 
 		return new CreateRoomResponseDto(randomCode);
 	}

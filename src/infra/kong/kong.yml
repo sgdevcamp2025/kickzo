@@ -56,6 +56,7 @@ services:
         paths:
           - /api/rooms/all
           - /api/rooms/participants
+          - /api/search
         strip_path: false
 
       - name: main-private-route
