@@ -1,9 +1,9 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
 import { ChatInput } from '@/components/Sidebar/Chating/ChatInput';
-import { ChatContainer, ChatScrollArea } from './index.css';
+import { ChatContainer, ChatScrollArea, ScrollButton } from './index.css';
 import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
 import { ChatLayout } from './ChatMessages/ChatLayout';
-
+import ArrowDown from '@/assets/img/ArrowDown.svg';
 export const Chat = () => {
   const messages = useCurrentRoomStore(state => state.messages);
   const sendMessage = useCurrentRoomStore(state => state.sendMessage);
@@ -15,6 +15,8 @@ export const Chat = () => {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [isFetching, setIsFetching] = useState(false);
   const [isMyMessage, setIsMyMessage] = useState(false);
+  const [showScrollButton, setShowScrollButton] = useState(false);
+  const [isAtBottom, setIsAtBottom] = useState(false);
 
   // 최초 메시지 로딩 시 스크롤 이동
   useEffect(() => {
@@ -34,14 +36,27 @@ export const Chat = () => {
       chatContainerRef.current.scrollTop =
         chatContainerRef.current.scrollHeight - prevScrollHeightRef.current;
       setIsFetching(false);
-    } else if (isMyMessage) {
+    } else if (isMyMessage || isAtBottom) {
       chatContainerRef.current.scrollTo({
         top: chatContainerRef.current.scrollHeight,
         behavior: 'smooth',
       });
       setIsMyMessage(false);
+      setIsAtBottom(true);
+    } else {
+      // 새로운 메시지가 온 경우, 스크롤 버튼 띄우기
     }
   }, [messages]);
+
+  const handleScrollToBottom = () => {
+    if (!chatContainerRef.current) return;
+
+    chatContainerRef.current.scrollTo({
+      top: chatContainerRef.current.scrollHeight,
+      behavior: 'smooth',
+    });
+    setShowScrollButton(false); // 버튼 클릭 시 버튼 숨기기
+  };
 
   // 메시지 추가
   const addMessage = useCallback(
@@ -56,7 +71,25 @@ export const Chat = () => {
   const handleScroll = () => {
     if (!chatContainerRef.current) return;
 
-    prevScrollHeightRef.current = chatContainerRef.current.scrollTop;
+    const currentScrollTop = chatContainerRef.current.scrollTop;
+    const scrollHeight = chatContainerRef.current.scrollHeight;
+    const clientHeight = chatContainerRef.current.clientHeight;
+
+    // 바텀에서 적당히 떨어진 거리 (예: 50px)
+    const threshold = 120;
+
+    prevScrollHeightRef.current = currentScrollTop;
+    const isAtBottom = scrollHeight - clientHeight === currentScrollTop;
+
+    if (isAtBottom) {
+      setShowScrollButton(false);
+      setIsAtBottom(true);
+    } else {
+      if (scrollHeight - currentScrollTop - clientHeight > threshold) {
+        setShowScrollButton(true);
+      }
+      setIsAtBottom(false);
+    }
     if (chatContainerRef.current.scrollTop === 0) {
       prevScrollHeightRef.current = chatContainerRef.current.scrollHeight;
       console.log('fetchMessages');
@@ -73,6 +106,11 @@ export const Chat = () => {
         ))}
       </ChatScrollArea>
       <ChatInput onSendMessage={msg => addMessage(msg)} />
+      {showScrollButton && (
+        <ScrollButton onClick={handleScrollToBottom}>
+          <img src={ArrowDown} alt="ArrowDown" />
+        </ScrollButton>
+      )}
     </ChatContainer>
   );
 };

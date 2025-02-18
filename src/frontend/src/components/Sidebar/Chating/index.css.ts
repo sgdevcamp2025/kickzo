@@ -7,6 +7,7 @@ export const ChatContainer = styled.div`
   background-color: #ffffff;
   border: 1px solid #d4d4d4;
   border-radius: 10px;
+  position: relative;
 `;
 
 export const ChatScrollArea = styled.div`
@@ -98,4 +99,20 @@ export const ChatInputButton = styled.button`
 
 export const Blank = styled.div<{ $blankPadding: string }>`
   padding-bottom: ${({ $blankPadding }) => $blankPadding};
+`;
+
+export const ScrollButton = styled.button`
+  position: absolute;
+  bottom: 70px;
+  right: 15px;
+  z-index: 100;
+  background-color: var(--palette-primary);
+  box-shadow: 0 0 10px 0 rgba(0, 0, 0, 0.1);
+  opacity: 0.9;
+  border: none;
+  border-radius: 50%;
+  padding: 5px 10px;
+  cursor: pointer;
+  width: 40px;
+  height: 40px;
 `;
