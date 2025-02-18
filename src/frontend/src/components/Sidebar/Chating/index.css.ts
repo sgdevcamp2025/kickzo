@@ -115,4 +115,19 @@ export const ScrollButton = styled.button`
   cursor: pointer;
   width: 40px;
   height: 40px;
+
+  & > span {
+    position: absolute;
+    right: -0.5rem;
+    top: -0.5rem;
+    background-color: var(--palette-accent-redOrange);
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 50%;
+    color: #fff;
+    font-weight: 500;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
 `;

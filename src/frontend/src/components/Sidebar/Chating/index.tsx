@@ -17,6 +17,7 @@ export const Chat = () => {
   const [isMyMessage, setIsMyMessage] = useState(false);
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(false);
+  const [newMessageCount, setnewMessageCount] = useState(0);
 
   // 최초 메시지 로딩 시 스크롤 이동
   useEffect(() => {
@@ -45,6 +46,7 @@ export const Chat = () => {
       setIsAtBottom(true);
     } else {
       // 새로운 메시지가 온 경우, 스크롤 버튼 띄우기
+      setnewMessageCount(prev => prev + 1);
     }
   }, [messages]);
 
@@ -55,7 +57,6 @@ export const Chat = () => {
       top: chatContainerRef.current.scrollHeight,
       behavior: 'smooth',
     });
-    setShowScrollButton(false); // 버튼 클릭 시 버튼 숨기기
   };
 
   // 메시지 추가
@@ -84,6 +85,7 @@ export const Chat = () => {
     if (isAtBottom) {
       setShowScrollButton(false);
       setIsAtBottom(true);
+      setnewMessageCount(0);
     } else {
       if (scrollHeight - currentScrollTop - clientHeight > threshold) {
         setShowScrollButton(true);
@@ -109,6 +111,7 @@ export const Chat = () => {
       {showScrollButton && (
         <ScrollButton onClick={handleScrollToBottom}>
           <img src={ArrowDown} alt="ArrowDown" />
+          {newMessageCount != 0 && <span>{newMessageCount}</span>}
         </ScrollButton>
       )}
     </ChatContainer>
