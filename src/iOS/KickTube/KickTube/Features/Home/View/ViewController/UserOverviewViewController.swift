@@ -54,6 +54,7 @@ final class UserOverviewViewController: BaseViewController<UserOverviewReactor> 
         reactor.state
             .map { $0.userProfile }
             .compactMap { $0 }
+            .observe(on: MainScheduler.instance)
             .subscribe(with: self) { owner, value in
                 //                thumbnailView.image = value.profileImageData
                 owner.nameLabel.text = value.nickname

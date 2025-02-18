@@ -11,6 +11,8 @@ import ReactorKit
 import RxSwift
 
 final class UserOverviewReactor: Reactor {
+    private let session = Session()
+    
     enum Action {
         case loadView
         case inviteButtonTapped
@@ -19,7 +21,7 @@ final class UserOverviewReactor: Reactor {
     }
     
     enum Mutation {
-        case setUserInformation(UserProfileViewModel)
+        case setUserInformation(UserProfileDomainModel)
         case inviteUser
         case changeRole
         case banUser
@@ -40,11 +42,7 @@ final class UserOverviewReactor: Reactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .loadView:
-            // TODO: 네트워크 통신
-            let data = SampleTest.overviewuserlist.toModel()
-//            let thumbnailData = Data()
-//            data.profileImageData = thumbnailData
-            return .just(.setUserInformation(data))
+            return searchUser(currentState.userID)
         case .inviteButtonTapped:
             return .just(.inviteUser)
         case .roleButtonTapped:
@@ -60,7 +58,7 @@ final class UserOverviewReactor: Reactor {
         
         switch mutation {
         case .setUserInformation(let user):
-            newState.userProfile = user
+            newState.userProfile = user.toModel()
         case .inviteUser:
             break
         case .changeRole:
@@ -70,5 +68,27 @@ final class UserOverviewReactor: Reactor {
         }
         
         return newState
+    }
+    
+    private func searchUser(_ id: Int) -> Observable<Mutation> {
+        let userRequest = DefaultRequest<UserProfileResponseDTO>(method: .get, path: ["api", "users", "\(id)"], header: [.json, .authorizationAccessToken])
+        
+        return Observable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            
+            Task {
+                do {
+                    let userResponse = try await self.session.send(userRequest)
+                    
+                    observer.onNext(Mutation.setUserInformation(userResponse.toModel()))
+                    observer.onCompleted()
+                } catch {
+                    print(error)
+                    observer.onCompleted()
+                }
+            }
+            
+            return Disposables.create()
+        }
     }
 }

@@ -10,6 +10,8 @@ import Foundation
 import ReactorKit
 
 final class UserListReactor: Reactor {
+    private let session = Session()
+    
     enum Action {
         case viewWillLoad
         case searchText(String)
@@ -78,5 +80,5 @@ final class UserListReactor: Reactor {
         }
         
         return newState
-    }
+    } 
 }
