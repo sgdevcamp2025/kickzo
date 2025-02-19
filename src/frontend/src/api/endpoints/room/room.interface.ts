@@ -66,3 +66,18 @@ export interface CurrentRoomDto {
     playlist: CurrentRoomPlaylistDto[];
   };
 }
+
+export interface SendMessageDto {
+  roomId: number;
+  userId: number;
+  nickname: string | null;
+  role: number;
+  profileImageUrl: string | null;
+  content: string | null;
+  message: string;
+}
+
+export interface ReceiveMessageDto extends SendMessageDto {
+  id: string;
+  timestamp: number;
+}

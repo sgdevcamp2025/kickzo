@@ -14,13 +14,13 @@ export const RoomPage = () => {
   const { data: room } = useCurrentRoom(roomCode);
   console.log('RoomPage:', room);
 
-  const { messages } = useCurrentRoomStore(); // NOTE: 채팅 메시지 테스트용
-
   useEffect(() => {
     if (room) {
       useCurrentRoomStore.getState().setCurrentRoom(room);
-      useCurrentRoomStore.getState().subscribeChat(room.roomDetails.roomInfo[0]?.roomId);
     }
+    return () => {
+      useCurrentRoomStore.getState().clearCurrentRoom();
+    };
   }, [room]);
 
   return (
@@ -29,8 +29,6 @@ export const RoomPage = () => {
         <Wrapper>
           <YouTubePlayer />
           <RoomDetail />
-          {/* NOTE: 채팅 메시지 테스트 용 */}
-          <ul>{messages && messages.map((message, i) => <li key={i}>{message.message}</li>)}</ul>
         </Wrapper>
         <Sidebar />
       </Container>

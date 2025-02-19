@@ -34,7 +34,7 @@ export const ChatNickname = (props: IChatNickname) => {
 const Wrapper = styled.div`
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
 `;
 
 const Img = styled.img``;
