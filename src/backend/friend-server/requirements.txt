@@ -6,3 +6,4 @@ aioredis==2.0.1
 pydantic==2.10.6
 pydantic_core==2.27.2
 cryptography==44.0.0
+prometheus-fastapi-instrumentator==7.0.2

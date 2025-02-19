@@ -9,5 +9,5 @@ import lombok.Data;
 @Data
 public class RoomPlaylistRequestDto {
 	private Long roomId;
-	private List<PlaylistItem> playlistJson;
+	private List<PlaylistItem> playlist;
 }

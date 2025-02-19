@@ -1,0 +1,74 @@
+version: '3.8'
+
+services:
+
+  # MongoDB Exporter
+  mongodb-exporter:
+    image: bitnami/mongodb-exporter
+    container_name: mongodb-exporter
+    ports:
+      - "9216:9216"
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017  # MongoDB 인증 정보 추가
+    networks:
+      - kickzo_kickzo-network
+
+  mysql-exporter:
+    container_name: mysql-exporter
+    image: prom/mysqld-exporter
+    command:
+      - "--mysqld.username=kickzo:test123"
+      - "--mysqld.address=mysql:3306"
+    ports:
+      - "9104:9104"
+    networks:
+      - kickzo_kickzo-network
+
+  redis-exporter:
+    image: oliver006/redis_exporter
+    container_name: redis-exporter
+    ports:
+      - "9121:9121"
+    environment:
+      - REDIS_ADDR=redis://redis:6379
+    networks:
+      - kickzo_kickzo-network
+
+  kafka-exporter:
+    image: danielqsj/kafka-exporter
+    container_name: kafka-exporter
+    ports:
+      - "9308:9308"
+    command:
+      - "--kafka.server=kafka:9092"
+    networks:
+      - kickzo_kickzo-network
+
+  prometheus:
+    image: prom/prometheus:latest
+    container_name: prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+    networks:
+      - kickzo_kickzo-network
+
+  grafana:
+    image: grafana/grafana:latest
+    container_name: grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-storage:/var/lib/grafana
+    networks:
+      - kickzo_kickzo-network
+
+networks:
+  kickzo_kickzo-network:
+    external: true
+
+volumes:
+  grafana-storage:

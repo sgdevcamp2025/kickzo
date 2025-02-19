@@ -52,8 +52,8 @@ public class KafkaProducerService {
 		sendEvent(TOPIC_ROOM, EVENT_TYPE_USER_JOIN, event);
 	}
 
-	public void sendPlaylistUpdate(Long roomId, List<PlaylistItem> playlistJson) {
-		PlaylistUpdateEvent event = new PlaylistUpdateEvent(roomId, playlistJson);
+	public void sendPlaylistUpdate(Long roomId, List<PlaylistItem> playlist) {
+		PlaylistUpdateEvent event = new PlaylistUpdateEvent(roomId, playlist);
 		sendEvent(TOPIC_PLAYLIST, EVENT_TYPE_PLAYLIST_UPDATE, event);
 	}
 
