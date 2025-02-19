@@ -16,7 +16,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     private let emptyPlayerView = UIView().then {
         $0.backgroundColor = .black
     }
-    private let playerView = YTPlayerView()
+    private lazy var playerView = YTPlayerView()
     private let titleLabel = UILabel().then {
         $0.font = KFont.middle16
         $0.numberOfLines = 2
@@ -99,6 +99,10 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         setNotification()
     }
     
+    override func viewDidAppear(_ animated: Bool) {
+        
+    }
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
@@ -132,9 +136,11 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             .distinctUntilChanged()
             .compactMap { $0 }
             .withLatestFrom(reactor.state.map { $0.playerVars }) { ($0, $1) }
+            .observe(on: MainScheduler.instance)
             .subscribe(with: self) { owner, value in
                 let (youtubeID, playerVars) = value
                 
+                owner.emptyPlayerView.isHidden = true
                 owner.playerView.load(withVideoId: youtubeID, playerVars: playerVars)
             }
             .disposed(by: disposeBag)
@@ -268,7 +274,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     // MARK: - configure UI
     
     override func configureHierarchy() {
-        [emptyPlayerView, playerView, titleLabel, creatorImage, creatorNameLabel, participatedCountLabel, menuSegmentedControl].forEach {
+        [emptyPlayerView, titleLabel, creatorImage, creatorNameLabel, participatedCountLabel, menuSegmentedControl, playerView].forEach {
             view.addSubview($0)
         }
     }
@@ -280,10 +286,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             make.top.horizontalEdges.equalTo(safeArea)
             make.height.equalTo(ComponentSize.youtubePlayer.size.height)
         }
-        playerView.snp.makeConstraints { make in
-            make.top.horizontalEdges.equalTo(safeArea)
-            make.height.equalTo(ComponentSize.youtubePlayer.size.height)
-        }
+     
         titleLabel.snp.makeConstraints { make in
             make.top.equalTo(playerView.snp.bottom).offset(8)
             make.horizontalEdges.equalToSuperview().inset(12)
@@ -305,6 +308,10 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             make.horizontalEdges.equalToSuperview().inset(12)
             make.bottom.equalTo(safeArea).offset(-12)
             make.height.equalTo(50)
+        }
+        playerView.snp.makeConstraints { make in
+            make.top.horizontalEdges.equalTo(safeArea)
+            make.height.equalTo(ComponentSize.youtubePlayer.size.height)
         }
     }
     

@@ -36,7 +36,7 @@ final class KickRoomReactor: Reactor {
     
     init(_ code: String) {
         self.initialState = State(roomCode: code,
-                                  playerVars: ["playsinline": 1, "autoplay": 1, "controls": 2, "showinfo": 1, "start": 0, "rel": 0],
+                                  playerVars: ["playsinline": 1, "autoplay": 0, "controls": 2, "showinfo": 1, "start": 0, "rel": 0],
                                   playFirst: false)
     }
     
