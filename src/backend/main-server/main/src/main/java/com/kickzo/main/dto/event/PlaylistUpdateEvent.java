@@ -13,5 +13,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PlaylistUpdateEvent {
 	private Long roomId;
-	private List<PlaylistItem> playlistJson;
+	private List<PlaylistItem> playlist;
 }
