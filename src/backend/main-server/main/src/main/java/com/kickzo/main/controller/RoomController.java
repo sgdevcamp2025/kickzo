@@ -65,7 +65,7 @@ public class RoomController implements RoomApi {
 		@RequestHeader(value = "x-user-id") Long userId,
 		@RequestBody RoomPlaylistRequestDto playlistRequestDto) {
 		Long roomId = playlistRequestDto.getRoomId();
-		List<PlaylistItem> playlistItems = playlistRequestDto.getPlaylistJson();
+		List<PlaylistItem> playlistItems = playlistRequestDto.getPlaylist();
 		log.info("Saving playlist for room: {}, playlist: {}", roomId, playlistItems);
 		roomUserService.checkAccessRole(userId, roomId);
 		playlistService.savePlaylist(roomId, playlistItems);
