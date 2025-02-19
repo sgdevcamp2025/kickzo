@@ -112,6 +112,7 @@ public class MainPageService {
 			.code(room.getCode())
 			.title(room.getTitle())
 			.description(room.getDescription())
+			.isPublic(room.getIsPublic())
 			.creator(room.getCreator())
 			.profileImageUrl(getCreatorProfileImage(room.getCreator()))
 			.userCount(room.getUserCount())
