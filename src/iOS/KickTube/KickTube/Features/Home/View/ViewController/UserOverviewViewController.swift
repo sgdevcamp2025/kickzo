@@ -37,6 +37,8 @@ final class UserOverviewViewController: BaseViewController<UserOverviewReactor> 
         $0.isUserInteractionEnabled = false
     }
     
+    var changedRole: ((UserRole) -> Void)?
+    
     
     // MARK: - bind reactor
     
@@ -63,6 +65,7 @@ final class UserOverviewViewController: BaseViewController<UserOverviewReactor> 
             .disposed(by: disposeBag)
         reactor.state
             .map { $0.userRole }
+            .observe(on: MainScheduler.instance)
             .subscribe(with: self) { owner, value in
                 owner.roleButton.setRole(value)
             }

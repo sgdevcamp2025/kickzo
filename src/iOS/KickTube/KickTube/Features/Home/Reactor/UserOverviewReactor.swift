@@ -28,6 +28,7 @@ final class UserOverviewReactor: Reactor {
     }
     
     struct State {
+        var roomID: Int
         var userID: Int
         var userRole: UserRole
         var userProfile: UserProfileViewModel?
@@ -35,8 +36,8 @@ final class UserOverviewReactor: Reactor {
     
     var initialState: State
     
-    init(_ id: Int, role: UserRole) {
-        initialState = State(userID: id, userRole: role)
+    init(roomID: Int, userID: Int, role: UserRole) {
+        initialState = State(roomID: roomID, userID: userID, userRole: role)
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
@@ -46,8 +47,10 @@ final class UserOverviewReactor: Reactor {
         case .inviteButtonTapped:
             return .just(.inviteUser)
         case .roleButtonTapped:
-            // TODO: 네트워크 통신
-            return .just(.changeRole)
+            let newRole = currentState.userRole.rawValue == 1 ? 2 : 1
+            let request = ChangeRoleRequest(roomID: currentState.roomID, targetUserID: currentState.userID, newRole: newRole)
+            
+            return changeRole(request)
         case .banButtonTapped:
             return .just(.banUser)
         }
@@ -63,6 +66,7 @@ final class UserOverviewReactor: Reactor {
             break
         case .changeRole:
             newState.userRole = newState.userRole == .member ? .manager : .member
+            
         case .banUser:
             break
         }
@@ -81,6 +85,28 @@ final class UserOverviewReactor: Reactor {
                     let userResponse = try await self.session.send(userRequest)
                     
                     observer.onNext(Mutation.setUserInformation(userResponse.toModel()))
+                    observer.onCompleted()
+                } catch {
+                    print(error)
+                    observer.onCompleted()
+                }
+            }
+            
+            return Disposables.create()
+        }
+    }
+    
+    private func changeRole(_ target: ChangeRoleRequest) -> Observable<Mutation> {
+        let roleRequest = DefaultRequest<String>(method: .patch, path: ["api", "rooms", "change-role"], header: [.json, .authorizationAccessToken], body: target)
+        
+        return Observable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            
+            Task {
+                do {
+                    _ = try await self.session.send(roleRequest)
+                    
+                    observer.onNext(Mutation.changeRole)
                     observer.onCompleted()
                 } catch {
                     print(error)

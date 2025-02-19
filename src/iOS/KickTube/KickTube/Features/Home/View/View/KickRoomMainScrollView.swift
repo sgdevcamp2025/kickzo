@@ -24,13 +24,12 @@ class KickRoomMainScrollView: UIView {
     private let playlistView = PlaylistView()
     private let voiceChatView = VoiceChatListView(VoiceChatListReactor())
     private let userlistView: UserListView
-//    private let userlistView = UserListView(UserListReactor(SampleTest.userlist))
     
     var didUpdatePageIndex: ((Int) -> Void)?
     
     init(roomInfo: KickRoomDetailViewModel?) {
         self.descriptionView = DescriptionView(roomInfo?.roomInfo.description)
-        self.userlistView = UserListView(UserListReactor(roomInfo?.userList))
+        self.userlistView = UserListView(UserListReactor(roomID: roomInfo?.roomInfo.roomID , roomInfo?.userList))
         super.init(frame: .zero)
         
         configureHierarchy()

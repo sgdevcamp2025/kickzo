@@ -10,8 +10,8 @@ import Foundation
 enum UserRole: Int, Codable {
     case nonmember = -1
     case creator = 0
-    case manager
-    case member
+    case manager = 1
+    case member = 2
 }
 
 extension UserRole: CustomStringConvertible {

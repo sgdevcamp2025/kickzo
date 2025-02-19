@@ -13,7 +13,7 @@ final class UserListReactor: Reactor {
     private let session = Session()
     
     enum Action {
-        case viewWillLoad
+        case loadView
         case searchText(String)
         case profileCellTapped(idx: IndexPath)
     }
@@ -25,6 +25,7 @@ final class UserListReactor: Reactor {
     }
     
     struct State {
+        var roomID: Int?
         var userList: [KickRoomUserViewModel]
         var searchUserResult: [KickRoomUserViewModel] = []
         var selectedCell: (id: Int, role: UserRole)?
@@ -32,15 +33,16 @@ final class UserListReactor: Reactor {
     
     let initialState: State
     
-    init(_ user: [KickRoomUserViewModel]?) {
+    init(roomID: Int?, _ user: [KickRoomUserViewModel]?) {
         self.initialState = State(
+            roomID: roomID,
             userList: user ?? []
         )
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
-        case .viewWillLoad:
+        case .loadView:
             return .just(.setUserList)
         case .searchText(let text):
             return .just(.searchUser(text))

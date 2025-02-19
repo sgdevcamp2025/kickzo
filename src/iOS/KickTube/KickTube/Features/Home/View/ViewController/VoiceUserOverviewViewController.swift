@@ -72,6 +72,7 @@ final class VoiceUserOverviewViewController: BaseViewController<VoiceUserOvervie
             .disposed(by: disposeBag)
         reactor.state
             .map { $0.voiceState }
+            .observe(on: MainScheduler.instance)
             .subscribe(with: self) { owner, value in
                 owner.roleButton.setRole(value.role)
                 owner.micButton.setImage(value.micOn ? .micOn : .micOff , for: .normal)

@@ -237,9 +237,10 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     @objc
     private func presentUserOverviewVC(notification: Notification) {
         if let userInfo = notification.userInfo,
-           let id = userInfo["id"] as? Int,
+           let roomID = userInfo["roomID"] as? Int,
+           let userID = userInfo["userID"] as? Int,
            let role = userInfo["role"] as? UserRole {
-            let vc = UserOverviewViewController(UserOverviewReactor(id, role: role))
+            let vc = UserOverviewViewController(UserOverviewReactor(roomID: roomID, userID: userID, role: role))
             if let sheet = vc.sheetPresentationController {
                 sheet.detents = [.custom(resolver: { _ in ComponentSize.userlistBottomSheet.size.height
                 })]

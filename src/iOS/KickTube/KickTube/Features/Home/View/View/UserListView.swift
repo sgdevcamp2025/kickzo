@@ -34,7 +34,7 @@ final class UserListView: BaseView<UserListReactor> {
     // MARK: - configure reactor
 
     override func bindAction(reactor: UserListReactor) {
-        Observable.just(UserListReactor.Action.viewWillLoad)
+        Observable.just(UserListReactor.Action.loadView)
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
         searchRoomUserTextField.textfield.rx.text
@@ -61,7 +61,9 @@ final class UserListView: BaseView<UserListReactor> {
             .map { $0.selectedCell }
             .compactMap { $0 }
             .subscribe(with: self) { owner, value in
-                NotificationCenter.default.post(name: .presentUserOverview, object: nil, userInfo: ["id": value.id, "role": value.role])
+                if let roomID = reactor.currentState.roomID {
+                    NotificationCenter.default.post(name: .presentUserOverview, object: nil, userInfo: ["roomID": roomID, "userID": value.id, "role": value.role])
+                }
             }
             .disposed(by: disposeBag)
     }

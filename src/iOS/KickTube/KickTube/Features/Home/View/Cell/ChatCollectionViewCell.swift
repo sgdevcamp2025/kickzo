@@ -102,6 +102,7 @@ final class ChatCollectionViewCell: UICollectionViewCell {
         [thumbnailImageView, nameStackView, messageLabel].forEach {
             contentView.addSubview($0)
         }
+        
         [roleImageView, nameLabel, dateLabel].forEach {
             nameStackView.addArrangedSubview($0)
         }
