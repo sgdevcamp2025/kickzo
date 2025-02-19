@@ -19,7 +19,7 @@ interface CurrentRoomStore {
   messageQueue: ReceiveMessageDto[];
   sendMessage: (message: string) => void;
   subscribeChat: () => void;
-  fetchMessages: (cursor?: number, limit?: number) => number;
+  fetchMessages: (cursor?: number, limit?: number) => Promise<number | undefined>;
   addMessage: (message: ReceiveMessageDto) => void;
   setCurrentRoom: (room: CurrentRoomDto) => void;
   clearCurrentRoom: () => void;

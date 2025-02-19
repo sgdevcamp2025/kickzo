@@ -95,7 +95,6 @@ export const Chat = () => {
     }
     if (currentScrollTop == 0 && hasMoreMessages) {
       prevScrollHeightRef.current = scrollHeight;
-      console.log('fetchMessages');
       setIsFetching(true);
       const count = await fetchMessages(useCurrentRoomStore.getState().messages[0]?.timestamp);
       if (count == 0) setHasMoreMessages(false);
