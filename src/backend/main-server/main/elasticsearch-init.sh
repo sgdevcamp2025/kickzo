@@ -16,9 +16,14 @@ curl -X PUT "http://localhost:9200/_security/role/kickzo_role" \
   "indices": [
     {
       "names": [".kibana*", ".kibana_task_manager*"],
-      "privileges": ["create_index", "manage", "all"],
+      "privileges": ["auto_configure", "create_index", "manage", "all"],
       "allow_restricted_indices": true
-    }
+    },
+    {
+      "names": [".fleet*", ".fleet-enrollment-api-keys"],
+      "privileges": ["auto_configure", "create_index", "manage", "all"],
+      "allow_restricted_indices": true
+      }
   ]
 }'
 
