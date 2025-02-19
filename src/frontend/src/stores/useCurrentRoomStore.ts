@@ -19,7 +19,7 @@ interface CurrentRoomStore {
   messageQueue: ReceiveMessageDto[];
   sendMessage: (message: string) => void;
   subscribeChat: () => void;
-  fetchMessages: (cursor?: number, limit?: number) => void;
+  fetchMessages: (cursor?: number, limit?: number) => number;
   addMessage: (message: ReceiveMessageDto) => void;
   setCurrentRoom: (room: CurrentRoomDto) => void;
   clearCurrentRoom: () => void;
@@ -81,6 +81,8 @@ export const useCurrentRoomStore = create<CurrentRoomStore>((set, get) => ({
     const messageHistory = await roomApi.getMessages(roomId, cursor, limit ?? 30);
     const sortedMessages = messageHistory.sort((a, b) => a.timestamp - b.timestamp);
     set({ messages: [...sortedMessages, ...get().messages] });
+
+    return messageHistory.length;
   },
 
   sendMessage: (message: string) => {

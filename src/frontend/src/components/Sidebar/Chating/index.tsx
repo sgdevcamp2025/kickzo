@@ -18,6 +18,7 @@ export const Chat = () => {
   const [showScrollButton, setShowScrollButton] = useState(false);
   const [isAtBottom, setIsAtBottom] = useState(false);
   const [newMessageCount, setnewMessageCount] = useState(0);
+  const [hasMoreMessages, setHasMoreMessages] = useState(true);
 
   // 최초 메시지 로딩 시 스크롤 이동
   useEffect(() => {
@@ -69,7 +70,7 @@ export const Chat = () => {
     [sendMessage],
   );
 
-  const handleScroll = () => {
+  const handleScroll = async () => {
     if (!chatContainerRef.current) return;
 
     const currentScrollTop = chatContainerRef.current.scrollTop;
@@ -77,7 +78,7 @@ export const Chat = () => {
     const clientHeight = chatContainerRef.current.clientHeight;
 
     // 바텀에서 적당히 떨어진 거리 (예: 50px)
-    const threshold = 120;
+    const bottomThreshold = 120;
 
     prevScrollHeightRef.current = currentScrollTop;
     const isAtBottom = scrollHeight - clientHeight === currentScrollTop;
@@ -87,16 +88,17 @@ export const Chat = () => {
       setIsAtBottom(true);
       setnewMessageCount(0);
     } else {
-      if (scrollHeight - currentScrollTop - clientHeight > threshold) {
+      if (scrollHeight - currentScrollTop - clientHeight > bottomThreshold) {
         setShowScrollButton(true);
       }
       setIsAtBottom(false);
     }
-    if (chatContainerRef.current.scrollTop === 0) {
-      prevScrollHeightRef.current = chatContainerRef.current.scrollHeight;
+    if (currentScrollTop == 0 && hasMoreMessages) {
+      prevScrollHeightRef.current = scrollHeight;
       console.log('fetchMessages');
       setIsFetching(true);
-      fetchMessages(useCurrentRoomStore.getState().messages[0]?.timestamp);
+      const count = await fetchMessages(useCurrentRoomStore.getState().messages[0]?.timestamp);
+      if (count == 0) setHasMoreMessages(false);
     }
   };
 
