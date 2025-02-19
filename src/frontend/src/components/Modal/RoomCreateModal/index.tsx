@@ -24,6 +24,7 @@ interface IRoomCreateModal {
 
 export const RoomCreateModal = ({ onCancel }: IRoomCreateModal) => {
   const titleRef = useRef<HTMLInputElement>(null);
+  const descriptionRef = useRef<HTMLTextAreaElement>(null);
   const [isPublic, setIsPublic] = useState(true);
   const [titleLength, setTitleLength] = useState(0);
   const createRoom = useCreateRoom();
@@ -50,7 +51,7 @@ export const RoomCreateModal = ({ onCancel }: IRoomCreateModal) => {
 
     createRoom.mutate({
       title: titleRef.current?.value || '',
-      description: '',
+      description: descriptionRef.current?.value || '',
       isPublic: isPublic,
     });
     onCancel();
@@ -81,7 +82,7 @@ export const RoomCreateModal = ({ onCancel }: IRoomCreateModal) => {
           required
         />
         <TitleLength>{`${titleLength} / 60`}</TitleLength>
-        <TextArea placeholder="방 설명" rows={4} />
+        <TextArea placeholder="방 설명" rows={4} ref={descriptionRef} />
         <PrivacyToggleContainer>
           <PrivacyButton $active={isPublic} onClick={() => setIsPublic(true)}>
             {isPublic ? (
