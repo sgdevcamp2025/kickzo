@@ -21,6 +21,9 @@ enum NetworkError: Error {
     case emtpyThumbnail
     case createRoom
     
+    case invalidResponseData
+    case typeMismatch
+    
     case emptyToken
     case refreshToken
 }
@@ -52,6 +55,10 @@ extension NetworkError: CustomStringConvertible {
             return "refreshToken: Token refresh 실패"
         case .createRoom:
             return "createRoom: 생성할 수 있는 방 제한"
+        case .invalidResponseData:
+            return "invalidRepsonseData"
+        case .typeMismatch:
+            return "typeMismatch"
         }
     }
 }
