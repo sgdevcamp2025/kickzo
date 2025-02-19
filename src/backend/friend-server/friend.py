@@ -227,7 +227,7 @@ async def reject_friend_request(data: FriendRequestBody, redis=Depends(get_redis
 
     return {"message": "친구 요청을 거절했습니다."}
 
-@app.get("/api/friends/list") # friends/me
+@app.get("/api/friends/list")  # friends/me
 async def get_friend_list(x_user_id: int = Header(...), db=Depends(get_db), redis=Depends(get_user_state_redis)):
     async with db.cursor(aiomysql.DictCursor) as cursor:
         await cursor.execute("SELECT * FROM friend WHERE friend_1 = %s OR friend_2 = %s", (x_user_id, x_user_id))
@@ -236,20 +236,24 @@ async def get_friend_list(x_user_id: int = Header(...), db=Depends(get_db), redi
     friend_list = []
     for friend in friends:
         friend_id = friend['friend_2'] if friend['friend_1'] == x_user_id else friend['friend_1']
-        
-        # Redis에서 친구의 온라인 상태 조회
+
+        async with db.cursor(aiomysql.DictCursor) as user_cursor:
+            await user_cursor.execute("SELECT nickname, role, profile_image_url FROM user WHERE id = %s", (friend_id,))
+            user_info = await user_cursor.fetchone()
+
         state_key = f"user:state:{friend_id}"
         state_data = await redis.hgetall(state_key)
         if state_data:
             state_info = state_data
         else:
-            state_info = {"status": "offline", "serverPort": None, "timestamp": None}
-        
+            state_info = {"status": "offline"}
+
         friend_list.append({
             "friend_id": friend_id,
-            "status": state_info.get("status"),
-            "serverPort": state_info.get("serverPort"),
-            "timestamp": state_info.get("timestamp")
+            "nickname": user_info["nickname"],
+            "role": user_info["role"],
+            "profile_image_url": user_info["profile_image_url"],
+            "status": state_info.get("status")
         })
     
     return {"friends": friend_list}
