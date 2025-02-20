@@ -1,7 +1,16 @@
 import { useEffect, useState, useCallback } from 'react';
-import axios from 'axios';
 import { CommonButton } from '@/components/common/Button';
+import { PlaylistItem } from './PlaylistItem';
+
 import { useVideoStore } from '@/stores/useVideoStore';
+import { useWebSocketStore } from '@/stores/useWebSocketStore';
+import { useUserStore } from '@/stores/useUserStore';
+import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
+
+import { roomApi } from '@/api/endpoints/room/room.api';
+import { extractVideoIdAndStartTime, fetchVideoDetails } from '@/utils/playlistUtils';
+import { useDebounce } from '@/hooks/utils/useDebounce';
+import { ButtonColor } from '@/types/enums/ButtonColor';
 
 import {
   Container,
@@ -15,25 +24,6 @@ import {
   PreviewInfo__Youtuber,
   Overlay,
 } from './index.css';
-import { ButtonColor } from '@/types/enums/ButtonColor';
-import { useDebounce } from '@/hooks/utils/useDebounce';
-import { PlaylistItem } from './PlaylistItem';
-import { useWebSocketStore } from '@/stores/useWebSocketStore';
-import { useUserStore } from '@/stores/useUserStore';
-import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
-const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY as string;
-import { roomApi } from '@/api/endpoints/room/room.api';
-
-// 사용자가 입력한 URL로부터 영상의 ID와 시간을 받아온다.
-const extractVideoIdAndStartTime = (url: string) => {
-  const regex =
-    /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([^&?/]+)(?:.*[?&]t=(\d+))?/;
-  const match = url.match(regex);
-  return {
-    videoId: match ? match[1] : '',
-    startTime: match && match[2] ? parseInt(match[2], 10) : 0,
-  };
-};
 
 export const Playlist = () => {
   const [inputUrl, setInputUrl] = useState('');
@@ -49,7 +39,6 @@ export const Playlist = () => {
     removeVideo,
     moveVideoUp,
     moveVideoDown,
-    setCurrentVideo,
     setCurrentIndex,
   } = useVideoStore();
 
@@ -82,37 +71,17 @@ export const Playlist = () => {
 
   // debouncedInputUrl이 변경되면 YouTube API를 통해 영상 정보를 가져온다
   useEffect(() => {
-    const fetchVideoDetails = async (videoId: string) => {
-      try {
-        const { data } = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
-          params: {
-            part: 'snippet',
-            id: videoId,
-            key: API_KEY,
-            hl: 'ko',
-          },
-        });
-        const items = data.items;
-        if (items && items.length > 0) {
-          const { title, channelTitle } = items[0].snippet;
-          setVideoTitle(title);
-          setVideoYoutuber(channelTitle);
-        } else {
-          setVideoTitle('');
-          setVideoYoutuber('');
-        }
-      } catch (error) {
-        console.error('Failed to fetch video details:', error);
-        setVideoTitle('');
-        setVideoYoutuber('');
-      }
+    const loadVideoDetails = async (videoId: string) => {
+      const { title, channelTitle } = await fetchVideoDetails(videoId);
+      setVideoTitle(title);
+      setVideoYoutuber(channelTitle);
     };
 
     if (debouncedInputUrl) {
       const { videoId } = extractVideoIdAndStartTime(debouncedInputUrl);
       if (videoId) {
         setThumbnailPreview(`https://img.youtube.com/vi/${videoId}/0.jpg`);
-        fetchVideoDetails(videoId);
+        loadVideoDetails(videoId);
       } else {
         setThumbnailPreview('');
         setVideoTitle('');
@@ -201,12 +170,12 @@ export const Playlist = () => {
 
   // 현재 재생 영상 변경
   const handleSetCurrentVideo = (index: number) => {
-    setCurrentVideo(index);
     setCurrentIndex(index);
     updatePlaylistOnServer();
   };
 
   // 드래그한거 미리보기
+
   const getReorderedVideos = useCallback(() => {
     if (draggedIndex === null || dragOverIndex === null) return videoQueue;
 
@@ -232,28 +201,11 @@ export const Playlist = () => {
             const { videoId, startTime } = extractVideoIdAndStartTime(item.url);
             let title = item.title || '';
             let youtuber = item.youtuber || '';
-
             if (!title || !youtuber) {
               try {
-                const { data: apiData } = await axios.get(
-                  'https://www.googleapis.com/youtube/v3/videos',
-                  {
-                    params: {
-                      part: 'snippet',
-                      id: videoId,
-                      key: API_KEY,
-                      hl: 'ko',
-                    },
-                  },
-                );
-                const items = apiData.items;
-                if (items && items.length > 0) {
-                  if (!title) title = items[0].snippet.title;
-                  if (!youtuber) youtuber = items[0].snippet.channelTitle;
-                } else {
-                  if (!title) title = '제목 없음';
-                  if (!youtuber) youtuber = '유튜버 정보 없음';
-                }
+                const { title: fetchedTitle, channelTitle } = await fetchVideoDetails(videoId);
+                if (!title) title = fetchedTitle;
+                if (!youtuber) youtuber = channelTitle;
               } catch (error) {
                 console.error('Error fetching video details for URL:', item.url, error);
                 if (!title) title = '제목 없음';
