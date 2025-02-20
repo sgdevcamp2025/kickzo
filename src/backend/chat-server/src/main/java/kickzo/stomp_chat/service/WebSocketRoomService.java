@@ -1,5 +1,7 @@
 package kickzo.stomp_chat.service;
 
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -49,7 +51,7 @@ public class WebSocketRoomService {
 	/**
 	 * Kafka에 playlistTime 전송
 	 */
-	public void sendPlayTime (long roomId, long playTime, String playerState){
+	public void sendPlayTime (long roomId, BigDecimal playTime, String playerState){
 		PlayTime playTimeObject = new PlayTime(roomId, playTime, playerState);
 
 		RoomEvent roomEvent = new RoomEvent("play-time", playTimeObject);

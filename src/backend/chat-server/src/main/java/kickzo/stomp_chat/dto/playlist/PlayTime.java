@@ -1,5 +1,8 @@
 package kickzo.stomp_chat.dto.playlist;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -9,6 +12,6 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class PlayTime {
 	private long roomId;
-	private long playTime;
+	private BigDecimal playTime;
 	private String playerState;
 }
