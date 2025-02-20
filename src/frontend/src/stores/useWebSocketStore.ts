@@ -6,8 +6,7 @@
 // v2 [ ] dm 보내기
 
 import SockJS from 'sockjs-client';
-import Stomp from 'stompjs';
-import { Client } from 'stompjs';
+import Stomp, { Client, Message } from 'stompjs';
 import { create } from 'zustand';
 import { useUserStore } from './useUserStore';
 
@@ -26,6 +25,7 @@ interface WebSocketStore {
   subscribeInvitations: (userId: number) => void;
   subscribeFriendConnection: (userId: number) => void;
   unsubscribeAll: () => void;
+  pubTopic: (destination: string, message: any) => void;
 }
 
 export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
@@ -38,7 +38,7 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
     if (get().client?.connected) {
       get().disconnect();
     }
-    
+
     // 기존 소켓 정리
     if (get().socket) {
       get().socket?.close();
@@ -136,5 +136,17 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   unsubscribeAll: () => {
     get().subscriptions.forEach(sub => sub.unsubscribe());
     set({ subscriptions: new Map() });
+  },
+
+  pubTopic: (destination: string, message: any) => {
+    const { client } = get();
+    if (!client) {
+      console.warn('⚠ WebSocket이 아직 연결되지 않았습니다.');
+      return;
+    }
+    if (typeof message !== 'string') {
+      message = JSON.stringify(message);
+    }
+    client.send(destination, {}, message);
   },
 }));
