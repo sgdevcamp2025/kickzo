@@ -10,10 +10,10 @@ import Testing
 @testable import KickTube
 
 struct KickTubeTests {
-    
     @Test func example() async throws {
         // Write your test here and use APIs like `#expect(...)` to check expected conditions.
     }
+    
     @Test func homeRequestTest_Success() async throws {
         let mockSession = MockSession()
         let expectedData =  [HomeRoomResponseDTO(roomID: 1, code: "E26D622A", title: "쇠맛 세계로 가 보자고", description: "쇠맛 세계로 가 보자고", creator: "수수수수퍼노바", profileImageURL: nil, userCount: 2, playlistURL: nil)]
@@ -56,48 +56,4 @@ struct KickTubeTests {
             print("Error: \(error)")
         }
     }
-    
 }
-
-struct MockRequest<T: Decodable>: Request {
-    typealias Response = T
-    
-    var scheme: String = "http"
-    var baseURL: String {
-        get throws {
-            guard let baseURL = Bundle.main.infoDictionary?["BaseURL"] as? String
-            else {
-                throw NetworkError.notFoundBaseURL
-            }
-            return baseURL
-        }
-    }
-    
-    var method: HTTPMethod
-    var path: [String]
-    var header: [HeaderContent]?
-    var pathQueries: [URLQueryItem]?
-    var body: (any Encodable)?
-    var port: Int = 8000
-}
-
-
-final class MockSession: URLSessionProtocol {
-    var mockData: Data?
-    var mockResponse: URLResponse?
-    var mockError: Error?
-    
-    func data(for request: URLRequest) throws -> (Data, URLResponse) {
-        if let error = mockError {
-            throw error
-        }
-        
-        guard let data = mockData, let response = mockResponse else {
-            throw URLError(.badServerResponse)
-        }
-        
-        return (data, response)
-    }
-}
-
-
