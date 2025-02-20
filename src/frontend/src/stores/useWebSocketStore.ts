@@ -37,8 +37,8 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   connect: () => {
     if (get().client?.connected) {
       get().disconnect();
-      return;
     }
+    
     // 기존 소켓 정리
     if (get().socket) {
       get().socket?.close();

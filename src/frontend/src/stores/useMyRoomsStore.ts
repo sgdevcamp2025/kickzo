@@ -5,6 +5,7 @@ import { create } from 'zustand';
 import { roomApi } from '@/api/endpoints/room/room.api';
 import { persist } from 'zustand/middleware';
 import { useWebSocketStore } from './useWebSocketStore';
+import { useCurrentRoomStore } from './useCurrentRoomStore';
 
 interface MyRoomsStore {
   myRooms: MyRoomDto[];
@@ -28,6 +29,10 @@ export const useMyRoomsStore = create(
           set({ myRooms });
           console.log('myRooms', myRooms);
           const myRoomIds = myRooms.map(room => room.roomId);
+          const currentRoomId = useCurrentRoomStore.getState().roomId;
+          if (currentRoomId) { // 현재 /rooom에서 방을 보고 있다면 구독을 currentRoomStore에서 처리
+            myRoomIds.splice(myRoomIds.indexOf(currentRoomId), 1);
+          }
           useWebSocketStore.getState().subscribeRooms(myRoomIds);
           return myRooms;
         } catch (error) {
