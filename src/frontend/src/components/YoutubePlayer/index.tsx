@@ -1,11 +1,10 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useVideoStore } from '@/stores/useVideoStore';
 import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
 import { useWebSocketStore } from '@/stores/useWebSocketStore';
 
 export const YouTubePlayer = () => {
-  const [seekTime, setSeekTime] = useState<string>('');
   const { videoQueue, currentIndex } = useVideoStore(); // ▶ 재생할 영상 정보
   const { currentRoom } = useCurrentRoomStore(); // ▶ 현재 방 정보
   const { client, subTopic } = useWebSocketStore(); // ▶ 웹소켓 클라이언트 및 구독 함수
@@ -128,38 +127,6 @@ export const YouTubePlayer = () => {
       <VideoWrapper>
         <div id="youtube-player"></div>
       </VideoWrapper>
-      <div>
-        <input
-          type="number"
-          placeholder="이동할 시간 (초)"
-          value={seekTime}
-          onChange={e => setSeekTime(e.target.value)}
-        />
-        <button
-          onClick={() => {
-            const time = Number(seekTime) || 0;
-            if (playerRef.current) {
-              playerRef.current.seekTo(time, true);
-              playerRef.current.pauseVideo();
-            }
-            broadcastPlayerState('paused', time);
-          }}
-        >
-          이동 및 정지
-        </button>
-        <button
-          onClick={() => {
-            const time = Number(seekTime) || 0;
-            if (playerRef.current) {
-              playerRef.current.seekTo(time, true);
-              playerRef.current.playVideo();
-            }
-            broadcastPlayerState('playing', time);
-          }}
-        >
-          이동 및 재생
-        </button>
-      </div>
     </Container>
   );
 };

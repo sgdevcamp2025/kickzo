@@ -122,16 +122,6 @@ export const UserList = () => {
     setActiveProfile(prevId => (prevId === id ? null : id));
   };
 
-  const handleAddUser = () => {
-    const newUser: IUser = {
-      id: Date.now(),
-      role: Math.floor(Math.random() * 3),
-      nickname: `User${Math.floor(Math.random() * 1000)}`,
-      profileImg: '',
-    };
-    addUser(newUser);
-  };
-
   const users = getSortedUsers();
 
   return (
@@ -161,7 +151,6 @@ export const UserList = () => {
           </ProfileWrapper>
         ))}
       </UserListContainer>
-      <button onClick={handleAddUser}>랜덤 유저 추가</button>
       <UserListFooter sidebarType={SidebarType.USERLIST} />
     </Container>
   );
