@@ -3,6 +3,7 @@ import { ProfileInfo } from './ProfileInfo';
 import { ProfileActions } from './ProfileActions';
 import { Container, Profile, ButtonContainer } from './index.css';
 import { ProfileDetailDto } from '@/types/dto/ProfileDetailDto.dto';
+import DefaultProfile from '@/assets/img/DefaultProfile.svg';
 
 const detailProfile = {
   nickname: '이노',
@@ -15,8 +16,8 @@ export const ProfileDetail = (props: ProfileDetailDto) => {
   return (
     <Container>
       <Profile>
-        <ProfileHeader sidebarType={props.sidebarType} imgUrl={detailProfile.imgUrl} />
-        <ProfileInfo nickname={detailProfile.nickname} introduce={detailProfile.introduce} />
+        <ProfileHeader sidebarType={props.sidebarType} imgUrl={props.imgUrl || DefaultProfile} />
+        <ProfileInfo nickname={props.nickname} introduce={detailProfile.introduce} />
       </Profile>
       <ButtonContainer>
         <ProfileActions {...props} />
