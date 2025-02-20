@@ -18,8 +18,11 @@ import {
 import { ButtonColor } from '@/types/enums/ButtonColor';
 import { useDebounce } from '@/hooks/utils/useDebounce';
 import { PlaylistItem } from './PlaylistItem';
-
+import { useWebSocketStore } from '@/stores/useWebSocketStore';
+import { useUserStore } from '@/stores/useUserStore';
+import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY as string;
+import { roomApi } from '@/api/endpoints/room/room.api';
 
 // 사용자가 입력한 URL로부터 영상의 ID와 시간을 받아온다.
 const extractVideoIdAndStartTime = (url: string) => {
@@ -49,17 +52,36 @@ export const Playlist = () => {
     setCurrentVideo,
     setCurrentIndex,
   } = useVideoStore();
+  const { currentRoom } = useCurrentRoomStore();
+  const roomId = currentRoom?.roomDetails.roomInfo[0]?.roomId;
 
-  const ChangeToWebSocketType = () => {
+  const { subTopic } = useWebSocketStore();
+
+  const updatePlaylistOnServer = async () => {
     const { videoQueue } = useVideoStore.getState();
-    const formattedQueue = videoQueue.map((video, index) => ({
+    const userId = useUserStore.getState().user?.userId;
+
+    if (!userId) {
+      console.error('사용자 ID가 없습니다.');
+      return;
+    }
+
+    const requestData = videoQueue.map((video, index) => ({
       order: index,
       url: `https://www.youtube.com/watch?v=${video.id}${video.start ? `&t=${video.start}` : ''}`,
+      title: video.title,
+      youtuber: video.youtuber,
     }));
-    // TODO: 추후 WebSocket 타입으로 변경할 때 사용
-    console.log('playlist: ' + JSON.stringify(formattedQueue));
+
+    try {
+      const response = await roomApi.sendPlaylist(roomId!, requestData);
+      console.log('플레이리스트 업데이트 성공:', response);
+    } catch (error) {
+      console.error('플레이리스트 업데이트 실패:', error);
+    }
   };
 
+  // debouncedInputUrl이 변경되면 YouTube API를 통해 영상 정보를 가져온다
   useEffect(() => {
     const fetchVideoDetails = async (videoId: string) => {
       try {
@@ -115,7 +137,7 @@ export const Playlist = () => {
       youtuber: videoYoutuber,
     });
 
-    ChangeToWebSocketType();
+    updatePlaylistOnServer();
 
     setInputUrl('');
     setThumbnailPreview('');
@@ -125,7 +147,7 @@ export const Playlist = () => {
 
   const handleRemoveVideo = (index: number) => {
     removeVideo(index);
-    ChangeToWebSocketType();
+    updatePlaylistOnServer();
   };
 
   const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
@@ -163,7 +185,7 @@ export const Playlist = () => {
           newCurrentIndex = state.currentIndex + 1;
         }
 
-        ChangeToWebSocketType();
+        updatePlaylistOnServer();
 
         return { videoQueue: updatedQueue, currentIndex: newCurrentIndex };
       });
@@ -176,7 +198,7 @@ export const Playlist = () => {
   const handleSetCurrentVideo = (index: number) => {
     setCurrentVideo(index);
     setCurrentIndex(index);
-    ChangeToWebSocketType();
+    updatePlaylistOnServer();
   };
 
   const getReorderedVideos = useCallback(() => {
@@ -187,6 +209,66 @@ export const Playlist = () => {
     reorderedVideos.splice(dragOverIndex, 0, draggedVideo);
     return reorderedVideos;
   }, [videoQueue, draggedIndex, dragOverIndex]);
+
+  useEffect(() => {
+    if (!roomId) {
+      console.warn('roomId가 없습니다. 구독 취소됨');
+      return;
+    }
+
+    subTopic(`/topic/room/${roomId}/playlist-update`, (data: any) => {
+      if (data?.playlist && Array.isArray(data.playlist)) {
+        (async () => {
+          // order 기준으로 정렬한 후 각 항목을 변환
+          const sortedPlaylist = data.playlist.sort((a: any, b: any) => a.order - b.order);
+          const updatedQueue = await Promise.all(
+            sortedPlaylist.map(async (item: any) => {
+              const { videoId, startTime } = extractVideoIdAndStartTime(item.url);
+              let title = item.title;
+              let youtuber = item.youtuber;
+              if (!title || !youtuber) {
+                try {
+                  const { data: apiData } = await axios.get(
+                    'https://www.googleapis.com/youtube/v3/videos',
+                    {
+                      params: {
+                        part: 'snippet',
+                        id: videoId,
+                        key: API_KEY,
+                        hl: 'ko',
+                      },
+                    },
+                  );
+                  const items = apiData.items;
+                  if (items && items.length > 0) {
+                    title = title || items[0].snippet.title;
+                    youtuber = youtuber || items[0].snippet.channelTitle;
+                  } else {
+                    title = title || '제목 없음';
+                    youtuber = youtuber || '유튜버 정보 없음';
+                  }
+                } catch (error) {
+                  console.error('Error fetching video details for URL:', item.url, error);
+                  title = title || '제목 없음';
+                  youtuber = youtuber || '유튜버 정보 없음';
+                }
+              }
+              return {
+                id: videoId,
+                start: startTime,
+                thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`,
+                title,
+                youtuber,
+              };
+            }),
+          );
+          useVideoStore.setState({ videoQueue: updatedQueue });
+        })();
+      } else {
+        console.warn('잘못된 웹소켓 데이터 수신:', data);
+      }
+    });
+  }, [roomId, subTopic]);
 
   return (
     <Container>
