@@ -14,6 +14,8 @@ include:
   - ./backend/state-server/docker-compose.yml
   - ./backend/signaling-server/docker-compose.yml
   - ./backend/main-server/main/docker-compose.yml
+  - ./backend/elk/docker-compose-es.yml
+  - ./backend/elk/docker-compose-kibana.yml
   - ./backend/friend-server/docker-compose.yml
 
 networks:
