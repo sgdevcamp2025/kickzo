@@ -24,7 +24,10 @@ interface WebSocketStore {
   subscribeRoom: (roomId: number) => void;
   subscribeRooms: (roomIds: number[]) => void;
   subscribeInvitations: (userId: number) => void;
-  subscribeFriendConnection: (userId: number) => void;
+  subscribeFriendConnection: <T>(
+    userId: number,
+    callback: (message: T) => void,
+  ) => void;
   unsubscribeAll: () => void;
 }
 
@@ -38,7 +41,7 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
     if (get().client?.connected) {
       get().disconnect();
     }
-    
+
     // 기존 소켓 정리
     if (get().socket) {
       get().socket?.close();
@@ -57,7 +60,9 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
         if (userId) {
           client.send('/app/connect', {}, JSON.stringify({ userId }));
           get().subscribeInvitations(userId);
-          get().subscribeFriendConnection(userId);
+          get().subscribeFriendConnection(userId, message => {
+            console.log('subscribeFriendConnection', message);
+          });
         }
       },
       error => {
@@ -100,11 +105,12 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   },
 
   // 친구 접속 알림 구독
-  subscribeFriendConnection: (userId: number) => {
+  subscribeFriendConnection: <T>(
+    userId: number,
+    callback: (message: T) => void = console.log,
+  ) => {
     const destination = `/topic/user/${userId}/friend-state`;
-    get().subTopic(destination, message => {
-      console.log('subscribeFriendConnection', message);
-    });
+    get().subTopic(destination, callback);
   },
 
   // 초대 구독
