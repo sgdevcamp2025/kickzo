@@ -18,7 +18,7 @@ import {
 import { ButtonColor } from '@/types/enums/ButtonColor';
 import { useDebounce } from '@/hooks/utils/useDebounce';
 import { PlaylistItem } from './PlaylistItem';
-
+import DefaultThumbnail from '@/assets/img/DefaultThumbnail.svg';
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY as string;
 
 // 사용자가 입력한 URL로부터 영상의 ID와 시간을 받아온다.
@@ -222,7 +222,13 @@ export const Playlist = () => {
               width="100%"
               justifycontent="flex-start"
             >
-              <PreviewImg src={thumbnailPreview} />
+              <PreviewImg
+                src={thumbnailPreview}
+                alt="thumbnail"
+                onError={e => {
+                  e.currentTarget.src = DefaultThumbnail;
+                }}
+              />
               <PreviewInfo>
                 <PreviewInfo__Title>{videoTitle || '제목 없음'}</PreviewInfo__Title>
                 <PreviewInfo__Youtuber>{videoYoutuber || '유튜버 정보 없음'}</PreviewInfo__Youtuber>
