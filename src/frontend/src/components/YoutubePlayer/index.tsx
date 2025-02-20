@@ -1,20 +1,22 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef } from 'react';
 import styled from 'styled-components';
 import { useVideoStore } from '@/stores/useVideoStore';
 import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
 import { useWebSocketStore } from '@/stores/useWebSocketStore';
 
 export const YouTubePlayer = () => {
-  const [seekTime, setSeekTime] = useState<string>('');
-  const { videoQueue, currentIndex } = useVideoStore(); // ▶ 재생할 영상 정보
-  const { currentRoom } = useCurrentRoomStore(); // ▶ 현재 방 정보
-  const { client, subTopic } = useWebSocketStore(); // ▶ 웹소켓 클라이언트 및 구독 함수
-  const pubTopic = useWebSocketStore.getState().pubTopic; // ▶ 웹소켓 퍼블리시 함수
-  const roomId = currentRoom?.roomDetails.roomInfo[0]?.roomId;
+  const { videoQueue, currentIndex } = useVideoStore();
+  const { currentRoom } = useCurrentRoomStore();
+  const { client, subTopic } = useWebSocketStore();
+  const pubTopic = useWebSocketStore.getState().pubTopic;
+  const roomId = currentRoom?.roomDetails?.roomInfo?.[0]?.roomId;
 
-  const playerRef = useRef<YT.Player | null>(null); // ▶ 유튜브 플레이어
-  const lastSentStateRef = useRef<'playing' | 'paused' | null>(null); //  마지막으로 broadcast한 상태를 저장 (중복 전송 방지용)
-  const isRemoteUpdateRef = useRef<boolean>(false); //  원격 업데이트(다른 클라이언트에서 온 메시지) 플래그
+  const playerRef = useRef<YT.Player | null>(null);
+  const lastSentStateRef = useRef<'playing' | 'paused' | null>(null);
+  const isRemoteUpdateRef = useRef<boolean>(false);
+
+  // 이전 영상의 id를 기억
+  const previousVideoIdRef = useRef<string | null>(null);
 
   // 유튜브 API 스크립트 동적 로드
   useEffect(() => {
@@ -24,15 +26,11 @@ export const YouTubePlayer = () => {
       script.src = 'https://www.youtube.com/iframe_api';
       document.body.appendChild(script);
     }
-
-    // window.onYouTubeIframeAPIReady = () => {
-    //   console.log('YouTube API Ready');
-    // };
   }, []);
 
   // 유튜브 플레이어 로드
   const loadPlayer = (id: string, startTime: number = 0) => {
-    if (window.YT && id) {
+    if ((window as any).YT && id) {
       if (playerRef.current) {
         if (typeof playerRef.current.loadVideoById === 'function') {
           playerRef.current.loadVideoById({
@@ -41,7 +39,7 @@ export const YouTubePlayer = () => {
           });
         }
       } else {
-        playerRef.current = new window.YT.Player('youtube-player', {
+        playerRef.current = new (window as any).YT.Player('youtube-player', {
           height: '100%',
           width: '100%',
           videoId: id,
@@ -63,10 +61,10 @@ export const YouTubePlayer = () => {
   // 유튜브 영상의 재생, 멈춤, 끝남 상태에 따라 동작
   const broadcastPlayerState = (state: 'playing' | 'paused', time: number) => {
     if (!client || !roomId || !pubTopic) {
-      console.warn('⚠ client, roomId, pubTopic이 정의되지 않았습니다.');
+      console.warn('⚠ WebSocket 준비 안됨');
       return;
     }
-    lastSentStateRef.current = state; // broadcast 후 마지막 상태 업데이트
+    lastSentStateRef.current = state;
     const message = { roomId, playTime: time, playerState: state };
     pubTopic(`/app/play-time`, message);
   };
@@ -78,13 +76,13 @@ export const YouTubePlayer = () => {
       return;
     }
     if (!playerRef.current) return;
-    const playTime = playerRef.current.getCurrentTime();
 
-    if (event.data === YT.PlayerState.PLAYING) {
+    const playTime = playerRef.current.getCurrentTime();
+    if (event.data === (window as any).YT.PlayerState.PLAYING) {
       if (lastSentStateRef.current !== 'playing') {
         broadcastPlayerState('playing', playTime);
       }
-    } else if (event.data === YT.PlayerState.PAUSED) {
+    } else if (event.data === (window as any).YT.PlayerState.PAUSED) {
       if (lastSentStateRef.current !== 'paused') {
         broadcastPlayerState('paused', playTime);
       }
@@ -104,62 +102,43 @@ export const YouTubePlayer = () => {
   // 서버에서 받은 동기화 적용
   const applySyncState = ({ playTime, playerState }: { playTime: number; playerState: string }) => {
     if (!playerRef.current) return;
-    playerRef.current.seekTo(playTime, true); // 시간 변경
+    playerRef.current.seekTo(playTime, true);
 
-    // 재생/정지 상태 적용
     if (playerState === 'playing') {
       playerRef.current.playVideo();
     } else if (playerState === 'paused') {
       playerRef.current.pauseVideo();
     }
-    lastSentStateRef.current = playerState as 'playing' | 'paused'; // 동기화 후 마지막 상태 업데이트
+    lastSentStateRef.current = playerState as 'playing' | 'paused';
   };
 
   // 영상 변경 시 플레이어 로드
   useEffect(() => {
-    if (videoQueue.length > 0) {
-      loadPlayer(videoQueue[currentIndex].id, videoQueue[currentIndex].start);
+    if (!videoQueue.length) return;
+
+    const currentVideo = videoQueue[currentIndex];
+    if (!currentVideo) return;
+
+    // 이전 영상 id와 비교
+    const prevId = previousVideoIdRef.current;
+    const newId = currentVideo.id;
+
+    // videoId가 달라졌을 때만 로드
+    if (prevId !== newId) {
+      console.log('🎬 loadPlayer (video changed): ', newId, currentVideo.start);
+      loadPlayer(newId, currentVideo.start);
+      previousVideoIdRef.current = newId;
+    } else {
+      // 동일 영상 id라면 재생 다시 시작 안 함
+      console.log('같은 영상입니다');
     }
-  }, [currentIndex, videoQueue[0]]);
-  // }, [currentIndex, videoQueue]);
+  }, [videoQueue, currentIndex]);
 
   return (
     <Container>
       <VideoWrapper>
         <div id="youtube-player"></div>
       </VideoWrapper>
-      <div>
-        <input
-          type="number"
-          placeholder="이동할 시간 (초)"
-          value={seekTime}
-          onChange={e => setSeekTime(e.target.value)}
-        />
-        <button
-          onClick={() => {
-            const time = Number(seekTime) || 0;
-            if (playerRef.current) {
-              playerRef.current.seekTo(time, true);
-              playerRef.current.pauseVideo();
-            }
-            broadcastPlayerState('paused', time);
-          }}
-        >
-          이동 및 정지
-        </button>
-        <button
-          onClick={() => {
-            const time = Number(seekTime) || 0;
-            if (playerRef.current) {
-              playerRef.current.seekTo(time, true);
-              playerRef.current.playVideo();
-            }
-            broadcastPlayerState('playing', time);
-          }}
-        >
-          이동 및 재생
-        </button>
-      </div>
     </Container>
   );
 };
