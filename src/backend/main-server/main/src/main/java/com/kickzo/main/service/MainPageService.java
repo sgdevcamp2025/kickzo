@@ -75,32 +75,15 @@ public class MainPageService {
 
 		// Elasticsearch에도 저장
 		RoomDocument roomDocument = new RoomDocument();
-		roomDocument.setId(newRoom.getId());
+		roomDocument.setRoomId(newRoom.getId());
 		roomDocument.setTitle(newRoom.getTitle());
 		roomDocument.setCreator(newRoom.getCreator());
-
 		roomSearchRepository.save(roomDocument);
 
 		return new CreateRoomResponseDto(randomCode);
 	}
 
-	/**
-	 * 메인 페이지에서 방 list 제공
-	 * 1, ObjectMapper 재사용을 위한 밖에서 선언
-	 * 2. Playlist에서 order == 0인 URL 추출 : extractPlaylistUrl
-	 * 3. Room 엔티티를 DTO로 변환 : convertToDto
-	 * 4. getCreatorProfileImage : 생성자의 profileImageUrl 받아오기
-	 */
-
-	private String extractPlaylistUrl(List<PlaylistItem> playlistItems) {
-		return playlistItems.stream()
-			.filter(item -> item.getOrder() == 0)
-			.map(PlaylistItem::getUrl)
-			.findFirst()
-			.orElse(null);
-	}
-
-	private RoomResponseDto convertToDto(Room room) {
+	public RoomResponseDto convertToDto(Room room) {
 		List<PlaylistItem> playlistItems = Optional.ofNullable(room.getPlaylist())
 			.map(Playlist::getOrderAsList)  // JSON → List 변환
 			.orElse(Collections.emptyList());
@@ -118,6 +101,19 @@ public class MainPageService {
 			.userCount(room.getUserCount())
 			.playlistUrl(playlistUrl)
 			.build();
+	}
+
+	/**
+	 * 메인 페이지에서 방 list 제공
+	 * 1. Playlist에서 order == 0인 URL 추출 : extractPlaylistUrl
+	 * 2. getCreatorProfileImage : 생성자의 profileImageUrl 받아오기
+	 */
+	private String extractPlaylistUrl(List<PlaylistItem> playlistItems) {
+		return playlistItems.stream()
+			.filter(item -> item.getOrder() == 0)
+			.map(PlaylistItem::getUrl)
+			.findFirst()
+			.orElse(null);
 	}
 
 	private String getCreatorProfileImage(String creator) {
