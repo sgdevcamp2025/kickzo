@@ -9,7 +9,6 @@ import Foundation
 
 import ManipulateDataModel
 
-@DecodeDTO
 @ConvertToDomainModel<HomeRoomDomainModel>
 struct HomeRoomResponseDTO {
     @Key("roomId") let roomID: Int
@@ -21,3 +20,6 @@ struct HomeRoomResponseDTO {
     let userCount: Int
     @Key("playlistUrl") let playlistURL: String?
 }
+
+extension HomeRoomResponseDTO: Equatable {}
+extension HomeRoomResponseDTO: Codable {}
