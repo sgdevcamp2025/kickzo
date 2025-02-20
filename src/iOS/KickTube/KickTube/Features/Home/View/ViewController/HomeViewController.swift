@@ -67,7 +67,7 @@ final class HomeViewController: BaseViewController<HomeReactor> {
                 cellIdentifier: HomeVideoCollectionViewCell.reuseIdentifier,
                 cellType: HomeVideoCollectionViewCell.self
             )) { row, element, cell in
-                if let videoID = element.videoID,
+                if let videoID = element.playlistURL?.youtubeID,
                    element.videoThumbnail == nil {
                     reactor.action.onNext(.getVideoThumbnail(idx: row, id: videoID))
                 }

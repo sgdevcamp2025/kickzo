@@ -42,7 +42,6 @@ final class PlayListViewModel {
         let playlistSubject = BehaviorSubject<[KickRoomPlaylistViewModel]>(value: playlist)
         let videoListSubject = PublishSubject<[YoutubeVideoViewModel]>()
         let validVideoSubject = PublishSubject<[YoutubeVideoViewModel]>()
-      
         
         playlistSubject
             .take(1)
@@ -50,7 +49,8 @@ final class PlayListViewModel {
                 guard let self else { return .error(NetworkError.unknown) }
                 
                 let youtubeID = playlist.compactMap { $0.url.youtubeID }
-                return self.getYoutubeSearchResult(with: youtubeID)
+                
+                return  self.getYoutubeSearchResult(with: youtubeID)
             }
             .subscribe(with: self) { owner, value in
                 owner.videoList = value
@@ -132,6 +132,17 @@ final class PlayListViewModel {
             }
             .disposed(by: disposeBag)
         
+        videoListSubject
+            .subscribe(with: self) { owner, value in
+                guard let roomID = owner.roomID else { return }
+                
+                let playlist = value.enumerated().map { PlaylistRequestDTO(url: $0.element.id.youtubeLink, order: $0.offset) }
+                let request = RoomPlaylistRequestDTO(roomID: roomID, playlist: playlist)
+                
+                owner.changePlaylist(request)
+            }
+            .disposed(by: disposeBag)
+        
         return Output(playlist: videoListSubject, validVideo: validVideoSubject)
     }
     
@@ -177,9 +188,11 @@ final class PlayListViewModel {
         Task {
             do {
                 _ = try await self.session.send(playlistRequest)
+                print("success")
             } catch {
                 print(error)
             }
         }
     }
 }
+

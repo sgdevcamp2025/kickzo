@@ -25,7 +25,7 @@ final class MyRoomViewController: BaseViewController<MyRoomReactor> {
                 return UICollectionViewCell()
             }
             
-            if let videoID = room.videoID,
+            if let videoID = room.playlistURL?.youtubeID,
                room.videoThumbnail == nil {
                 self.reactor.action.onNext(.getVideoThumbnail(idx: indexPath, id: videoID))
             }
@@ -48,7 +48,7 @@ final class MyRoomViewController: BaseViewController<MyRoomReactor> {
                 return UICollectionViewCell()
             }
             
-            if let videoID = room.videoID,
+            if let videoID = room.playlistURL?.youtubeID,
                room.videoThumbnail == nil {
                 self.reactor.action.onNext(.getVideoThumbnail(idx: indexPath, id: videoID))
             }
