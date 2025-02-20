@@ -78,7 +78,7 @@ export const roomApi = {
       targetUserId: userId,
       newRole: role,
     };
-    const { data } = await instance.post(`/rooms/change-role`, body);
+    const { data } = await instance.patch(`/rooms/change-role`, body);
     return data;
   },
 
