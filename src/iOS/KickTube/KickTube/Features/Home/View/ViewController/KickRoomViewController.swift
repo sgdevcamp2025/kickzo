@@ -110,6 +110,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     override func bindState(reactor: KickRoomReactor) {
         reactor.state
             .compactMap { $0.roomInfo }
+            .take(1)
             .observe(on: MainScheduler.instance)
             .subscribe(with: self, onNext: { owner, value in
                 owner.setMainScrollView()
