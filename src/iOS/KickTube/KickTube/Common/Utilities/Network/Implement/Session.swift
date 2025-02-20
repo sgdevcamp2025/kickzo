@@ -8,10 +8,10 @@
 import Foundation
 
 final class Session {
-    private let session: URLSession
+    private let session: URLSessionProtocol
     
-    init(configuration: URLSessionConfiguration = .default) {
-        self.session = URLSession(configuration: configuration)
+    init(session: URLSessionProtocol = URLSession.shared) {
+        self.session = session
     }
     
     @discardableResult
@@ -61,5 +61,16 @@ final class Session {
         }
         
         return try parser.parse(request: request, data: data)
+    }
+}
+
+
+protocol URLSessionProtocol {
+    func data(for request: URLRequest) async throws -> (Data, URLResponse)
+}
+
+extension URLSession: URLSessionProtocol {
+    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
+        try await self.data(for: request, delegate: nil)
     }
 }
