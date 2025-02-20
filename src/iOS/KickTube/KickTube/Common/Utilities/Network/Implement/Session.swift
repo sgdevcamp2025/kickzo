@@ -63,14 +63,3 @@ final class Session {
         return try parser.parse(request: request, data: data)
     }
 }
-
-
-protocol URLSessionProtocol {
-    func data(for request: URLRequest) async throws -> (Data, URLResponse)
-}
-
-extension URLSession: URLSessionProtocol {
-    func data(for request: URLRequest) async throws -> (Data, URLResponse) {
-        try await self.data(for: request, delegate: nil)
-    }
-}
