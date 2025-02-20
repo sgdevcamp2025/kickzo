@@ -40,10 +40,11 @@ final class VoiceUserOverviewReactor: Reactor {
         switch action {
         case .loadView:
             // TODO: 네트워크 통신
-            let data = SampleTest.overviewuserlist.toModel()
+//            let data = SampleTest.overviewuserlist.toModel()
 //            let thumbnailData = Data()
 //            data.profileImageData = thumbnailData
-            return .just(.setUserInformation(data))
+            //            return .just(.setUserInformation(data))
+            return .empty()
         case .inviteButtonTapped:
             return .just(.inviteUser)
         case .roleButtonTapped:

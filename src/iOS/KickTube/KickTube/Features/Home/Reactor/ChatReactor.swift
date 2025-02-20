@@ -47,9 +47,10 @@ final class ChatReactor: Reactor {
         case .getUnreadMessage:
             return getUnreadMessage()
         case .getNewMessage:
-            let newMessage = SampleTest.unreads[0].toModel().toModel()
+//            let newMessage = SampleTest.unreads[0].toModel().toModel()
             
-            return .just(.appendNewMessage(newMessage))
+//            return .just(.appendNewMessage(newMessage))
+            return .empty()
         case .sendMessage(let message):
             let newMessage = ChatMessageDomainModel(messageID: "\(Int.random(in: 1...1000000))", roomID: 43, userID: 5, createdAt: 29384928379, media: nil, message: message, role: 2, nickname: "asdlkfslkj", profileImageURL: nil)
             
