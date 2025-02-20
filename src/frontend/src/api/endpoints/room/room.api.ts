@@ -66,7 +66,7 @@ export const roomApi = {
   sendPlaylist: async (roomId: number, playlist: PlaylistDto[]) => {
     const { data } = await instance.post('/rooms/playlist', {
       roomId,
-      playlist: JSON.stringify(playlist),
+      playlist: playlist,
     });
     return data;
   },
