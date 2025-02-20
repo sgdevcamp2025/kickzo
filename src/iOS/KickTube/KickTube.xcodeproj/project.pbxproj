@@ -50,6 +50,8 @@
 				Config/Secrets.xcconfig,
 				Info.plist,
 				KickTubeTests/KickTubeTests.swift,
+				KickTubeTests/MockRequest.swift,
+				KickTubeTests/MockSession.swift,
 				KickTubeUITests/KickTubeUITests.swift,
 				KickTubeUITests/KickTubeUITestsLaunchTests.swift,
 			);
@@ -59,6 +61,8 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				KickTubeTests/KickTubeTests.swift,
+				KickTubeTests/MockRequest.swift,
+				KickTubeTests/MockSession.swift,
 			);
 			target = 532F31472D3649CC00D2C67E /* KickTubeTests */;
 		};
