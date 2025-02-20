@@ -1,25 +1,19 @@
-import ProfileImg from '@/assets/img/ProfileImg.svg';
 import { Wrapper, Profile, ChatContainer, Title, Title__Time, ChatText } from './index.css';
-import { UserRole } from '@/types/enums/UserRole';
 import { ChatNickname } from '@/components/Sidebar/Chating/ChatMessages/ChatLayout/ChatNickname';
+import { ReceiveMessageDto } from '@/api/endpoints/room/room.interface';
+import { formatDateToKorean } from '@/utils/dateUtils';
+import DefaultProfile from '@/assets/img/DefaultProfile.svg';
 
-interface IChat {
-  role: UserRole;
-  nickname: string;
-  time: string;
-  text: string;
-}
-
-export const ChatLayout = (props: IChat) => {
+export const ChatLayout = ({ message }: { message: ReceiveMessageDto }) => {
   return (
     <Wrapper>
-      <Profile className="Profile" src={ProfileImg} />
+      <Profile className="Profile" src={message.profileImageUrl ?? DefaultProfile} />
       <ChatContainer>
         <Title>
-          <ChatNickname role={props.role} nickname={props.nickname} />
-          <Title__Time>{props.time}</Title__Time>
+          <ChatNickname role={message.role} nickname={message.nickname ?? '알수없음'} />
+          <Title__Time>{formatDateToKorean(message.timestamp ?? new Date().getTime())}</Title__Time>
         </Title>
-        <ChatText>{props.text}</ChatText>
+        <ChatText>{message.message}</ChatText>
       </ChatContainer>
     </Wrapper>
   );

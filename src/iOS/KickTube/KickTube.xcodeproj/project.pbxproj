@@ -53,6 +53,8 @@
 				Config/Secrets.xcconfig,
 				Info.plist,
 				KickTubeTests/KickTubeTests.swift,
+				KickTubeTests/MockRequest.swift,
+				KickTubeTests/MockSession.swift,
 				KickTubeUITests/KickTubeUITests.swift,
 				KickTubeUITests/KickTubeUITestsLaunchTests.swift,
 			);
@@ -62,6 +64,8 @@
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				KickTubeTests/KickTubeTests.swift,
+				KickTubeTests/MockRequest.swift,
+				KickTubeTests/MockSession.swift,
 			);
 			target = 532F31472D3649CC00D2C67E /* KickTubeTests */;
 		};
@@ -657,6 +661,7 @@
 				minimumVersion = 3.2.0;
 			};
 		};
+
 		53301E6F2D67007800C0C272 /* XCRemoteSwiftPackageReference "ManipulateDataModel" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/KSK9820/ManipulateDataModel.git";
@@ -708,6 +713,11 @@
 		};
 		5351F2E02D392C600093EB87 /* ManipulateDataModel */ = {
 			isa = XCSwiftPackageProductDependency;
+			productName = ManipulateDataModel;
+		};
+		535C62AC2D67223C00780496 /* ManipulateDataModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 535C62AB2D67223C00780496 /* XCRemoteSwiftPackageReference "ManipulateDataModel" */;
 			productName = ManipulateDataModel;
 		};
 		53A863DB2D4FB72E009FF8E2 /* RxDataSources */ = {
