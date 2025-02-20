@@ -67,7 +67,7 @@ final class HomeViewController: BaseViewController<HomeReactor> {
                 cellIdentifier: HomeVideoCollectionViewCell.reuseIdentifier,
                 cellType: HomeVideoCollectionViewCell.self
             )) { row, element, cell in
-                if let videoID = element.videoID,
+                if let videoID = element.playlistURL?.youtubeID,
                    element.videoThumbnail == nil {
                     reactor.action.onNext(.getVideoThumbnail(idx: row, id: videoID))
                 }
@@ -84,8 +84,10 @@ final class HomeViewController: BaseViewController<HomeReactor> {
             .asDriver(onErrorJustReturn: "")
             .drive(with: self) { owner, value in
                 let vc = KickRoomViewController(KickRoomReactor(value))
-                
-                owner.navigationController?.pushViewController(vc, animated: false)
+
+                vc.modalPresentationStyle = .overFullScreen
+
+                owner.present(vc, animated: true)
             }
             .disposed(by: disposeBag)
     }
