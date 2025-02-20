@@ -11,11 +11,15 @@ struct ChatMessageViewModel: Equatable {
     let messageID: String
     let roomID: Int
     let userID: Int
-    var mediaContent: String?
-    var message: String?
-    var createdAt: String
+    let createdAt: Date
+    let media: String?
+    let message: String?
+    let role: UserRole
+    let nickname: String?
+    let profileImageURL: String?
     
     var profileThumbnail: Data?
-    var userRole: UserRole?
-    var nickname: String?
+    var dateString: String {
+        createdAt.toMessageDate()
+    }
 }

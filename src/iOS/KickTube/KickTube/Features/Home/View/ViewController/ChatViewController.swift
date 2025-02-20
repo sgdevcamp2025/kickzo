@@ -57,6 +57,7 @@ final class ChatViewController: BaseViewController<ChatReactor> {
     
     override func bindAction(reactor: ChatReactor) {
         reactor.action.onNext(.getSavedMessage)
+        reactor.action.onNext(.getUnreadMessage)
         
         messageTextView.textView.rx.text
             .orEmpty
@@ -73,19 +74,15 @@ final class ChatViewController: BaseViewController<ChatReactor> {
     }
     
     override func bindState(reactor: ChatReactor) {
-        reactor.state.map { $0.messages }
-            .do(onNext: { [weak self] messages in
-                guard let self else { return }
+        reactor.state.map { $0.messsageSection }
+            .filter { !$0.isEmpty }
+            .observe(on: MainScheduler.instance)
+            .do(afterNext: { section in
+                let lastSectionIndex = section.count - 1
+                let lastItemIndex = section[lastSectionIndex].items.count - 1
+                let lastIndexPath = IndexPath(item: lastItemIndex, section: lastSectionIndex)
                 
-                if !messages.isEmpty {
-                    let lastSectionIndex = messages.count - 1
-                    let lastItemIndex = messages[lastSectionIndex].items.count - 1
-                    let lastIndexPath = IndexPath(item: lastItemIndex, section: lastSectionIndex)
-                    
-                    DispatchQueue.main.async {
-                        self.chatCollectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: true)
-                    }
-                }
+                self.chatCollectionView.scrollToItem(at: lastIndexPath, at: .bottom, animated: true)
             })
             .bind(to: chatCollectionView.rx.items(dataSource: dataSource))
             .disposed(by: disposeBag)
@@ -120,11 +117,11 @@ final class ChatViewController: BaseViewController<ChatReactor> {
         let keyboardHeight = keyboardFrame.height
         
         chatCollectionView.snp.updateConstraints { make in
-            make.height.equalTo(ComponentSize.chatBtoomSheet.size.height - ComponentSize.messageTextView.size.height - 28 - keyboardHeight)
+            make.height.equalTo(ComponentSize.chatBottomSheet.size.height - ComponentSize.messageTextView.size.height - 28 - keyboardHeight)
         }
         
         view.snp.remakeConstraints { make in
-            make.height.equalTo(ComponentSize.chatBtoomSheet.size.height - keyboardHeight)
+            make.height.equalTo(ComponentSize.chatBottomSheet.size.height - keyboardHeight)
             make.width.equalTo(self.view.frame.width)
             make.bottom.equalTo(view.keyboardLayoutGuide.snp.top)
         }
@@ -135,13 +132,13 @@ final class ChatViewController: BaseViewController<ChatReactor> {
     @objc
     private func keyboardWillHide(_ notification: Notification) {
         chatCollectionView.snp.remakeConstraints { make in
-            make.height.equalTo(ComponentSize.chatBtoomSheet.size.height - ComponentSize.messageTextView.size.height - 28)
+            make.height.equalTo(ComponentSize.chatBottomSheet.size.height - ComponentSize.messageTextView.size.height - 28)
             make.top.equalToSuperview().offset(16)
             make.horizontalEdges.equalToSuperview()
         }
         
         view.snp.remakeConstraints { make in
-            make.height.equalTo(ComponentSize.chatBtoomSheet.size.height + ComponentSize.safearea.bottom)
+            make.height.equalTo(ComponentSize.chatBottomSheet.size.height + ComponentSize.safearea.bottom)
             make.width.equalTo(self.view.frame.width)
         }
         
@@ -164,7 +161,7 @@ final class ChatViewController: BaseViewController<ChatReactor> {
         chatCollectionView.snp.makeConstraints { make in
             make.top.equalToSuperview().offset(16)
             make.horizontalEdges.equalToSuperview()
-            make.height.equalTo(ComponentSize.chatBtoomSheet.size.height - ComponentSize.messageTextView.size.height - 28)
+            make.height.equalTo(ComponentSize.chatBottomSheet.size.height - ComponentSize.messageTextView.size.height - 28)
         }
         messageInputView.snp.makeConstraints { make in
             make.top.equalTo(chatCollectionView.snp.bottom)

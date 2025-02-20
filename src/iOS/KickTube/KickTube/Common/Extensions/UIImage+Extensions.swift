@@ -28,4 +28,22 @@ extension UIImage {
         UIGraphicsEndImageContext()
         return resizedImage
     }
+    
+    func toData() -> Data? {
+        return self.pngData()
+    }
+    
+    func applyCornerRadiusToImage(radius: CGFloat) -> UIImage? {
+        let size = self.size
+        let renderer = UIGraphicsImageRenderer(size: size)
+        
+        return renderer.image { context in
+            let rect = CGRect(origin: .zero, size: size)
+            
+            context.cgContext.addPath(UIBezierPath(roundedRect: rect, cornerRadius: radius).cgPath)
+            context.cgContext.clip()
+            
+            self.draw(in: rect)
+        }
+    }
 }

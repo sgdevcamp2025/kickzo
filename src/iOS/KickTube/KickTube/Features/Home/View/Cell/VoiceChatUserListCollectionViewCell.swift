@@ -98,7 +98,7 @@ final class VoiceChatUserListCollectionViewCell: UICollectionViewCell {
         
         nameLabel.text = user.nickname
     
-        if user.userID == UserDefaultsManager.shared.userProfile.userID {
+        if user.userID == UserDefaultsManager.shared.myProfile.userID {
             meLabel.isHidden = false
         }
         if user.micStatus == false {

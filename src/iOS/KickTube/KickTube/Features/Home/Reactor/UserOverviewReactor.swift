@@ -11,6 +11,8 @@ import ReactorKit
 import RxSwift
 
 final class UserOverviewReactor: Reactor {
+    private let session = Session()
+    
     enum Action {
         case loadView
         case inviteButtonTapped
@@ -19,13 +21,14 @@ final class UserOverviewReactor: Reactor {
     }
     
     enum Mutation {
-        case setUserInformation(UserProfileViewModel)
+        case setUserInformation(UserProfileDomainModel)
         case inviteUser
         case changeRole
         case banUser
     }
     
     struct State {
+        var roomID: Int
         var userID: Int
         var userRole: UserRole
         var userProfile: UserProfileViewModel?
@@ -33,23 +36,21 @@ final class UserOverviewReactor: Reactor {
     
     var initialState: State
     
-    init(_ id: Int, role: UserRole) {
-        initialState = State(userID: id, userRole: role)
+    init(roomID: Int, userID: Int, role: UserRole) {
+        initialState = State(roomID: roomID, userID: userID, userRole: role)
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .loadView:
-            // TODO: 네트워크 통신
-            let data = SampleTest.overviewuserlist.toModel()
-//            let thumbnailData = Data()
-//            data.profileImageData = thumbnailData
-            return .just(.setUserInformation(data))
+            return searchUser(currentState.userID)
         case .inviteButtonTapped:
             return .just(.inviteUser)
         case .roleButtonTapped:
-            // TODO: 네트워크 통신
-            return .just(.changeRole)
+            let newRole = currentState.userRole.rawValue == 1 ? 2 : 1
+            let request = ChangeRoleRequest(roomID: currentState.roomID, targetUserID: currentState.userID, newRole: newRole)
+            
+            return changeRole(request)
         case .banButtonTapped:
             return .just(.banUser)
         }
@@ -60,15 +61,60 @@ final class UserOverviewReactor: Reactor {
         
         switch mutation {
         case .setUserInformation(let user):
-            newState.userProfile = user
+            newState.userProfile = user.toModel()
         case .inviteUser:
             break
         case .changeRole:
             newState.userRole = newState.userRole == .member ? .manager : .member
+            
         case .banUser:
             break
         }
         
         return newState
+    }
+    
+    private func searchUser(_ id: Int) -> Observable<Mutation> {
+        let userRequest = DefaultRequest<UserProfileResponseDTO>(method: .get, path: ["api", "users", "\(id)"], header: [.json, .authorizationAccessToken])
+        
+        return Observable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            
+            Task {
+                do {
+                    let userResponse = try await self.session.send(userRequest)
+                    
+                    observer.onNext(Mutation.setUserInformation(userResponse.toModel()))
+                    observer.onCompleted()
+                } catch {
+                    print(error)
+                    observer.onCompleted()
+                }
+            }
+            
+            return Disposables.create()
+        }
+    }
+    
+    private func changeRole(_ target: ChangeRoleRequest) -> Observable<Mutation> {
+        let roleRequest = DefaultRequest<String>(method: .patch, path: ["api", "rooms", "change-role"], header: [.json, .authorizationAccessToken], body: target)
+        
+        return Observable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            
+            Task {
+                do {
+                    _ = try await self.session.send(roleRequest)
+                    
+                    observer.onNext(Mutation.changeRole)
+                    observer.onCompleted()
+                } catch {
+                    print(error)
+                    observer.onCompleted()
+                }
+            }
+            
+            return Disposables.create()
+        }
     }
 }

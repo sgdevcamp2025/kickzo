@@ -17,10 +17,10 @@ final class UserDefaultsManager {
     
     private init() {}
     
-    @UserDefaultType(key: UserDefaultsKey.myProfile.rawValue, defaultValue: MyProfileViewModel(userID: -1, email: "", nickname: "비회원"))
-    var userProfile: MyProfileViewModel
+    @UserDefaultType(key: UserDefaultsKey.myProfile.rawValue, defaultValue: UserProfileViewModel(userID: -1, email: "kicktube@kick.com", nickname: "비회원", profileImageURL: nil, stateMessage: nil))
+    var myProfile: UserProfileViewModel
     
-    @UserDefaultType(key: UserDefaultsKey.myRole.rawValue, defaultValue: UserRole.none)
+    @UserDefaultType(key: UserDefaultsKey.myRole.rawValue, defaultValue: UserRole.nonmember)
     var myRole: UserRole
 }
 

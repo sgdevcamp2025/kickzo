@@ -1,5 +1,5 @@
 //
-//  YouTubeVideoResponse.swift
+//  YouTubeVideoResponseDTO.swift
 //  KickTube
 //
 //  Created by 김수경 on 2/6/25.
@@ -10,10 +10,10 @@ import Foundation
 import ManipulateDataModel
 
 @DecodeDTO
-struct YouTubeVideoResponse {
+struct YouTubeVideoResponseDTO {
     let kind: String
     let etag: String
-    let items: [VideoItemResponse]
+    let items: [VideoItemResponseDTO]
     let pageInfo: PageInfo
     
     func toModel() -> YouTubeVideoDomainModel {
@@ -22,11 +22,11 @@ struct YouTubeVideoResponse {
 }
 
 @DecodeDTO
-struct VideoItemResponse{
+struct VideoItemResponseDTO {
     let kind: String
     let etag: String
     let id: String
-    let snippet: SnippetResponse
+    let snippet: SnippetResponseDTO
     
     func toModel() -> VideoItemDomainModel {
         .init(etag: self.etag,
@@ -36,7 +36,7 @@ struct VideoItemResponse{
 }
 
 @DecodeDTO
-struct SnippetResponse {
+struct SnippetResponseDTO {
     let publishedAt: String
     let title: String
     let description: String

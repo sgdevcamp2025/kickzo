@@ -33,7 +33,7 @@ final class MyRoomViewController: BaseViewController<MyRoomReactor> {
             DispatchQueue.main.async {
                 cell.setContent(room)
                 cell.moveToOptionVC = {
-                    let vc = OptionButtonViewController(option: .deleteCreatedRoom, reactor: OptionButtonReactor(id: room.id, indexPath: indexPath))
+                    let vc = OptionButtonViewController(option: .deleteCreatedRoom, reactor: OptionButtonReactor(id: room.roomID, indexPath: indexPath))
                     
                     vc.delegate = self
                     vc.modalPresentationStyle = .overFullScreen
@@ -56,7 +56,7 @@ final class MyRoomViewController: BaseViewController<MyRoomReactor> {
             DispatchQueue.main.async {
                 cell.setContent(room)
                 cell.moveToOptionVC = {
-                    let vc = OptionButtonViewController(option: .leaveParticipatedRoom, reactor: OptionButtonReactor(id: room.id, indexPath: indexPath))
+                    let vc = OptionButtonViewController(option: .leaveParticipatedRoom, reactor: OptionButtonReactor(id: room.roomID, indexPath: indexPath))
                     
                     vc.delegate = self
                     vc.modalPresentationStyle = .overFullScreen
@@ -87,11 +87,17 @@ final class MyRoomViewController: BaseViewController<MyRoomReactor> {
         return UICollectionReusableView()
     })
     
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        reactor.action.onNext(.viewWillAppear)
+    }
+    
     
     // MARK: - configure Reactor
     
     override func bindAction(reactor: MyRoomReactor) {
-        Observable.just(MyRoomReactor.Action.viewDidLoad)
+        Observable.just(MyRoomReactor.Action.viewWillAppear)
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
     }
