@@ -7,6 +7,8 @@ import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useCurrentRoom } from '@/hooks/queries/useCurrentRoom';
+import { useVideoStore } from '@/stores/useVideoStore';
+import { getVideoQueueFromPlaylist } from '@/utils/playlistUtils';
 
 export const RoomPage = () => {
   const [searchParams] = useSearchParams();
@@ -17,6 +19,15 @@ export const RoomPage = () => {
   useEffect(() => {
     if (room) {
       useCurrentRoomStore.getState().setCurrentRoom(room);
+      if (room.roomDetails?.playlist && Array.isArray(room.roomDetails.playlist)) {
+        getVideoQueueFromPlaylist(room.roomDetails.playlist)
+          .then(videoQueue => {
+            useVideoStore.getState().setVideoQueue(videoQueue);
+          })
+          .catch(err => {
+            console.error('playlist 에러', err);
+          });
+      }
     }
     return () => {
       useCurrentRoomStore.getState().clearCurrentRoom();
