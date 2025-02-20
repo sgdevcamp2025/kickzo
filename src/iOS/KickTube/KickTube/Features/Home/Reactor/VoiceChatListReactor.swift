@@ -41,8 +41,9 @@ final class VoiceChatListReactor: Reactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .loadView:
-            let userlist = SampleTest.voicelist
-            return .just(.setUserList(userlist))
+//            let userlist = SampleTest.voicelist
+//            return .just(.setUserList(userlist))
+            return .empty()
         case .profileCellTapped(let idx):
             return .just(.userOverview(idx))
         case .micButtonTapped:
