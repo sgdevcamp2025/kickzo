@@ -117,6 +117,19 @@ services:
               cookie_names: []
               uri_param_names: []
           - name: custom-jwt-header
+  
+  # File Service
+  - name: file-service
+    url: http://file:8109 # HISTORY_PORT=8300
+
+    routes:
+      - name: file-private-route
+        paths:
+          - /api/files
+        strip_path: false
+        protocols:
+          - http
+          - https
 
   - name: chat-service
     url: http://chat-service-upstream # upstream 이름

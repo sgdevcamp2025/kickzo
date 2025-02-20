@@ -15,6 +15,7 @@ include:
   - ./backend/signaling-server/docker-compose.yml
   - ./backend/main-server/main/docker-compose.yml
   - ./backend/friend-server/docker-compose.yml
+  - ./backend/file-server/docker-compose.yml
 
 networks:
   kickzo-network:
