@@ -27,12 +27,12 @@ final class LoginViewController: BaseViewController<LoginReactor> {
     }
     private let idTextField = LightStrokeTextField().then {
         $0.setPlacehodler("아이디")
-        $0.textfield.text = "a@sg.com"
+        $0.textfield.text = SampleTest.id
     }
     private let pwTextField = LightStrokeTextField().then {
         $0.setPlacehodler("비밀번호")
         $0.setPWStyle()
-        $0.textfield.text = "!1234qwer"
+        $0.textfield.text = SampleTest.password
     }
     private let saveIDCheckBox = CheckBoxView("아이디 저장")
     private let loginButton = RoundButton("로그인")

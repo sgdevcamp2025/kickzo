@@ -48,7 +48,6 @@ final class ChatReactor: Reactor {
             return getUnreadMessage()
         case .getNewMessage:
 //            let newMessage = SampleTest.unreads[0].toModel().toModel()
-            
 //            return .just(.appendNewMessage(newMessage))
             return .empty()
         case .sendMessage(let message):
