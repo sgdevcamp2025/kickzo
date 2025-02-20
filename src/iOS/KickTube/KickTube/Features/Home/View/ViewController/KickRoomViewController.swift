@@ -93,12 +93,10 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationController?.interactivePopGestureRecognizer?.delegate = self
-        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
-        
         setNotification()
+        setPopView()
     }
-        
+    
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         
@@ -221,6 +219,12 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         )
     }
     
+    private func setPopView() {
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        
+        view.addGestureRecognizer(panGesture)
+    }
+    
     private func presentChattingView() {
         guard let roomID = reactor.currentState.roomInfo?.roomDetail.roomInfo.roomID else { return }
         
@@ -263,6 +267,22 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             }
             
             self.present(vc, animated: false)
+        }
+    }
+    
+    @objc
+    private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        let translation = gesture.translation(in: view)
+        
+        if translation.y > 0 {
+            if gesture.velocity(in: view).y > 1000 {
+                navigationController?.popViewController(animated: true)
+                self.dismiss(animated: true, completion: nil)
+            }
+        }
+
+        if gesture.state == .ended || gesture.state == .cancelled {
+            gesture.setTranslation(.zero, in: view)
         }
     }
     
@@ -358,5 +378,3 @@ extension KickRoomViewController: YTPlayerViewDelegate {
         timeTrackingTimer = nil
     }
 }
-
-extension KickRoomViewController: UIGestureRecognizerDelegate {}
