@@ -18,6 +18,7 @@ export interface VideoItem {
 }
 
 // 사용자가 입력한 URL로부터 영상의 ID와 시간을 받아온다.
+
 export const extractVideoIdAndStartTime = (url: string): { videoId: string; startTime: number } => {
   const regex =
     /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:watch\?v=|embed\/|v\/)|youtu\.be\/)([^&?/]+)(?:.*[?&]t=(\d+))?/;
@@ -55,24 +56,41 @@ export const fetchVideoDetails = async (
 };
 
 // Playlist 배열을 videoQueue 형식으로 변환
+
 export const getVideoQueueFromPlaylist = async (playlist: PlaylistItem[]): Promise<VideoItem[]> => {
   const sortedPlaylist = [...playlist].sort((a, b) => a.order - b.order);
+
   const videoQueue = await Promise.all(
     sortedPlaylist.map(async item => {
       const { videoId, startTime } = extractVideoIdAndStartTime(item.url);
       let title = item.title || '';
       let youtuber = item.youtuber || '';
+
       if (!title || !youtuber) {
         try {
-          const { title: fetchedTitle, channelTitle } = await fetchVideoDetails(videoId);
-          if (!title) title = fetchedTitle;
-          if (!youtuber) youtuber = channelTitle;
+          const { data } = await axios.get('https://www.googleapis.com/youtube/v3/videos', {
+            params: {
+              part: 'snippet',
+              id: videoId,
+              key: API_KEY,
+              hl: 'ko',
+            },
+          });
+          const items = data.items;
+          if (items && items.length > 0) {
+            if (!title) title = items[0].snippet.title;
+            if (!youtuber) youtuber = items[0].snippet.channelTitle;
+          } else {
+            if (!title) title = '제목 없음';
+            if (!youtuber) youtuber = '유튜버 정보 없음';
+          }
         } catch (error) {
           console.error('Error fetching video details for URL:', item.url, error);
           if (!title) title = '제목 없음';
           if (!youtuber) youtuber = '유튜버 정보 없음';
         }
       }
+
       return {
         id: videoId,
         start: startTime,
@@ -82,5 +100,6 @@ export const getVideoQueueFromPlaylist = async (playlist: PlaylistItem[]): Promi
       };
     }),
   );
+
   return videoQueue;
 };
