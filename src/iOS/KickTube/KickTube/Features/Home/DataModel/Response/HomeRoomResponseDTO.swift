@@ -21,3 +21,6 @@ struct HomeRoomResponseDTO {
     let userCount: Int
     @Key("playlistUrl") let playlistURL: String?
 }
+
+extension HomeRoomResponseDTO: Equatable {}
+extension HomeRoomResponseDTO: Encodable {}
