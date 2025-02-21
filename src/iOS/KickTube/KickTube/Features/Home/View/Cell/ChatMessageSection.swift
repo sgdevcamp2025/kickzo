@@ -30,7 +30,7 @@ extension ChatMessageSection: SectionModelType {
 }
 
 enum ChatMessageSectionItem {
-    case localMessage(ChatMessageViewModel)
+    case savedMessage(ChatMessageViewModel)
     case unreadMessage(ChatMessageViewModel)
     case newMessage(ChatMessageViewModel)
 }
@@ -38,7 +38,7 @@ enum ChatMessageSectionItem {
 extension ChatMessageSectionItem: IdentifiableType, Equatable {
     var identity: String {
         switch self {
-        case .localMessage(let viewModel),
+        case .savedMessage(let viewModel),
              .unreadMessage(let viewModel),
              .newMessage(let viewModel):
             return viewModel.messageID

@@ -12,9 +12,11 @@ import ReactorKit
 final class ChatReactor: Reactor {
     private let session = Session()
     
+    @MainActor
+    private let dataManager = ChatDataManager()
+    
     enum Action {
         case getSavedMessage
-        case getUnreadMessage
         case getNewMessage
         case sendMessage(String)
     }
@@ -32,30 +34,33 @@ final class ChatReactor: Reactor {
     var initialState: State
     
     init(_ roomID: String) {
-        // TODO: SwiftData에서 data 받아오기
         self.initialState = State(roomID: roomID, messsageSection: [])
     }
-    
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .getSavedMessage:
-            // TODO: SwiftData에서 메세지 load
-            
-//            return loadMessages(from: SampleTest.unreads.map { $0.toModel() }).map { .setMessages(.saved, $0) }
-            return .empty()
-        case .getUnreadMessage:
-            return getUnreadMessage()
+            return Observable.create { [weak self] observer in
+                guard let self else { return Disposables.create() }
+                
+                Task {
+                    if let roomID = Int(self.currentState.roomID) {
+                        let lastMessageCreatedAt = await self.dataManager.fetchLastMessage(for: roomID)?.createdAt
+                        let newMessages = await self.getUnreadMessage(lastMessageCreatedAt)
+                        observer.onNext(.setMessages(.saved, newMessages))
+                    }
+                }
+                
+                return Disposables.create()
+            }
         case .getNewMessage:
 //            let newMessage = SampleTest.unreads[0].toModel().toModel()
-            
 //            return .just(.appendNewMessage(newMessage))
             return .empty()
         case .sendMessage(let message):
             let newMessage = ChatMessageDomainModel(messageID: "\(Int.random(in: 1...1000000))", roomID: 43, userID: 5, createdAt: 29384928379, media: nil, message: message, role: 2, nickname: "asdlkfslkj", profileImageURL: nil)
-            
             return .just(.appendNewMessage(newMessage.toModel()))
-            return .empty()
+//            return .empty()
         }
     }
     
@@ -84,45 +89,52 @@ final class ChatReactor: Reactor {
         return newState
     }
     
-    private func loadMessages(from data: [ChatMessageDomainModel]) -> Observable<[ChatMessageViewModel]> {
-        let messages = data.map { $0.toModel() }
-        
-        return .just(messages)
-    }
-    
-    private func getUnreadMessage(_ lastDate: Int? = nil) -> Observable<Mutation> {
-        var request = DefaultRequest<[ChatMessageResponseDTO]>(method: .get, path: ["api", "messages", "\(currentState.roomID)"], header: [.json, .authorizationAccessToken])
-        
-        if let date = lastDate {
-            request.pathQueries = [URLQueryItem(name: "cursor", value: String(date)), URLQueryItem(name: "limit", value: "\(1000)")]
+    private func getUnreadMessage(_ lastDate: Int? = nil) async -> [ChatMessageDomainModel] {
+        var request: DefaultRequest<[ChatMessageResponseDTO]>
+
+        if let lastDate {
+            request = DefaultRequest<[ChatMessageResponseDTO]>(
+                method: .get,
+                path: ["api", "messages", "unread", "\(self.currentState.roomID)"],
+                header: [.json, .authorizationAccessToken],
+                pathQueries: [
+                    URLQueryItem(name: "cursor", value: "\(lastDate)"),
+                    URLQueryItem(name: "limit", value: "1000")
+                ]
+            )
         } else {
-            request.pathQueries = [URLQueryItem(name: "limit", value: "\(1000)")]
+            request = DefaultRequest<[ChatMessageResponseDTO]>(
+                method: .get,
+                path: ["api", "messages", "\(self.currentState.roomID)"],
+                header: [.json, .authorizationAccessToken],
+                pathQueries: [URLQueryItem(name: "limit", value: "1000")]
+            )
         }
-        
-        return Observable.create { [weak self] observer in
-            guard let self else { return Disposables.create() }
+
+        do {
+            let response = try await self.session.send(request).map { $0.toModel() }
             
-            Task {
-                do {
-                    let response = try await self.session.send(request)
-                    
-                    observer.onNext(Mutation.setMessages(.unread, response.map { $0.toModel() }))
-                    observer.onCompleted()
-                } catch {
-                    print(error)
-                    observer.onCompleted()
-                }
-            }
+            await self.saveMessage(response)
             
-            return Disposables.create()
+            return await readMessage()
+        } catch {
+            print("Error:", error)
+            return []
         }
     }
-    
+
+
+
+
     private func classifyChatMessage(_ messages: [ChatMessageViewModel], section: ChatSectionType) -> ChatMessageSection {
+        guard !messages.isEmpty else {
+            return ChatMessageSection(header: section.header, items: [])
+        }
+        
         let items: [ChatMessageSectionItem] = messages.map {
             switch section {
             case .saved:
-                return .localMessage($0)
+                return .savedMessage($0)
             case .unread:
                 return .unreadMessage($0)
             case .new:
@@ -131,5 +143,22 @@ final class ChatReactor: Reactor {
         }
         
         return ChatMessageSection(header: section.header, items: items)
+    }
+    
+    private func saveMessage(_ message: [ChatMessageDomainModel]) async {
+        if let roomID = Int(self.currentState.roomID) {
+            await dataManager.addMessage(to: roomID, messages: message.map { $0.toDBModel() })
+        }
+    }
+
+    @MainActor
+    private func readMessage() async -> [ChatMessageDomainModel] {
+        if let roomID = Int(currentState.roomID),
+           let chats = dataManager.fetchMessages(for: roomID) {
+            
+            return chats.map { $0.toDomainModel() }
+        }
+        
+        return []
     }
 }
