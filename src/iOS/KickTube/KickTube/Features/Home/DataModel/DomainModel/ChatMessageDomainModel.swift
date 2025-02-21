@@ -11,16 +11,22 @@ struct ChatMessageDomainModel {
     let messageID: String
     let roomID: Int
     let userID: Int
-    let mediaContent: String?
+    let createdAt: Int
+    let media: String?
     let message: String?
-    let createdAt: Date
+    let role: Int?
+    let nickname: String?
+    let profileImageURL: String?
     
     func toModel() -> ChatMessageViewModel {
         .init(messageID: self.messageID,
               roomID: self.roomID,
               userID: self.userID,
-              mediaContent: self.mediaContent,
+              createdAt: self.createdAt.toDate,
+              media: self.media,
               message: self.message,
-              createdAt: self.createdAt.toMessageDate())
+              role: UserRole(rawValue: self.role ?? -1) ?? .nonmember,
+              nickname: self.nickname,
+              profileImageURL: self.profileImageURL)
     }
 }

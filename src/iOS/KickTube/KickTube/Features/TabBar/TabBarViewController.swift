@@ -31,7 +31,12 @@ final class TabBarViewController: UITabBarController {
         nav4.tabBarItem = UITabBarItem(title: nil, image: UIImage.notification.resize(to: CGSize(width: ComponentSize.screenWidth / 15, height: ComponentSize.screenWidth / 15)), tag: 3)
         
         let nav5 = UINavigationController(rootViewController: nav5VC)
-        nav5.tabBarItem = UITabBarItem(title: nil, image: UIImage.profile.resize(to: CGSize(width: ComponentSize.navigationItem.size.width, height: ComponentSize.navigationItem.size.height)), tag: 4)
+        if let profileData = UserDefaultsManager.shared.myProfile.profileImageData,
+           let profileImage = UIImage(data: profileData)?.resize(to: CGSize(width: 30, height: 30))?.applyCornerRadiusToImage(radius: 8) {
+            nav5.tabBarItem = UITabBarItem(title: nil, image: profileImage.withRenderingMode(.alwaysOriginal), tag: 4)
+        } else {
+            nav5.tabBarItem = UITabBarItem(title: nil, image: UIImage.profile.resize(to: CGSize(width: ComponentSize.navigationItem.size.width, height: ComponentSize.navigationItem.size.height)), tag: 4)
+        }
         
         setViewControllers([nav1, nav2, nav3, nav4, nav5], animated: false)
        

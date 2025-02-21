@@ -10,6 +10,8 @@ import Foundation
 import ReactorKit
 
 final class ChatReactor: Reactor {
+    private let session = Session()
+    
     enum Action {
         case getSavedMessage
         case getUnreadMessage
@@ -18,19 +20,20 @@ final class ChatReactor: Reactor {
     }
     
     enum Mutation {
-        case setMessages(ChatSectionType, [ChatMessageViewModel])
+        case setMessages(ChatSectionType, [ChatMessageDomainModel])
         case appendNewMessage(ChatMessageViewModel)
     }
     
     struct State {
-        var messages: [ChatMessageSection]
+        var roomID: String
+        var messsageSection: [ChatMessageSection]
     }
     
     var initialState: State
     
-    init() {
+    init(_ roomID: String) {
         // TODO: SwiftData에서 data 받아오기
-        self.initialState = State(messages: [])
+        self.initialState = State(roomID: roomID, messsageSection: [])
     }
     
     
@@ -39,19 +42,20 @@ final class ChatReactor: Reactor {
         case .getSavedMessage:
             // TODO: SwiftData에서 메세지 load
             
-            return loadMessages(from: SampleTest.unreads.map { $0.toModel() }).map { .setMessages(.saved, $0) }
+//            return loadMessages(from: SampleTest.unreads.map { $0.toModel() }).map { .setMessages(.saved, $0) }
+            return .empty()
         case .getUnreadMessage:
-            // TODO: api 통신
-
-            return loadMessages(from: SampleTest.unreads.map { $0.toModel() }).map { .setMessages(.unread, $0)  }
+            return getUnreadMessage()
         case .getNewMessage:
-            let newMessage = SampleTest.unreads[0].toModel().toModel()
+//            let newMessage = SampleTest.unreads[0].toModel().toModel()
             
-            return .just(.appendNewMessage(newMessage))
+//            return .just(.appendNewMessage(newMessage))
+            return .empty()
         case .sendMessage(let message):
-            let newMessage = ChatMessageDomainModel(messageID: "\(Int.random(in: 1...1000000))", roomID: 1, userID: 4, mediaContent: nil, message: message, createdAt: Date()).toModel()
+            let newMessage = ChatMessageDomainModel(messageID: "\(Int.random(in: 1...1000000))", roomID: 43, userID: 5, createdAt: 29384928379, media: nil, message: message, role: 2, nickname: "asdlkfslkj", profileImageURL: nil)
             
-            return .just(.appendNewMessage(newMessage))
+            return .just(.appendNewMessage(newMessage.toModel()))
+            return .empty()
         }
     }
     
@@ -60,19 +64,20 @@ final class ChatReactor: Reactor {
         
         switch mutation {
         case .setMessages(let sectionType, let message):
-            let section = classifyChatMessage(message, section: sectionType)
-            if let index = newState.messages.firstIndex(where: { $0.header == sectionType.header }) {
-                newState.messages[index] = section
+            let section = classifyChatMessage(message.map { $0.toModel() }, section: sectionType)
+            
+            if let index = newState.messsageSection.firstIndex(where: { $0.header == sectionType.header }) {
+                newState.messsageSection[index] = section
             } else {
-                newState.messages.append(section)
+                newState.messsageSection.append(section)
             }
         case .appendNewMessage(let message):
-            if let newSectionIndex = newState.messages.firstIndex(where: { $0.header == ChatSectionType.new.header }) {
-                newState.messages[newSectionIndex].items.append(.newMessage(message))
+            if let newSectionIndex = newState.messsageSection.firstIndex(where: { $0.header == ChatSectionType.new.header }) {
+                newState.messsageSection[newSectionIndex].items.append(.newMessage(message))
             } else {
                 let newSection = classifyChatMessage([message], section: .new)
                 
-                newState.messages.append(newSection)
+                newState.messsageSection.append(newSection)
             }
         }
         
@@ -85,7 +90,35 @@ final class ChatReactor: Reactor {
         return .just(messages)
     }
     
-    func classifyChatMessage(_ messages: [ChatMessageViewModel], section: ChatSectionType) -> ChatMessageSection {
+    private func getUnreadMessage(_ lastDate: Int? = nil) -> Observable<Mutation> {
+        var request = DefaultRequest<[ChatMessageResponseDTO]>(method: .get, path: ["api", "messages", "\(currentState.roomID)"], header: [.json, .authorizationAccessToken])
+        
+        if let date = lastDate {
+            request.pathQueries = [URLQueryItem(name: "cursor", value: String(date)), URLQueryItem(name: "limit", value: "\(1000)")]
+        } else {
+            request.pathQueries = [URLQueryItem(name: "limit", value: "\(1000)")]
+        }
+        
+        return Observable.create { [weak self] observer in
+            guard let self else { return Disposables.create() }
+            
+            Task {
+                do {
+                    let response = try await self.session.send(request)
+                    
+                    observer.onNext(Mutation.setMessages(.unread, response.map { $0.toModel() }))
+                    observer.onCompleted()
+                } catch {
+                    print(error)
+                    observer.onCompleted()
+                }
+            }
+            
+            return Disposables.create()
+        }
+    }
+    
+    private func classifyChatMessage(_ messages: [ChatMessageViewModel], section: ChatSectionType) -> ChatMessageSection {
         let items: [ChatMessageSectionItem] = messages.map {
             switch section {
             case .saved:

@@ -65,26 +65,21 @@ final class ChatCollectionViewCell: UICollectionViewCell {
             thumbnailImageView.image = UIImage(color: UIColor(red: CGFloat.random(in: 0...1), green: CGFloat.random(in: 0...1), blue: CGFloat.random(in: 0...1), alpha: 1))
         }
         
-        if content.userRole != nil {
-        switch content.userRole {
-            case .creator:
-                roleImageView.isHidden = false
-                roleImageView.image = .creator
-                nameLabel.textColor = .primary
-            case .manager:
-                roleImageView.isHidden = false
-                roleImageView.image = .manager
-                nameLabel.textColor = .primary
-            default:
-                break
-            }
+        switch content.role {
+        case .creator:
+            roleImageView.isHidden = false
+            roleImageView.image = .creator
+            nameLabel.textColor = .primary
+        case .manager:
+            roleImageView.isHidden = false
+            roleImageView.image = .manager
+            nameLabel.textColor = .primary
+        default:
+            break
         }
         
-        if let username = content.nickname {
-            nameLabel.text = username
-        }
-        
-        dateLabel.text = content.createdAt
+        nameLabel.text = content.nickname
+        dateLabel.text = content.dateString
         messageLabel.text = content.message
     }
     
@@ -107,6 +102,7 @@ final class ChatCollectionViewCell: UICollectionViewCell {
         [thumbnailImageView, nameStackView, messageLabel].forEach {
             contentView.addSubview($0)
         }
+        
         [roleImageView, nameLabel, dateLabel].forEach {
             nameStackView.addArrangedSubview($0)
         }

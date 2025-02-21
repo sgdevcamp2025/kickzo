@@ -32,13 +32,19 @@ extension Request {
         
         pipelines.append(contentsOf: [
             .redirector(RefreshTokenRedirector()),
+            .redirector(AccessTokenRedirector()),
+            .redirector(CreateLimitFiveRedirector()),
             .terminator(dataParser)
         ])
         
         return pipelines
     }
     var dataParser: ResponsePipelineTerminator {
-        get { return JSONParsePipeline(defaultJSONParser) }
+        if Response.self == String.self {
+            return StringParsePipeline()
+        } else {
+            return JSONParsePipeline(defaultJSONParser)
+        }
     }
 }
 

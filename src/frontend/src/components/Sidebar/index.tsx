@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { ChatBox } from './Chating';
+import { Chat } from './Chating';
 import { UserList } from './UserList';
 import { Playlist } from './Playlist';
 import { VoiceChat } from './VoiceChat';
@@ -14,7 +14,7 @@ export const Sidebar = () => {
   const [interfaceType, setInterfaceType] = useState<SidebarType>(SidebarType.CHAT);
 
   const contentComponents = {
-    [SidebarType.CHAT]: ChatBox,
+    [SidebarType.CHAT]: Chat,
     [SidebarType.PLAYLIST]: Playlist,
     [SidebarType.VOICECHAT]: VoiceChat,
     [SidebarType.USERLIST]: UserList,

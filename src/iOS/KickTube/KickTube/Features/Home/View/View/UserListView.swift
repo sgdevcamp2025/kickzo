@@ -30,7 +30,6 @@ final class UserListView: BaseView<UserListReactor> {
         $0.showsVerticalScrollIndicator = false
         $0.showsHorizontalScrollIndicator = false
     }
-
     
     // MARK: - configure reactor
 
@@ -62,7 +61,9 @@ final class UserListView: BaseView<UserListReactor> {
             .map { $0.selectedCell }
             .compactMap { $0 }
             .subscribe(with: self) { owner, value in
-                NotificationCenter.default.post(name: .presentUserOverview, object: nil, userInfo: ["id": value.id, "role": value.role])
+                if let roomID = reactor.currentState.roomID {
+                    NotificationCenter.default.post(name: .presentUserOverview, object: nil, userInfo: ["roomID": roomID, "userID": value.id, "role": value.role])
+                }
             }
             .disposed(by: disposeBag)
     }

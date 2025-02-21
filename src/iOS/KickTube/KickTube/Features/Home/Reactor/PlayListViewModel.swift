@@ -11,37 +11,50 @@ import RxCocoa
 import RxSwift
 
 final class PlayListViewModel {
+    private let session = Session()
     private let networkManager = NetworkManager()
-    private(set) var playlist = [YoutubeVideoViewModel]()
+    
+    private var playlist: [KickRoomPlaylistViewModel]
+    private(set) var videoList = [YoutubeVideoViewModel]()
+    private let roomID : Int?
     
     private var disposeBag = DisposeBag()
     
+    init(roomID: Int?, _ playlist: [KickRoomPlaylistViewModel]) {
+        self.roomID = roomID
+        self.playlist = playlist
+    }
+    
     struct Input {
-        let loadView: BehaviorRelay<Void>
         let emptyThumbnailImage: PublishRelay<Int>
         let editingTextInput: PublishRelay<String>
-        let addButtonTapped: PublishRelay<Void>
+        let addButtonTapped: PublishRelay<String?>
         let orderChanged: PublishRelay<(from: IndexPath, to: IndexPath)>
         let deleteButtonTapped: PublishRelay<Int>
     }
     
     struct Output {
         let playlist: PublishSubject<[YoutubeVideoViewModel]>
-        var validVideo: PublishSubject<YoutubeVideoViewModel?>
+        var validVideo: PublishSubject<[YoutubeVideoViewModel]>
     }
     
     func transform(_ input: Input) -> Output {
-        let playlistSubject = PublishSubject<[YoutubeVideoViewModel]>()
-        let validVideo = PublishSubject<YoutubeVideoViewModel?>()
+        let playlistSubject = BehaviorSubject<[KickRoomPlaylistViewModel]>(value: playlist)
+        let videoListSubject = PublishSubject<[YoutubeVideoViewModel]>()
+        let validVideoSubject = PublishSubject<[YoutubeVideoViewModel]>()
       
-        input.loadView
-            .compactMap { _  in
-                let value = [YouTubeVideoDomainModel]().map { $0.toModel() }
-                return value
+        
+        playlistSubject
+            .take(1)
+            .flatMap { [weak self] playlist -> Single<[YoutubeVideoViewModel]> in
+                guard let self else { return .error(NetworkError.unknown) }
+                
+                let youtubeID = playlist.compactMap { $0.url.youtubeID }
+                return self.getYoutubeSearchResult(with: youtubeID)
             }
             .subscribe(with: self) { owner, value in
-                owner.playlist = value
-                playlistSubject.onNext(owner.playlist)
+                owner.videoList = value
+                videoListSubject.onNext(value)
             }
             .disposed(by: disposeBag)
         
@@ -52,7 +65,7 @@ final class PlayListViewModel {
                 return Single.create { single in
                     Task {
                         do {
-                            let youtubeID = self.playlist[row].id
+                            let youtubeID = self.videoList[row].id
                             let data = try await self.networkManager.getYoutubeThumbnail(.youtubeThumbnailLow(id: youtubeID))
                             
                             single(.success((row, data)))
@@ -66,8 +79,8 @@ final class PlayListViewModel {
             .subscribe(with: self, onNext: { owner, value in
                 let (row, thumbnailData) = value
                 
-                owner.playlist[row].thumbnailData = thumbnailData
-                playlistSubject.onNext(owner.playlist)
+                owner.videoList[row].thumbnailData = thumbnailData
+                videoListSubject.onNext(owner.videoList)
             }, onError: { owner, error in
                 print(error)
             })
@@ -77,65 +90,96 @@ final class PlayListViewModel {
             .compactMap { value -> String? in
                 return value.youtubeID
             }
-            .flatMapLatest { [weak self] youtubeID -> Single<YoutubeVideoViewModel?> in
-                guard let self else { return .just(nil) }
+            .flatMapLatest { [weak self] youtubeID -> Single<[YoutubeVideoViewModel]> in
+                guard let self else { throw NetworkError.unknown }
                 
-                return Single.create { single in
-                    Task {
-                        do {
-                            guard let request = try YoutubeRouter.searchYoutubeVideo(id: youtubeID).makeRequest() else {
-                                single(.success(nil))
-                                return
-                            }
-
-                            let searchResponse = try await self.networkManager.getDecodedData(request: request, to: YouTubeVideoResponse.self)
-                            
-                            if !searchResponse.items.isEmpty {
-                                var searchModel = searchResponse.toModel().toModel()
-                                let thumbnailData = try await self.networkManager.getYoutubeThumbnail(.youtubeThumbnailLow(id: youtubeID))
-                                
-                                searchModel.thumbnailData = thumbnailData
-                                single(.success(searchModel))
-                            } else {
-                                single(.success(nil))
-                            }
-                        } catch {
-                            single(.failure(error))
-                        }
-                    }
-                    return Disposables.create()
-                }
+                return self.getYoutubeSearchResult(with: [youtubeID])
             }
-            .bind(to: validVideo)
+            .bind(to: validVideoSubject)
             .disposed(by: disposeBag)
         
         input.addButtonTapped
-            .withLatestFrom(validVideo)
-            .compactMap { $0 }
-            .subscribe(with: self, onNext: { owner, value in
-                owner.playlist.append(value)
-                playlistSubject.onNext(owner.playlist)
-                validVideo.onNext(nil)
-            })
+            .withLatestFrom(validVideoSubject.asObservable())
+            .filter { !$0.isEmpty }
+            .subscribe(with: self) { owner, value in
+                if let video = value.first {
+                    owner.videoList.append(video)
+                    videoListSubject.onNext(owner.videoList)
+                    validVideoSubject.onNext([])
+                }
+            }
             .disposed(by: disposeBag)
         
         input.orderChanged
             .subscribe(with: self) { owner, value in
                 let (from, to) = value
-                let data = owner.playlist.remove(at: from.row)
+                let playlistData = owner.playlist.remove(at: from.row)
+                let videoListData = owner.videoList.remove(at: from.row)
                 
-                owner.playlist.insert(data, at: to.row)
-                playlistSubject.onNext(owner.playlist)
+                owner.playlist.insert(playlistData, at: to.row)
+                owner.videoList.insert(videoListData, at: to.row)
+                
+                videoListSubject.onNext(owner.videoList)
             }
             .disposed(by: disposeBag)
         
         input.deleteButtonTapped
             .subscribe(with: self) { owner, value in
                 owner.playlist.remove(at: value)
-                playlistSubject.onNext(owner.playlist)
+                owner.videoList.remove(at: value)
+                
+                videoListSubject.onNext(owner.videoList)
             }
             .disposed(by: disposeBag)
         
-        return Output(playlist: playlistSubject, validVideo: validVideo)
+        return Output(playlist: videoListSubject, validVideo: validVideoSubject)
+    }
+    
+    func getYoutubeSearchResult(with youtubeIDs: [String]) -> Single<[YoutubeVideoViewModel]> {
+        return Single.create { [weak self] single in
+            guard let self else {
+                single(.success([]))
+                return Disposables.create()
+            }
+
+            Task {
+                do {
+                    var youtubeList = [YoutubeVideoViewModel]()
+                    for youtubeID in youtubeIDs {
+                        guard let request = try YoutubeRouter.searchYoutubeVideo(id: youtubeID).makeRequest() else {
+                            continue
+                        }
+                        
+                        let searchResponse = try await self.networkManager.getDecodedData(request: request, to: YouTubeVideoResponseDTO.self)
+                        
+                        if !searchResponse.items.isEmpty {
+                            var searchModel = searchResponse.toModel().toModel()
+                            
+                            let thumbnailData = try await self.networkManager.getYoutubeThumbnail(.youtubeThumbnailLow(id: youtubeID))
+                            searchModel.thumbnailData = thumbnailData
+                            
+                            youtubeList.append(searchModel)
+                        }
+                    }
+                    single(.success(youtubeList))
+                } catch {
+                    single(.failure(error))
+                }
+            }
+
+            return Disposables.create()
+        }
+    }
+
+    private func changePlaylist(_ request: RoomPlaylistRequestDTO) {
+        let playlistRequest = DefaultRequest<String>(method: .post, path: ["api", "rooms", "playlist"], header: [.json, .authorizationAccessToken], body: request)
+    
+        Task {
+            do {
+                _ = try await self.session.send(playlistRequest)
+            } catch {
+                print(error)
+            }
+        }
     }
 }
