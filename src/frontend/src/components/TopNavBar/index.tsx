@@ -22,11 +22,15 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import { useMyRoomsStore } from '@/stores/useMyRoomsStore';
 import { useWebSocketStore } from '@/stores/useWebSocketStore';
 import { friendApi } from '@/api/endpoints/friend/friend.api';
+import { useFriendStore } from '@/stores/useFriendStore';
+import { useNotificationStore } from '@/stores/useNotificationStore';
 
 export const TopNavBar = () => {
   const navigate = useNavigate();
   const { user, fetchMyProfile, clearProfile } = useUserStore();
   const { fetchMyRooms } = useMyRoomsStore();
+  const { fetchFriends } = useFriendStore();
+  const { fetchNotifications } = useNotificationStore();
   const { connect, newNotificationCount, increaseNotificationCount, resetNotificationCount } =
     useWebSocketStore();
   const [isRoomCreateModalOpen, setIsRoomCreateModalOpen] = useState(false);
@@ -43,10 +47,19 @@ export const TopNavBar = () => {
     }
 
     const initializeUser = async () => {
-      await fetchMyProfile();
-      await fetchMyRooms();
-      const data = await friendApi.getUnreadNotificationsCount();
-      increaseNotificationCount(data.unread_count);
+      try {
+        await fetchMyProfile();
+        const [_rooms, _friends, _notifications, unreadData] = await Promise.all([
+          fetchMyRooms(),
+          fetchFriends(),
+          fetchNotifications(),
+          friendApi.getUnreadNotificationsCount(),
+        ]);
+        increaseNotificationCount(unreadData.unread_count);
+        console.log('⭐️initializeUser⭐️');
+      } catch (error) {
+        console.error('Error initializing user:', error);
+      }
     };
     initializeUser();
   }, [accessToken]);
