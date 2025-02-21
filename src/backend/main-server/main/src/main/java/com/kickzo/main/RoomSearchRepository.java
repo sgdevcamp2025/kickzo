@@ -6,5 +6,5 @@ import java.util.List;
 
 @Repository
 public interface RoomSearchRepository extends ElasticsearchRepository<RoomDocument, Long> {
-	List<RoomDocument> findByTitleContainingOrCreatorContaining(String title, String creator);
+	List<RoomDocument> findByTitleContainingAndIsPublic(String title, boolean isPublic);
 }

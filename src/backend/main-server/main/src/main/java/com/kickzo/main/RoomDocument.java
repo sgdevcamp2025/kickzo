@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Document(indexName = "search") // Elasticsearch 인덱스 이름
+@Document(indexName = "search")
 public class RoomDocument {
 	@Id
 	private Long roomId;
@@ -17,6 +17,6 @@ public class RoomDocument {
 	@Field(type = FieldType.Text)
 	private String title;
 
-	@Field(type = FieldType.Keyword)
-	private String creator;
+	@Field(type = FieldType.Boolean)
+	private boolean isPublic;
 }

@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kickzo.main.SearchService;
 import com.kickzo.main.dto.data.PlaylistItem;
 import com.kickzo.main.dto.event.RoomUpdateEvent;
 import com.kickzo.main.dto.request.RoomUpdateRequestDto;
@@ -39,6 +40,7 @@ public class RoomService {
 	private final RoomUserRepository roomUserRepository;
 	private final PlaylistRepository playlistRepository;
 	private final UserRepository userRepository;
+	private final SearchService searchService;
 	private final KafkaProducerService kafkaProducerService;
 
 	private static final int ROLE_MEMBER = 2;
@@ -77,6 +79,7 @@ public class RoomService {
 		}
 
 		roomRepository.save(room);
+		searchService.indexRoom(room);
 		RoomUpdateEvent event = new RoomUpdateEvent(roomId);
 		event.setUpdatedFields(updateRequestDto);
 
