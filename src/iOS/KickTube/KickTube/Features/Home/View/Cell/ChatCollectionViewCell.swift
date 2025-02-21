@@ -12,6 +12,7 @@ import RxSwift
 final class ChatCollectionViewCell: UICollectionViewCell {
     private let thumbnailImageView = UIImageView().then {
         $0.layer.cornerRadius = 8
+        $0.clipsToBounds = true
     }
     private let nameStackView = UIStackView().then {
         $0.axis = .horizontal
@@ -33,6 +34,8 @@ final class ChatCollectionViewCell: UICollectionViewCell {
         $0.numberOfLines = 0
         $0.lineBreakMode = .byWordWrapping
     }
+    
+    private let networkManager = NetworkManager()
     
     var disposeBag = DisposeBag()
     
@@ -59,28 +62,41 @@ final class ChatCollectionViewCell: UICollectionViewCell {
     // MARK: - internal method
    
     func setContent(_ content: ChatMessageViewModel) {
-        if let profile = content.profileThumbnail {
-            thumbnailImageView.image = UIImage(data: profile)
-        } else {
-            thumbnailImageView.image = UIImage(color: UIColor(red: CGFloat.random(in: 0...1), green: CGFloat.random(in: 0...1), blue: CGFloat.random(in: 0...1), alpha: 1))
+        Task { [weak self] in
+            guard let self else { return }
+            
+            do {
+                if let profile = content.profileImageURL {
+                    let imageData = try await networkManager.getCachingDataFromURL(profile)
+                    
+                    thumbnailImageView.image = UIImage(data: imageData)
+                } else {
+                    thumbnailImageView.image = UIImage.defaultProfile
+                }
+            } catch {
+                print("Failed to load profile image: \(error.localizedDescription)")
+                thumbnailImageView.image = UIImage.defaultProfile
+            }
+            
+            DispatchQueue.main.async {
+                switch content.role {
+                case .creator:
+                    self.roleImageView.isHidden = false
+                    self.roleImageView.image = .creator
+                    self.nameLabel.textColor = .primary
+                case .manager:
+                    self.roleImageView.isHidden = false
+                    self.roleImageView.image = .manager
+                    self.nameLabel.textColor = .primary
+                default:
+                    self.roleImageView.isHidden = true
+                }
+                
+                self.nameLabel.text = content.nickname
+                self.dateLabel.text = content.dateString
+                self.messageLabel.text = content.message
+            }
         }
-        
-        switch content.role {
-        case .creator:
-            roleImageView.isHidden = false
-            roleImageView.image = .creator
-            nameLabel.textColor = .primary
-        case .manager:
-            roleImageView.isHidden = false
-            roleImageView.image = .manager
-            nameLabel.textColor = .primary
-        default:
-            break
-        }
-        
-        nameLabel.text = content.nickname
-        dateLabel.text = content.dateString
-        messageLabel.text = content.message
     }
     
     

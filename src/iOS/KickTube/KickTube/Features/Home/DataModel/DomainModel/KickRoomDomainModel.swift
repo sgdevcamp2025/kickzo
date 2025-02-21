@@ -37,9 +37,16 @@ struct KickRoomUserDomainModel {
     var userProfileImageURL: String?
     
     func toModel() -> KickRoomUserViewModel {
-        .init(userID: self.userID,
+        var pURL: URL? = nil
+               
+        if let userProfileImageURL {
+            pURL = URL(string: userProfileImageURL)
+        }
+        
+        return .init(userID: self.userID,
               role: self.role,
-              nickname: self.nickname)
+              nickname: self.nickname,
+              profileURL: pURL)
     }
 }
 

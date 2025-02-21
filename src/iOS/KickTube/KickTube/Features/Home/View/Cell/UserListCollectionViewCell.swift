@@ -15,6 +15,7 @@ final class UserListCollectionViewCell: UICollectionViewCell {
         $0.spacing = 8
     }
     private let profileThumbnailView = UIImageView().then {
+        $0.clipsToBounds = true
         $0.layer.cornerRadius = ComponentSize.homeProfileImage.radius
     }
     private let roleImageView = UIImageView().then {
@@ -33,6 +34,8 @@ final class UserListCollectionViewCell: UICollectionViewCell {
         $0.clipsToBounds = true
         $0.isHidden = true
     }
+    
+    private let networkManager = NetworkManager()
     
     private var disposeBag = DisposeBag()
     
@@ -65,36 +68,50 @@ final class UserListCollectionViewCell: UICollectionViewCell {
         contentView.alpha = 1.0
     }
     
+    
     // MARK: - internal method
-    
+
     func setContent(_ user: KickRoomUserViewModel) {
-        if let profileThumbnail = user.thumbnailImage {
-            profileThumbnailView.image = UIImage(data: profileThumbnail)
-        } else {
-            profileThumbnailView.backgroundColor = .darkGray
-        }
-        
-        switch user.role {
-        case .creator:
-            roleImageView.isHidden = false
-            roleImageView.image = .creator
-            nameLabel.textColor = .primary
-        case .manager:
-            roleImageView.isHidden = false
-            roleImageView.image = .manager
-            nameLabel.textColor = .kGreen
-        default:
-            break
-        }
-        
-        nameLabel.text = user.nickname
-    
-        if user.userID == UserDefaultsManager.shared.myProfile.userID {
-            meLabel.isHidden = false
-        }
-        if let active = user.active,
-           !active {
-            contentView.alpha = 0.3
+        Task { [weak self] in
+            guard let self else { return }
+            
+            do {
+                if let profileURL = user.profileURL {
+                    let imageData = try await networkManager.getCachingDataFromURL(profileURL)
+                    
+                    self.profileThumbnailView.image = UIImage(data: imageData)
+                } else {
+                    self.profileThumbnailView.image = UIImage.defaultProfile
+                }
+            } catch {
+                print("Failed to load profile image: \(error.localizedDescription)")
+                self.profileThumbnailView.image = UIImage.defaultProfile
+            }
+            
+            DispatchQueue.main.async {
+                switch user.role {
+                case .creator:
+                    self.roleImageView.isHidden = false
+                    self.roleImageView.image = .creator
+                    self.nameLabel.textColor = .primary
+                case .manager:
+                    self.roleImageView.isHidden = false
+                    self.roleImageView.image = .manager
+                    self.nameLabel.textColor = .kGreen
+                default:
+                    break
+                }
+                
+                self.nameLabel.text = user.nickname
+                
+                if user.userID == UserDefaultsManager.shared.myProfile.userID {
+                    self.meLabel.isHidden = false
+                }
+                if let active = user.active,
+                   !active {
+                    self.contentView.alpha = 0.3
+                }
+            }
         }
     }
 
