@@ -6,16 +6,15 @@
 //
 
 import Foundation
-import SwiftData
 
-@Model
-class ChatRoomEntity {
-    @Attribute(.unique) var roomID: Int
-    @Relationship(deleteRule: .cascade, inverse: \ChatMessageEntity.room)
-    var messages: [ChatMessageEntity] = []
+import RealmSwift
 
-    init(roomID: Int) {
+class ChatRoomEntity: Object, ObjectKeyIdentifiable {
+    @Persisted(primaryKey: true) var roomID: String
+    @Persisted var messages: List<ChatMessageEntity>
+
+    convenience init(roomID: String) {
+        self.init()
         self.roomID = roomID
     }
 }
-

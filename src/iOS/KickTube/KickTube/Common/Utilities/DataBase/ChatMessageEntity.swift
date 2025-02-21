@@ -6,37 +6,33 @@
 //
 
 import Foundation
-import SwiftData
 
-@Model
-class ChatMessageEntity {
-    @Attribute(.unique) var messageID: String
-    var userID: Int
-    var createdAt: Int
-    var media: String?
-    var message: String?
-    var role: Int?
-    var nickname: String?
-    var profileImageURL: String?
+import RealmSwift
 
-    @Relationship(deleteRule: .cascade)
-    var room: ChatRoomEntity
-
-    init(
+class ChatMessageEntity: Object, ObjectKeyIdentifiable {
+    @Persisted(primaryKey: true) var messageID: String
+    @Persisted var userID: Int
+    @Persisted var createdAt: Int
+    @Persisted var media: String?
+    @Persisted var message: String?
+    @Persisted var role: Int?
+    @Persisted var nickname: String?
+    @Persisted var profileImageURL: String?
+    
+    convenience init(
         messageID: String,
         userID: Int,
         createdAt: Int,
-        chatRoom: ChatRoomEntity, 
         media: String? = nil,
         message: String? = nil,
         role: Int? = nil,
         nickname: String? = nil,
         profileImageURL: String? = nil
     ) {
+        self.init()
         self.messageID = messageID
         self.userID = userID
         self.createdAt = createdAt
-        self.room = chatRoom
         self.media = media
         self.message = message
         self.role = role
@@ -47,14 +43,6 @@ class ChatMessageEntity {
 
 extension ChatMessageEntity {
     func toDomainModel() -> ChatMessageDomainModel {
-        .init(messageID: self.messageID,
-              roomID: self.room.roomID,
-              userID: self.userID,
-              createdAt: self.createdAt,
-              media: self.media,
-              message: self.message,
-              role: self.role,
-              nickname: self.nickname,
-              profileImageURL: self.profileImageURL)
+        .init(messageID: self.messageID, roomID: -1, userID: self.userID, createdAt: self.createdAt, media: self.media, message: self.message, role: self.role, nickname: self.nickname, profileImageURL: self.profileImageURL)
     }
 }

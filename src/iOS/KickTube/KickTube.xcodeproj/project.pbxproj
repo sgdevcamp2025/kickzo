@@ -16,6 +16,8 @@
 		532F31892D364BCE00D2C67E /* ReactorKit in Frameworks */ = {isa = PBXBuildFile; productRef = 532F31882D364BCE00D2C67E /* ReactorKit */; };
 		532F318B2D364C2E00D2C67E /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 532F318A2D364C2E00D2C67E /* .gitignore */; };
 		533885AE2D676C7300496895 /* ManipulateDataModel in Frameworks */ = {isa = PBXBuildFile; productRef = 533885AD2D676C7300496895 /* ManipulateDataModel */; };
+		537870282D68990D00A13B89 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 537870272D68990D00A13B89 /* RealmSwift */; };
+		537870292D68991E00A13B89 /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 537870272D68990D00A13B89 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		53A863DC2D4FB72E009FF8E2 /* RxDataSources in Frameworks */ = {isa = PBXBuildFile; productRef = 53A863DB2D4FB72E009FF8E2 /* RxDataSources */; };
 		53FDEFDD2D3E12C400825962 /* ManipulateDataModel in Frameworks */ = {isa = PBXBuildFile; productRef = 5351F2E02D392C600093EB87 /* ManipulateDataModel */; };
 /* End PBXBuildFile section */
@@ -36,6 +38,20 @@
 			remoteInfo = KickTube;
 		};
 /* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		5378702A2D68991E00A13B89 /* Embed Frameworks */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 10;
+			files = (
+				537870292D68991E00A13B89 /* RealmSwift in Embed Frameworks */,
+			);
+			name = "Embed Frameworks";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
 		532D56092D37BBC300B78EA6 /* SampleTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleTest.swift; sourceTree = "<group>"; };
@@ -105,6 +121,7 @@
 				5320CF812D5206BB00EF722E /* YouTubeiOSPlayerHelper in Frameworks */,
 				532F31892D364BCE00D2C67E /* ReactorKit in Frameworks */,
 				53A863DC2D4FB72E009FF8E2 /* RxDataSources in Frameworks */,
+				537870282D68990D00A13B89 /* RealmSwift in Frameworks */,
 				532F31812D364BB200D2C67E /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -156,6 +173,7 @@
 				532F312E2D3649CA00D2C67E /* Sources */,
 				532F312F2D3649CA00D2C67E /* Frameworks */,
 				532F31302D3649CA00D2C67E /* Resources */,
+				5378702A2D68991E00A13B89 /* Embed Frameworks */,
 			);
 			buildRules = (
 			);
@@ -175,6 +193,7 @@
 				53A863DB2D4FB72E009FF8E2 /* RxDataSources */,
 				5320CF802D5206BB00EF722E /* YouTubeiOSPlayerHelper */,
 				533885AD2D676C7300496895 /* ManipulateDataModel */,
+				537870272D68990D00A13B89 /* RealmSwift */,
 			);
 			productName = KickTube;
 			productReference = 532F31322D3649CA00D2C67E /* KickTube.app */;
@@ -259,6 +278,7 @@
 				53A863DA2D4FB72E009FF8E2 /* XCRemoteSwiftPackageReference "RxDataSources" */,
 				5320CF7F2D5206BB00EF722E /* XCRemoteSwiftPackageReference "youtube-ios-player-helper" */,
 				533885AC2D676C7300496895 /* XCRemoteSwiftPackageReference "ManipulateDataModel" */,
+				537870262D68990D00A13B89 /* XCRemoteSwiftPackageReference "realm-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 532F31332D3649CA00D2C67E /* Products */;
@@ -669,6 +689,14 @@
 				minimumVersion = 1.0.0;
 			};
 		};
+		537870262D68990D00A13B89 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/realm/realm-swift.git";
+			requirement = {
+				kind = exactVersion;
+				version = 10.52.1;
+			};
+		};
 		53A863DA2D4FB72E009FF8E2 /* XCRemoteSwiftPackageReference "RxDataSources" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/RxSwiftCommunity/RxDataSources.git";
@@ -713,6 +741,11 @@
 		5351F2E02D392C600093EB87 /* ManipulateDataModel */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ManipulateDataModel;
+		};
+		537870272D68990D00A13B89 /* RealmSwift */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 537870262D68990D00A13B89 /* XCRemoteSwiftPackageReference "realm-swift" */;
+			productName = RealmSwift;
 		};
 		53A863DB2D4FB72E009FF8E2 /* RxDataSources */ = {
 			isa = XCSwiftPackageProductDependency;

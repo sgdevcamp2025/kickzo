@@ -43,7 +43,6 @@ extension ChatMessageDomainModel {
         .init(messageID: self.messageID,
               userID: self.userID,
               createdAt: self.createdAt,
-              chatRoom: ChatRoomEntity(roomID: self.roomID),
               media: self.media,
               message: self.message,
               role: self.role,
