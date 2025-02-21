@@ -39,6 +39,8 @@ export const VoiceChat = () => {
             {activeProfile === member.id ? (
               <div className={`profile-detail ${activeProfile === member.id ? 'active' : ''}`}>
                 <ProfileDetail
+                  nickname={member.nickname}
+                  imgUrl={member.profileImg}
                   userId={member.id}
                   userRole={member.role}
                   myRole={UserRole.CREATOR}
