@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import useDebounceCallback from '@/hooks/utils/useDebounceCallback';
 import SearchIcon from '@/assets/img/Search.svg';
@@ -25,6 +25,13 @@ export const SearchBar = () => {
   const [totalLength, setTotalLength] = useState<number>(0);
   const [searchList, setSearchList] = useState<UserResponseDto[]>([]);
   const enterKeyProcessed = useRef(false);
+
+  useEffect(() => {
+    if (targetIndex !== -1) {
+      searchInput.current!.value = searchList[targetIndex]?.nickname;
+      setSearchValue(searchInput.current!.value);
+    }
+  }, [targetIndex]);
 
   const resetSearchState = () => {
     setSearchList([]);
