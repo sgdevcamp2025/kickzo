@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import AddCircleIcon from '@/assets/img/AddCircle.svg';
 import BellIcon from '@/assets/img/Bell.svg';
 import {
@@ -9,6 +9,7 @@ import {
   LogoBox,
   LoginButton,
   ProfileButton,
+  NotificationCount,
 } from './index.css';
 import { LogoButton } from '@/components/common/LogoButton';
 import DefaultProfile from '@/assets/img/DefaultProfile.svg';
@@ -20,10 +21,14 @@ import { useUserStore } from '@/stores/useUserStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useMyRoomsStore } from '@/stores/useMyRoomsStore';
 import { useWebSocketStore } from '@/stores/useWebSocketStore';
+import { friendApi } from '@/api/endpoints/friend/friend.api';
+
 export const TopNavBar = () => {
+  const navigate = useNavigate();
   const { user, fetchMyProfile, clearProfile } = useUserStore();
   const { fetchMyRooms } = useMyRoomsStore();
-  const { connect } = useWebSocketStore();
+  const { connect, newNotificationCount, increaseNotificationCount, resetNotificationCount } =
+    useWebSocketStore();
   const [isRoomCreateModalOpen, setIsRoomCreateModalOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
@@ -40,13 +45,29 @@ export const TopNavBar = () => {
     const initializeUser = async () => {
       await fetchMyProfile();
       await fetchMyRooms();
+      const data = await friendApi.getUnreadNotificationsCount();
+      increaseNotificationCount(data.unread_count);
     };
     initializeUser();
   }, [accessToken]);
 
+  const clickCreateRoom = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setIsRoomCreateModalOpen(true);
+  };
+
   const clickNotification = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     setIsNotificationModalOpen(true);
+    resetNotificationCount();
   };
 
   const handleCancelNotification = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -71,12 +92,15 @@ export const TopNavBar = () => {
         </LogoBox>
         <SearchBar />
         <ButtonContainer>
-          <ButtonBox onClick={() => setIsRoomCreateModalOpen(true)}>
+          <ButtonBox onClick={clickCreateRoom}>
             <img src={AddCircleIcon} alt="Create Room" />
           </ButtonBox>
           <ButtonBox onClick={clickNotification}>
             <img src={BellIcon} alt="Notification" />
             {isNotificationModalOpen && <NotificationModal onCancel={handleCancelNotification} />}
+            {newNotificationCount > 0 && (
+              <NotificationCount>{newNotificationCount}</NotificationCount>
+            )}
           </ButtonBox>
           {user ? (
             <ProfileButton onClick={clickProfile}>
