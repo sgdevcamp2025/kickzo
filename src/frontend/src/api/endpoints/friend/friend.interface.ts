@@ -14,7 +14,10 @@ export interface NotificationDto {
   roomId: string | null;
   senderId: number;
   senderNickname: string;
-  status: 'PENDING' | 'ACCEPTED' | 'REJECTED';
+  status: NotificationStatus;
   timestamp: number;
-  type: 'friend_request' | 'room_request';
+  type: NotificationType;
 }
+
+export type NotificationStatus = 'PENDING' | 'ACCEPTED' | 'REJECTED';
+export type NotificationType = 'friend_request' | 'room_request';
