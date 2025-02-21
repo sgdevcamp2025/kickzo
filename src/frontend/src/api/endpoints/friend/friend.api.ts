@@ -1,5 +1,5 @@
 import instance from '@/api/axios.instance';
-import { FriendDto } from './friend.interface';
+import { FriendDto, NotificationDto } from './friend.interface';
 
 export const friendApi = {
   // 친구 목록 제공
@@ -37,8 +37,8 @@ export const friendApi = {
 
   // 알림 정보
   getNotifications: async () => {
-    const { data } = await instance.get('/friends/requests');
-    return data;
+    const { data } = await instance.get<{ requests: NotificationDto[] }>('/friends/requests');
+    return data.requests;
   },
 
   // 안 읽은 알림 개수 제공

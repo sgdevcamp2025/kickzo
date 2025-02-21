@@ -15,19 +15,21 @@ interface WebSocketStore {
   socket: WebSocket | null;
   client: Client | null;
   subscriptions: Map<string, Stomp.Subscription>; // 구독 관리
+  newNotificationCount: number;
 
   // 연결
   connect: () => void;
   disconnect: () => void;
 
+  // 알림
+  resetNotificationCount: () => void;
+  increaseNotificationCount: (n: number) => void;
+
   subTopic: <T>(destination: string, callback: (message: T) => void) => void;
   subscribeRoom: (roomId: number) => void;
   subscribeRooms: (roomIds: number[]) => void;
-  subscribeInvitations: (userId: number) => void;
-  subscribeFriendConnection: <T>(
-    userId: number,
-    callback: (message: T) => void,
-  ) => void;
+  subscribeInvitations: <T>(userId: number, callback: (message: T) => void) => void;
+  subscribeFriendConnection: <T>(userId: number, callback: (message: T) => void) => void;
   unsubscribeAll: () => void;
 }
 
@@ -35,6 +37,7 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   socket: null,
   client: null,
   subscriptions: new Map(),
+  newNotificationCount: 0,
 
   // 연결
   connect: () => {
@@ -59,7 +62,10 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
         const userId = useUserStore.getState().user?.userId;
         if (userId) {
           client.send('/app/connect', {}, JSON.stringify({ userId }));
-          get().subscribeInvitations(userId);
+          get().subscribeInvitations(userId, message => {
+            console.log('subscribeInvitations', message);
+            set(state => ({ newNotificationCount: state.newNotificationCount + 1 }));
+          });
           get().subscribeFriendConnection(userId, message => {
             console.log('subscribeFriendConnection', message);
           });
@@ -84,6 +90,16 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
     });
   },
 
+  // 알림 초기화
+  resetNotificationCount: () => {
+    set({ newNotificationCount: 0 });
+  },
+
+  // 알림 증가
+  increaseNotificationCount: (n: number = 1) => {
+    set(state => ({ newNotificationCount: state.newNotificationCount + n }));
+  },
+
   // 토픽 구독
   subTopic: <T>(destination: string, callback: (message: T) => void) => {
     const { client } = get();
@@ -105,20 +121,15 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   },
 
   // 친구 접속 알림 구독
-  subscribeFriendConnection: <T>(
-    userId: number,
-    callback: (message: T) => void = console.log,
-  ) => {
+  subscribeFriendConnection: <T>(userId: number, callback: (message: T) => void = console.log) => {
     const destination = `/topic/user/${userId}/friend-state`;
     get().subTopic(destination, callback);
   },
 
   // 초대 구독
-  subscribeInvitations: (userId: number) => {
+  subscribeInvitations: <T>(userId: number, callback: (message: T) => void = console.log) => {
     const destination = `/topic/user/${userId}/notification`;
-    get().subTopic(destination, message => {
-      console.log('subscribeInvitations', message);
-    });
+    get().subTopic(destination, callback);
   },
 
   // 방 채팅 구독

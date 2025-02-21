@@ -15,8 +15,11 @@ export const userApi = {
   },
 
   // 전체 유저 조회
-  getUsers: async (page: number = 0, size: number = 10) => {
-    const { data } = await instance.get(`users`, { params: { page, size } });
+  getUsers: async (page: number = 0, size: number = 10, nickname?: string) => {
+    const { data } = await instance.get<{ users: UserResponseDto[]; totalLength: number }>(
+      `users`,
+      { params: { page, size, nickname } },
+    );
     return data;
   },
 

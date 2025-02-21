@@ -1,17 +1,29 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { NotiContainer, NotiParagraph, NotiTitle } from './index.css';
 import { RelativeModalContainer, Background } from '@/components/Modal/index.css';
 import { NotificationCard } from './NotificationCard';
-import { notificationListTest } from '@/assets/data/notificationListTest';
+import { friendApi } from '@/api/endpoints/friend/friend.api';
+import { NotificationDto } from '@/api/endpoints/friend/friend.interface';
 
 interface INotification {
   onCancel: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 export const NotificationModal = ({ onCancel }: INotification) => {
-  const notifications = notificationListTest;
+  const [notiList, setNotiList] = useState<NotificationDto[]>([]);
 
-  const [notiList, setNotiList] = useState(notifications);
+  useEffect(() => {
+    const fetchNotifications = async () => {
+      try {
+        const notifications = await friendApi.getNotifications();
+        console.log('NOTI:', notifications);
+        setNotiList(notifications || []);
+      } catch (error) {
+        console.error('Error fetching notifications:', error);
+      }
+    };
+    fetchNotifications();
+  }, []);
 
   const props = {
     title: 'Notification',
@@ -20,14 +32,24 @@ export const NotificationModal = ({ onCancel }: INotification) => {
     onCancel: onCancel,
   };
 
-  const handleAccept = (id: number) => {
-    console.log(`초대 ID ${id} 수락`);
-    setNotiList(notiList.filter(noti => noti.id !== id)); // 수락하면 목록에서 제거
+  const handleAccept = (notification: NotificationDto) => {
+    friendApi.acceptFriend(notification.receiverId, notification.senderId);
+
+    setNotiList(
+      notiList.map(noti =>
+        noti.timestamp === notification.timestamp ? { ...noti, status: 'ACCEPTED' } : noti,
+      ),
+    );
   };
 
-  const handleReject = (id: number) => {
-    console.log(`초대 ID ${id} 거절`);
-    setNotiList(notiList.filter(noti => noti.id !== id)); // 거절하면 목록에서 제거
+  const handleReject = (notification: NotificationDto) => {
+    friendApi.rejectFriend(notification.receiverId, notification.senderId);
+
+    setNotiList(
+      notiList.map(noti =>
+        noti.timestamp === notification.timestamp ? { ...noti, status: 'REJECTED' } : noti,
+      ),
+    );
   };
 
   return (
@@ -40,7 +62,7 @@ export const NotificationModal = ({ onCancel }: INotification) => {
             <>
               {notiList.map(noti => (
                 <NotificationCard
-                  key={noti.id}
+                  key={noti.timestamp}
                   notification={noti}
                   onAccept={handleAccept}
                   onReject={handleReject}
