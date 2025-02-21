@@ -22,12 +22,10 @@ import {
   RAW_TOKEN_TYPE,
 } from "./constants/constants";
 import { ENV_KEY } from "./constants/env-key.constant";
-import * as client from 'prom-client';
 
 @Injectable()
 export class AuthService {
   private readonly redis: Redis;
-  private readonly register: client.Registry;
 
   constructor(
     private readonly configService: ConfigService,
@@ -37,13 +35,6 @@ export class AuthService {
     private readonly userService: ClientProxy,
   ) {
     this.redis = this.redisService.getOrThrow();
-    this.register = new client.Registry();
-    this.register.setDefaultLabels({ app: 'nestjs-prometheus' });
-    client.collectDefaultMetrics({ register: this.register });
-  }
-
-  getMetrics(): Promise<string> {
-    return this.register.metrics();
   }
 
   async login(rawToken: string, device: DeviceType) {
@@ -205,7 +196,7 @@ export class AuthService {
 
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
-      throw new BadRequestException(MESSAGES.INVALID_LOGIN_INFO);
+      throw new UnauthorizedException(MESSAGES.INVALID_LOGIN_INFO);
     }
 
     const { password: _, ...withoutPassword } = user;

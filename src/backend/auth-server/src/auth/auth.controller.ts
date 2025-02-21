@@ -9,7 +9,6 @@ import {
   UsePipes,
   ValidationPipe,
   VERSION_NEUTRAL,
-  Get
 } from "@nestjs/common";
 import { AuthService } from "./auth.service";
 import { Authorization } from "./decorator/authorization.decorator";
@@ -29,13 +28,6 @@ import { ApiBasicAuth, ApiBearerAuth, ApiOperation } from "@nestjs/swagger";
 @Controller({ path: "api/auth", version: VERSION_NEUTRAL })
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-  
-  @Get('metrics')
-  async getMetrics(@Res() res: Response) {
-    const metrics = await this.authService.getMetrics();
-    res.setHeader('Content-Type', 'text/plain');
-    res.send(metrics);
-  }
 
   @Post("login")
   @ApiBasicAuth()
