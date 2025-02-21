@@ -1,13 +1,13 @@
-package com.kickzo.main;
+package com.kickzo.main.search.service;
 
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.util.List;
 
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import com.kickzo.main.entity.User;
 import com.kickzo.main.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
@@ -24,9 +24,6 @@ public class UserBatchService {
 
 	@Scheduled(fixedRate = 300000) // 5분마다 실행 (10분 = 600000ms)
 	public void syncUsersToElasticsearch() {
-		// JVM의 현재 시간대 출력
-		ZoneId serverTimeZone = ZoneId.systemDefault();
-
 		// lastSyncTime이 NULL이면 초기값을 UTC로 설정 (중복 변환 방지)
 		if (lastSyncTime == null) {
 			lastSyncTime = LocalDateTime.now(ZoneOffset.UTC);

@@ -1,4 +1,4 @@
-package com.kickzo.main;
+package com.kickzo.main.search.controller;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 
 import com.kickzo.main.dto.response.RoomResponseDto;
 import com.kickzo.main.repository.RoomRepository;
+import com.kickzo.main.search.document.RoomDocument;
+import com.kickzo.main.search.repository.RoomSearchRepository;
+import com.kickzo.main.search.repository.UserSearchRepository;
 import com.kickzo.main.service.MainPageService;
 
 @Slf4j

@@ -11,7 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kickzo.main.SearchService;
+import com.kickzo.main.search.service.SearchService;
 import com.kickzo.main.dto.data.PlaylistItem;
 import com.kickzo.main.dto.request.CreateRoomRequestDto;
 import com.kickzo.main.dto.response.CreateRoomResponseDto;

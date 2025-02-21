@@ -1,8 +1,10 @@
-package com.kickzo.main;
+package com.kickzo.main.search.service;
 
 import org.springframework.jdbc.core.RowMapper;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import com.kickzo.main.entity.User;
 
 public class UserRowMapper implements RowMapper<User> {
 	@Override

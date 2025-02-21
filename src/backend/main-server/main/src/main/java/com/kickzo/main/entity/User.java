@@ -1,4 +1,4 @@
-package com.kickzo.main;
+package com.kickzo.main.entity;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;

@@ -1,4 +1,4 @@
-package com.kickzo.main;
+package com.kickzo.main.search.service;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -6,6 +6,11 @@ import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 
 import com.kickzo.main.entity.Room;
+import com.kickzo.main.entity.User;
+import com.kickzo.main.search.document.RoomDocument;
+import com.kickzo.main.search.document.UserDocument;
+import com.kickzo.main.search.repository.RoomSearchRepository;
+import com.kickzo.main.search.repository.UserSearchRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

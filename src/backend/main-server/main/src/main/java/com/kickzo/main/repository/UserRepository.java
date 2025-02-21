@@ -9,8 +9,8 @@ import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
-import com.kickzo.main.User;
-import com.kickzo.main.UserRowMapper;
+import com.kickzo.main.entity.User;
+import com.kickzo.main.search.service.UserRowMapper;
 import com.kickzo.main.exception.CustomErrorCode;
 import com.kickzo.main.exception.CustomException;
 

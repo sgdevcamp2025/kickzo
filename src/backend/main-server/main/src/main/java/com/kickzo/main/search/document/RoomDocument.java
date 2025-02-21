@@ -1,30 +1,22 @@
-package com.kickzo.main;
+package com.kickzo.main.search.document;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
 import org.springframework.data.elasticsearch.annotations.Field;
 import org.springframework.data.elasticsearch.annotations.FieldType;
-
-import lombok.AllArgsConstructor;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Getter
 @Setter
 @Document(indexName = "search")
-@AllArgsConstructor
-@NoArgsConstructor
-public class UserDocument {
+public class RoomDocument {
 	@Id
-	private Long userId;
+	private Long roomId;
 
 	@Field(type = FieldType.Text)
-	private String nickname;
+	private String title;
 
-	@Field(type = FieldType.Text)
-	private String stateMessage;
-
-	@Field(type = FieldType.Text)
-	private String profileImageUrl;
+	@Field(type = FieldType.Boolean)
+	private boolean isPublic;
 }
