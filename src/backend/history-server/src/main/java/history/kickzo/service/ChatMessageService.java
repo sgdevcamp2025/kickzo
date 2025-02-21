@@ -56,7 +56,7 @@ public class ChatMessageService {
     }
 
     public List<ChatMessage> getUnreadMessages(long roomId, long cursor, int limit) {
-        List<ChatMessage> messages = repository.findByRoomIdOrderByTimestampDesc(roomId);
+        List<ChatMessage> messages = repository.findByRoomIdOrderByTimestampAsc(roomId);
         if (limit == -1) {
             return messages.stream()
                     .filter(message -> message.getTimestamp() > cursor)  // Messages after cursor
