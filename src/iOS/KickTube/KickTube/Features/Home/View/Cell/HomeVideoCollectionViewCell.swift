@@ -57,7 +57,12 @@ final class HomeVideoCollectionViewCell: UICollectionViewCell {
         } else {
             videoThumbnailView.backgroundColor = .darkGray
         }
-        userProfileThumbnailView.image = UIImage.defaultProfile.applyCornerRadiusToImage(radius: 8)
+        if let profileThumbnanil = room.profileThumbnanil {
+            userProfileThumbnailView.image = UIImage(data: profileThumbnanil)
+            userProfileThumbnailView.layer.cornerRadius = 8
+        } else {
+            userProfileThumbnailView.image = UIImage.defaultProfile.applyCornerRadiusToImage(radius: 8)
+        }
         titleLabel.text = room.title
         usernameLabel.text = room.creator
     }

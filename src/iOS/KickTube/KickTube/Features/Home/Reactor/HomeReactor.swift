@@ -16,12 +16,14 @@ final class HomeReactor: Reactor {
     enum Action {
         case getRoom
         case getVideoThumbnail(idx: Int, id: String)
+        case getProfileThumbnail(idx: Int, url: URL)
         case homeCellTapped(idx: IndexPath)
     }
     
     enum Mutation {
         case setRooms([HomeRoomDomainModel])
         case setVideoImage(data: Data, idx: Int)
+        case setProfileImage(data: Data, idx: Int)
         case setImageError(error: Error, idx: Int)
         case joinRoom(String)
     }
@@ -63,6 +65,26 @@ final class HomeReactor: Reactor {
                 
                 return Disposables.create()
             }
+        case .getProfileThumbnail(let idx, let url):
+            return Observable.create { [weak self] observer in
+                guard let self else {
+                    return  Disposables.create()
+                }
+                
+                Task {
+                    do {
+                        let profileData = try await self.networkManager.getCachingDataFromURL(url)
+                            observer.onNext(.setProfileImage(data: profileData, idx: idx))
+                            observer.onCompleted()
+                    } catch {
+                        print("Error fetching thumbnail: \(error)")
+                        observer.onNext(.setImageError(error: NetworkError.urlBuild, idx: idx))
+                        observer.onCompleted()
+                    }
+                }
+                
+                return Disposables.create()
+            }
         case .homeCellTapped(let idx):
             let roomCode = currentState.rooms[idx.item].code
             return .just(.joinRoom(roomCode))
@@ -78,6 +100,8 @@ final class HomeReactor: Reactor {
             newState.rooms += rooms.map { $0.toModel() }
         case .setVideoImage(let data, let idx):
             newState.rooms[idx].videoThumbnail = data
+        case .setProfileImage(let data, let idx):
+            newState.rooms[idx].profileThumbnanil = data
         case .setImageError(_, let idx):
             newState.rooms[idx].videoThumbnail = nil
         case .joinRoom(let code):
