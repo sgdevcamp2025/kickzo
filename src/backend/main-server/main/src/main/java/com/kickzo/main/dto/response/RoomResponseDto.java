@@ -16,6 +16,7 @@ public class RoomResponseDto {
 	private String code;
 	private String title;
 	private String description;
+	private boolean isPublic;
 	private String creator;
 	private String profileImageUrl;
 	private int userCount;

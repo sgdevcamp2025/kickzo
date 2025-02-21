@@ -59,7 +59,7 @@
     <div id="messages"></div>
     <input type="text" id="messageInput" placeholder="Enter your message" />
     <button onclick="sendMessage()">Send</button>
-    <button onclick="sendPlaylistTime(12)">Send Playlist Time (12 sec)</button>
+    <button onclick="sendplayTime(12.12354)">Send Play Time (12.12354 sec)</button>
 </div>
 
 <div id="status">Status: Disconnected</div>
@@ -161,14 +161,14 @@
         console.log('Sent message:', payload);
     }
 
-    function sendPlaylistTime(playlistTime) {
+    function sendplayTime(playTime) {
         if (stompClient && stompClient.connected) {
             const payload = JSON.stringify({
                 roomId: roomId,
-                playlistTime: playlistTime
+                playTime: playTime
             });
             stompClient.send('/app/play-time', {}, payload);
-            console.log('Sent playlistTime:', payload);
+            console.log('Sent playTime:', payload);
         } else {
             console.error('WebSocket not connected.');
         }

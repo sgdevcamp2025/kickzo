@@ -1,5 +1,8 @@
 package kickzo.stomp_chat.controller;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import kickzo.stomp_chat.enums.EventType;
@@ -75,5 +78,12 @@ public class WebSocketController {
     public record UserConnectRequest(long userId) {}
     public record SendMessageRequest(long roomId, long userId, String nickname, int role, String profileImageUrl, String content, String message) {}
 
-    public record PlayTimeRequest(long roomId, long playTime, String playerState) {}
+    public record PlayTimeRequest(long roomId, BigDecimal playTime, String playerState) {
+        public PlayTimeRequest(long roomId, BigDecimal playTime, String playerState) {
+            this.roomId = roomId;
+            this.playTime = playTime.setScale(2, RoundingMode.HALF_UP); // 소수점 2자리로 변환
+            this.playerState = playerState;
+        }
+    }
+
 }

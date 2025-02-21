@@ -1,4 +1,4 @@
-package com.kickzo.main;
+package com.kickzo.main.search.document;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.elasticsearch.annotations.Document;
@@ -9,20 +9,14 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Document(indexName = "rooms") // Elasticsearch 인덱스 이름
+@Document(indexName = "search")
 public class RoomDocument {
 	@Id
-	private Long id;
+	private Long roomId;
 
 	@Field(type = FieldType.Text)
 	private String title;
 
 	@Field(type = FieldType.Boolean)
-	private Boolean isPublic;
-
-	@Field(type = FieldType.Integer)
-	private int userCount;
-
-	@Field(type = FieldType.Keyword)
-	private String creator;
+	private boolean isPublic;
 }

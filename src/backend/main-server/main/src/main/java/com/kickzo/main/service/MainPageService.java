@@ -11,8 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kickzo.main.RoomDocument;
-import com.kickzo.main.RoomSearchRepository;
+import com.kickzo.main.search.service.SearchService;
 import com.kickzo.main.dto.data.PlaylistItem;
 import com.kickzo.main.dto.request.CreateRoomRequestDto;
 import com.kickzo.main.dto.response.CreateRoomResponseDto;
@@ -39,7 +38,7 @@ public class MainPageService {
 	private final RoomRepository roomRepository;
 	private final RoomUserRepository roomUserRepository;
 	private final UserRepository userRepository;
-	private final RoomSearchRepository roomSearchRepository; // Elasticsearch Repository
+	private final SearchService searchService;
 
 	private static final int MAX_ROOMS_PER_USER = 5;
 	private static final int ROLE_CREATOR = 0;
@@ -73,34 +72,13 @@ public class MainPageService {
 		Room newRoom = saveNewRoom(creatorNickname, requestDto, randomCode);
 		saveRoomUser(newRoom.getId(), userId);
 
-		// Elasticsearch에도 저장
-		RoomDocument roomDocument = new RoomDocument();
-		roomDocument.setId(newRoom.getId());
-		roomDocument.setTitle(newRoom.getTitle());
-		roomDocument.setCreator(newRoom.getCreator());
-
-		roomSearchRepository.save(roomDocument);
+		// Elasticsearch 저장
+		searchService.indexRoom(newRoom);
 
 		return new CreateRoomResponseDto(randomCode);
 	}
 
-	/**
-	 * 메인 페이지에서 방 list 제공
-	 * 1, ObjectMapper 재사용을 위한 밖에서 선언
-	 * 2. Playlist에서 order == 0인 URL 추출 : extractPlaylistUrl
-	 * 3. Room 엔티티를 DTO로 변환 : convertToDto
-	 * 4. getCreatorProfileImage : 생성자의 profileImageUrl 받아오기
-	 */
-
-	private String extractPlaylistUrl(List<PlaylistItem> playlistItems) {
-		return playlistItems.stream()
-			.filter(item -> item.getOrder() == 0)
-			.map(PlaylistItem::getUrl)
-			.findFirst()
-			.orElse(null);
-	}
-
-	private RoomResponseDto convertToDto(Room room) {
+	public RoomResponseDto convertToDto(Room room) {
 		List<PlaylistItem> playlistItems = Optional.ofNullable(room.getPlaylist())
 			.map(Playlist::getOrderAsList)  // JSON → List 변환
 			.orElse(Collections.emptyList());
@@ -112,11 +90,25 @@ public class MainPageService {
 			.code(room.getCode())
 			.title(room.getTitle())
 			.description(room.getDescription())
+			.isPublic(room.getIsPublic())
 			.creator(room.getCreator())
 			.profileImageUrl(getCreatorProfileImage(room.getCreator()))
 			.userCount(room.getUserCount())
 			.playlistUrl(playlistUrl)
 			.build();
+	}
+
+	/**
+	 * 메인 페이지에서 방 list 제공
+	 * 1. Playlist에서 order == 0인 URL 추출 : extractPlaylistUrl
+	 * 2. getCreatorProfileImage : 생성자의 profileImageUrl 받아오기
+	 */
+	private String extractPlaylistUrl(List<PlaylistItem> playlistItems) {
+		return playlistItems.stream()
+			.filter(item -> item.getOrder() == 0)
+			.map(PlaylistItem::getUrl)
+			.findFirst()
+			.orElse(null);
 	}
 
 	private String getCreatorProfileImage(String creator) {
