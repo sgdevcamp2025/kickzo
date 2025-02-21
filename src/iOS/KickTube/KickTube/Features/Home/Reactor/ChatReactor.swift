@@ -11,10 +11,10 @@ import ReactorKit
 
 final class ChatReactor: Reactor {
     private let session = Session()
+    private let repository = ChatDataRepository()
     
     enum Action {
         case getSavedMessage
-        case getUnreadMessage
         case getNewMessage
         case sendMessage(String)
     }
@@ -32,97 +32,116 @@ final class ChatReactor: Reactor {
     var initialState: State
     
     init(_ roomID: String) {
-        // TODO: SwiftData에서 data 받아오기
         self.initialState = State(roomID: roomID, messsageSection: [])
     }
-    
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .getSavedMessage:
-            // TODO: SwiftData에서 메세지 load
+            return Single.create { [weak self] single in
+                guard let self else {
+                    single(.failure(NSError(domain: "ChatReactor", code: -1, userInfo: [NSLocalizedDescriptionKey: "Self is nil."])))
+                    return Disposables.create()
+                }
+                
+                Task {
+                    let lastMessage = self.repository.fetchMessages(for: self.currentState.roomID) ?? []
+                    let lastMessageCreatedAt = lastMessage.last?.createdAt
+                    let newMessages = try await self.getUnreadMessage(lastMessageCreatedAt)
+                    let message = lastMessage + newMessages
+                    
+                    single(.success(.setMessages(.saved, message)))
+                }
+                
+                return Disposables.create()
+            }
+            .asObservable()
             
-//            return loadMessages(from: SampleTest.unreads.map { $0.toModel() }).map { .setMessages(.saved, $0) }
-            return .empty()
-        case .getUnreadMessage:
-            return getUnreadMessage()
         case .getNewMessage:
-//            let newMessage = SampleTest.unreads[0].toModel().toModel()
-            
-//            return .just(.appendNewMessage(newMessage))
             return .empty()
+
         case .sendMessage(let message):
-            let newMessage = ChatMessageDomainModel(messageID: "\(Int.random(in: 1...1000000))", roomID: 43, userID: 5, createdAt: 29384928379, media: nil, message: message, role: 2, nickname: "asdlkfslkj", profileImageURL: nil)
-            
+            let newMessage = ChatMessageDomainModel(
+                messageID: "\(Int.random(in: 1...1000000))",
+                roomID: 43,
+                userID: 5,
+                createdAt: Int(Date().timeIntervalSince1970),
+                media: nil,
+                message: message,
+                role: 2,
+                nickname: "Sample User",
+                profileImageURL: nil
+            )
             return .just(.appendNewMessage(newMessage.toModel()))
-            return .empty()
         }
     }
-    
+
     func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
-        
+
         switch mutation {
-        case .setMessages(let sectionType, let message):
-            let section = classifyChatMessage(message.map { $0.toModel() }, section: sectionType)
+        case .setMessages(let sectionType, let messages):
+            let section = classifyChatMessage(messages.map { $0.toModel() }, section: sectionType)
             
             if let index = newState.messsageSection.firstIndex(where: { $0.header == sectionType.header }) {
                 newState.messsageSection[index] = section
             } else {
                 newState.messsageSection.append(section)
             }
+
         case .appendNewMessage(let message):
             if let newSectionIndex = newState.messsageSection.firstIndex(where: { $0.header == ChatSectionType.new.header }) {
                 newState.messsageSection[newSectionIndex].items.append(.newMessage(message))
             } else {
                 let newSection = classifyChatMessage([message], section: .new)
-                
                 newState.messsageSection.append(newSection)
             }
         }
-        
+
         return newState
     }
+
     
-    private func loadMessages(from data: [ChatMessageDomainModel]) -> Observable<[ChatMessageViewModel]> {
-        let messages = data.map { $0.toModel() }
-        
-        return .just(messages)
-    }
-    
-    private func getUnreadMessage(_ lastDate: Int? = nil) -> Observable<Mutation> {
-        var request = DefaultRequest<[ChatMessageResponseDTO]>(method: .get, path: ["api", "messages", "\(currentState.roomID)"], header: [.json, .authorizationAccessToken])
-        
-        if let date = lastDate {
-            request.pathQueries = [URLQueryItem(name: "cursor", value: String(date)), URLQueryItem(name: "limit", value: "\(1000)")]
+    private func getUnreadMessage(_ lastDate: Int? = nil) async throws -> [ChatMessageDomainModel] {
+        var request: DefaultRequest<[ChatMessageResponseDTO]>
+
+        if let lastDate {
+            request = DefaultRequest<[ChatMessageResponseDTO]>(
+                method: .get,
+                path: ["api", "messages", "unread", "\(self.currentState.roomID)"],
+                header: [.json, .authorizationAccessToken],
+                pathQueries: [
+                    URLQueryItem(name: "cursor", value: "\(lastDate)"),
+                    URLQueryItem(name: "limit", value: "1000")
+                ]
+            )
         } else {
-            request.pathQueries = [URLQueryItem(name: "limit", value: "\(1000)")]
+            request = DefaultRequest<[ChatMessageResponseDTO]>(
+                method: .get,
+                path: ["api", "messages", "\(self.currentState.roomID)"],
+                header: [.json, .authorizationAccessToken],
+                pathQueries: [URLQueryItem(name: "limit", value: "1000")]
+            )
+        }
+
+        let response = try await self.session.send(request).map { $0.toModel() }
+        repository.addMessage(to: currentState.roomID, messages: response.map { $0.toDBModel() })
+        return response
+    }
+
+
+
+
+
+    private func classifyChatMessage(_ messages: [ChatMessageViewModel], section: ChatSectionType) -> ChatMessageSection {
+        guard !messages.isEmpty else {
+            return ChatMessageSection(header: section.header, items: [])
         }
         
-        return Observable.create { [weak self] observer in
-            guard let self else { return Disposables.create() }
-            
-            Task {
-                do {
-                    let response = try await self.session.send(request)
-                    
-                    observer.onNext(Mutation.setMessages(.unread, response.map { $0.toModel() }))
-                    observer.onCompleted()
-                } catch {
-                    print(error)
-                    observer.onCompleted()
-                }
-            }
-            
-            return Disposables.create()
-        }
-    }
-    
-    private func classifyChatMessage(_ messages: [ChatMessageViewModel], section: ChatSectionType) -> ChatMessageSection {
         let items: [ChatMessageSectionItem] = messages.map {
             switch section {
             case .saved:
-                return .localMessage($0)
+                return .savedMessage($0)
             case .unread:
                 return .unreadMessage($0)
             case .new:
@@ -131,5 +150,14 @@ final class ChatReactor: Reactor {
         }
         
         return ChatMessageSection(header: section.header, items: items)
+    }
+    
+    private func saveMessage(_ message: [ChatMessageDomainModel]) {
+        repository.addMessage(to: currentState.roomID, messages: message.map { $0.toDBModel() })
+        }
+    
+
+    private func readMessage() -> [ChatMessageDomainModel] {
+        return repository.fetchMessages(for: currentState.roomID) ?? []
     }
 }

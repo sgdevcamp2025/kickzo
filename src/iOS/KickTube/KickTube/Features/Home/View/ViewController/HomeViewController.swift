@@ -71,6 +71,9 @@ final class HomeViewController: BaseViewController<HomeReactor> {
                    element.videoThumbnail == nil {
                     reactor.action.onNext(.getVideoThumbnail(idx: row, id: videoID))
                 }
+                if let profileImageURL = element.profileImageURL {
+                    reactor.action.onNext(.getProfileThumbnail(idx: row, url: profileImageURL))
+                }
                 
                 DispatchQueue.main.async {
                     cell.setContent(element)

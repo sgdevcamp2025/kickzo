@@ -13,6 +13,7 @@ import RxDataSources
 import RxSwift
 
 final class ChatViewController: BaseViewController<ChatReactor> {
+    private let networkManager = NetworkManager()
     private lazy var chatCollectionView = UICollectionView(frame: .zero, collectionViewLayout: .chatCollectionViewLayout()).then {
         $0.register(ChatCollectionViewCell.self, forCellWithReuseIdentifier: ChatCollectionViewCell.reuseIdentifier)
     }
@@ -22,7 +23,7 @@ final class ChatViewController: BaseViewController<ChatReactor> {
         }
         
         switch item {
-        case let .localMessage(message):
+        case let .savedMessage(message):
             cell.setContent(message)
         case let .unreadMessage(message):
             cell.setContent(message)
@@ -44,7 +45,7 @@ final class ChatViewController: BaseViewController<ChatReactor> {
     private let messageTextView = LightStrokeTextView().then {
         $0.setPlaceholder("채팅 보내기")
     }
-    
+
     
     // MARK: - initialize
     
@@ -57,7 +58,6 @@ final class ChatViewController: BaseViewController<ChatReactor> {
     
     override func bindAction(reactor: ChatReactor) {
         reactor.action.onNext(.getSavedMessage)
-        reactor.action.onNext(.getUnreadMessage)
         
         messageTextView.textView.rx.text
             .orEmpty

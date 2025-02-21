@@ -24,6 +24,7 @@ struct KickRoomUserViewModel  {
     let userID: Int
     var role: UserRole
     var nickname: String
+    var profileURL: URL?
     
     var thumbnailImage: Data?
     var active: Bool? = true
