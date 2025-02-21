@@ -10,11 +10,19 @@ interface INotification {
 }
 
 export const NotificationModal = ({ onCancel }: INotification) => {
-  const { notifications, fetchNotifications, acceptFriend, rejectFriend } = useNotificationStore();
+  const {
+    notifications,
+    newNotificationCount,
+    resetNotificationCount,
+    fetchNotifications,
+    acceptFriend,
+    rejectFriend,
+  } = useNotificationStore();
 
   useEffect(() => {
     fetchNotifications();
-  }, [fetchNotifications]);
+    resetNotificationCount();
+  }, [newNotificationCount]);
 
   const handleAccept = async (notification: NotificationDto) => {
     try {

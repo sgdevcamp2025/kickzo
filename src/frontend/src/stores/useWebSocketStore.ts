@@ -12,20 +12,16 @@ import { create } from 'zustand';
 import { useUserStore } from './useUserStore';
 import { FriendConnectionMessage } from '@/types/dto/Friend.dto';
 import { useFriendStore } from './useFriendStore';
+import { useNotificationStore } from './useNotificationStore';
 
 interface WebSocketStore {
   socket: WebSocket | null;
   client: Client | null;
   subscriptions: Map<string, Stomp.Subscription>; // 구독 관리
-  newNotificationCount: number;
 
   // 연결
   connect: () => void;
   disconnect: () => void;
-
-  // 알림
-  resetNotificationCount: () => void;
-  increaseNotificationCount: (n: number) => void;
 
   subTopic: <T>(destination: string, callback: (message: T) => void) => void;
   subscribeRoom: (roomId: number) => void;
@@ -39,7 +35,6 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   socket: null,
   client: null,
   subscriptions: new Map(),
-  newNotificationCount: 0,
 
   // 연결
   connect: () => {
@@ -64,9 +59,9 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
         const userId = useUserStore.getState().user?.userId;
         if (userId) {
           client.send('/app/connect', {}, JSON.stringify({ userId }));
-          get().subscribeInvitations(userId, message => {
-            console.log('subscribeInvitations', message);
-            set(state => ({ newNotificationCount: state.newNotificationCount + 1 }));
+          get().subscribeInvitations(userId, _message => {
+            console.log('subscribeInvitations', _message);
+            useNotificationStore.getState().increaseNotificationCount(1);
           });
           get().subscribeFriendConnection<FriendConnectionMessage>(userId, message => {
             useFriendStore.getState().updateFriendStatus(message.userId, message.status);
@@ -90,16 +85,6 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
     store.client.disconnect(() => {
       set({ client: null });
     });
-  },
-
-  // 알림 초기화
-  resetNotificationCount: () => {
-    set({ newNotificationCount: 0 });
-  },
-
-  // 알림 증가
-  increaseNotificationCount: (n: number = 1) => {
-    set(state => ({ newNotificationCount: state.newNotificationCount + n }));
   },
 
   // 토픽 구독

@@ -30,9 +30,13 @@ export const TopNavBar = () => {
   const { user, fetchMyProfile, clearProfile } = useUserStore();
   const { fetchMyRooms } = useMyRoomsStore();
   const { fetchFriends } = useFriendStore();
-  const { fetchNotifications } = useNotificationStore();
-  const { connect, newNotificationCount, increaseNotificationCount, resetNotificationCount } =
-    useWebSocketStore();
+  const {
+    newNotificationCount,
+    increaseNotificationCount,
+    resetNotificationCount,
+    fetchNotifications,
+  } = useNotificationStore();
+  const { connect } = useWebSocketStore();
   const [isRoomCreateModalOpen, setIsRoomCreateModalOpen] = useState(false);
   const [isNotificationModalOpen, setIsNotificationModalOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
