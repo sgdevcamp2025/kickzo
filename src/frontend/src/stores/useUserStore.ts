@@ -21,7 +21,6 @@ export const useUserStore = create(
       fetchMyProfile: async () => {
         try {
           const data = await userApi.getMyProfile();
-          console.log(data);
           set({ user: data });
           return data;
         } catch (error) {
