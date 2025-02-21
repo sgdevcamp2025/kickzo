@@ -102,8 +102,9 @@ export class UserController {
   async findAll(
     @Query("page", new DefaultValuePipe(0), ParseIntPipe) page: number = 0,
     @Query("size", new DefaultValuePipe(10), ParseIntPipe) size: number = 10,
+    @Query("nickname") nickname?: string,
   ) {
-    return this.userService.findAll(page, size);
+    return this.userService.findAll(page, size, nickname);
   }
 
   @Get(":id")
