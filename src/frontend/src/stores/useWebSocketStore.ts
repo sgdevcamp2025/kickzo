@@ -10,6 +10,8 @@ import Stomp from 'stompjs';
 import { Client } from 'stompjs';
 import { create } from 'zustand';
 import { useUserStore } from './useUserStore';
+import { FriendConnectionMessage } from '@/types/dto/Friend.dto';
+import { useFriendStore } from './useFriendStore';
 
 interface WebSocketStore {
   socket: WebSocket | null;
@@ -66,8 +68,8 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
             console.log('subscribeInvitations', message);
             set(state => ({ newNotificationCount: state.newNotificationCount + 1 }));
           });
-          get().subscribeFriendConnection(userId, message => {
-            console.log('subscribeFriendConnection', message);
+          get().subscribeFriendConnection<FriendConnectionMessage>(userId, message => {
+            useFriendStore.getState().updateFriendStatus(message.userId, message.status);
           });
         }
       },

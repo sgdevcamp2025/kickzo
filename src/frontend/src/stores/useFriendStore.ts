@@ -6,6 +6,8 @@ import { persist } from 'zustand/middleware';
 interface FriendStore {
   friends: FriendDto[];
   fetchFriends: () => Promise<FriendDto[]>;
+  updateFriendStatus: (friendId: number, status: string) => void;
+  clear: () => void;
 }
 
 export const useFriendStore = create(
@@ -17,8 +19,15 @@ export const useFriendStore = create(
         set({ friends: data });
         return data;
       },
-      addFriend: (friend: FriendDto) => {
-        set(state => ({ friends: [...state.friends, friend] }));
+      updateFriendStatus: (friendId: number, status: string) => {
+        set(state => ({
+          friends: state.friends.map(friend =>
+            friend.friend_id === friendId ? { ...friend, status } : friend,
+          ),
+        }));
+      },
+      clear: () => {
+        set({ friends: [] });
       },
     }),
     {
