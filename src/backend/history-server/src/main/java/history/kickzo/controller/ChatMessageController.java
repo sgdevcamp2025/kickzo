@@ -25,4 +25,13 @@ public class ChatMessageController {
         cursor = (cursor == null) ? System.currentTimeMillis() : cursor;  // 기본적으로 현재 시간
         return chatMessageService.getMessages(roomId, cursor, limit);
     }
+
+    @GetMapping("/api/messages/unread/{roomId}")
+    public List<ChatMessage> getUnreadMessages(
+            @PathVariable long roomId,
+            @RequestParam long cursor,  // cursor is the timestamp of the last read message
+            @RequestParam(defaultValue = "500") int limit) {
+
+        return chatMessageService.getUnreadMessages(roomId, cursor, limit);
+    }
 }

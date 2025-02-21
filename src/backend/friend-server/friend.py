@@ -157,8 +157,8 @@ async def send_friend_request(
         "timestamp": int(datetime.utcnow().timestamp() * 1000),
         "isRead": False,
         "status": "PENDING",
-        "roomId": "null",
-        "roomCode": "null"
+        "roomId": None,
+        "roomCode": None
     }
 
     # Redis에 저장
