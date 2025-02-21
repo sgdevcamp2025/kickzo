@@ -112,12 +112,9 @@ export const useCurrentRoomStore = create<CurrentRoomStore>((set, get) => ({
   addMessage: (message: ReceiveMessageDto) =>
     set(state => ({ messages: [...state.messages, message] })),
 
-  pubTopic: (destination: string, message: any) => {
+  pubTopic: (destination: string, message: string) => {
     const { client } = useWebSocketStore.getState();
     if (client) {
-      if (typeof message !== 'string') {
-        message = JSON.stringify(message);
-      }
       client.send(destination, {}, message);
     } else {
       console.warn('WebSocket이 아직 연결되지 않았습니다.');

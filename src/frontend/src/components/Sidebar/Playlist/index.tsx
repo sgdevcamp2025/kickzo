@@ -223,59 +223,63 @@ export const Playlist = () => {
       return;
     }
 
-    subTopic(`/topic/room/${roomId}/playlist-update`, async (data: any) => {
-      if (data?.playlist && Array.isArray(data.playlist)) {
-        const sortedPlaylist = data.playlist.sort((a: any, b: any) => a.order - b.order);
+    subTopic(
+      `/topic/room/${roomId}/playlist-update`,
+      async (data: {
+        playlist: { order: number; url: string; title: string; youtuber: string }[];
+      }) => {
+        if (data?.playlist && Array.isArray(data.playlist)) {
+          const sortedPlaylist = data.playlist.sort((a, b) => a.order - b.order);
 
-        const updatedQueue = await Promise.all(
-          sortedPlaylist.map(async (item: any) => {
-            const { videoId, startTime } = extractVideoIdAndStartTime(item.url);
-            let title = item.title || '';
-            let youtuber = item.youtuber || '';
+          const updatedQueue = await Promise.all(
+            sortedPlaylist.map(async item => {
+              const { videoId, startTime } = extractVideoIdAndStartTime(item.url);
+              let title = item.title || '';
+              let youtuber = item.youtuber || '';
 
-            if (!title || !youtuber) {
-              try {
-                const { data: apiData } = await axios.get(
-                  'https://www.googleapis.com/youtube/v3/videos',
-                  {
+              if (!title || !youtuber) {
+                try {
+                  const { data: apiData } = await axios.get<{
+                    items: { snippet: { title: string; channelTitle: string } }[];
+                  }>('https://www.googleapis.com/youtube/v3/videos', {
                     params: {
                       part: 'snippet',
                       id: videoId,
                       key: API_KEY,
                       hl: 'ko',
                     },
-                  },
-                );
-                const items = apiData.items;
-                if (items && items.length > 0) {
-                  if (!title) title = items[0].snippet.title;
-                  if (!youtuber) youtuber = items[0].snippet.channelTitle;
-                } else {
+                  });
+                  const items = apiData.items;
+                  if (items && items.length > 0) {
+                    if (!title) title = items[0].snippet.title;
+                    if (!youtuber) youtuber = items[0].snippet.channelTitle;
+                  } else {
+                    if (!title) title = '제목 없음';
+                    if (!youtuber) youtuber = '유튜버 정보 없음';
+                  }
+                } catch (error) {
+                  console.error('Error fetching video details for URL:', item.url, error);
                   if (!title) title = '제목 없음';
                   if (!youtuber) youtuber = '유튜버 정보 없음';
                 }
-              } catch (error) {
-                console.error('Error fetching video details for URL:', item.url, error);
-                if (!title) title = '제목 없음';
-                if (!youtuber) youtuber = '유튜버 정보 없음';
               }
-            }
 
-            return {
-              id: videoId,
-              start: startTime,
-              thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`,
-              title,
-              youtuber,
-            };
-          }),
-        );
+              return {
+                id: videoId,
+                start: startTime,
+                thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`,
+                title,
+                youtuber,
+              };
+            }),
+          );
 
-        useVideoStore.setState({ videoQueue: updatedQueue });
-      } else {
-        console.warn('잘못된 웹소켓 데이터 수신:', data);
-      }
-    });
+          useVideoStore.setState({ videoQueue: updatedQueue });
+        } else {
+          console.warn('잘못된 웹소켓 데이터 수신:', data);
+        }
+      },
+    );
   }, [roomId, subTopic]);
 
   return (

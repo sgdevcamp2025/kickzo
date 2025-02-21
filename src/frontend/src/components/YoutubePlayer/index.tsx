@@ -30,7 +30,7 @@ export const YouTubePlayer = () => {
 
   // 유튜브 플레이어 로드
   const loadPlayer = (id: string, startTime: number = 0) => {
-    if ((window as any).YT && id) {
+    if (window.YT && id) {
       if (playerRef.current) {
         if (typeof playerRef.current.loadVideoById === 'function') {
           playerRef.current.loadVideoById({
@@ -39,7 +39,7 @@ export const YouTubePlayer = () => {
           });
         }
       } else {
-        playerRef.current = new (window as any).YT.Player('youtube-player', {
+        playerRef.current = new window.YT.Player('youtube-player', {
           height: '100%',
           width: '100%',
           videoId: id,
@@ -65,7 +65,7 @@ export const YouTubePlayer = () => {
       return;
     }
     lastSentStateRef.current = state;
-    const message = { roomId, playTime: time, playerState: state };
+    const message = JSON.stringify({ roomId, playTime: time, playerState: state });
     pubTopic(`/app/play-time`, message);
   };
 
@@ -78,11 +78,11 @@ export const YouTubePlayer = () => {
     if (!playerRef.current) return;
 
     const playTime = playerRef.current.getCurrentTime();
-    if (event.data === (window as any).YT.PlayerState.PLAYING) {
+    if (event.data === window.YT.PlayerState.PLAYING) {
       if (lastSentStateRef.current !== 'playing') {
         broadcastPlayerState('playing', playTime);
       }
-    } else if (event.data === (window as any).YT.PlayerState.PAUSED) {
+    } else if (event.data === window.YT.PlayerState.PAUSED) {
       if (lastSentStateRef.current !== 'paused') {
         broadcastPlayerState('paused', playTime);
       }
@@ -93,10 +93,13 @@ export const YouTubePlayer = () => {
   useEffect(() => {
     if (!roomId) return;
 
-    subTopic(`/topic/room/${roomId}/play-time`, (data: any) => {
-      isRemoteUpdateRef.current = true;
-      applySyncState(data);
-    });
+    subTopic(
+      `/topic/room/${roomId}/play-time`,
+      (data: { playTime: number; playerState: string }) => {
+        isRemoteUpdateRef.current = true;
+        applySyncState(data);
+      },
+    );
   }, [roomId, subTopic]);
 
   // 서버에서 받은 동기화 적용
