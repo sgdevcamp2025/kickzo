@@ -34,12 +34,6 @@ public class SignalingController {
 
 		final UserSession user = userRegistry.getBySessionId(sessionId);
 
-		if (user != null) {
-			log.info("Incoming message from user '{}': {}", user.getName(), message);
-		} else {
-			log.info("Incoming message from new user: {}", message);
-		}
-
 		String id = message.get("id").getAsString();
 		log.info("📡 Received Signal: {}", id);
 
@@ -47,7 +41,7 @@ public class SignalingController {
 			case "joinRoom":
 				joinRoom(sessionId, message);
 				break;
-			case "sdpOffer":
+			case "receiveAudioFrom":
 				final String senderName = message.get("sender").getAsString();
 				final UserSession sender = userRegistry.getByName(senderName);
 				final String sdpOffer = message.get("sdpOffer").getAsString();
