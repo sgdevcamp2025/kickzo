@@ -16,7 +16,7 @@ struct ChatMessageViewModel: Equatable {
     let message: String?
     let role: UserRole
     let nickname: String?
-    let profileImageURL: String?
+    let profileImageURL: URL?
     
     var profileThumbnail: Data?
     var dateString: String {

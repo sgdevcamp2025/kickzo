@@ -18,6 +18,7 @@ struct HomeRoomViewModel: Equatable {
     var playlistURL: String?
     
     var videoThumbnail: Data?
+    var profileThumbnanil: Data?
     var videoID: String? {
         playlistURL?.youtubeID
     }
