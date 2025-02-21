@@ -11,7 +11,8 @@ interface NotificationStore {
   acceptFriend: (notification: NotificationDto) => Promise<void>;
   rejectFriend: (notification: NotificationDto) => Promise<void>;
   updateNotificationStatus: (timestamp: number, status: NotificationStatus) => void;
-  increaseNotificationCount: (n: number) => void;
+  increaseNotificationCount: (n?: number) => void;
+  decreaseNotificationCount: (n?: number) => void;
   resetNotificationCount: () => void;
   clear: () => void;
 }
@@ -60,6 +61,10 @@ export const useNotificationStore = create(
 
       increaseNotificationCount: (n: number = 1) => {
         set(state => ({ newNotificationCount: state.newNotificationCount + n }));
+      },
+
+      decreaseNotificationCount: (n: number = 1) => {
+        set(state => ({ newNotificationCount: state.newNotificationCount - n }));
       },
 
       resetNotificationCount: () => {

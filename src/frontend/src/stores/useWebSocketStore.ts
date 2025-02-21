@@ -13,6 +13,8 @@ import { useUserStore } from './useUserStore';
 import { FriendConnectionMessage } from '@/types/dto/Friend.dto';
 import { useFriendStore } from './useFriendStore';
 import { useNotificationStore } from './useNotificationStore';
+import { useToastStore } from './useToastStore';
+import { NotificationDto } from '@/api/endpoints/friend/friend.interface';
 
 interface WebSocketStore {
   socket: WebSocket | null;
@@ -59,9 +61,45 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
         const userId = useUserStore.getState().user?.userId;
         if (userId) {
           client.send('/app/connect', {}, JSON.stringify({ userId }));
-          get().subscribeInvitations(userId, _message => {
-            console.log('subscribeInvitations', _message);
-            useNotificationStore.getState().increaseNotificationCount(1);
+          get().subscribeInvitations<NotificationDto>(userId, message => {
+            console.log('subscribeInvitations', message);
+            useNotificationStore.getState().increaseNotificationCount();
+            if (message.type === 'friend_request') {
+              useToastStore.getState().addToast(
+                `${message.senderNickname}님이 친구 요청을 보냈습니다.`,
+                'info',
+                5000,
+                [
+                  {
+                    label: '수락',
+                    onClick: () => {
+                      useNotificationStore.getState().acceptFriend(message);
+                      useToastStore.getState().removeToast(message.timestamp);
+                      useNotificationStore.getState().decreaseNotificationCount();
+                    },
+                  },
+                  {
+                    label: '거절',
+                    onClick: () => {
+                      useNotificationStore.getState().rejectFriend(message);
+                      useToastStore.getState().removeToast(message.timestamp);
+                      useNotificationStore.getState().decreaseNotificationCount();
+                    },
+                  },
+                ],
+                message.timestamp,
+              );
+            } else {
+              useToastStore
+                .getState()
+                .addToast(
+                  `${message.senderNickname}님이 초대를 보냈습니다.`,
+                  'info',
+                  5000,
+                  [],
+                  message.timestamp,
+                );
+            }
           });
           get().subscribeFriendConnection<FriendConnectionMessage>(userId, message => {
             useFriendStore.getState().updateFriendStatus(message.userId, message.status);
