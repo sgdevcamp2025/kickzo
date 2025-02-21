@@ -1,10 +1,16 @@
 package com.kickzo.main.repository;
 
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
+import java.util.List;
+
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.stereotype.Repository;
 
+import com.kickzo.main.User;
+import com.kickzo.main.UserRowMapper;
 import com.kickzo.main.exception.CustomErrorCode;
 import com.kickzo.main.exception.CustomException;
 
@@ -46,5 +52,12 @@ public class UserRepository {
 		} catch (EmptyResultDataAccessException e) {
 			return null;
 		}
+	}
+
+	public List<User> findUpdatedUsers(LocalDateTime lastSyncTime) {
+		String sql = "SELECT u.id, u.nickname, u.state_message, u.profile_image_url FROM user u WHERE u.nickname_updated_at >= :nickname_updated_at";
+		MapSqlParameterSource params = new MapSqlParameterSource()
+			.addValue("nickname_updated_at", Timestamp.valueOf(lastSyncTime));
+		return jdbcTemplate.query(sql, params, new UserRowMapper());
 	}
 }
