@@ -41,18 +41,27 @@ export const UserList = () => {
       treeRef.current = new RedBlackTree<IUser>(compareUsers);
       roomApi
         .getParticipants(roomId.toString())
-        .then(participants => {
-          participants.forEach((participant: any) => {
-            const user: IUser = {
-              id: participant.userId,
-              role: participant.role,
-              nickname: participant.nickname,
-              profileImg: participant.profileImageUrl || DefaultProfile,
-            };
-            treeRef.current?.insert(user);
-          });
-          setVersion(v => v + 1);
-        })
+        .then(
+          (
+            participants: {
+              userId: number;
+              role: number;
+              nickname: string;
+              profileImageUrl: string;
+            }[],
+          ) => {
+            participants.forEach(participant => {
+              const user: IUser = {
+                id: participant.userId,
+                role: participant.role,
+                nickname: participant.nickname,
+                profileImg: participant.profileImageUrl || DefaultProfile,
+              };
+              treeRef.current?.insert(user);
+            });
+            setVersion(v => v + 1);
+          },
+        )
         .catch(error => {
           console.error('Error fetching participants', error);
         });
@@ -62,29 +71,37 @@ export const UserList = () => {
   // 신규 유저 정보 받기
   useEffect(() => {
     if (!roomId) return;
-    subTopic(`/topic/room/${roomId}/user-info`, (data: any) => {
-      console.log('📥 웹소켓 수신 (user-info):', data);
-      if (data && data.userInfo) {
-        const userInfo = data.userInfo;
-        const newUser: IUser = {
-          id: userInfo.userId,
-          role: userInfo.role,
-          nickname: userInfo.nickname,
-          profileImg: userInfo.profileImageUrl || DefaultProfile,
-        };
-        addUser(newUser);
-      }
-    });
+    subTopic(
+      `/topic/room/${roomId}/user-info`,
+      (data: {
+        userInfo: { userId: number; role: number; nickname: string; profileImageUrl: string };
+      }) => {
+        console.log('📥 웹소켓 수신 (user-info):', data);
+        if (data && data.userInfo) {
+          const userInfo = data.userInfo;
+          const newUser: IUser = {
+            id: userInfo.userId,
+            role: userInfo.role,
+            nickname: userInfo.nickname,
+            profileImg: userInfo.profileImageUrl || DefaultProfile,
+          };
+          addUser(newUser);
+        }
+      },
+    );
   }, [roomId, subTopic]);
 
   useEffect(() => {
     if (!roomId) return;
-    subTopic(`/topic/room/${roomId}/role-change`, (data: any) => {
-      console.log('📥 웹소켓 수신 (role-change):', data);
-      if (data && data.targetUserId !== undefined && data.newRole !== undefined) {
-        updateUserRole(data.targetUserId, data.newRole);
-      }
-    });
+    subTopic(
+      `/topic/room/${roomId}/role-change`,
+      (data: { targetUserId: number; newRole: number }) => {
+        console.log('📥 웹소켓 수신 (role-change):', data);
+        if (data && data.targetUserId !== undefined && data.newRole !== undefined) {
+          updateUserRole(data.targetUserId, data.newRole);
+        }
+      },
+    );
   }, [roomId, subTopic]);
 
   // 유저 추가 함수
