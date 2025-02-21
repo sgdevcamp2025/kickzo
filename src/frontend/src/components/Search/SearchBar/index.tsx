@@ -4,7 +4,6 @@ import useDebounceCallback from '@/hooks/utils/useDebounceCallback';
 import SearchIcon from '@/assets/img/Search.svg';
 import CancelIcon from '@/assets/img/Cancel.svg';
 import { SearchBarList } from '@/components/Search/SearchBarList';
-import { searchListSampleTest } from '@/assets/data/searchListTest';
 import {
   CancelIconBox,
   SearchBarContainer,
@@ -12,11 +11,8 @@ import {
   SearchBarWrapper,
   SearchIconBox,
 } from './index.css';
-
-interface ISearchList {
-  id: number;
-  nickname: string;
-}
+import { userApi } from '@/api/endpoints/user/user.api';
+import { UserResponseDto } from '@/api/endpoints/user/user.interface';
 
 export const SearchBar = () => {
   const navigate = useNavigate();
@@ -27,10 +23,8 @@ export const SearchBar = () => {
   const [targetIndex, setTargetIndex] = useState<number>(-1);
   const [searchValue, setSearchValue] = useState<string>('');
   const [totalLength, setTotalLength] = useState<number>(0);
-  const [searchList, setSearchList] = useState<ISearchList[]>([]);
+  const [searchList, setSearchList] = useState<UserResponseDto[]>([]);
   const enterKeyProcessed = useRef(false);
-
-  const searchListSample = searchListSampleTest;
 
   const resetSearchState = () => {
     setSearchList([]);
@@ -42,7 +36,7 @@ export const SearchBar = () => {
     }
   };
 
-  const handleSearchInput = () => {
+  const handleSearchInput = async () => {
     if (searchInput.current) {
       setSearchValue(searchInput.current.value);
       const searchValue = searchInput.current.value;
@@ -52,9 +46,9 @@ export const SearchBar = () => {
         return;
       } else {
         // 검색어에 따른 검색 결과 리스트
-        const searchListData = searchListSample.filter(item => item.nickname.includes(searchValue));
-        setSearchList(searchListData);
-        setTotalLength(searchListData.length);
+        const searchListData = await userApi.getUsers(0, 30, searchValue);
+        setSearchList(searchListData.users);
+        setTotalLength(searchListData.totalLength);
       }
     }
   };
