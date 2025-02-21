@@ -1,11 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useVideoStore } from '@/stores/useVideoStore';
 import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
 import { useWebSocketStore } from '@/stores/useWebSocketStore';
 
 export const YouTubePlayer = () => {
-  const { videoQueue, currentIndex } = useVideoStore();
+  const { videoQueue } = useVideoStore();
   const { currentRoom } = useCurrentRoomStore();
   const { client, subTopic } = useWebSocketStore();
   const pubTopic = useWebSocketStore.getState().pubTopic;
@@ -15,8 +15,11 @@ export const YouTubePlayer = () => {
   const lastSentStateRef = useRef<'playing' | 'paused' | null>(null);
   const isRemoteUpdateRef = useRef<boolean>(false);
 
-  // 이전 영상의 id를 기억
-  const previousVideoIdRef = useRef<string | null>(null);
+  // 현재 재생 중인 영상
+  const [currentPlayingVideo, setCurrentPlayingVideo] = useState<{
+    id: string;
+    start: number;
+  } | null>(null);
 
   // 유튜브 API 스크립트 동적 로드
   useEffect(() => {
@@ -119,23 +122,24 @@ export const YouTubePlayer = () => {
   useEffect(() => {
     if (!videoQueue.length) return;
 
-    const currentVideo = videoQueue[currentIndex];
-    if (!currentVideo) return;
+    const newCurrentVideo = videoQueue[0];
 
-    // 이전 영상 id와 비교
-    const prevId = previousVideoIdRef.current;
-    const newId = currentVideo.id;
-
-    // videoId가 달라졌을 때만 로드
-    if (prevId !== newId) {
-      console.log('🎬 loadPlayer (video changed): ', newId, currentVideo.start);
-      loadPlayer(newId, currentVideo.start);
-      previousVideoIdRef.current = newId;
+    // 현재 상태와 비교
+    if (
+      !currentPlayingVideo ||
+      currentPlayingVideo.id !== newCurrentVideo.id ||
+      currentPlayingVideo.start !== newCurrentVideo.start
+    ) {
+      loadPlayer(newCurrentVideo.id, newCurrentVideo.start);
+      setCurrentPlayingVideo({
+        id: newCurrentVideo.id,
+        start: newCurrentVideo.start,
+      });
     } else {
       // 동일 영상 id라면 재생 다시 시작 안 함
       console.log('같은 영상입니다');
     }
-  }, [videoQueue, currentIndex]);
+  }, [videoQueue, currentPlayingVideo]);
 
   return (
     <Container>
