@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import UserIcon from '@/assets/img/UsersLine.svg';
 import TrashcanIcon from '@/assets/img/Trashcan.svg';
 import ShareIcon from '@/assets/img/ShareLink.svg';
@@ -17,11 +17,24 @@ import {
   Title,
   UserCount,
 } from './index.css';
+import { getYoutubeThumbnail } from '@/utils/youtubeUtils';
 
 export const MyRoomCard = ({ room }: { room: MyRoomDto }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isClickDelete, setIsClickDelete] = useState(false);
+  const [thumbnail, setThumbnail] = useState<string>(DefaultThumbnail);
   const navigate = useNavigate();
+
+  useEffect(() => {
+    if (!room.playlistUrl) return;
+
+    const fetchThumbnail = async () => {
+      const url = await getYoutubeThumbnail(room.playlistUrl ?? '', 'default');
+      setThumbnail(url ?? DefaultThumbnail);
+    };
+
+    fetchThumbnail();
+  }, [room.playlistUrl]);
 
   const handleClick = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
@@ -60,7 +73,7 @@ export const MyRoomCard = ({ room }: { room: MyRoomDto }) => {
         onMouseLeave={() => setIsHovered(false)}
       >
         <Thumbnail>
-          <img src={room.playlistUrl ? room.playlistUrl : DefaultThumbnail} alt={room.title} />
+          <img src={thumbnail} alt={room.title} />
         </Thumbnail>
         <Info>
           <div>
