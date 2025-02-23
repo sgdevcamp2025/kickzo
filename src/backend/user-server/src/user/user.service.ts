@@ -17,6 +17,7 @@ import { REDIS_KEY } from "./constants/redis-key.constant";
 import { DeviceType } from "./enum/device-type.enum";
 import { MESSAGES } from "./constants/constants";
 import { ENV_KEY } from "./constants/env-key.constants";
+
 @Injectable()
 export class UserService {
   private readonly redis: Redis;
@@ -133,6 +134,16 @@ export class UserService {
           : updateUserDto.stateMessage;
     }
 
+    const updatedUser = await this.userRepository.save(user);
+    return updatedUser;
+  }
+
+  async updateProfileImage(userId: number, profileImageUrl: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException(MESSAGES.USER_NOT_FOUND);
+    }
+    user.profileImageUrl = profileImageUrl;
     const updatedUser = await this.userRepository.save(user);
     return updatedUser;
   }

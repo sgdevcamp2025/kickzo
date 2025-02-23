@@ -26,6 +26,7 @@ import { UpdateUserDto } from "./dto/update-user.dto";
 import { MESSAGES } from "./constants/constants";
 import { VERSION_NEUTRAL } from "@nestjs/common";
 import { ApiBearerAuth, ApiOperation } from "@nestjs/swagger";
+import { ProfileImageDto } from "./dto/profile-image.dto";
 
 @Controller({ path: "api/users", version: VERSION_NEUTRAL })
 @UseInterceptors(ClassSerializerInterceptor)
@@ -77,6 +78,23 @@ export class UserController {
       throw new UnauthorizedException(MESSAGES.UNAUTHORIZED_IN_HEADER);
     }
     return this.userService.getUserById(+id);
+  }
+
+  @Patch("me/profile-image")
+  @ApiBearerAuth()
+  @ApiOperation({ summary: "프로필 이미지 수정" })
+  async updateProfileImage(
+    @Req() req: Request,
+    @Body() profileImageDto: ProfileImageDto,
+  ) {
+    const userId = req.headers["x-user-id"];
+    if (!userId) {
+      throw new UnauthorizedException(MESSAGES.UNAUTHORIZED_IN_HEADER);
+    }
+    return await this.userService.updateProfileImage(
+      +userId,
+      profileImageDto.profileImageUrl,
+    );
   }
 
   @Patch("me")
