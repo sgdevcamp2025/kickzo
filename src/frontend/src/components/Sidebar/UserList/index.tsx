@@ -32,8 +32,7 @@ export const UserList = () => {
   const [, setVersion] = useState(0);
   const { currentRoom } = useCurrentRoomStore();
   const roomId = currentRoom?.roomDetails.roomInfo[0]?.roomId;
-
-  const { subTopic } = useWebSocketStore();
+  const { subscribeRoomUserInfo, subscribeRoomRoleChange } = useWebSocketStore.getState();
 
   useEffect(() => {
     if (roomId) {
@@ -41,16 +40,14 @@ export const UserList = () => {
       treeRef.current = new RedBlackTree<IUser>(compareUsers);
       roomApi
         .getParticipants(roomId.toString())
-        .then(
-          (
-            participants: {
+        .then(participants => {
+          participants.forEach(
+            (participant: {
               userId: number;
               role: number;
               nickname: string;
               profileImageUrl: string;
-            }[],
-          ) => {
-            participants.forEach(participant => {
+            }) => {
               const user: IUser = {
                 id: participant.userId,
                 role: participant.role,
@@ -58,10 +55,10 @@ export const UserList = () => {
                 profileImg: participant.profileImageUrl || DefaultProfile,
               };
               treeRef.current?.insert(user);
-            });
-            setVersion(v => v + 1);
-          },
-        )
+            },
+          );
+          setVersion(v => v + 1);
+        })
         .catch(error => {
           console.error('Error fetching participants', error);
         });
@@ -71,75 +68,48 @@ export const UserList = () => {
   // 신규 유저 정보 받기
   useEffect(() => {
     if (!roomId) return;
-    subTopic(
-      `/topic/room/${roomId}/user-info`,
-      (data: {
-        userInfo: { userId: number; role: number; nickname: string; profileImageUrl: string };
-      }) => {
-        console.log('📥 웹소켓 수신 (user-info):', data);
-        if (data && data.userInfo) {
-          const userInfo = data.userInfo;
-          const newUser: IUser = {
-            id: userInfo.userId,
-            role: userInfo.role,
-            nickname: userInfo.nickname,
-            profileImg: userInfo.profileImageUrl || DefaultProfile,
-          };
-          addUser(newUser);
-        }
-      },
-    );
-  }, [roomId, subTopic]);
+    subscribeRoomUserInfo(roomId, data => {
+      console.log('📥 웹소켓 수신 (user-info):', data);
+      if (data?.userInfo) {
+        const userInfo = data.userInfo;
+        const newUser: IUser = {
+          id: userInfo.userId,
+          role: userInfo.role,
+          nickname: userInfo.nickname,
+          profileImg: userInfo.profileImageUrl || DefaultProfile,
+        };
+        treeRef.current?.insert(newUser);
+        setVersion(v => v + 1);
+      }
+    });
+  }, [roomId, subscribeRoomUserInfo]);
 
+  // 역할 변경 받기
   useEffect(() => {
     if (!roomId) return;
-    subTopic(
-      `/topic/room/${roomId}/role-change`,
-      (data: { targetUserId: number; newRole: number }) => {
-        console.log('📥 웹소켓 수신 (role-change):', data);
-        if (data && data.targetUserId !== undefined && data.newRole !== undefined) {
-          updateUserRole(data.targetUserId, data.newRole);
-        }
-      },
-    );
-  }, [roomId, subTopic]);
-
-  // 유저 추가 함수
-  const addUser = (user: IUser) => {
-    if (!treeRef.current) return;
-    treeRef.current.insert(user);
-    setVersion(v => v + 1);
-  };
-
-  // role 변경된 유저 업데이트 함수
-  const updateUserRole = (targetUserId: number, newRole: number) => {
-    if (!treeRef.current) return;
-    // 기존 트리에서 모든 유저 목록을 가져온 후, 해당 유저의 role만 변경
-    const users = treeRef.current.inOrderTraversal();
-    const updatedUsers = users.map(user => {
-      if (user.id === targetUserId) {
-        return { ...user, role: newRole };
+    subscribeRoomRoleChange(roomId, data => {
+      console.log('📥 웹소켓 수신 (role-change):', data);
+      if (data && data.targetUserId !== undefined && data.newRole !== undefined) {
+        const users = treeRef.current?.inOrderTraversal() || [];
+        const updatedUsers = users.map(user => {
+          if (user.id === data.targetUserId) {
+            return { ...user, role: data.newRole };
+          }
+          return user;
+        });
+        treeRef.current = new RedBlackTree<IUser>(compareUsers);
+        updatedUsers.forEach(user => treeRef.current?.insert(user));
+        setVersion(v => v + 1);
       }
-      return user;
     });
-    // 새로운 레드블랙 트리로 재구성
-    treeRef.current = new RedBlackTree<IUser>(compareUsers);
-    updatedUsers.forEach(user => treeRef.current?.insert(user));
-    setVersion(v => v + 1);
-  };
-
-  // 레드블랙 트리로 정렬된 유저 목록 반환
-  const getSortedUsers = (): IUser[] => {
-    return treeRef.current ? treeRef.current.inOrderTraversal() : [];
-  };
+  }, [roomId, subscribeRoomRoleChange]);
 
   const [activeProfile, setActiveProfile] = useState<number | null>(null);
-
   const handleProfileClick = (id: number) => {
     setActiveProfile(prevId => (prevId === id ? null : id));
   };
 
-  const users = getSortedUsers();
+  const users = treeRef.current ? treeRef.current.inOrderTraversal() : [];
 
   return (
     <Container>

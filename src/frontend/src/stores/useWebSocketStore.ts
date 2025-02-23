@@ -20,10 +20,26 @@ interface WebSocketStore {
   disconnect: () => void;
 
   subTopic: <T>(destination: string, callback: (message: T) => void) => void;
-  subscribeRoom: (roomId: number) => void;
-  subscribeRooms: (roomIds: number[]) => void;
   subscribeInvitations: (userId: number) => void;
   subscribeFriendConnection: (userId: number) => void;
+  subscribeRoomChat: (roomId: number) => void;
+  subscribeRoomUserInfo: (
+    roomId: number,
+    callback: (data: {
+      userInfo: { userId: number; role: number; nickname: string; profileImageUrl: string };
+    }) => void,
+  ) => void;
+  subscribeRoomRoleChange: (
+    roomId: number,
+    callback: (data: { targetUserId: number; newRole: number }) => void,
+  ) => void;
+  subscribeRoomPlaylistUpdate: (
+    roomId: number,
+    callback: (data: {
+      playlist: { order: number; url: string; title: string; youtuber: string }[];
+    }) => void,
+  ) => void;
+  subscribeRooms: (roomIds: number[]) => void;
   unsubscribeAll: () => void;
   pubTopic: (destination: string, message: string) => void;
 }
@@ -116,19 +132,49 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   },
 
   // 방 채팅 구독
-  subscribeRoom: (roomId: number) => {
+  subscribeRoomChat: (roomId: number) => {
     const destination = `/topic/room/${roomId}/chat`;
     get().subTopic(destination, message => {
-      console.log('subscribeRoom', message);
+      console.log('subscribeRoomChat', message);
     });
+  },
+
+  // 채팅방 내 신규 유저 정보 구독
+  subscribeRoomUserInfo: (
+    roomId: number,
+    callback: (data: {
+      userInfo: { userId: number; role: number; nickname: string; profileImageUrl: string };
+    }) => void,
+  ) => {
+    const destination = `/topic/room/${roomId}/user-info`;
+    get().subTopic(destination, callback);
+  },
+
+  // 채팅방 내 역할 변경 구독
+  subscribeRoomRoleChange: (
+    roomId: number,
+    callback: (data: { targetUserId: number; newRole: number }) => void,
+  ) => {
+    const destination = `/topic/room/${roomId}/role-change`;
+    get().subTopic(destination, callback);
+  },
+
+  // 채팅방 내 플레이리스트 업데이트 구독
+  subscribeRoomPlaylistUpdate: (
+    roomId: number,
+    callback: (data: {
+      playlist: { order: number; url: string; title: string; youtuber: string }[];
+    }) => void,
+  ) => {
+    const destination = `/topic/room/${roomId}/playlist-update`;
+    get().subTopic(destination, callback);
   },
 
   // 내가 속한 방 채팅 구독
   subscribeRooms: (roomIds: number[]) => {
     if (!roomIds) return;
-
     roomIds.forEach(roomId => {
-      get().subscribeRoom(roomId);
+      get().subscribeRoomChat(roomId);
     });
   },
 

@@ -21,6 +21,7 @@ import { PlaylistItem } from './PlaylistItem';
 import { useWebSocketStore } from '@/stores/useWebSocketStore';
 import { useUserStore } from '@/stores/useUserStore';
 import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
+
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY as string;
 import { roomApi } from '@/api/endpoints/room/room.api';
 
@@ -55,7 +56,7 @@ export const Playlist = () => {
 
   const { currentRoom } = useCurrentRoomStore();
   const roomId = currentRoom?.roomDetails?.roomInfo?.[0]?.roomId;
-  const { subTopic } = useWebSocketStore();
+  const { subscribeRoomPlaylistUpdate } = useWebSocketStore.getState();
 
   // 드래그 상태를 useRef로 관리하고, 강제 업데이트를 위해 forceUpdate 함수를 사용
   const draggedIndexRef = useRef<number | null>(null);
@@ -63,28 +64,64 @@ export const Playlist = () => {
   const [, forceUpdate] = useState(0);
   const triggerUpdate = useCallback(() => forceUpdate(n => n + 1), []);
 
-  const updatePlaylistOnServer = useCallback(async () => {
-    const { videoQueue } = useVideoStore.getState();
-    const userId = useUserStore.getState().user?.userId;
-    if (!userId) {
-      console.error('사용자 ID가 없습니다.');
+  // 플레이리스트 업데이트 구독
+  useEffect(() => {
+    if (!roomId) {
+      console.warn('roomId가 없습니다. 구독 취소됨');
       return;
     }
+    subscribeRoomPlaylistUpdate(roomId, async data => {
+      if (data?.playlist && Array.isArray(data.playlist)) {
+        const sortedPlaylist = data.playlist.sort((a, b) => a.order - b.order);
+        const updatedQueue = await Promise.all(
+          sortedPlaylist.map(async item => {
+            const { videoId, startTime } = extractVideoIdAndStartTime(item.url);
+            let title = item.title || '';
+            let youtuber = item.youtuber || '';
 
-    const requestData = videoQueue.map((video, index) => ({
-      order: index,
-      url: `https://www.youtube.com/watch?v=${video.id}${video.start ? `&t=${video.start}` : ''}`,
-      title: video.title,
-      youtuber: video.youtuber,
-    }));
+            if (!title || !youtuber) {
+              try {
+                const { data: apiData } = await axios.get(
+                  'https://www.googleapis.com/youtube/v3/videos',
+                  {
+                    params: {
+                      part: 'snippet',
+                      id: videoId,
+                      key: API_KEY,
+                      hl: 'ko',
+                    },
+                  },
+                );
+                const items = apiData.items;
+                if (items && items.length > 0) {
+                  if (!title) title = items[0].snippet.title;
+                  if (!youtuber) youtuber = items[0].snippet.channelTitle;
+                } else {
+                  if (!title) title = '제목 없음';
+                  if (!youtuber) youtuber = '유튜버 정보 없음';
+                }
+              } catch (error) {
+                console.error('Error fetching video details for URL:', item.url, error);
+                if (!title) title = '제목 없음';
+                if (!youtuber) youtuber = '유튜버 정보 없음';
+              }
+            }
 
-    try {
-      const response = await roomApi.sendPlaylist(roomId!, requestData);
-      console.log('플레이리스트 업데이트 성공:', response);
-    } catch (error) {
-      console.error('플레이리스트 업데이트 실패:', error);
-    }
-  }, [roomId]);
+            return {
+              id: videoId,
+              start: startTime,
+              thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`,
+              title,
+              youtuber,
+            };
+          }),
+        );
+        useVideoStore.setState({ videoQueue: updatedQueue });
+      } else {
+        console.warn('잘못된 웹소켓 데이터 수신:', data);
+      }
+    });
+  }, [roomId, subscribeRoomPlaylistUpdate]);
 
   // debouncedInputUrl이 변경되면 YouTube API를 통해 영상 정보를 가져온다
   useEffect(() => {
@@ -126,6 +163,29 @@ export const Playlist = () => {
       }
     }
   }, [debouncedInputUrl]);
+
+  const updatePlaylistOnServer = useCallback(async () => {
+    const { videoQueue } = useVideoStore.getState();
+    const userId = useUserStore.getState().user?.userId;
+    if (!userId) {
+      console.error('사용자 ID가 없습니다.');
+      return;
+    }
+
+    const requestData = videoQueue.map((video, index) => ({
+      order: index,
+      url: `https://www.youtube.com/watch?v=${video.id}${video.start ? `&t=${video.start}` : ''}`,
+      title: video.title,
+      youtuber: video.youtuber,
+    }));
+
+    try {
+      const response = await roomApi.sendPlaylist(roomId!, requestData);
+      console.log('플레이리스트 업데이트 성공:', response);
+    } catch (error) {
+      console.error('플레이리스트 업데이트 실패:', error);
+    }
+  }, [roomId]);
 
   // 영상 추가
   const handleAddVideo = useCallback(() => {
@@ -230,71 +290,6 @@ export const Playlist = () => {
     reorderedVideos.splice(dragOverIndexRef.current, 0, draggedVideo);
     return reorderedVideos;
   }, [videoQueue]);
-
-  // 웹소켓 구독
-  useEffect(() => {
-    if (!roomId) {
-      console.warn('roomId가 없습니다. 구독 취소됨');
-      return;
-    }
-
-    subTopic(
-      `/topic/room/${roomId}/playlist-update`,
-      async (data: {
-        playlist: { order: number; url: string; title: string; youtuber: string }[];
-      }) => {
-        if (data?.playlist && Array.isArray(data.playlist)) {
-          const sortedPlaylist = data.playlist.sort((a, b) => a.order - b.order);
-          const updatedQueue = await Promise.all(
-            sortedPlaylist.map(async item => {
-              const { videoId, startTime } = extractVideoIdAndStartTime(item.url);
-              let title = item.title || '';
-              let youtuber = item.youtuber || '';
-
-              if (!title || !youtuber) {
-                try {
-                  const { data: apiData } = await axios.get<{
-                    items: { snippet: { title: string; channelTitle: string } }[];
-                  }>('https://www.googleapis.com/youtube/v3/videos', {
-                    params: {
-                      part: 'snippet',
-                      id: videoId,
-                      key: API_KEY,
-                      hl: 'ko',
-                    },
-                  });
-                  const items = apiData.items;
-                  if (items && items.length > 0) {
-                    if (!title) title = items[0].snippet.title;
-                    if (!youtuber) youtuber = items[0].snippet.channelTitle;
-                  } else {
-                    if (!title) title = '제목 없음';
-                    if (!youtuber) youtuber = '유튜버 정보 없음';
-                  }
-                } catch (error) {
-                  console.error('Error fetching video details for URL:', item.url, error);
-                  if (!title) title = '제목 없음';
-                  if (!youtuber) youtuber = '유튜버 정보 없음';
-                }
-              }
-
-              return {
-                id: videoId,
-                start: startTime,
-                thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`,
-                title,
-                youtuber,
-              };
-            }),
-          );
-
-          useVideoStore.setState({ videoQueue: updatedQueue });
-        } else {
-          console.warn('잘못된 웹소켓 데이터 수신:', data);
-        }
-      },
-    );
-  }, [roomId, subTopic]);
 
   return (
     <Container>
