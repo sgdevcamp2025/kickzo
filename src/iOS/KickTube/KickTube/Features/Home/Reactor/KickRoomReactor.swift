@@ -82,10 +82,16 @@ final class KickRoomReactor: Reactor {
                 
                 Task {
                     do {
-                        let createRoomResponse = try await self.session.send(joinRoomRequest)
+                        let roomResponse = try await self.session.send(joinRoomRequest).toModel()
                         
-                        observer.onNext(Mutation.setRoomInformation(createRoomResponse.toModel()))
                         WebSocketService.shared.configure(urlString: WebSocketURL.chat, roomID: roomResponse.roomDetail.roomInfo.roomID)
+                        WebSocketService.shared.connect { isConnected in
+                            if isConnected {
+                                print("connected, kickroomreactor")
+                            }
+                        }
+                        
+                        observer.onNext(Mutation.setRoomInformation(roomResponse))
                         observer.onCompleted()
                     } catch NetworkError.createRoom {
                         observer.onCompleted()

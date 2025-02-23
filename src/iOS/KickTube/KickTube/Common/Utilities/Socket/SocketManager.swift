@@ -66,6 +66,52 @@ class WebSocketService: NSObject {
     func unsubscribe(topic: WebSocketTopic) {
         stompClient.unsubscribe(destination: topic.endPoint)
     }
+    private func publishSendUserID() {
+        guard let userID else { return }
+        
+        let payload: [String: Int] = [
+            "userId": userID
+        ]
+        
+        if let jsonString = payload.toJSONString() {
+            stompClient.sendMessage(message: jsonString, toDestination: WebSocketTopic.pubSendUserId.endPoint, withHeaders: nil, withReceipt: nil)
+            print("Entered room with userId: \(userID)")
+        }
+    }
+    
+    func publishChatMessage(message: String?)   {
+        guard let roomID else { return }
+        guard let userID else { return }
+        
+        let chatPayload: [String: Any?] = [
+            "roomId": roomID,
+            "userId": userID,
+            "nickname": UserDefaultsManager.shared.myProfile.nickname,
+            "role": UserDefaultsManager.shared.myRole.rawValue,
+            "profileImageUrl": UserDefaultsManager.shared.myProfile.profileImageURL,
+            "content": nil,
+            "message": message
+        ]
+
+        if let jsonString = chatPayload.toJSONString() {
+            stompClient.sendMessage(message: jsonString, toDestination: WebSocketTopic.pubMessage.endPoint, withHeaders: nil, withReceipt: nil)
+        }
+    }
+    
+    func publishVideoTime(_ state: KickRoomPlayerStateViewModel) {
+        guard let roomID else { return }
+        
+        let videoPayload: [String: Any] = [
+            "roomId" : roomID,
+            "playTime" : Int(state.time),
+            "playerState": state.progress.rawValue
+        ]
+        
+        if let jsonString = videoPayload.toJSONString() {
+            stompClient.sendMessage(message: jsonString, toDestination: WebSocketTopic.pubVideoTime.endPoint, withHeaders: nil, withReceipt: nil)
+            print("publish Chat Message")
+        }
+    }
 extension WebSocketService: StompClientLibDelegate {
     func stompClient(client: StompClientLib!, didReceiveMessageWithJSONBody jsonBody: AnyObject?, akaStringBody stringBody: String?, withHeader header: [String : String]?, withDestination destination: String) {
 
@@ -74,6 +120,8 @@ extension WebSocketService: StompClientLibDelegate {
     
     func stompClientDidConnect(client: StompClientLib!) {
         print("STOMP Connected")
+        publishSendUserID()
+        connectionCompletion?(true)
     }
 
     func stompClientDidDisconnect(client: StompClientLib!) {

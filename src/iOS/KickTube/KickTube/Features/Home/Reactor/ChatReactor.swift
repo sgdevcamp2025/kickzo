@@ -21,7 +21,7 @@ final class ChatReactor: Reactor {
     
     enum Mutation {
         case setMessages(ChatSectionType, [ChatMessageDomainModel])
-        case appendNewMessage(ChatMessageViewModel)
+        case appendNewMessage(ChatMessageDomainModel)
     }
     
     struct State {
@@ -61,18 +61,8 @@ final class ChatReactor: Reactor {
             return .empty()
 
         case .sendMessage(let message):
-            let newMessage = ChatMessageDomainModel(
-                messageID: "\(Int.random(in: 1...1000000))",
-                roomID: 43,
-                userID: 5,
-                createdAt: Int(Date().timeIntervalSince1970),
-                media: nil,
-                message: message,
-                role: 2,
-                nickname: "Sample User",
-                profileImageURL: nil
-            )
-            return .just(.appendNewMessage(newMessage.toModel()))
+            WebSocketService.shared.publishChatMessage(message: message)
+            return .empty()
         }
     }
 

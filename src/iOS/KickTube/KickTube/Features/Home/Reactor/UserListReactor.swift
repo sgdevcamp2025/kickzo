@@ -79,6 +79,17 @@ final class UserListReactor: Reactor {
             }
             
             newState.selectedCell = (id: user.userID, role: user.role)
+        case .changeUserRole(let user):
+            if newState.aliveUserSet.contains(user.targetUserID) {
+                if let uIdx = newState.userList.firstIndex(where: { $0.userID == user.targetUserID }) {
+                    newState.userList[uIdx].role = user.newRole
+                }
+                if let sIdx = newState.searchUserResult.firstIndex(where: { $0.userID == user.targetUserID }) {
+                    newState.searchUserResult[sIdx].role = user.newRole
+                }
+                newState.userList = sortUserList(newState.userList)
+                newState.searchUserResult = sortUserList(newState.searchUserResult)
+            }
         }
         
         return newState
