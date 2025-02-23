@@ -118,6 +118,28 @@ export const YouTubePlayer = () => {
     lastSentStateRef.current = playerState as 'playing' | 'paused';
   };
 
+  // // TODO: 10초마다 현재 재생 상태를 웹소켓으로 전송 (userList의 0번째 닉네임과 내 닉네임이 같을 경우)
+  // const [playerReady, setPlayerReady] = useState(false);
+  // const creatorName = currentRoom?.roomDetails?.userList[0]?.nickname;
+  // useEffect(() => {
+  //   if (!playerReady) return;
+  //   if (!creatorName || creatorName !== currentRoom?.roomDetails?.userList[0]?.nickname) return; // 내 닉네임이 userList[0]의 닉네임과 같지 않으면 실행X
+
+  //   const interval = setInterval(() => { // 10초마다 전송
+  //     if (!playerRef.current) return;
+  //     const playerState = playerRef.current.getPlayerState();
+  //     const playTime = playerRef.current.getCurrentTime();
+
+  //     if (playerState === window.YT.PlayerState.PLAYING) {
+  //       broadcastPlayerState('playing', playTime);
+  //     } else if (playerState === window.YT.PlayerState.PAUSED) {
+  //       broadcastPlayerState('paused', playTime);
+  //     }
+  //   }, 10000);
+
+  //   return () => clearInterval(interval);
+  // }, [creatorName, currentRoom, playerReady]);
+
   // 영상 변경 시 플레이어 로드
   useEffect(() => {
     if (!videoQueue.length) return;
