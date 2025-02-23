@@ -20,10 +20,16 @@ export const Header = styled.div`
   justify-content: space-between;
 `;
 
-export const ProfileImage = styled.img`
+export const ProfileImage = styled.img<{ $onClick: boolean }>`
   width: 64px;
   height: 64px;
   border-radius: 10px;
+  transition: opacity 0.2s ease-in-out;
+
+  &:hover {
+    cursor: ${({ $onClick }) => ($onClick ? 'pointer' : 'default')};
+    opacity: ${({ $onClick }) => ($onClick ? 0.7 : 1)};
+  }
 `;
 
 export const HeaderButtonContainer = styled.div`
