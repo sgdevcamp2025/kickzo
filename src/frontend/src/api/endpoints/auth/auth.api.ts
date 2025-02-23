@@ -2,6 +2,8 @@ import { useAuthStore } from '@/stores/useAuthStore';
 import instance from '../../axios.instance';
 import { LoginRequest, LoginResponseDto } from './auth.interface';
 import axios from 'axios';
+import { ErrorType } from '@/types/enums/ErrorType';
+import { logAxiosError } from '@/api/axios.log';
 
 const loginInstance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -27,9 +29,14 @@ export const authApi = {
 
   // 로그아웃
   logout: async () => {
-    const { data } = await instance.post('/auth/logout');
-    useAuthStore.getState().clear();
-    return data;
+    try {
+      const { data } = await instance.post('/auth/logout');
+      useAuthStore.getState().clear();
+      return data;
+    } catch (error) {
+      logAxiosError(error, ErrorType.AUTH, '로그아웃 실패');
+      throw error;
+    }
   },
 
   // 토큰 갱신

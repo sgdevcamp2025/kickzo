@@ -19,14 +19,9 @@ export const useUserStore = create(
       user: null,
       setUser: (user: UserResponseDto) => set({ user }),
       fetchMyProfile: async () => {
-        try {
-          const data = await userApi.getMyProfile();
-          console.log(data);
-          set({ user: data });
-          return data;
-        } catch (error) {
-          console.error(error);
-        }
+        const data = await userApi.getMyProfile();
+        set({ user: data });
+        return data;
       },
       updateMyProfile: async (updateUserRequestDto: UpdateUserRequestDto) => {
         const data = await userApi.updateMyProfile(updateUserRequestDto);
