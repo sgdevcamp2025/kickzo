@@ -26,26 +26,24 @@ export const Thumbnail = styled.div<{ $playlistUrl: string | undefined }>`
     width: 100%;
     height: 100%;
     object-fit: cover;
+    content: url(${props => getYoutubeThumbnail(props.$playlistUrl, 'maxres')});
   }
 
-  /* 480px 이상: hq 크기 이미지 로드 */
-  @media (min-width: 480px) {
-    & > img {
-      content: url(${props => getYoutubeThumbnail(props.$playlistUrl, 'hq')});
-    }
-  }
-
-  /* 640px 이상: sd 크기 이미지 로드 */
-  @media (min-width: 640px) {
+  @media (max-width: 639px) {
     & > img {
       content: url(${props => getYoutubeThumbnail(props.$playlistUrl, 'sd')});
     }
   }
 
-  /* 1280px 이상: maxres 크기 이미지 로드 */
-  @media (min-width: 1280px) {
+  @media (max-width: 479px) {
     & > img {
-      content: url(${props => getYoutubeThumbnail(props.$playlistUrl, 'maxres')});
+      content: url(${props => getYoutubeThumbnail(props.$playlistUrl, 'hq')});
+    }
+  }
+
+  @media (max-width: 319px) {
+    & > img {
+      content: url(${props => getYoutubeThumbnail(props.$playlistUrl, 'mq')});
     }
   }
 `;

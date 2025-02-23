@@ -7,10 +7,10 @@ export const getYoutubeVideoInfo = async (videoId: string) => {
 };
 
 // 유튜브 썸네일 이미지 가져오기
-// maxres: 1280p, sd: 640p, hq: 480p, default: 120p
+// maxres: 1280p, sd: 640p, hq: 480p, mq: 320p, default: 120p
 export const getYoutubeThumbnail = (
   url: string | undefined,
-  quality: 'default' | 'hq' | 'sd' | 'maxres',
+  quality: 'default' | 'mq' | 'hq' | 'sd' | 'maxres',
 ): string | undefined => {
   if (!url) return undefined;
 
@@ -21,6 +21,7 @@ export const getYoutubeThumbnail = (
     maxres: 'maxresdefault',
     sd: 'sddefault',
     hq: 'hqdefault',
+    mq: 'mqdefault',
     default: 'default',
   };
 
