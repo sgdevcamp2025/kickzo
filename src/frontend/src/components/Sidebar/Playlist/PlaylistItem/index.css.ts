@@ -14,7 +14,7 @@ export const Container = styled.div<VideoItemContainerProps>`
   border-radius: 5px;
   background-color: ${({ $isPreview }) =>
     $isPreview ? 'var(--palette-line-normal-normal)' : 'var(--palette-static-white)'};
-  border: 1px solid #ddd
+  border: 1px solid #ddd;
   cursor: pointer;
   position: relative;
   transition: all 0.2s ease;
@@ -38,7 +38,7 @@ export const Container = styled.div<VideoItemContainerProps>`
     transition: transform 0.2s ease;
   }
 
-   &:hover .button-container {
+  &:hover .button-container {
     opacity: ${({ $isDragging }) => ($isDragging ? 0 : 1)};
     visibility: ${({ $isDragging }) => ($isDragging ? 'hidden' : 'visible')};
   }
