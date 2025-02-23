@@ -1,3 +1,4 @@
+import { getYoutubeThumbnail } from '@/utils/youtubeUtils';
 import { styled } from 'styled-components';
 
 export const VideoCardContainer = styled.div`
@@ -14,7 +15,7 @@ export const VideoCardContainer = styled.div`
   }
 `;
 
-export const Thumbnail = styled.div`
+export const Thumbnail = styled.div<{ $playlistUrl: string | undefined }>`
   width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: 0.625rem;
@@ -25,6 +26,27 @@ export const Thumbnail = styled.div`
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+
+  /* 480px 이상: hq 크기 이미지 로드 */
+  @media (min-width: 480px) {
+    & > img {
+      content: url(${props => getYoutubeThumbnail(props.$playlistUrl, 'hq')});
+    }
+  }
+
+  /* 640px 이상: sd 크기 이미지 로드 */
+  @media (min-width: 640px) {
+    & > img {
+      content: url(${props => getYoutubeThumbnail(props.$playlistUrl, 'sd')});
+    }
+  }
+
+  /* 1280px 이상: maxres 크기 이미지 로드 */
+  @media (min-width: 1280px) {
+    & > img {
+      content: url(${props => getYoutubeThumbnail(props.$playlistUrl, 'maxres')});
+    }
   }
 `;
 

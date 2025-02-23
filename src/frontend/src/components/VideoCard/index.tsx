@@ -10,17 +10,32 @@ import {
 import { RoomDto } from '@/api/endpoints/room/room.interface';
 import DefaultThumbnail from '@/assets/img/DefaultThumbnail.svg';
 import DefaultProfile from '@/assets/img/DefaultProfile.svg';
+import { getYoutubeThumbnail } from '@/utils/youtubeUtils';
+import { useEffect, useState } from 'react';
 interface IVideoCard {
   video: RoomDto;
   onClick?: () => void;
 }
 
 export const VideoCard = ({ video, onClick }: IVideoCard) => {
+  const [thumbnail, setThumbnail] = useState<string>(DefaultThumbnail);
+
+  useEffect(() => {
+    if (!video.playlistUrl) return;
+
+    const fetchThumbnail = async () => {
+      const url = await getYoutubeThumbnail(video.playlistUrl ?? '', 'hq');
+      setThumbnail(url ?? DefaultThumbnail);
+    };
+
+    fetchThumbnail();
+  }, [video.playlistUrl]);
+
   return (
     <VideoCardContainer onClick={onClick}>
-      <Thumbnail>
+      <Thumbnail $playlistUrl={video.playlistUrl}>
         <UserCount>{video.userCount}명</UserCount>
-        <img src={video.playlistUrl ? video.playlistUrl : DefaultThumbnail} alt={video.title} />
+        <img src={thumbnail} alt={video.title} />
       </Thumbnail>
       <VideoInfo>
         <Profile>
