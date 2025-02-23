@@ -24,7 +24,7 @@ final class LoginReactor: Reactor {
         case setID(String)
         case setPW(String)
         case setUserInformation(TokenDomainModel)
-        case sestMyProfile(UserProfileDomainModel)
+        case setMyProfile(UserProfileDomainModel)
     }
     
     struct State {
@@ -71,7 +71,7 @@ final class LoginReactor: Reactor {
             KeyChainManager.shared.save(key: .refreshToken, value: data.refreshToken)
             
             print(data.accessToken)
-        case .sestMyProfile(let data):
+        case .setMyProfile(let data):
             var loginData = data.toModel()
             
             loginData.profileImageData = UIImage.defaultProfile.toData()
@@ -104,7 +104,7 @@ final class LoginReactor: Reactor {
                     let myProfileRequest = API.User.myProfile
                     let myProfileResponse = try await self.session.send(myProfileRequest)
                     
-                    observer.onNext(Mutation.sestMyProfile(myProfileResponse.toModel()))
+                    observer.onNext(Mutation.setMyProfile(myProfileResponse.toModel()))
                     observer.onCompleted()
                 } catch {
                     observer.onCompleted()
