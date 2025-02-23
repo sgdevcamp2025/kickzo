@@ -13,6 +13,8 @@ import {
   StateMessageInput,
   StateMessagePlus,
   ErrorMessage,
+  ProfileImageResetButton,
+  ProfileImageContainer,
 } from './index.css';
 
 import Edit from '@/assets/img/Edit.svg';
@@ -99,25 +101,37 @@ export const MyProfile = () => {
     }
   };
 
+  const handleImageReset = async () => {
+    const updateUser = await updateProfileImage(null);
+    console.log('image reset', updateUser);
+  };
+
   return (
     <Container>
       <Profile>
         <Header>
-          <ProfileImage
-            src={user.profileImageUrl ?? DefaultProfile}
-            onClick={handleImageClick}
-            $onClick={isEditMode}
-            onError={e => {
-              e.currentTarget.src = DefaultProfile;
-            }}
-          />
-          <input
-            type="file"
-            ref={fileInputRef}
-            onChange={handleImageChange}
-            style={{ display: 'none' }}
-            accept="image/*"
-          />
+          <ProfileImageContainer>
+            <ProfileImage
+              src={user.profileImageUrl ?? DefaultProfile}
+              onClick={handleImageClick}
+              $onClick={isEditMode}
+              onError={e => {
+                e.currentTarget.src = DefaultProfile;
+              }}
+            />
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+              style={{ display: 'none' }}
+              accept="image/*"
+            />
+            {isEditMode && (
+              <ProfileImageResetButton onClick={handleImageReset}>
+                <img src={Cancel} alt="cancel" />
+              </ProfileImageResetButton>
+            )}
+          </ProfileImageContainer>
           <HeaderButtonContainer>
             <IconButton
               beforeImgUrl={isEditMode ? Check : Edit}

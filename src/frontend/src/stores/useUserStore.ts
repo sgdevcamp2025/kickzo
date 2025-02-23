@@ -10,7 +10,7 @@ interface UserStore {
   updateMyProfile: (
     updateUserRequestDto: UpdateUserRequestDto,
   ) => Promise<UserResponseDto | undefined>;
-  updateProfileImage: (profileImageUrl: string) => Promise<UserResponseDto | undefined>;
+  updateProfileImage: (profileImageUrl: string | null) => Promise<UserResponseDto | undefined>;
   clearProfile: () => void;
 }
 
@@ -34,7 +34,7 @@ export const useUserStore = create(
         set({ user: data });
         return data;
       },
-      updateProfileImage: async (profileImageUrl: string) => {
+      updateProfileImage: async (profileImageUrl: string | null) => {
         try {
           const data = await userApi.updateProfileImage(profileImageUrl);
           set({ user: data });

@@ -20,6 +20,10 @@ export const Header = styled.div`
   justify-content: space-between;
 `;
 
+export const ProfileImageContainer = styled.div`
+  position: relative;
+`;
+
 export const ProfileImage = styled.img<{ $onClick: boolean }>`
   width: 64px;
   height: 64px;
@@ -29,6 +33,25 @@ export const ProfileImage = styled.img<{ $onClick: boolean }>`
   &:hover {
     cursor: ${({ $onClick }) => ($onClick ? 'pointer' : 'default')};
     opacity: ${({ $onClick }) => ($onClick ? 0.7 : 1)};
+  }
+`;
+
+export const ProfileImageResetButton = styled.button`
+  position: absolute;
+  top: -6px;
+  left: -6px;
+  background-color: var(--palette-background-normal-alternative);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--palette-line-normal-neutral);
+  cursor: pointer;
+  border-radius: 50%;
+  padding: 8px;
+
+  & > img {
+    width: 8px;
+    height: 8px;
   }
 `;
 
