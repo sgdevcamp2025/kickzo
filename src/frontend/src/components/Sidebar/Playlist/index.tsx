@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { CommonButton } from '@/components/common/Button';
 import { useVideoStore } from '@/stores/useVideoStore';
@@ -57,7 +57,13 @@ export const Playlist = () => {
   const roomId = currentRoom?.roomDetails?.roomInfo?.[0]?.roomId;
   const { subTopic } = useWebSocketStore();
 
-  const updatePlaylistOnServer = async () => {
+  // 드래그 상태를 useRef로 관리하고, 강제 업데이트를 위해 forceUpdate 함수를 사용
+  const draggedIndexRef = useRef<number | null>(null);
+  const dragOverIndexRef = useRef<number | null>(null);
+  const [, forceUpdate] = useState(0);
+  const triggerUpdate = useCallback(() => forceUpdate(n => n + 1), []);
+
+  const updatePlaylistOnServer = useCallback(async () => {
     const { videoQueue } = useVideoStore.getState();
     const userId = useUserStore.getState().user?.userId;
     if (!userId) {
@@ -78,7 +84,7 @@ export const Playlist = () => {
     } catch (error) {
       console.error('플레이리스트 업데이트 실패:', error);
     }
-  };
+  }, [roomId]);
 
   // debouncedInputUrl이 변경되면 YouTube API를 통해 영상 정보를 가져온다
   useEffect(() => {
@@ -122,12 +128,13 @@ export const Playlist = () => {
   }, [debouncedInputUrl]);
 
   // 영상 추가
-  const handleAddVideo = () => {
+  const handleAddVideo = useCallback(() => {
     const { videoId, startTime } = extractVideoIdAndStartTime(inputUrl);
     if (!videoId) {
       alert('유효한 유튜브 URL을 입력하세요!');
       return;
     }
+
     addVideo({
       id: videoId,
       start: startTime,
@@ -141,42 +148,50 @@ export const Playlist = () => {
     setThumbnailPreview('');
     setVideoTitle('');
     setVideoYoutuber('');
-  };
+  }, [inputUrl, videoTitle, videoYoutuber, addVideo, updatePlaylistOnServer]);
 
   // 영상 제거
-  const handleRemoveVideo = (index: number) => {
-    removeVideo(index);
-    updatePlaylistOnServer();
-  };
+  const handleRemoveVideo = useCallback(
+    (index: number) => {
+      removeVideo(index);
+      updatePlaylistOnServer();
+    },
+    [removeVideo, updatePlaylistOnServer],
+  );
 
   // 드래그 앤 드롭
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  const handleDragStart = useCallback(
+    (index: number) => {
+      draggedIndexRef.current = index;
+      triggerUpdate();
+    },
+    [triggerUpdate],
+  );
 
-  const handleDragStart = useCallback((index: number) => {
-    setDraggedIndex(index);
-  }, []);
-
-  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>, index: number) => {
-    e.preventDefault();
-    setDragOverIndex(index);
-  }, []);
+  const handleDragOver = useCallback(
+    (e: React.DragEvent<HTMLDivElement>, index: number) => {
+      e.preventDefault();
+      dragOverIndexRef.current = index;
+      triggerUpdate();
+    },
+    [triggerUpdate],
+  );
 
   const handleDragEnd = useCallback(() => {
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-  }, []);
+    draggedIndexRef.current = null;
+    dragOverIndexRef.current = null;
+    triggerUpdate();
+  }, [triggerUpdate]);
 
   // 드롭 시 순서 변경 후 서버에 전송
   const handleDrop = useCallback(
     (dropIndex: number) => {
+      const draggedIndex = draggedIndexRef.current;
       if (draggedIndex === null || draggedIndex === dropIndex) return;
-
       useVideoStore.setState(state => {
         const updatedQueue = [...state.videoQueue];
         const [draggedItem] = updatedQueue.splice(draggedIndex, 1);
         updatedQueue.splice(dropIndex, 0, draggedItem);
-
         let newCurrentIndex = state.currentIndex;
         if (draggedIndex === state.currentIndex) {
           newCurrentIndex = dropIndex;
@@ -185,36 +200,36 @@ export const Playlist = () => {
         } else if (dropIndex <= state.currentIndex && state.currentIndex < draggedIndex) {
           newCurrentIndex = state.currentIndex + 1;
         }
-
         setTimeout(() => {
           updatePlaylistOnServer();
         }, 0);
-
         return { videoQueue: updatedQueue, currentIndex: newCurrentIndex };
       });
-
-      setDraggedIndex(null);
-      setDragOverIndex(null);
+      draggedIndexRef.current = null;
+      dragOverIndexRef.current = null;
+      triggerUpdate();
     },
-    [draggedIndex],
+    [updatePlaylistOnServer, triggerUpdate],
   );
 
   // 현재 재생 영상 변경
-  const handleSetCurrentVideo = (index: number) => {
-    setCurrentVideo(index);
-    setCurrentIndex(index);
-    updatePlaylistOnServer();
-  };
+  const handleSetCurrentVideo = useCallback(
+    (index: number) => {
+      setCurrentVideo(index);
+      setCurrentIndex(index);
+      updatePlaylistOnServer();
+    },
+    [setCurrentVideo, setCurrentIndex, updatePlaylistOnServer],
+  );
 
   // 드래그한거 미리보기
   const getReorderedVideos = useCallback(() => {
-    if (draggedIndex === null || dragOverIndex === null) return videoQueue;
-
+    if (draggedIndexRef.current === null || dragOverIndexRef.current === null) return videoQueue;
     const reorderedVideos = [...videoQueue];
-    const [draggedVideo] = reorderedVideos.splice(draggedIndex, 1);
-    reorderedVideos.splice(dragOverIndex, 0, draggedVideo);
+    const [draggedVideo] = reorderedVideos.splice(draggedIndexRef.current, 1);
+    reorderedVideos.splice(dragOverIndexRef.current, 0, draggedVideo);
     return reorderedVideos;
-  }, [videoQueue, draggedIndex, dragOverIndex]);
+  }, [videoQueue]);
 
   // 웹소켓 구독
   useEffect(() => {
@@ -230,7 +245,6 @@ export const Playlist = () => {
       }) => {
         if (data?.playlist && Array.isArray(data.playlist)) {
           const sortedPlaylist = data.playlist.sort((a, b) => a.order - b.order);
-
           const updatedQueue = await Promise.all(
             sortedPlaylist.map(async item => {
               const { videoId, startTime } = extractVideoIdAndStartTime(item.url);
@@ -292,8 +306,8 @@ export const Playlist = () => {
               video={video}
               index={index}
               active={index === currentIndex}
-              isDragging={index === draggedIndex}
-              isPreview={draggedIndex !== null && index === dragOverIndex}
+              isDragging={index === draggedIndexRef.current}
+              isPreview={draggedIndexRef.current !== null && index === dragOverIndexRef.current}
               onClick={() => handleSetCurrentVideo(index)}
               onMoveUp={() => {
                 moveVideoUp(index);
