@@ -15,7 +15,7 @@ final class ChatReactor: Reactor {
     
     enum Action {
         case getSavedMessage
-        case getNewMessage
+        case getNewMessage(ChatMessageDomainModel)
         case sendMessage(String)
     }
     
@@ -30,9 +30,16 @@ final class ChatReactor: Reactor {
     }
     
     var initialState: State
+    var disposeBag = DisposeBag()
     
     init(_ roomID: String) {
         self.initialState = State(roomID: roomID, messsageSection: [])
+        
+        WebSocketService.shared.messageObservable
+            .subscribe(onNext: { [weak self] message in
+                self?.action.onNext(.getNewMessage(message.toModel()))
+            })
+            .disposed(by: disposeBag)
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
@@ -56,10 +63,8 @@ final class ChatReactor: Reactor {
                 return Disposables.create()
             }
             .asObservable()
-            
-        case .getNewMessage:
-            return .empty()
-
+        case .getNewMessage(let message):
+            return .just(.appendNewMessage(message))
         case .sendMessage(let message):
             WebSocketService.shared.publishChatMessage(message: message)
             return .empty()
@@ -80,10 +85,11 @@ final class ChatReactor: Reactor {
             }
 
         case .appendNewMessage(let message):
+            repository.addMessage(to: currentState.roomID, messages: [message.toDBModel()])
             if let newSectionIndex = newState.messsageSection.firstIndex(where: { $0.header == ChatSectionType.new.header }) {
-                newState.messsageSection[newSectionIndex].items.append(.newMessage(message))
+                newState.messsageSection[newSectionIndex].items.append(.newMessage(message.toModel()))
             } else {
-                let newSection = classifyChatMessage([message], section: .new)
+                let newSection = classifyChatMessage([message.toModel()], section: .new)
                 newState.messsageSection.append(newSection)
             }
         }
@@ -119,10 +125,6 @@ final class ChatReactor: Reactor {
         return response
     }
 
-
-
-
-
     private func classifyChatMessage(_ messages: [ChatMessageViewModel], section: ChatSectionType) -> ChatMessageSection {
         guard !messages.isEmpty else {
             return ChatMessageSection(header: section.header, items: [])
@@ -144,7 +146,7 @@ final class ChatReactor: Reactor {
     
     private func saveMessage(_ message: [ChatMessageDomainModel]) {
         repository.addMessage(to: currentState.roomID, messages: message.map { $0.toDBModel() })
-        }
+    }
     
 
     private func readMessage() -> [ChatMessageDomainModel] {

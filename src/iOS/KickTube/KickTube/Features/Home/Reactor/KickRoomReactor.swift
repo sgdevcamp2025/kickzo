@@ -16,38 +16,68 @@ final class KickRoomReactor: Reactor {
     
     enum Action {
         case viewWillAppear
-        case stopPlayer(KickRoomPlayerState)
-        case playPlayer(KickRoomPlayerState)
+        case stopPlayer(KickRoomPlayerStateViewModel)
+        case playPlayer(KickRoomPlayerStateViewModel)
+        case myRoleChange(UserRole)
     }
     enum Mutation {
         case setRoomInformation(KickRoomDomainModel)
-        case setVideoPlayer(KickRoomPlayerState)
+        case setVideoPlayer(KickRoomPlayerStateViewModel)
+        case setMyRole(UserRole)
     }
     struct State {
         var roomCode: String
         var roomInfo: KickRoomViewModel?
         var youtubeID: String?
-        var playState: KickRoomPlayerState?
+        var playState: KickRoomPlayerStateViewModel?
         var playerVars: [String: Any]
         var playFirst: Bool
+        var myRole: UserRole?
     }
     
     var initialState: State
+    var disposeBag = DisposeBag()
     
     init(_ code: String) {
         self.initialState = State(roomCode: code,
                                   playerVars: ["playsinline": 1, "autoplay": 0, "controls": 2, "showinfo": 1, "start": 0, "rel": 0],
                                   playFirst: false)
+        WebSocketService.shared.videoTimeObservable
+            .subscribe(onNext: { [weak self] video in
+                guard let self else { return }
+                
+                let videoInfo = video.toModel()
+                switch videoInfo.progress {
+                case .playing:
+                    self.action.onNext(.playPlayer(videoInfo))
+                case .paused:
+                    self.action.onNext(.stopPlayer(videoInfo))
+                case .ended:
+                    print("ended")
+                case .none:
+                    break
+                }
+            })
+            .disposed(by: disposeBag)
+        
+        WebSocketService.shared.roleChangeObservable
+            .filter { $0.targetUserID == UserDefaultsManager.shared.myProfile.userID }
+            .map { $0.toModel().toModel().newRole }
+            .subscribe(onNext: { [weak self] myRole in
+                self?.action.onNext(.myRoleChange(myRole))
+            })
+            .disposed(by: disposeBag)
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .viewWillAppear:
             return joinRoom()
-        case .stopPlayer(let state):
+        case .stopPlayer(let state), .playPlayer(let state):
+            WebSocketService.shared.publishVideoTime(state)
             return .just(.setVideoPlayer(state))
-        case .playPlayer(let state):
-            return .just(.setVideoPlayer(state))
+        case .myRoleChange(let role):
+            return .just(.setMyRole(role))
         }
     }
     
@@ -58,6 +88,7 @@ final class KickRoomReactor: Reactor {
         case .setRoomInformation(let value):
             newState.roomInfo = value.toModel()
             newState.youtubeID = value.roomDetail.playlist.first?.url.youtubeID
+            UserDefaultsManager.shared.myRole = value.myRole
             
             if newState.roomInfo?.myRole == .member {
                 newState.playerVars["controls"] = 0
@@ -68,8 +99,10 @@ final class KickRoomReactor: Reactor {
             } else {
                 newState.playState = state
             }
+        case .setMyRole(let role):
+            newState.myRole = role
         }
-    
+        
         return newState
     }
     
@@ -100,16 +133,5 @@ final class KickRoomReactor: Reactor {
                 return Disposables.create()
             }
         }
-    }
-}
-
-struct KickRoomPlayerState {
-    var progress: PlayState = .none
-    var time: Float = 0
-    
-    enum PlayState {
-        case paused
-        case playing
-        case none
     }
 }

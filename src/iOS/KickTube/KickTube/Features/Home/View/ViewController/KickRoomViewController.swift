@@ -148,6 +148,20 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
                 owner.playerView.seek(toSeconds: value.time, allowSeekAhead: false)
             }
             .disposed(by: disposeBag)
+        
+        reactor.state
+            .compactMap { $0.myRole }
+            .observe(on: MainScheduler.instance)
+            .subscribe(with: self) { owner, role in
+                switch role {
+                case .manager, .creator:
+                    owner.playerView.isUserInteractionEnabled = true
+                default:
+                    owner.playerView.isUserInteractionEnabled = false
+                }
+            }
+            .disposed(by: disposeBag)
+        
     }
     
     
@@ -347,7 +361,7 @@ extension KickRoomViewController: YTPlayerViewDelegate {
             stopTrackingTime()
             
             playerView.currentTime { time, error in
-                let state = KickRoomPlayerState(progress: .playing, time: time.magnitude)
+                let state = KickRoomPlayerStateViewModel(progress: .playing, time: time.magnitude)
                 
                 self.reactor.action.onNext(.playPlayer(state))
             }
@@ -365,7 +379,7 @@ extension KickRoomViewController: YTPlayerViewDelegate {
                 if let _ = error { return }
                 
                 if time.magnitudeSquared != self.previousTime {
-                    let state = KickRoomPlayerState(progress: .paused, time: time.magnitude)
+                    let state = KickRoomPlayerStateViewModel(progress: .paused, time: time.magnitude)
                     
                     self.reactor.action.onNext(.stopPlayer(state))
                     self.previousTime = time.magnitudeSquared

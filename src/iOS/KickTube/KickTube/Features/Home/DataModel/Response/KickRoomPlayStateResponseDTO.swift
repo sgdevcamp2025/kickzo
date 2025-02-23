@@ -6,3 +6,16 @@
 //
 
 import Foundation
+
+import ManipulateDataModel
+
+@DecodeDTO
+struct KickRoomPlayStateResponseDTO {
+    @Key("roomId") let roomID: Int
+    @Key("playTime") var time: Int
+    @Key("playerState") var state: String
+    
+    func toModel() -> KickRoomPlayerStateViewModel {
+        .init(progress: KickRoomPlayerStateViewModel.PlayState(rawValue: self.state) ?? .none, time: Float(self.time))
+    }
+}
