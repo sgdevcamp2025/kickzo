@@ -6,7 +6,7 @@ export const Wrapper = styled.div`
   height: calc(100vh - 120px);
   border-radius: 10px;
   border: 1px solid var(--palette-line-solid-neutral);
-  overflow-y: auto;
+  overflow: hidden;
 `;
 
 export const Nav = styled.nav`

@@ -1,6 +1,5 @@
 import { useState } from 'react';
 import { SmallProfile } from '@/components/common/SmallProfile';
-import { ProfileDetail } from '@/components/common/ProfileDetail';
 import { UserListFooter } from '@/components/Sidebar/UserList/UserListFooter';
 
 import { SidebarType } from '@/types/enums/SidebarType';
@@ -9,9 +8,12 @@ import { UserRole } from '@/types/enums/UserRole';
 
 import { Container, UserList, ProfileWrapper } from './index.css';
 import { CurrentRoomUserDto } from '@/api/endpoints/room/room.interface';
-
+import { RoomProfileModal } from '@/components/Modal/RoomProfileModal';
+import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
 export const VoiceChat = () => {
   const [activeProfile, setActiveProfile] = useState<number | null>(null);
+  const { currentRoom } = useCurrentRoomStore();
+  const roomId = currentRoom?.roomDetails.roomInfo[0]?.roomId;
   const handleProfileClick = (id: number) => {
     setActiveProfile(prevId => (prevId === id ? null : id));
   };
@@ -38,17 +40,17 @@ export const VoiceChat = () => {
                 imgUrl={member.profileImageUrl}
               />
             </div>
-            {activeProfile === member.userId ? (
-              <div className={`profile-detail ${activeProfile === member.userId ? 'active' : ''}`}>
-                <ProfileDetail
-                  nickname={member.nickname}
-                  imgUrl={member.profileImageUrl}
-                  userId={member.userId}
-                  userRole={member.role}
-                  myRole={UserRole.CREATOR}
-                  sidebarType={SidebarType.VOICECHAT}
-                />
-              </div>
+            {roomId && activeProfile === member.userId ? (
+              <RoomProfileModal
+                nickname={member.nickname}
+                imgUrl={member.profileImageUrl}
+                userId={member.userId}
+                userRole={member.role}
+                myRole={UserRole.CREATOR}
+                sidebarType={SidebarType.VOICECHAT}
+                roomId={roomId}
+                onCancel={() => setActiveProfile(null)}
+              />
             ) : (
               ''
             )}
