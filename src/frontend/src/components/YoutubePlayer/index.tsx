@@ -3,12 +3,15 @@ import styled from 'styled-components';
 import { useVideoStore } from '@/stores/useVideoStore';
 import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
 import { useWebSocketStore } from '@/stores/useWebSocketStore';
+import { UserRole } from '@/types/enums/UserRole';
 
 export const YouTubePlayer = () => {
   const { videoQueue } = useVideoStore();
   const { roomId } = useCurrentRoomStore.getState();
   const { client, subTopic } = useWebSocketStore();
   const pubTopic = useWebSocketStore.getState().pubTopic;
+  const myRole = useCurrentRoomStore.getState().currentRoom?.myRole;
+  const isWatchOnly = myRole === UserRole.MEMBER;
 
   const playerRef = useRef<YT.Player | null>(null);
   const lastSentStateRef = useRef<'playing' | 'paused' | null>(null);
@@ -48,7 +51,12 @@ export const YouTubePlayer = () => {
           height: '100%',
           width: '100%',
           videoId: id,
-          playerVars: { autoplay: 0, controls: 1, start: startTime },
+          playerVars: {
+            autoplay: 1,
+            controls: isWatchOnly ? 0 : 1,
+            disablekb: 1,
+            start: startTime,
+          },
           events: {
             onStateChange: handleVideoStateChange,
             onReady: handlePlayerReady,
@@ -65,6 +73,7 @@ export const YouTubePlayer = () => {
 
   // 유튜브 영상의 재생, 멈춤, 끝남 상태에 따라 동작
   const broadcastPlayerState = (state: 'playing' | 'paused', time: number) => {
+    if (myRole === 2) return;
     const roomId = useCurrentRoomStore.getState().roomId;
 
     if (!client || !roomId || !pubTopic) {
@@ -79,6 +88,8 @@ export const YouTubePlayer = () => {
 
   // 내부 이벤트로 인한 상태 변화 감지
   const handleVideoStateChange = (event: YT.OnStateChangeEvent) => {
+    if (isWatchOnly) return;
+
     if (isRemoteUpdateRef.current) {
       isRemoteUpdateRef.current = false;
       return;
@@ -114,7 +125,6 @@ export const YouTubePlayer = () => {
   const applySyncState = ({ playTime, playerState }: { playTime: number; playerState: string }) => {
     if (!playerRef.current) return;
     playerRef.current.seekTo(playTime, true);
-
     if (playerState === 'playing') {
       playerRef.current.playVideo();
     } else if (playerState === 'paused') {
@@ -148,7 +158,8 @@ export const YouTubePlayer = () => {
   // 영상 변경 시 플레이어 로드
   useEffect(() => {
     if (!videoQueue.length) return;
-    const newCurrentVideo = useVideoStore.getState().videoQueue[0];
+
+    const newCurrentVideo = videoQueue[0];
 
     // 현재 상태와 비교
     if (
@@ -170,6 +181,7 @@ export const YouTubePlayer = () => {
   return (
     <Container>
       <VideoWrapper>
+        {/* <VideoDiv id="youtube-player" $isWatchOnly={isWatchOnly}></VideoDiv> */}
         <div id="youtube-player"></div>
       </VideoWrapper>
     </Container>
@@ -193,3 +205,7 @@ const VideoWrapper = styled.div`
   align-items: center;
   justify-content: center;
 `;
+
+// const VideoDiv = styled.div<{ $isWatchOnly: boolean }>`
+//   ${({ $isWatchOnly }) => $isWatchOnly && 'pointer-events: none;'}
+// `;
