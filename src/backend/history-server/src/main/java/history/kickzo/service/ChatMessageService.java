@@ -54,4 +54,18 @@ public class ChatMessageService {
                 .limit(limit)
                 .toList();
     }
+
+    public List<ChatMessage> getUnreadMessages(long roomId, long cursor, int limit) {
+        List<ChatMessage> messages = repository.findByRoomIdOrderByTimestampAsc(roomId);
+        if (limit == -1) {
+            return messages.stream()
+                    .filter(message -> message.getTimestamp() > cursor)  // Messages after cursor
+                    .toList();
+        }
+
+        return messages.stream()
+                .filter(message -> message.getTimestamp() > cursor)  // Messages after cursor
+                .limit(limit)
+                .toList();
+    }
 }

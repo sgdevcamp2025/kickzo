@@ -67,7 +67,7 @@ final class MyRoomCollectionViewCell: UICollectionViewCell {
     
     // MARK: - internal method
 
-    func setContent(_ room: MyRoomViewModel) {
+    func setContent(_ room: HomeRoomViewModel) {
         if let videoThumbnail = room.videoThumbnail {
             videoThumbnailView.image = UIImage(data: videoThumbnail)
         } else {
@@ -76,7 +76,7 @@ final class MyRoomCollectionViewCell: UICollectionViewCell {
         
         titleLabel.text = room.title
         usernameLabel.text = room.creator
-        participatingCountLabel.text = room.userCount
+        participatingCountLabel.text = room.participatedUserCount
 
         optionButton.rx.tap
             .subscribe(with: self) { owner, _ in

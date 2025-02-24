@@ -16,4 +16,9 @@ extension String {
             .flatMap { Range($0.range(at: 1), in: self) }
             .map { String(self[$0]) }
     }
+    
+    var youtubeLink: String {
+        let baseAddress = "https://www.youtube.com/watch?v="
+        return baseAddress + self
+    }
 }

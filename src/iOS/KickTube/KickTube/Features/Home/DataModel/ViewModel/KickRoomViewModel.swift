@@ -7,6 +7,8 @@
 
 import Foundation
 
+import ManipulateDataModel
+
 struct KickRoomViewModel {
     var myRole: UserRole
     var roomDetail: KickRoomDetailViewModel
@@ -15,13 +17,14 @@ struct KickRoomViewModel {
 struct KickRoomDetailViewModel {
     var userList: [KickRoomUserViewModel]
     var roomInfo: KickRoomInfoViewModel
-    var playlist: KickRoomPlaylistViewModel
+    var playlist: [KickRoomPlaylistViewModel]
 }
 
 struct KickRoomUserViewModel  {
     let userID: Int
     var role: UserRole
     var nickname: String
+    var profileURL: URL?
     
     var thumbnailImage: Data?
     var active: Bool? = true
@@ -41,11 +44,8 @@ struct KickRoomInfoViewModel {
     }
 }
 
+@ConvertToDTOModel<PlaylistRequestDTO>
 struct KickRoomPlaylistViewModel {
-    var order: [KickRoomPlaylistItemViewModel]
-}
-
-struct KickRoomPlaylistItemViewModel {
     let url: String
     var order: Int
 }

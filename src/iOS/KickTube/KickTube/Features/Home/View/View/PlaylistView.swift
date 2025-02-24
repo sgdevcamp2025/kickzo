@@ -28,14 +28,15 @@ final class PlaylistView: UIView {
         $0.isHidden = true
     }
     
-    private let viewModel = PlayListViewModel()
+    private let viewModel: PlayListViewModel
     private let orderChanged = PublishRelay<(from: IndexPath, to: IndexPath)>()
     
     private var disposeBag = DisposeBag()
     
-    override init(frame: CGRect) {
-        super.init(frame: frame)
+    init(viewModel: PlayListViewModel) {
+        self.viewModel = viewModel
         
+        super.init(frame: .zero)
         configureHierarchy()
         configureLayout()
         configureUI()
@@ -51,13 +52,12 @@ final class PlaylistView: UIView {
     // MARK: - configure bind input, output
     
     private func bind() {
-        let load = BehaviorRelay<Void>(value: ())
         let searchLink = PublishRelay<String>()
         let emptyThumbnail = PublishRelay<Int>()
-        let addAction = PublishRelay<Void>()
-        let deleteACtion = PublishRelay<Int>()
+        let addAction = PublishRelay<String?>()
+        let deleteAction = PublishRelay<Int>()
         
-        let input = PlayListViewModel.Input(loadView: load, emptyThumbnailImage: emptyThumbnail, editingTextInput: searchLink, addButtonTapped: addAction, orderChanged: self.orderChanged, deleteButtonTapped: deleteACtion)
+        let input = PlayListViewModel.Input(emptyThumbnailImage: emptyThumbnail, editingTextInput: searchLink, addButtonTapped: addAction, orderChanged: self.orderChanged, deleteButtonTapped: deleteAction)
         let output = viewModel.transform(input)
         
         
@@ -75,7 +75,7 @@ final class PlaylistView: UIView {
         
         searchResultView.addButton.rx.tap
             .bind(with: self, onNext: { owner, _ in
-                addAction.accept(())
+                addAction.accept(owner.searchVideoTextField.textfield.text)
                 owner.searchResultView.isHidden = true
                 owner.searchVideoTextField.textfield.text = ""
             })
@@ -92,7 +92,7 @@ final class PlaylistView: UIView {
                 }
                 cell.setContent(element)
                 cell.deleteAction = {
-                    deleteACtion.accept(item)
+                    deleteAction.accept(item)
                 }
             }
             .disposed(by: disposeBag)
@@ -100,9 +100,9 @@ final class PlaylistView: UIView {
         output.validVideo
             .observe(on: MainScheduler.instance)
             .subscribe(with: self, onNext: { owner, value in
-                if let value {
+                if let video = value.first {
                     owner.searchResultView.isHidden = false
-                    owner.searchResultView.setContent(value)
+                    owner.searchResultView.setContent(video)
                 } else {
                     owner.searchResultView.isHidden = true
                 }
@@ -163,9 +163,10 @@ extension PlaylistView: UICollectionViewDragDelegate, UICollectionViewDropDelega
     }
     
     func collectionView(_ collectionView: UICollectionView, itemsForBeginning session: any UIDragSession, at indexPath: IndexPath) -> [UIDragItem] {
-        let item = viewModel.playlist[indexPath.item]
+        let item = viewModel.videoList[indexPath.item]
         let itemProvider = NSItemProvider(object: item.title as NSString)
         let dragItem = UIDragItem(itemProvider: itemProvider)
+        
         dragItem.localObject = item
         
         return [dragItem]

@@ -12,6 +12,7 @@ import RxSwift
 final class ChatCollectionViewCell: UICollectionViewCell {
     private let thumbnailImageView = UIImageView().then {
         $0.layer.cornerRadius = 8
+        $0.clipsToBounds = true
     }
     private let nameStackView = UIStackView().then {
         $0.axis = .horizontal
@@ -34,7 +35,9 @@ final class ChatCollectionViewCell: UICollectionViewCell {
         $0.lineBreakMode = .byWordWrapping
     }
     
-    private var disposeBag = DisposeBag()
+    private let networkManager = NetworkManager()
+    
+    var disposeBag = DisposeBag()
     
     override init(frame: CGRect) {
         super.init(frame: .zero)
@@ -59,33 +62,41 @@ final class ChatCollectionViewCell: UICollectionViewCell {
     // MARK: - internal method
    
     func setContent(_ content: ChatMessageViewModel) {
-        if let profile = content.profileThumbnail {
-            thumbnailImageView.image = UIImage(data: profile)
-        } else {
-            thumbnailImageView.image = UIImage(color: UIColor(red: CGFloat.random(in: 0...1), green: CGFloat.random(in: 0...1), blue: CGFloat.random(in: 0...1), alpha: 1))
-        }
-        
-        if content.userRole != nil {
-        switch content.userRole {
-            case .creator:
-                roleImageView.isHidden = false
-                roleImageView.image = .creator
-                nameLabel.textColor = .primary
-            case .manager:
-                roleImageView.isHidden = false
-                roleImageView.image = .manager
-                nameLabel.textColor = .primary
-            default:
-                break
+        Task { [weak self] in
+            guard let self else { return }
+            
+            do {
+                if let profile = content.profileImageURL {
+                    let imageData = try await networkManager.getCachingDataFromURL(profile)
+                    
+                    thumbnailImageView.image = UIImage(data: imageData)
+                } else {
+                    thumbnailImageView.image = UIImage.defaultProfile
+                }
+            } catch {
+                print("Failed to load profile image: \(error.localizedDescription)")
+                thumbnailImageView.image = UIImage.defaultProfile
+            }
+            
+            DispatchQueue.main.async {
+                switch content.role {
+                case .creator:
+                    self.roleImageView.isHidden = false
+                    self.roleImageView.image = .creator
+                    self.nameLabel.textColor = .primary
+                case .manager:
+                    self.roleImageView.isHidden = false
+                    self.roleImageView.image = .manager
+                    self.nameLabel.textColor = .primary
+                default:
+                    self.roleImageView.isHidden = true
+                }
+                
+                self.nameLabel.text = content.nickname
+                self.dateLabel.text = content.dateString
+                self.messageLabel.text = content.message
             }
         }
-        
-        if let username = content.nickname {
-            nameLabel.text = username
-        }
-        
-        dateLabel.text = content.createdAt
-        messageLabel.text = content.message
     }
     
     
@@ -107,6 +118,7 @@ final class ChatCollectionViewCell: UICollectionViewCell {
         [thumbnailImageView, nameStackView, messageLabel].forEach {
             contentView.addSubview($0)
         }
+        
         [roleImageView, nameLabel, dateLabel].forEach {
             nameStackView.addArrangedSubview($0)
         }

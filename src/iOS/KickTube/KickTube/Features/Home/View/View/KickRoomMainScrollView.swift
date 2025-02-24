@@ -21,15 +21,16 @@ class KickRoomMainScrollView: UIView {
         $0.distribution = .fillEqually
     }
     private let descriptionView: DescriptionView
-    private let playlistView = PlaylistView()
+    private let playlistView: PlaylistView
     private let voiceChatView = VoiceChatListView(VoiceChatListReactor())
-    private let userlistView = UserListView(UserListReactor(SampleTest.userlist))
+    private let userListView: UserListView
     
     var didUpdatePageIndex: ((Int) -> Void)?
     
-    init(roomInfo: KickRoomInfoViewModel) {
-        self.descriptionView = DescriptionView(roomInfo.description)
-        
+    init(roomInfo: KickRoomDetailViewModel?) {
+        self.descriptionView = DescriptionView(roomInfo?.roomInfo.description)
+        self.userListView = UserListView(UserListReactor(roomID: roomInfo?.roomInfo.roomID , roomInfo?.userList))
+        self.playlistView = PlaylistView(viewModel: PlayListViewModel(roomID: roomInfo?.roomInfo.roomID, roomInfo?.playlist ?? []))
         super.init(frame: .zero)
         
         configureHierarchy()
@@ -58,7 +59,7 @@ class KickRoomMainScrollView: UIView {
     private func configureHierarchy() {
         addSubview(scrollView)
         scrollView.addSubview(stackView)
-        [descriptionView, playlistView, voiceChatView, userlistView].forEach {
+        [descriptionView, playlistView, voiceChatView, userListView].forEach {
             stackView.addArrangedSubview($0)
         }
     }
@@ -72,7 +73,7 @@ class KickRoomMainScrollView: UIView {
             make.height.equalToSuperview()
             make.width.equalTo(scrollView.snp.width).multipliedBy(4)
         }
-        [descriptionView, playlistView, voiceChatView, userlistView].forEach {
+        [descriptionView, playlistView, voiceChatView, userListView].forEach {
             $0.snp.makeConstraints { make in
                 make.size.equalTo(scrollView.snp.size)
             }

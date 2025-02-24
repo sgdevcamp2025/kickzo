@@ -1,5 +1,7 @@
 package kickzo.stomp_chat.service;
 
+import java.math.BigDecimal;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -34,7 +36,8 @@ public class WebSocketRoomService {
 	 * 방에 메시지 전송
 	 */
 	public void handleMessageSend(long roomId, long userId, String nickname, int role, String profileImageUrl, String content, String message) {
-		ChatMessage chatMessage = new ChatMessage(roomId, userId, nickname, role, profileImageUrl, content, message);
+		long timestamp = System.currentTimeMillis();  // 현재 서버 시간
+		ChatMessage chatMessage = new ChatMessage(roomId, userId, nickname, role, profileImageUrl, content, message, timestamp);
 		kafkaRepository.sendChatMessage(chatMessage);
 	}
 
@@ -49,7 +52,7 @@ public class WebSocketRoomService {
 	/**
 	 * Kafka에 playlistTime 전송
 	 */
-	public void sendPlayTime (long roomId, long playTime, String playerState){
+	public void sendPlayTime (long roomId, BigDecimal playTime, String playerState){
 		PlayTime playTimeObject = new PlayTime(roomId, playTime, playerState);
 
 		RoomEvent roomEvent = new RoomEvent("play-time", playTimeObject);

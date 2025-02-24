@@ -1,7 +1,6 @@
 from fastapi import FastAPI, HTTPException, Depends, Header
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
-from prometheus_fastapi_instrumentator import Instrumentator
 import aiomysql
 import aioredis
 import json
@@ -20,8 +19,6 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Prometheus Instrumentator 설정
-Instrumentator().instrument(app).expose(app, endpoint="/metrics")
 
 # Kafka 설정
 KAFKA_TOPIC = "invitation"
@@ -160,8 +157,8 @@ async def send_friend_request(
         "timestamp": int(datetime.utcnow().timestamp() * 1000),
         "isRead": False,
         "status": "PENDING",
-        "roomId": "null",
-        "roomCode": "null"
+        "roomId": None,
+        "roomCode": None
     }
 
     # Redis에 저장

@@ -13,7 +13,10 @@ import RxSwift
 import YouTubeiOSPlayerHelper
 
 final class KickRoomViewController: BaseViewController<KickRoomReactor> {
-    private let playerView = YTPlayerView()
+    private let emptyPlayerView = UIView().then {
+        $0.backgroundColor = .black
+    }
+    private lazy var playerView = YTPlayerView()
     private let titleLabel = UILabel().then {
         $0.font = KFont.middle16
         $0.numberOfLines = 2
@@ -55,7 +58,8 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         
         return segmented
     }()
-    private let mainScrollView: KickRoomMainScrollView
+    
+    private lazy var mainScrollView = KickRoomMainScrollView(roomInfo: reactor.currentState.roomInfo?.roomDetail)
     private var previousTime: TimeInterval = 0
     private var timeTrackingTimer: Timer?
     
@@ -63,8 +67,6 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     // MARK: - init
     
     override init(_ reactor: KickRoomReactor) {
-        mainScrollView = KickRoomMainScrollView(roomInfo: reactor.initialState.roomInfo.roomDetail.roomInfo)
-        
         super.init(reactor)
     }
     
@@ -84,15 +86,15 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         
         tabBarController?.tabBar.isHidden = true
         navigationController?.setNavigationBarHidden(true, animated: false)
+        
+        reactor.action.onNext(.viewWillAppear)
     }
     
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        navigationController?.interactivePopGestureRecognizer?.delegate = self
-        navigationController?.interactivePopGestureRecognizer?.isEnabled = true
-        
         setNotification()
+        setPopView()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -102,28 +104,26 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         navigationController?.setNavigationBarHidden(false, animated: false)
     }
     
-    override func bindAction(reactor: KickRoomReactor) {
-        Observable<Int>.timer(.seconds(3), scheduler: MainScheduler.instance)
-            .subscribe(with: self) { owner, _ in
-                owner.presentChattingView()
-            }
-            .disposed(by: disposeBag)
-    }
     
     // MARK: - configure Reactor
     
     override func bindState(reactor: KickRoomReactor) {
         reactor.state
-            .map { $0.roomInfo }
-            .bind(with: self) { owner, value in
+            .compactMap { $0.roomInfo }
+            .take(1)
+            .observe(on: MainScheduler.instance)
+            .subscribe(with: self, onNext: { owner, value in
+                owner.setMainScrollView()
                 owner.setRoomInformationSection(value.roomDetail.roomInfo)
+                owner.presentChattingView()
+                
                 switch value.myRole {
                 case .member:
                     owner.playerView.isUserInteractionEnabled = false
                 default:
                     break
                 }
-            }
+            })
             .disposed(by: disposeBag)
         
         reactor.state
@@ -131,9 +131,11 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             .distinctUntilChanged()
             .compactMap { $0 }
             .withLatestFrom(reactor.state.map { $0.playerVars }) { ($0, $1) }
+            .observe(on: MainScheduler.instance)
             .subscribe(with: self) { owner, value in
                 let (youtubeID, playerVars) = value
                 
+                owner.emptyPlayerView.isHidden = true
                 owner.playerView.load(withVideoId: youtubeID, playerVars: playerVars)
             }
             .disposed(by: disposeBag)
@@ -181,6 +183,28 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             .disposed(by: disposeBag)
     }
     
+    private func setMainScrollView() {
+        view.addSubview(mainScrollView)
+        
+        mainScrollView.snp.makeConstraints { make in
+            make.horizontalEdges.equalToSuperview()
+            make.top.equalTo(creatorImage.snp.bottom)
+            make.bottom.equalTo(menuSegmentedControl.snp.top)
+        }
+        
+        mainScrollView.didUpdatePageIndex = { [weak self] pageIndex in
+            guard let self else { return }
+            
+            DispatchQueue.main.async {
+                self.menuSegmentedControl.selectedSegmentIndex = pageIndex
+                
+                if pageIndex == 0 {
+                    self.presentChattingView()
+                }
+            }
+        }
+    }
+    
     private func setNotification() {
         NotificationCenter.default.addObserver(
             self,
@@ -196,11 +220,19 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         )
     }
     
+    private func setPopView() {
+        let panGesture = UIPanGestureRecognizer(target: self, action: #selector(handlePanGesture(_:)))
+        
+        view.addGestureRecognizer(panGesture)
+    }
+    
     private func presentChattingView() {
-        let vc = ChatViewController(ChatReactor())
+        guard let roomID = reactor.currentState.roomInfo?.roomDetail.roomInfo.roomID else { return }
+        
+        let vc = ChatViewController(ChatReactor(String(roomID)))
         if let sheet = vc.sheetPresentationController {
             sheet.detents = [.custom(resolver: { _ in
-                ComponentSize.chatBtoomSheet.size.height })]
+                ComponentSize.chatBottomSheet.size.height })]
             sheet.prefersGrabberVisible = true
         }
         
@@ -212,9 +244,10 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     @objc
     private func presentUserOverviewVC(notification: Notification) {
         if let userInfo = notification.userInfo,
-           let id = userInfo["id"] as? Int,
+           let roomID = userInfo["roomID"] as? Int,
+           let userID = userInfo["userID"] as? Int,
            let role = userInfo["role"] as? UserRole {
-            let vc = UserOverviewViewController(UserOverviewReactor(id, role: role))
+            let vc = UserOverviewViewController(UserOverviewReactor(roomID: roomID, userID: userID, role: role))
             if let sheet = vc.sheetPresentationController {
                 sheet.detents = [.custom(resolver: { _ in ComponentSize.userlistBottomSheet.size.height
                 })]
@@ -238,11 +271,27 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         }
     }
     
+    @objc
+    private func handlePanGesture(_ gesture: UIPanGestureRecognizer) {
+        let translation = gesture.translation(in: view)
+        
+        if translation.y > 0 {
+            if gesture.velocity(in: view).y > 1000 {
+                navigationController?.popViewController(animated: true)
+                self.dismiss(animated: true, completion: nil)
+            }
+        }
+
+        if gesture.state == .ended || gesture.state == .cancelled {
+            gesture.setTranslation(.zero, in: view)
+        }
+    }
+    
     
     // MARK: - configure UI
     
     override func configureHierarchy() {
-        [playerView, titleLabel, creatorImage, creatorNameLabel, participatedCountLabel, menuSegmentedControl, mainScrollView].forEach {
+        [emptyPlayerView, titleLabel, creatorImage, creatorNameLabel, participatedCountLabel, menuSegmentedControl, playerView].forEach {
             view.addSubview($0)
         }
     }
@@ -250,10 +299,11 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
     override func configureLayout() {
         let safeArea = view.safeAreaLayoutGuide
         
-        playerView.snp.makeConstraints { make in
+        emptyPlayerView.snp.makeConstraints { make in
             make.top.horizontalEdges.equalTo(safeArea)
             make.height.equalTo(ComponentSize.youtubePlayer.size.height)
         }
+     
         titleLabel.snp.makeConstraints { make in
             make.top.equalTo(playerView.snp.bottom).offset(8)
             make.horizontalEdges.equalToSuperview().inset(12)
@@ -276,28 +326,15 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             make.bottom.equalTo(safeArea).offset(-12)
             make.height.equalTo(50)
         }
-        mainScrollView.snp.makeConstraints { make in
-            make.horizontalEdges.equalToSuperview()
-            make.top.equalTo(creatorImage.snp.bottom)
-            make.bottom.equalTo(menuSegmentedControl.snp.top)
+        playerView.snp.makeConstraints { make in
+            make.top.horizontalEdges.equalTo(safeArea)
+            make.height.equalTo(ComponentSize.youtubePlayer.size.height)
         }
     }
     
     override func configureUI() {
         playerView.delegate = self
         setupSegmentedControl()
-        
-        mainScrollView.didUpdatePageIndex = { [weak self] pageIndex in
-            guard let self else { return }
-            
-            DispatchQueue.main.async {
-                self.menuSegmentedControl.selectedSegmentIndex = pageIndex
-                
-                if pageIndex == 0 {
-                    self.presentChattingView()
-                }
-            }
-        }
     }
 }
 
@@ -342,5 +379,3 @@ extension KickRoomViewController: YTPlayerViewDelegate {
         timeTrackingTimer = nil
     }
 }
-
-extension KickRoomViewController: UIGestureRecognizerDelegate {}

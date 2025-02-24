@@ -41,8 +41,9 @@ final class VoiceChatListReactor: Reactor {
     func mutate(action: Action) -> Observable<Mutation> {
         switch action {
         case .loadView:
-            let userlist = SampleTest.voicelist
-            return .just(.setUserList(userlist))
+//            let userlist = SampleTest.voicelist
+//            return .just(.setUserList(userlist))
+            return .empty()
         case .profileCellTapped(let idx):
             return .just(.userOverview(idx))
         case .micButtonTapped:
@@ -61,7 +62,7 @@ final class VoiceChatListReactor: Reactor {
         case .setUserList(let user):
             var userList = user
             
-            if let myInformation = userList.enumerated().filter({ $0.element.userID == UserDefaultsManager.shared.userProfile.userID }).first {
+            if let myInformation = userList.enumerated().filter({ $0.element.userID == UserDefaultsManager.shared.myProfile.userID }).first {
                 userList.remove(at: myInformation.offset)
                 userList.insert(myInformation.element, at: 0)
                 newState.myMicState = myInformation.element.micStatus
@@ -89,7 +90,7 @@ final class VoiceChatListReactor: Reactor {
             newState.myVoiceChattingState.toggle()
             
             if newState.myVoiceChattingState {
-                let myInfo = UserDefaultsManager.shared.userProfile
+                let myInfo = UserDefaultsManager.shared.myProfile
                 let myState = KickRoomVoiceUserViewModel(userID: myInfo.userID, role: UserDefaultsManager.shared.myRole, nickname: myInfo.nickname, micStatus: false, headsetStatus: false)
                 newState.userList.insert(myState, at: 0)
             } else {

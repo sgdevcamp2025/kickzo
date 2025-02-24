@@ -17,6 +17,7 @@ export const useUserStore = create(
   persist<UserStore>(
     set => ({
       user: null,
+      roomId: null,
       setUser: (user: UserResponseDto) => set({ user }),
       fetchMyProfile: async () => {
         try {

@@ -30,5 +30,7 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
 
 	@Query(value = "SELECT EXISTS (SELECT 1 FROM room r WHERE r.id = :roomId AND r.code = :roomCode)", nativeQuery = true)
 	Integer existsByRoomIdAndRoomCode(@Param("roomId") Long roomId, @Param("roomCode") String roomCode);
+
+	List<Room> findByIdIn(List<Long> roomIds);
 }
 

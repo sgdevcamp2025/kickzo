@@ -29,12 +29,12 @@ class BaseViewController<R: Reactor>: UIViewController, View {
         self.bind(reactor: reactor)
         
         hideKeyboardWhenTappedAround()
+        view.backgroundColor = .white
         
         configureHierarchy()
         configureLayout()
         configureUI()
         
-        view.backgroundColor = .white
     }
     
     

@@ -31,18 +31,31 @@ final class HomeViewController: BaseViewController<HomeReactor> {
     }
     private let homeCollectionView = UICollectionView(frame: .zero, collectionViewLayout: .homeCollectionViewLayout()).then {
         $0.register(HomeVideoCollectionViewCell.self, forCellWithReuseIdentifier: HomeVideoCollectionViewCell.reuseIdentifier)
+        $0.showsVerticalScrollIndicator = false
     }
     
+    override func viewWillAppear(_ animated: Bool) {
+        reactor.action.onNext(.getRoom)
+    }
     
     // MARK: - configure Reactor
     
     override func bindAction(reactor: HomeReactor) {
-        Observable.just(HomeReactor.Action.viewDidLoad)
-            .bind(to: reactor.action)
-            .disposed(by: disposeBag)
         homeCollectionView.rx.itemSelected
             .map { Reactor.Action.homeCellTapped(idx: $0) }
             .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        
+        homeCollectionView.rx.prefetchItems
+            .subscribe(onNext: { [weak self] indexPaths in
+                guard let self else { return }
+                
+                let lastIndexPath = indexPaths.last?.row ?? 0
+               
+                if lastIndexPath >= self.reactor.currentState.rooms.count - 4 {
+                    reactor.action.onNext(.getRoom)
+                }
+            })
             .disposed(by: disposeBag)
     }
     
@@ -54,9 +67,12 @@ final class HomeViewController: BaseViewController<HomeReactor> {
                 cellIdentifier: HomeVideoCollectionViewCell.reuseIdentifier,
                 cellType: HomeVideoCollectionViewCell.self
             )) { row, element, cell in
-                if let videoID = element.videoID,
+                if let videoID = element.playlistURL?.youtubeID,
                    element.videoThumbnail == nil {
                     reactor.action.onNext(.getVideoThumbnail(idx: row, id: videoID))
+                }
+                if let profileImageURL = element.profileImageURL {
+                    reactor.action.onNext(.getProfileThumbnail(idx: row, url: profileImageURL))
                 }
                 
                 DispatchQueue.main.async {
@@ -66,12 +82,15 @@ final class HomeViewController: BaseViewController<HomeReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
-            .map { $0.enterRoom }
+            .map { $0.joinRoomCode }
             .compactMap { $0 }
-            .bind(with: self) { owner, value in
+            .asDriver(onErrorJustReturn: "")
+            .drive(with: self) { owner, value in
                 let vc = KickRoomViewController(KickRoomReactor(value))
-                
-                owner.navigationController?.pushViewController(vc, animated: false)
+
+                vc.modalPresentationStyle = .overFullScreen
+
+                owner.present(vc, animated: true)
             }
             .disposed(by: disposeBag)
     }

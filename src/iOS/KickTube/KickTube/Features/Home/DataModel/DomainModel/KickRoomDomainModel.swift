@@ -21,12 +21,12 @@ struct KickRoomDomainModel {
 struct KickRoomDetailDomainModel {
     var userList: [KickRoomUserDomainModel]
     var roomInfo: KickRoomInfoDomainModel
-    var playlist: KickRoomPlaylistDomainModel
+    var playlist: [KickRoomPlaylistDomainModel]
     
     func toModel() -> KickRoomDetailViewModel {
         .init(userList: self.userList.map { $0.toModel() },
               roomInfo: self.roomInfo.toModel(),
-              playlist: self.playlist.toModel())
+              playlist: self.playlist.map { $0.toModel() })
     }
 }
 
@@ -34,11 +34,19 @@ struct KickRoomUserDomainModel {
     let userID: Int
     var role: UserRole
     var nickname: String
+    var userProfileImageURL: String?
     
     func toModel() -> KickRoomUserViewModel {
-        .init(userID: self.userID,
+        var pURL: URL? = nil
+               
+        if let userProfileImageURL {
+            pURL = URL(string: userProfileImageURL)
+        }
+        
+        return .init(userID: self.userID,
               role: self.role,
-              nickname: self.nickname)
+              nickname: self.nickname,
+              profileURL: pURL)
     }
 }
 
@@ -69,21 +77,11 @@ struct KickRoomInfoDomainModel: DTOMappable {
 }
 
 struct KickRoomPlaylistDomainModel: DTOMappable {
-    var order: [KickRoomPlaylistItemDomainModel]
-    
-    func toModel() -> KickRoomPlaylistViewModel {
-        return .init(order: self.order.map { $0.toModel() })
-    }
-}
-
-struct KickRoomPlaylistItemDomainModel: DTOMappable {
     let url: String
     var order: Int
     
-    func toModel() -> KickRoomPlaylistItemViewModel {
-        .init(
-            url: self.url,
-            order: self.order
-        )
+    func toModel() -> KickRoomPlaylistViewModel {
+        .init(url: self.url,
+              order: self.order)
     }
 }

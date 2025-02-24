@@ -40,7 +40,7 @@ enum ComponentSize {
     case userCollectionViewCell
     case userOverviewProfileImage
     case userlistBottomSheet
-    case chatBtoomSheet
+    case chatBottomSheet
     case messageTextView
     
 }
@@ -81,7 +81,7 @@ extension ComponentSize {
                 return CGSize(width: ComponentSize.screenWidth, height: ComponentSize.screenHeight / 5 * 2)
             }
             return CGSize(width: ComponentSize.screenWidth, height: ComponentSize.screenHeight / 3)
-        case .chatBtoomSheet:
+        case .chatBottomSheet:
             return CGSize(width: ComponentSize.screenWidth, height: ComponentSize.screenHeight - ComponentSize.safearea.top - ComponentSize.safearea.bottom - ComponentSize.youtubePlayer.size.height)
         case .messageTextView:
             return CGSize(width: 0, height: 48)

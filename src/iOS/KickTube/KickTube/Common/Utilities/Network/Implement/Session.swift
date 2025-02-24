@@ -7,11 +7,13 @@
 
 import Foundation
 
+import Foundation
+
 final class Session {
-    private let session: URLSession
+    private let session: URLSessionProtocol
     
-    init(configuration: URLSessionConfiguration = .default) {
-        self.session = URLSession(configuration: configuration)
+    init(session: URLSessionProtocol = URLSession.shared) {
+        self.session = session
     }
     
     @discardableResult

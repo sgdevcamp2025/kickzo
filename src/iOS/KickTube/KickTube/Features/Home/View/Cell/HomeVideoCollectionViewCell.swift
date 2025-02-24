@@ -17,8 +17,8 @@ final class HomeVideoCollectionViewCell: UICollectionViewCell {
         $0.contentMode = .scaleAspectFill
     }
     private let userProfileThumbnailView = UIImageView().then {
-        $0.layer.cornerRadius = ComponentSize.homeProfileImage.radius
         $0.clipsToBounds = true
+        $0.contentMode = .scaleAspectFill
     }
     private let titleLabel = UILabel().then {
         $0.numberOfLines = 2
@@ -57,9 +57,14 @@ final class HomeVideoCollectionViewCell: UICollectionViewCell {
         } else {
             videoThumbnailView.backgroundColor = .darkGray
         }
-        userProfileThumbnailView.image = UIImage.defaultProfile
+        if let profileThumbnanil = room.profileThumbnanil {
+            userProfileThumbnailView.image = UIImage(data: profileThumbnanil)
+            userProfileThumbnailView.layer.cornerRadius = 8
+        } else {
+            userProfileThumbnailView.image = UIImage.defaultProfile.applyCornerRadiusToImage(radius: 8)
+        }
         titleLabel.text = room.title
-        usernameLabel.text = room.creatorName
+        usernameLabel.text = room.creator
     }
     
 
@@ -78,13 +83,13 @@ final class HomeVideoCollectionViewCell: UICollectionViewCell {
         }
         userProfileThumbnailView.snp.makeConstraints { make in
             make.top.equalTo(videoThumbnailView.snp.bottom).offset(12)
-            make.leading.equalToSuperview()
+            make.leading.equalToSuperview().offset(2)
             make.size.equalTo(ComponentSize.homeProfileImage.size)
         }
         titleLabel.snp.makeConstraints { make in
             make.top.equalTo(userProfileThumbnailView.snp.top)
             make.leading.equalTo(userProfileThumbnailView.snp.trailing).offset(10)
-            make.trailing.equalToSuperview()
+            make.trailing.equalToSuperview().offset(-2)
         }
         usernameLabel.snp.makeConstraints { make in
             make.top.equalTo(titleLabel.snp.bottom).offset(2)

@@ -1,0 +1,31 @@
+name: kickzo
+
+services:
+  kibana:
+    image: docker.elastic.co/kibana/kibana:8.5.0
+    container_name: kibana
+    ports:
+      - "${KIBANA_PORT}:${KIBANA_PORT}"
+    environment:
+      ELASTICSEARCH_HOSTS: http://elasticsearch:9200
+      ELASTICSEARCH_USERNAME: kickzo
+      ELASTICSEARCH_PASSWORD: test123
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+    networks:
+      - kickzo-network
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:5601/api/status" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 10s
+
+
+volumes:
+  es-data:
+
+networks:
+  kickzo-network:
+    driver: bridge

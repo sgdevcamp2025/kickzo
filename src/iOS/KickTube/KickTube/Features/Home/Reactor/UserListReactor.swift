@@ -10,6 +10,8 @@ import Foundation
 import ReactorKit
 
 final class UserListReactor: Reactor {
+    private let session = Session()
+    
     enum Action {
         case loadView
         case searchText(String)
@@ -23,6 +25,7 @@ final class UserListReactor: Reactor {
     }
     
     struct State {
+        var roomID: Int?
         var userList: [KickRoomUserViewModel]
         var searchUserResult: [KickRoomUserViewModel] = []
         var selectedCell: (id: Int, role: UserRole)?
@@ -30,9 +33,10 @@ final class UserListReactor: Reactor {
     
     let initialState: State
     
-    init(_ user: [KickRoomUserViewModel]) {
+    init(roomID: Int?, _ user: [KickRoomUserViewModel]?) {
         self.initialState = State(
-            userList: user
+            roomID: roomID,
+            userList: user ?? []
         )
     }
     
@@ -52,7 +56,7 @@ final class UserListReactor: Reactor {
         
         switch mutation {
         case .setUserList:
-            if let myInformation = newState.userList.enumerated().filter({ $0.element.userID == UserDefaultsManager.shared.userProfile.userID }).first {
+            if let myInformation = newState.userList.enumerated().filter({ $0.element.userID == UserDefaultsManager.shared.myProfile.userID }).first {
                 newState.userList.remove(at: myInformation.offset)
                 newState.userList.insert(myInformation.element, at: 0)
             }
@@ -78,5 +82,5 @@ final class UserListReactor: Reactor {
         }
         
         return newState
-    }
+    } 
 }
