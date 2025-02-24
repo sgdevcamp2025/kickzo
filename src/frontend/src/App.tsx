@@ -46,7 +46,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            <Route path="room" element={<RoomPage />} />
+            <Route
+              path="room"
+              element={
+                <ProtectedRoute>
+                  <RoomPage />
+                </ProtectedRoute>
+              }
+            />
             <Route
               path="friend"
               element={
