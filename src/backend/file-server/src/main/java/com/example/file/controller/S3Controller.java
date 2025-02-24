@@ -4,6 +4,7 @@ import com.example.file.service.S3Service;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URL;
+import java.time.Instant;
 
 @RestController
 @RequestMapping("/api/files")
@@ -21,10 +22,8 @@ public class S3Controller {
     public String generatePresignedUrl(@PathVariable String fileName,
                                        @RequestParam String contentType) {
         // Add 'images/' prefix to the file name
-        String filePath = "images/" + fileName;
-
-        // Generate presigned URL for the file inside the 'images' folder
-        URL presignedUrl = s3Service.generatePresignedUrl(filePath, contentType);
+        String uniqueFileName = "images/" + Instant.now().toEpochMilli() + "_" + fileName;
+        URL presignedUrl = s3Service.generatePresignedUrl(uniqueFileName, contentType);
         return presignedUrl.toString();
     }
 }
