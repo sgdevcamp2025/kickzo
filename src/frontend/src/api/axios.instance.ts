@@ -1,5 +1,7 @@
 import { useAuthStore } from '@/stores/useAuthStore';
 import axios from 'axios';
+import { logAxiosError } from './axios.log';
+import { ErrorType } from '@/types/enums/ErrorType';
 
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -27,7 +29,7 @@ instance.interceptors.response.use(
   response => response,
   async error => {
     const originalRequest = error.config;
-    if (error.response.status === 401 && !originalRequest?._retry) {
+    if (error.response?.status === 401 && !originalRequest?._retry) {
       originalRequest._retry = true;
       try {
         const newAccessToken = await useAuthStore.getState().refreshAccessToken();
@@ -39,6 +41,8 @@ instance.interceptors.response.use(
       } catch (error) {
         return Promise.reject(error);
       }
+    } else {
+      logAxiosError(error, ErrorType.INTERNAL_SERVER_ERROR, error.message);
     }
     return Promise.reject(error);
   },

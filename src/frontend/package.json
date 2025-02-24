@@ -14,10 +14,12 @@
   "dependencies": {
     "@sentry/browser": "^8.48.0",
     "@sentry/react": "^8.48.0",
+    "@sentry/vite-plugin": "^3.2.0",
     "@tanstack/react-query": "^5.64.1",
     "@types/sockjs-client": "^1.5.4",
     "@types/stompjs": "^2.3.9",
     "axios": "^1.7.9",
+    "lucide-react": "^0.475.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
     "react-router-dom": "^7.1.3",

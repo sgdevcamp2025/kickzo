@@ -7,6 +7,7 @@ export const Wrapper = styled.div`
   justify-content: space-between;
   align-items: center;
   padding: 0 30px;
+  border-bottom: 1px solid var(--palette-line-solid-neutral);
 `;
 
 export const LogoBox = styled.div`
@@ -39,6 +40,22 @@ export const ButtonBox = styled.div`
   &:hover {
     background-color: var(--palette-line-solid-normal);
   }
+`;
+
+export const NotificationCount = styled.div`
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: var(--palette-status-negative);
+  color: var(--palette-static-white);
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 `;
 
 export const LoginButton = styled.button`

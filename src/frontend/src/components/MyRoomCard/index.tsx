@@ -73,7 +73,13 @@ export const MyRoomCard = ({ room }: { room: MyRoomDto }) => {
         onMouseLeave={() => setIsHovered(false)}
       >
         <Thumbnail>
-          <img src={thumbnail} alt={room.title} />
+          <img
+            src={thumbnail}
+            onError={e => {
+              e.currentTarget.src = DefaultThumbnail;
+            }}
+            alt={room.title}
+          />
         </Thumbnail>
         <Info>
           <div>

@@ -35,11 +35,23 @@ export const VideoCard = ({ video, onClick }: IVideoCard) => {
     <VideoCardContainer onClick={onClick}>
       <Thumbnail $playlistUrl={video.playlistUrl}>
         <UserCount>{video.userCount}명</UserCount>
-        <img src={thumbnail} alt={video.title} />
+        <img
+          src={thumbnail}
+          onError={e => {
+            e.currentTarget.src = DefaultThumbnail;
+          }}
+          alt={video.title}
+        />
       </Thumbnail>
       <VideoInfo>
         <Profile>
-          <img src={video.profileImageUrl ?? DefaultProfile} alt={video.creator} />
+          <img
+            src={video.profileImageUrl ?? DefaultProfile}
+            onError={e => {
+              e.currentTarget.src = DefaultProfile;
+            }}
+            alt={video.creator}
+          />
         </Profile>
         <div>
           <Title className="clamp-2">{video.title}</Title>

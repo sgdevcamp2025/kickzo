@@ -1,4 +1,4 @@
-import { styled } from 'styled-components';
+import { keyframes, styled } from 'styled-components';
 
 export const Wrapper = styled.div`
   display: flex;
@@ -57,9 +57,53 @@ export const CommonLi = styled.li<{ $hoverColor?: string }>`
   }
 `;
 
+export const GreetingViewWrapper = styled(Wrapper)`
+  min-height: 80vh;
+  height: auto;
+`;
+
+export const GreetingViewContainer = styled(Container)`
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+`;
+
+export const GreetingViewImage = styled.div`
+  max-width: 300px;
+  width: 100%;
+  margin-bottom: 1rem;
+`;
+
+export const GreetingViewTitle = styled(Title)`
+  padding: 0;
+`;
+
+export const GreetingViewSubTitle = styled(SubTitle)`
+  padding: 0;
+  color: var(--palette-font-gray-strong);
+  font-weight: 400;
+  font-size: 1.25rem;
+  margin-bottom: 1.5rem;
+`;
+
 export const Copyright = styled.p`
   font-size: 0.875rem;
   color: var(--palette-font-gray);
   text-align: center;
   margin-top: 2rem;
+`;
+
+const shimmer = keyframes`
+  0% {
+    background-position: -200% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+`;
+
+export const SkeletonBase = styled.div`
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  animation: ${shimmer} 1.5s infinite;
 `;

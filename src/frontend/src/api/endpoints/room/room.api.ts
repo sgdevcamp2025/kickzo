@@ -7,33 +7,54 @@ import {
   CurrentRoomDto,
   ReceiveMessageDto,
 } from './room.interface';
+import { logAxiosError } from '@/api/axios.log';
+import { ErrorType } from '@/types/enums/ErrorType';
 
 export const roomApi = {
   // 방 생성
   createRoom: async (roomInfo: RoomRequestDto) => {
-    const { data } = await instance.post<{ code: string }>('/rooms/create-room', roomInfo);
-    return data;
+    try {
+      const { data } = await instance.post<{ code: string }>('/rooms/create-room', roomInfo);
+      return data;
+    } catch (error) {
+      logAxiosError(error, ErrorType.ROOM, '방 생성 실패');
+      throw error;
+    }
   },
 
   // 내 방 조회
   getMyRooms: async () => {
-    const { data } = await instance.get<MyRoomDto[]>('/rooms/me');
-    return data;
+    try {
+      const { data } = await instance.get<MyRoomDto[]>('/rooms/me');
+      return data;
+    } catch (error) {
+      logAxiosError(error, ErrorType.ROOM, '내 방 조회 실패');
+      throw error;
+    }
   },
 
   // 전체 방 조회
   getRooms: async (page: number) => {
-    const response = await instance.get<RoomDto[]>('/rooms/all', {
-      params: { page, size: 20 },
-    });
-    console.log(response.data);
-    return response.data;
+    try {
+      const response = await instance.get<RoomDto[]>('/rooms/all', {
+        params: { page, size: 20 },
+      });
+      return response.data;
+    } catch (error) {
+      logAxiosError(error, ErrorType.ROOM, '전체 방 조회 실패');
+      throw error;
+    }
   },
 
   // 방 입장
   joinRoom: async (roomCode: string) => {
-    const { data } = await instance.post<CurrentRoomDto>(`/rooms/join`, { roomCode });
-    return data;
+    try {
+      const { data } = await instance.post<CurrentRoomDto>(`/rooms/join`, { roomCode });
+      return data;
+    } catch (error) {
+      logAxiosError(error, ErrorType.ROOM, '방 입장 실패');
+      throw error;
+    }
   },
 
   // 방 나가기
@@ -50,25 +71,40 @@ export const roomApi = {
 
   // 메시지 조회
   getMessages: async (roomId: number, cursor?: number, limit?: number) => {
-    const { data } = await instance.get<ReceiveMessageDto[]>(`/messages/${roomId}`, {
-      params: { cursor, limit: limit ?? 10 },
-    });
-    return data;
+    try {
+      const { data } = await instance.get<ReceiveMessageDto[]>(`/messages/${roomId}`, {
+        params: { cursor, limit: limit ?? 10 },
+      });
+      return data;
+    } catch (error) {
+      logAxiosError(error, ErrorType.ROOM, '메시지 조회 실패');
+      throw error;
+    }
   },
 
   // 방 참여자 조회
   getParticipants: async (roomId: string) => {
-    const { data } = await instance.get(`/rooms/participants`, { params: { roomId } });
-    return data;
+    try {
+      const { data } = await instance.get(`/rooms/participants`, { params: { roomId } });
+      return data;
+    } catch (error) {
+      logAxiosError(error, ErrorType.ROOM, '방 참여자 조회 실패');
+      throw error;
+    }
   },
 
   // playlist 보내기(배열을 json 형식으로 보내기)
   sendPlaylist: async (roomId: number, playlist: PlaylistDto[]) => {
-    const { data } = await instance.post('/rooms/playlist', {
-      roomId,
-      playlist: JSON.stringify(playlist),
-    });
-    return data;
+    try {
+      const { data } = await instance.post('/rooms/playlist', {
+        roomId,
+        playlist,
+      });
+      return data;
+    } catch (error) {
+      logAxiosError(error, ErrorType.ROOM, 'playlist 보내기 실패');
+      throw error;
+    }
   },
 
   // 역할 변경
@@ -78,25 +114,46 @@ export const roomApi = {
       targetUserId: userId,
       newRole: role,
     };
-    const { data } = await instance.post(`/rooms/change-role`, body);
-    return data;
+
+    try {
+      const { data } = await instance.patch(`/rooms/change-role`, body);
+      return data;
+    } catch (error) {
+      logAxiosError(error, ErrorType.ROOM, '역할 변경 실패');
+      throw error;
+    }
   },
 
   // 내 방 정보 수정
   updateMyRoomTitle: async (roomId: number, title: string) => {
-    const { data } = await instance.patch(`/rooms/update`, { roomId, title });
-    return data;
+    try {
+      const { data } = await instance.patch(`/rooms/update`, { roomId, title });
+      return data;
+    } catch (error) {
+      logAxiosError(error, ErrorType.ROOM, '내 방 제목 수정 실패');
+      throw error;
+    }
   },
 
   // 내 방 설명 수정
   updateMyRoomDescription: async (roomId: number, description: string) => {
-    const { data } = await instance.patch(`/rooms/update`, { roomId, description });
-    return data;
+    try {
+      const { data } = await instance.patch(`/rooms/update`, { roomId, description });
+      return data;
+    } catch (error) {
+      logAxiosError(error, ErrorType.ROOM, '내 방 설명 수정 실패');
+      throw error;
+    }
   },
 
   // 내 방 공개 여부 수정
   updateMyRoomPublic: async (roomId: number, isPublic: boolean) => {
-    const { data } = await instance.patch(`/rooms/update`, { roomId, isPublic });
-    return data;
+    try {
+      const { data } = await instance.patch(`/rooms/update`, { roomId, isPublic });
+      return data;
+    } catch (error) {
+      logAxiosError(error, ErrorType.ROOM, '내 방 공개 여부 수정 실패');
+      throw error;
+    }
   },
 };

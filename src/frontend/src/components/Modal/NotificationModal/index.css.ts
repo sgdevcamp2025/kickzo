@@ -2,6 +2,7 @@ import { styled } from 'styled-components';
 
 export const NotiContainer = styled.div`
   position: relative;
+  width: 100%;
   max-height: 260px;
   padding: 20px 20px 0px 20px;
   overflow-y: auto;

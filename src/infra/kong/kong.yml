@@ -191,7 +191,11 @@ plugins:
         - Accept-Version
         - Content-Type
         - Authorization
-      exposed_headers: []
+        - sentry-trace
+        - baggage
+      exposed_headers:
+        - sentry-trace
+        - baggage
       credentials: true
       max_age: 3600
       preflight_continue: false

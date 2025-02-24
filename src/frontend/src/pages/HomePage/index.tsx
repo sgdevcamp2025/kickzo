@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { RoomDto } from '@/api/endpoints/room/room.interface';
 import { HomeSkeleton } from './HomeSkeleton';
 import { useDelayedLoading } from '@/hooks/utils/useDelayedLoading';
-
+import { GreetingView } from './GreetingView';
 export const HomePage = () => {
   const navigate = useNavigate();
   const getRooms = useRooms();
@@ -25,6 +25,10 @@ export const HomePage = () => {
 
   if (showSkeleton) {
     return <HomeSkeleton />;
+  }
+
+  if (videos.length === 0) {
+    return <GreetingView />;
   }
 
   return (

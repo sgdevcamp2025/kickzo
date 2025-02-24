@@ -5,7 +5,7 @@ import {
   NotFoundException,
 } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
-import { Repository } from "typeorm";
+import { Like, Repository } from "typeorm";
 import { User } from "./entity/user.entity";
 import { CreateUserDto } from "./dto/create-user.dto";
 import * as bcrypt from "bcryptjs";
@@ -17,6 +17,7 @@ import { REDIS_KEY } from "./constants/redis-key.constant";
 import { DeviceType } from "./enum/device-type.enum";
 import { MESSAGES } from "./constants/constants";
 import { ENV_KEY } from "./constants/env-key.constants";
+
 @Injectable()
 export class UserService {
   private readonly redis: Redis;
@@ -68,15 +69,18 @@ export class UserService {
     return this.userRepository.findOne({ where: { email } });
   }
 
-  // NOTE: pagination 필요할 경우 추가
-  async findAll(page: number = 0, size: number = 10) {
+  async findAll(page: number = 0, size: number = 10, nickname?: string) {
+    const whereCondition = nickname ? { nickname: Like(`%${nickname}%`) } : {};
+
     const [users, total] = await this.userRepository.findAndCount({
+      where: whereCondition,
       skip: page * size,
       take: size,
     });
+
     return {
       users,
-      total,
+      totalLength: total,
     };
   }
 
