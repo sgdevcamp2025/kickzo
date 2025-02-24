@@ -1,3 +1,4 @@
+import { getYoutubeThumbnail } from '@/utils/youtubeUtils';
 import { styled } from 'styled-components';
 
 export const VideoCardContainer = styled.div`
@@ -14,7 +15,7 @@ export const VideoCardContainer = styled.div`
   }
 `;
 
-export const Thumbnail = styled.div`
+export const Thumbnail = styled.div<{ $playlistUrl: string | undefined }>`
   width: 100%;
   aspect-ratio: 16 / 9;
   border-radius: 0.625rem;
@@ -25,6 +26,25 @@ export const Thumbnail = styled.div`
     width: 100%;
     height: 100%;
     object-fit: cover;
+    content: url(${props => getYoutubeThumbnail(props.$playlistUrl, 'maxres')});
+  }
+
+  @media (max-width: 639px) {
+    & > img {
+      content: url(${props => getYoutubeThumbnail(props.$playlistUrl, 'sd')});
+    }
+  }
+
+  @media (max-width: 479px) {
+    & > img {
+      content: url(${props => getYoutubeThumbnail(props.$playlistUrl, 'hq')});
+    }
+  }
+
+  @media (max-width: 319px) {
+    & > img {
+      content: url(${props => getYoutubeThumbnail(props.$playlistUrl, 'mq')});
+    }
   }
 `;
 
