@@ -19,6 +19,7 @@ interface IVideoStore {
   setCurrentIndex: (index: number) => void;
   setCurrentVideo: (index: number) => void;
   moveToNextVideo: () => void;
+  clearVideoQueue: () => void;
 }
 
 export const useVideoStore = create<IVideoStore>(set => ({
@@ -88,4 +89,6 @@ export const useVideoStore = create<IVideoStore>(set => ({
         currentIndex: 0,
       };
     }),
+
+  clearVideoQueue: () => set(() => ({ videoQueue: [] })),
 }));

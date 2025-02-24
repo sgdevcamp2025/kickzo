@@ -28,6 +28,9 @@ export const YouTubePlayer = () => {
       script.src = 'https://www.youtube.com/iframe_api';
       document.body.appendChild(script);
     }
+    return () => {
+      useVideoStore.getState().clearVideoQueue();
+    };
   }, []);
 
   // 유튜브 플레이어 로드
