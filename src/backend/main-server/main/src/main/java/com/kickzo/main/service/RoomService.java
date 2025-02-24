@@ -7,12 +7,10 @@ import java.util.Set;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.springframework.data.redis.connection.RedisConnectionFactory;
-import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.data.redis.core.RedisTemplate;
 
+import com.kickzo.main.repository.UserEnterRedisRepository;
 import com.kickzo.main.search.service.SearchService;
 import com.kickzo.main.dto.data.PlaylistItem;
 import com.kickzo.main.dto.event.RoomUpdateEvent;
@@ -46,8 +44,7 @@ public class RoomService {
 	private final UserRepository userRepository;
 	private final SearchService searchService;
 	private final KafkaProducerService kafkaProducerService;
-	private final RedisTemplate<String, String> redisActiveUsersTemplate;
-
+	private final UserEnterRedisRepository userEnterRedisRepository;
 	private static final int ROLE_MEMBER = 2;
 
 	@Transactional
@@ -152,10 +149,7 @@ public class RoomService {
 	}
 
 	private List<UserInfoDto> fetchUserList(Long roomId) {
-		String redisKey = "room:" + roomId + ":users";
-		Set<String> onlineUsers = redisActiveUsersTemplate.opsForSet().members(redisKey); // 현재 온라인 유저 가져오기
-
-		log.info("Fetching user list for room {}. Online users from Redis: {}", roomId, onlineUsers);
+		Set<String> onlineUsers = userEnterRedisRepository.getOnlineUsers(roomId);
 
 		List<Object[]> userIdRoles = roomUserRepository.findUsersByRoomId(roomId);
 		return userIdRoles.stream()
@@ -225,15 +219,7 @@ public class RoomService {
 	}
 
 	private void userEnterRoom(Long roomId, Long userId) {
-		String key = "room:" + roomId + ":users";
-		// 현재 사용 중인 RedisConnectionFactory 정보 출력
-		RedisConnectionFactory factory = redisActiveUsersTemplate.getConnectionFactory();
-		if (factory instanceof LettuceConnectionFactory) {
-			int dbIndex = ((LettuceConnectionFactory) factory).getDatabase();
-			log.info("redisActiveUsersTemplate is using Redis DB: {}", dbIndex);
-		}
-		redisActiveUsersTemplate.opsForSet().add(key, String.valueOf(userId));
-		log.info("User {} added to Redis with key {} (via RedisTemplate: {})", userId, key, redisActiveUsersTemplate);
+		userEnterRedisRepository.addUserToRoom(roomId, userId);
 		sendRoomUserInfoToKafka(roomId, userId);
 	}
 }
