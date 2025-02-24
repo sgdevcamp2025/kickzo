@@ -17,7 +17,7 @@ export const ProfileDetail = (props: ProfileDetailDto) => {
       setProfile(profile);
     };
     getprofile();
-  }, []);
+  }, [props.userId]);
 
   return (
     <Container>
