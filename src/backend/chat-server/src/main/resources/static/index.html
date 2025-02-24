@@ -60,6 +60,7 @@
     <input type="text" id="messageInput" placeholder="Enter your message" />
     <button onclick="sendMessage()">Send</button>
     <button onclick="sendplayTime(12.12354)">Send Play Time (12.12354 sec)</button>
+    <button onclick="leaveRoom()">Leave Room</button>
 </div>
 
 <div id="status">Status: Disconnected</div>
@@ -141,6 +142,10 @@
             const payload = JSON.parse(message.body);
             showMessage(payload.message, payload.userId);
         });
+        stompClient.subscribe(`/topic/room/${roomId}/user-out`, (message) => {
+            const payload = JSON.parse(message.body);
+            showMessage(payload.message, payload.userId);
+        });
     }
 
     function sendMessage() {
@@ -172,6 +177,30 @@
         } else {
             console.error('WebSocket not connected.');
         }
+    }
+
+    function leaveRoom() {
+        if (!stompClient || !stompClient.connected) {
+            alert('You are not connected.');
+            return;
+        }
+        if (!roomId) {
+            alert('You are not in a room.');
+            return;
+        }
+
+        const payload = JSON.stringify({
+            roomId: roomId,
+            userId: userId
+        });
+
+        stompClient.send('/app/user-out', {}, payload);
+        console.log('Sent user-out:', payload);
+
+        // UI 업데이트 (채팅 섹션 숨김, 상태 변경)
+        document.getElementById('chatSection').style.display = 'none';
+        document.getElementById('status').textContent = 'Status: Left the room';
+        roomId = null; // 현재 roomId 초기화
     }
 
     function showMessage(message, sender) {

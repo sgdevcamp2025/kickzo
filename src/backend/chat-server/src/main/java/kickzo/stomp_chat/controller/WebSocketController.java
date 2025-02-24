@@ -75,8 +75,16 @@ public class WebSocketController {
         webSocketRoomService.sendPlayTime(request.userId(), request.roomId(), request.playTime(), request.playerState());
     }
 
+    @MessageMapping("/user-out")
+    public void userRoomDisconnect(String payload, SimpMessageHeaderAccessor headerAccessor) throws Exception {
+        UserRoomDisconnectRequest request = objectMapper.readValue(payload, UserRoomDisconnectRequest.class);
+        long userId = (Long) headerAccessor.getSessionAttributes().get("userId");
+        webSocketRoomService.sendUserRoomDisconnection(request.roomId(), userId);
+    }
+
     public record UserConnectRequest(long userId) {}
     public record SendMessageRequest(long roomId, long userId, String nickname, int role, String profileImageUrl, String content, String message) {}
+    public record UserRoomDisconnectRequest(long roomId, long userId) {}
 
     public record PlayTimeRequest(long userId, long roomId, BigDecimal playTime, String playerState) {
         public PlayTimeRequest(long userId, long roomId, BigDecimal playTime, String playerState) {

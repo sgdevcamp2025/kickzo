@@ -16,9 +16,8 @@ public enum CustomErrorCode {
 	INVALID_SENDER ("MAIN-400-006", "userId와 senderId가 불일치 합니다.", HttpStatus.BAD_REQUEST),
 	INVALID_RECEIVER ("MAIN-400-007", "userId와 receiverId가 불일치 합니다.", HttpStatus.BAD_REQUEST),
 
-	INVALID_ACCESS_ROLE("MAIN-401-001", "수정 권한이 없는 유저입니다.", HttpStatus.UNAUTHORIZED),
-
 	ROOM_LIMIT_EXCEEDED("MAIN-403-001", "최대 5개의 방만 생성할 수 있습니다.", HttpStatus.FORBIDDEN),
+	INVALID_ACCESS_ROLE("MAIN-403-002", "수정 권한이 없는 유저입니다.", HttpStatus.FORBIDDEN),
 
 	ROOM_NOT_FOUND("MAIN-404-001", "해당 방을 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
 	USER_NOT_FOUND("MAIN-404-002", "사용자를 찾을 수 없습니다.", HttpStatus.NOT_FOUND),
