@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload to S3</title>
+</head>
+<body>
+<input type="file" id="file-input" />
+<button onclick="uploadFile()">Upload</button>
+
+<script>
+    async function uploadFile() {
+        const fileInput = document.getElementById('file-input');
+        const file = fileInput.files[0];
+
+        if (!file) {
+            alert('Please select a file!');
+            return;
+        }
+
+        try {
+            // Ensure file name is properly encoded for the URL
+            const encodedFileName = encodeURIComponent(file.name);
+
+            // Include contentType in the request
+            const response = await fetch(`http://localhost:8109/api/files/upload/${encodedFileName}?contentType=${encodeURIComponent(file.type)}`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json',  // Adjust headers if necessary for your backend
+                    // If authentication is required, include the appropriate token or credentials
+                    // 'Authorization': 'Bearer your-token',
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error(`Failed to get presigned URL: ${response.statusText}`);
+            }
+
+            const presignedUrl = await response.text();
+
+            if (presignedUrl) {
+                // Use the presigned URL to upload the file directly to S3
+                const uploadResponse = await fetch(presignedUrl, {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': file.type, // Ensure the correct file type is set
+                    },
+                    body: file
+                });
+
+                if (uploadResponse.ok) {
+                    const fileUrl = presignedUrl.split('?')[0];  // Extract base S3 URL
+                    console.log('✅ File uploaded successfully:', fileUrl);
+                    alert(`File uploaded successfully: ${fileUrl}`);
+                } else {
+                    const errorText = await uploadResponse.text();
+                    console.error('❌ Error uploading file:', errorText);
+                    alert('Error uploading file');
+                }
+            } else {
+                console.error('❌ Error getting presigned URL');
+                alert('Error getting presigned URL');
+            }
+        } catch (error) {
+            console.error('❌ Error:', error);
+            alert('An error occurred during file upload.');
+        }
+    }
+
+</script>
+</body>
+</html>

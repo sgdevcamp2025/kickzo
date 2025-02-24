@@ -70,16 +70,17 @@ public class WebSocketController {
     @MessageMapping("/play-time")
     public void playTime(String payload) throws Exception {
         PlayTimeRequest request = objectMapper.readValue(payload, PlayTimeRequest.class);
-        log.info("Received roomId : {}, play time: {}", request.roomId(), request.playTime());
+        log.info("Received userId : {}, roomId : {}, play time: {}", request.userId(), request.roomId(), request.playTime());
 
-        webSocketRoomService.sendPlayTime(request.roomId(), request.playTime(), request.playerState());
+        webSocketRoomService.sendPlayTime(request.userId(), request.roomId(), request.playTime(), request.playerState());
     }
 
     public record UserConnectRequest(long userId) {}
     public record SendMessageRequest(long roomId, long userId, String nickname, int role, String profileImageUrl, String content, String message) {}
 
-    public record PlayTimeRequest(long roomId, BigDecimal playTime, String playerState) {
-        public PlayTimeRequest(long roomId, BigDecimal playTime, String playerState) {
+    public record PlayTimeRequest(long userId, long roomId, BigDecimal playTime, String playerState) {
+        public PlayTimeRequest(long userId, long roomId, BigDecimal playTime, String playerState) {
+            this.userId = userId;
             this.roomId = roomId;
             this.playTime = playTime.setScale(2, RoundingMode.HALF_UP); // 소수점 2자리로 변환
             this.playerState = playerState;

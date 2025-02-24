@@ -141,6 +141,16 @@ export class UserService {
     return updatedUser;
   }
 
+  async updateProfileImage(userId: number, profileImageUrl: string) {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+    if (!user) {
+      throw new NotFoundException(MESSAGES.USER_NOT_FOUND);
+    }
+    user.profileImageUrl = profileImageUrl;
+    const updatedUser = await this.userRepository.save(user);
+    return updatedUser;
+  }
+
   async delete(id: number) {
     try {
       const user = await this.userRepository.findOne({ where: { id } });

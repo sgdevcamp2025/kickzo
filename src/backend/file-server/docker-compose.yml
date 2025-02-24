@@ -1,0 +1,19 @@
+name: kickzo
+
+services:
+  file:
+    build:
+      context: .
+    container_name: file
+    environment:
+      - AWS_ACCESS_KEY=${AWS_ACCESS_KEY}  # AWS 액세스 키
+      - AWS_SECRET_KEY=${AWS_SECRET_KEY}  # AWS 비밀 키
+      - SERVER_PORT=${FILE_PORT} # server.port 설정
+    ports:
+      - "${FILE_PORT}:${FILE_PORT}"
+    networks:
+      - kickzo-network
+
+networks:
+  kickzo-network:
+    driver: bridge

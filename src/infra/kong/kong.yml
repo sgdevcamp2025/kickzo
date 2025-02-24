@@ -118,6 +118,32 @@ services:
               uri_param_names: []
           - name: custom-jwt-header
 
+  # File Service
+  - name: file-service
+    url: http://file:8109 # HISTORY_PORT=8300
+
+    routes:
+      - name: file-private-route
+        paths:
+          - /api/files
+        strip_path: false
+        protocols:
+          - http
+          - https
+        plugins:
+          - name: jwt
+            config:
+              key_claim_name: kid
+              claims_to_verify:
+                - exp
+              secret_is_base64: false
+              anonymous: null
+              header_names:
+                - Authorization
+              cookie_names: []
+              uri_param_names: []
+          - name: custom-jwt-header
+
   - name: chat-service
     url: http://chat-service-upstream # upstream 이름
     routes:
@@ -191,7 +217,11 @@ plugins:
         - Accept-Version
         - Content-Type
         - Authorization
-      exposed_headers: []
+        - sentry-trace
+        - baggage
+      exposed_headers:
+        - sentry-trace
+        - baggage
       credentials: true
       max_age: 3600
       preflight_continue: false

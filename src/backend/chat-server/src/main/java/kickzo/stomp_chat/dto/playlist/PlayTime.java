@@ -11,6 +11,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class PlayTime {
+	private long userId;
 	private long roomId;
 	private BigDecimal playTime;
 	private String playerState;

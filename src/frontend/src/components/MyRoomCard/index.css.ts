@@ -10,7 +10,7 @@ export const Card = styled.div`
 `;
 
 export const Thumbnail = styled.div`
-  width: 124px;
+  width: 120px;
   flex-shrink: 0;
   aspect-ratio: 16 / 9;
   border-radius: 0.625rem;

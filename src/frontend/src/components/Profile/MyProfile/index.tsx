@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { ChangeEvent, useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { IconButton } from '@/components/IconButton';
 import {
@@ -13,6 +13,8 @@ import {
   StateMessageInput,
   StateMessagePlus,
   ErrorMessage,
+  ProfileImageResetButton,
+  ProfileImageContainer,
 } from './index.css';
 
 import Edit from '@/assets/img/Edit.svg';
@@ -23,15 +25,17 @@ import { useUserStore } from '@/stores/useUserStore';
 import DefaultProfile from '@/assets/img/DefaultProfile.svg';
 import AddIcon from '@/assets/img/Add.svg';
 import { AxiosError } from 'axios';
+import { uploadImageToS3 } from '@/utils/uploadFile';
 
 export const MyProfile = () => {
-  const { user, updateMyProfile } = useUserStore();
+  const { user, updateMyProfile, updateProfileImage } = useUserStore();
   const navigate = useNavigate();
   const [isEditMode, setIsEditMode] = useState(false);
   const [nickname, setNickname] = useState(user?.nickname);
   const [stateMessage, setStateMessage] = useState(user?.stateMessage || null);
   const [isChanged, setIsChanged] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (user) {
@@ -92,11 +96,56 @@ export const MyProfile = () => {
     setStateMessage(user?.stateMessage);
   };
 
+  const handleImageClick = () => {
+    if (isEditMode) {
+      fileInputRef.current?.click();
+    }
+  };
+
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      const imageUrl = await uploadImageToS3(file);
+      const updateUser = await updateProfileImage(imageUrl);
+      console.log('image change', updateUser);
+    } catch {
+      setErrorMessage('이미지 업로드에 실패했습니다.');
+    }
+  };
+
+  const handleImageReset = async () => {
+    const updateUser = await updateProfileImage(null);
+    console.log('image reset', updateUser);
+  };
+
   return (
     <Container>
       <Profile>
         <Header>
-          <ProfileImage src={user.profileImageUrl ?? DefaultProfile} />
+          <ProfileImageContainer>
+            <ProfileImage
+              src={user.profileImageUrl ?? DefaultProfile}
+              onClick={handleImageClick}
+              $onClick={isEditMode}
+              onError={e => {
+                e.currentTarget.src = DefaultProfile;
+              }}
+            />
+            <input
+              type="file"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+              style={{ display: 'none' }}
+              accept="image/*"
+            />
+            {isEditMode && (
+              <ProfileImageResetButton onClick={handleImageReset}>
+                <img src={Cancel} alt="cancel" />
+              </ProfileImageResetButton>
+            )}
+          </ProfileImageContainer>
           <HeaderButtonContainer>
             <IconButton
               beforeImgUrl={isEditMode ? Check : Edit}

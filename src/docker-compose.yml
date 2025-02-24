@@ -17,6 +17,7 @@ include:
   - ./backend/elk/docker-compose-es.yml
   - ./backend/elk/docker-compose-kibana.yml
   - ./backend/friend-server/docker-compose.yml
+  - ./backend/file-server/docker-compose.yml
 
 networks:
   kickzo-network:

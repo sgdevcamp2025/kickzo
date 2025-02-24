@@ -10,6 +10,7 @@ interface UserStore {
   updateMyProfile: (
     updateUserRequestDto: UpdateUserRequestDto,
   ) => Promise<UserResponseDto | undefined>;
+  updateProfileImage: (profileImageUrl: string | null) => Promise<UserResponseDto | undefined>;
   clearProfile: () => void;
 }
 
@@ -20,18 +21,23 @@ export const useUserStore = create(
       roomId: null,
       setUser: (user: UserResponseDto) => set({ user }),
       fetchMyProfile: async () => {
-        try {
-          const data = await userApi.getMyProfile();
-          set({ user: data });
-          return data;
-        } catch (error) {
-          console.error(error);
-        }
+        const data = await userApi.getMyProfile();
+        set({ user: data });
+        return data;
       },
       updateMyProfile: async (updateUserRequestDto: UpdateUserRequestDto) => {
         const data = await userApi.updateMyProfile(updateUserRequestDto);
         set({ user: data });
         return data;
+      },
+      updateProfileImage: async (profileImageUrl: string | null) => {
+        try {
+          const data = await userApi.updateProfileImage(profileImageUrl);
+          set({ user: data });
+          return data;
+        } catch (error) {
+          console.error(error);
+        }
       },
       clearProfile: () => {
         set({ user: null });
