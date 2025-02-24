@@ -6,10 +6,9 @@ import { useWebSocketStore } from '@/stores/useWebSocketStore';
 
 export const YouTubePlayer = () => {
   const { videoQueue } = useVideoStore();
-  const { currentRoom } = useCurrentRoomStore();
+  const { roomId } = useCurrentRoomStore.getState();
   const { client, subTopic } = useWebSocketStore();
   const pubTopic = useWebSocketStore.getState().pubTopic;
-  const roomId = currentRoom?.roomDetails?.roomInfo?.[0]?.roomId;
 
   const playerRef = useRef<YT.Player | null>(null);
   const lastSentStateRef = useRef<'playing' | 'paused' | null>(null);
@@ -46,7 +45,7 @@ export const YouTubePlayer = () => {
           height: '100%',
           width: '100%',
           videoId: id,
-          playerVars: { autoplay: 1, controls: 1, start: startTime },
+          playerVars: { autoplay: 0, controls: 1, start: startTime },
           events: {
             onStateChange: handleVideoStateChange,
             onReady: handlePlayerReady,
@@ -63,10 +62,13 @@ export const YouTubePlayer = () => {
 
   // 유튜브 영상의 재생, 멈춤, 끝남 상태에 따라 동작
   const broadcastPlayerState = (state: 'playing' | 'paused', time: number) => {
+    const roomId = useCurrentRoomStore.getState().roomId;
+
     if (!client || !roomId || !pubTopic) {
       console.warn('⚠ WebSocket 준비 안됨');
       return;
     }
+
     lastSentStateRef.current = state;
     const message = JSON.stringify({ roomId, playTime: time, playerState: state });
     pubTopic(`/app/play-time`, message);
@@ -143,8 +145,7 @@ export const YouTubePlayer = () => {
   // 영상 변경 시 플레이어 로드
   useEffect(() => {
     if (!videoQueue.length) return;
-
-    const newCurrentVideo = videoQueue[0];
+    const newCurrentVideo = useVideoStore.getState().videoQueue[0];
 
     // 현재 상태와 비교
     if (
