@@ -18,6 +18,7 @@ export interface MyRoomDto {
   profileImageUrl?: string;
   userCount: number;
   playlistUrl?: string;
+  public?: boolean;
 }
 
 export interface PaginationDto {
