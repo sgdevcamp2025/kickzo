@@ -196,7 +196,7 @@ export class AuthService {
 
     const isPasswordMatch = await bcrypt.compare(password, user.password);
     if (!isPasswordMatch) {
-      throw new BadRequestException(MESSAGES.INVALID_LOGIN_INFO);
+      throw new UnauthorizedException(MESSAGES.INVALID_LOGIN_INFO);
     }
 
     const { password: _, ...withoutPassword } = user;

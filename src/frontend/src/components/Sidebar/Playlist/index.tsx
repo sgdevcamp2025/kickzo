@@ -18,6 +18,7 @@ import {
 import { ButtonColor } from '@/types/enums/ButtonColor';
 import { useDebounce } from '@/hooks/utils/useDebounce';
 import { PlaylistItem } from './PlaylistItem';
+import DefaultThumbnail from '@/assets/img/DefaultThumbnail.svg';
 import { useWebSocketStore } from '@/stores/useWebSocketStore';
 import { useUserStore } from '@/stores/useUserStore';
 import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
@@ -331,7 +332,13 @@ export const Playlist = () => {
               width="100%"
               justifycontent="flex-start"
             >
-              <PreviewImg src={thumbnailPreview} />
+              <PreviewImg
+                src={thumbnailPreview}
+                alt="thumbnail"
+                onError={e => {
+                  e.currentTarget.src = DefaultThumbnail;
+                }}
+              />
               <PreviewInfo>
                 <PreviewInfo__Title>{videoTitle || '제목 없음'}</PreviewInfo__Title>
                 <PreviewInfo__Youtuber>{videoYoutuber || '유튜버 정보 없음'}</PreviewInfo__Youtuber>

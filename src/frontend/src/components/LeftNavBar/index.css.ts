@@ -8,6 +8,7 @@ export const ButtonContainer = styled.div`
   align-items: center;
   flex-direction: column;
   gap: 20px;
+  border-right: 1px solid var(--palette-line-solid-neutral);
 `;
 
 export const ButtonWrapper = styled.div`

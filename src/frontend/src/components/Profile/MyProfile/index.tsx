@@ -29,7 +29,7 @@ export const MyProfile = () => {
   const navigate = useNavigate();
   const [isEditMode, setIsEditMode] = useState(false);
   const [nickname, setNickname] = useState(user?.nickname);
-  const [stateMessage, setStateMessage] = useState(user?.stateMessage);
+  const [stateMessage, setStateMessage] = useState(user?.stateMessage || null);
   const [isChanged, setIsChanged] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
 
@@ -58,10 +58,24 @@ export const MyProfile = () => {
       setIsEditMode(false);
       return;
     }
+    if (!nickname) {
+      setErrorMessage('닉네임을 입력해주세요.');
+      return;
+    }
+
+    if (nickname && (nickname === '' || nickname.length > 20)) {
+      setErrorMessage('닉네임은 1자 이상 20자 이하여야 합니다.');
+      return;
+    }
+
+    if (stateMessage && (stateMessage === '' || stateMessage.length > 100)) {
+      setErrorMessage('상태 메시지는 1자 이상 100자 이하여야 합니다.');
+      return;
+    }
     try {
       await updateMyProfile({
         nickname,
-        stateMessage,
+        ...(stateMessage && { stateMessage }),
       });
       setIsEditMode(false);
     } catch (error) {
@@ -126,7 +140,7 @@ export const MyProfile = () => {
             />
             <StateMessageInput
               type="text"
-              value={stateMessage}
+              value={stateMessage ?? ''}
               onChange={e => setStateMessage(e.target.value)}
               placeholder="상태 메시지를 입력하세요"
               $isEditMode={isEditMode}
