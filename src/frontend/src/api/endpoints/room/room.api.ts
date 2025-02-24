@@ -6,6 +6,7 @@ import {
   RoomDto,
   CurrentRoomDto,
   ReceiveMessageDto,
+  ElasticSearchDto,
 } from './room.interface';
 import { logAxiosError } from '@/api/axios.log';
 import { ErrorType } from '@/types/enums/ErrorType';
@@ -153,6 +154,16 @@ export const roomApi = {
       return data;
     } catch (error) {
       logAxiosError(error, ErrorType.ROOM, '내 방 공개 여부 수정 실패');
+      throw error;
+    }
+  },
+
+  searchFromElastic: async (keyword: string) => {
+    try {
+      const { data } = await instance.get<ElasticSearchDto>(`/search`, { params: { keyword } });
+      return data;
+    } catch (error) {
+      logAxiosError(error, ErrorType.ROOM, '엘라스틱서치 검색 실패');
       throw error;
     }
   },

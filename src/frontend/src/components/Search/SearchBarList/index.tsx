@@ -1,14 +1,17 @@
 import { SearchListItem } from '@/components/Search/SearchBarListItem';
 import { TotalLi, Ul } from './index.css';
-import { UserResponseDto } from '@/api/endpoints/user/user.interface';
+import { SearchUserDto, RoomDto } from '@/api/endpoints/room/room.interface';
+
 export const SearchBarList = ({
-  searchList,
+  searchUserList,
+  searchRoomList,
   searchWord,
   resetSearchState,
   totalLength,
   targetIndex,
 }: {
-  searchList: UserResponseDto[];
+  searchUserList: SearchUserDto[];
+  searchRoomList: RoomDto[];
   resetSearchState: () => void;
   searchWord?: string;
   totalLength: number;
@@ -16,7 +19,7 @@ export const SearchBarList = ({
 }) => {
   return (
     <Ul>
-      {searchList.map((item, index: number) => {
+      {searchUserList.map((item, index: number) => {
         return (
           <SearchListItem
             key={index}
@@ -24,6 +27,21 @@ export const SearchBarList = ({
             resultText={item.nickname}
             resetSearchState={resetSearchState}
             isTargetIndex={targetIndex === index}
+            imageUrl={item.profileImageUrl}
+            type="user"
+          />
+        );
+      })}
+      {searchRoomList.map((item, index: number) => {
+        return (
+          <SearchListItem
+            key={index + searchUserList.length}
+            inputText={searchWord}
+            resultText={item.title}
+            resetSearchState={resetSearchState}
+            isTargetIndex={targetIndex === index + searchUserList.length}
+            imageUrl={item.playlistUrl}
+            type="room"
           />
         );
       })}

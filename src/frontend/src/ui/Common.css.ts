@@ -107,3 +107,7 @@ export const SkeletonBase = styled.div`
   background-size: 200% 100%;
   animation: ${shimmer} 1.5s infinite;
 `;
+
+export const Divider = styled.div`
+  height: 1rem;
+`;

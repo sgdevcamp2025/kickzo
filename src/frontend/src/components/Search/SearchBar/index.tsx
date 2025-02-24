@@ -11,8 +11,8 @@ import {
   SearchBarWrapper,
   SearchIconBox,
 } from './index.css';
-import { userApi } from '@/api/endpoints/user/user.api';
-import { UserResponseDto } from '@/api/endpoints/user/user.interface';
+import { roomApi } from '@/api/endpoints/room/room.api';
+import { SearchUserDto, RoomDto } from '@/api/endpoints/room/room.interface';
 
 export const SearchBar = () => {
   const navigate = useNavigate();
@@ -23,18 +23,25 @@ export const SearchBar = () => {
   const [targetIndex, setTargetIndex] = useState<number>(-1);
   const [searchValue, setSearchValue] = useState<string>('');
   const [totalLength, setTotalLength] = useState<number>(0);
-  const [searchList, setSearchList] = useState<UserResponseDto[]>([]);
+  const [searchUserList, setSearchUserList] = useState<SearchUserDto[]>([]);
+  const [searchRoomList, setSearchRoomList] = useState<RoomDto[]>([]);
   const enterKeyProcessed = useRef(false);
 
   useEffect(() => {
     if (targetIndex !== -1) {
-      searchInput.current!.value = searchList[targetIndex]?.nickname;
-      setSearchValue(searchInput.current!.value);
+      if (targetIndex < searchUserList.length) {
+        searchInput.current!.value = searchUserList[targetIndex]?.nickname;
+        setSearchValue(searchInput.current!.value);
+      } else {
+        searchInput.current!.value = searchRoomList[targetIndex - searchUserList.length]?.title;
+        setSearchValue(searchInput.current!.value);
+      }
     }
   }, [targetIndex]);
 
   const resetSearchState = () => {
-    setSearchList([]);
+    setSearchUserList([]);
+    setSearchRoomList([]);
     setTotalLength(0);
     setTargetIndex(-1);
     if (searchInput.current) {
@@ -52,10 +59,12 @@ export const SearchBar = () => {
         setTargetIndex(-1);
         return;
       } else {
-        // 검색어에 따른 검색 결과 리스트
-        const searchListData = await userApi.getUsers(0, 30, searchValue);
-        setSearchList(searchListData.users);
-        setTotalLength(searchListData.totalLength);
+        const searchListData = await roomApi.searchFromElastic(searchValue);
+
+        console.log('searchListData: ', searchListData.users);
+        setSearchUserList(searchListData.users);
+        setSearchRoomList(searchListData.rooms);
+        setTotalLength(searchListData.users.length + searchListData.rooms.length);
       }
     }
   };
@@ -74,13 +83,17 @@ export const SearchBar = () => {
       case 'ArrowUp':
         if (totalLength > 0) {
           // 위로 이동
-          setTargetIndex(prev => (prev > 0 ? prev - 1 : searchList.length - 1));
+          setTargetIndex(prev =>
+            prev > 0 ? prev - 1 : searchUserList.length + searchRoomList.length - 1,
+          );
         }
         break;
       case 'ArrowDown':
         if (totalLength > 0) {
           // 아래로 이동
-          setTargetIndex(prev => (prev < searchList.length - 1 ? prev + 1 : 0));
+          setTargetIndex(prev =>
+            prev < searchUserList.length + searchRoomList.length - 1 ? prev + 1 : 0,
+          );
         }
         break;
     }
@@ -133,10 +146,11 @@ export const SearchBar = () => {
           <img src={SearchIcon} />
         </SearchIconBox>
       </SearchBarContainer>
-      {isFocus && searchInput.current?.value && totalLength > 0 && (
+      {isFocus && searchInput.current?.value && (
         <>
           <SearchBarList
-            searchList={searchList}
+            searchUserList={searchUserList}
+            searchRoomList={searchRoomList}
             searchWord={searchValue}
             resetSearchState={resetSearchState}
             totalLength={totalLength}

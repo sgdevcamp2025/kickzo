@@ -16,15 +16,14 @@ import {
   SearchItemNickname,
   SearchItemStateMessage,
 } from './index.css';
-import { UserResponseDto } from '@/api/endpoints/user/user.interface';
+import { SearchUserDto } from '@/api/endpoints/room/room.interface';
 import axios from 'axios';
 
-export const SearchItem = ({ user }: { user: UserResponseDto }) => {
+export const SearchUserItem = ({ user }: { user: SearchUserDto }) => {
   const { user: me } = useUserStore();
   const { friends } = useFriendStore();
   const { notifications } = useNotificationStore();
   const [alreadyRequested, setAlreadyRequested] = useState(false);
-
   const isFriend = friends.some(friend => friend.friend_id === user.userId);
   const hasRequested = notifications.some(
     notification => notification.senderId === user.userId && notification.status === 'PENDING',

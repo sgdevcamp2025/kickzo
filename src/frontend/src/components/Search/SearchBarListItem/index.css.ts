@@ -5,6 +5,8 @@ export const Li = styled.li`
   border-radius: 10px;
   cursor: pointer;
   display: flex;
+  align-items: center;
+  gap: 8px;
 
   & strong {
     color: var(--palette-primary);
@@ -33,5 +35,21 @@ export const Li = styled.li`
     &:hover path {
       stroke: var(--palette-static-white);
     }
+  }
+`;
+
+export const Img = styled.div`
+  width: 24px;
+  height: 24px;
+  margin-right: 8px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+
+  img {
+    width: 100%;
+    object-fit: cover;
   }
 `;
