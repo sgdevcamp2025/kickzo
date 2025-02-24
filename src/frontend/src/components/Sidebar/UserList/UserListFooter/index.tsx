@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { CommonInput } from '@/components/common/Input';
-import { UserFooter, VoiceChatFooter, ActionButton, JoinButton } from '../index.css';
+import { UserFooter, VoiceChatFooter, ActionButton, JoinButton, UserInviteButton } from '../index.css';
 
 import { SidebarType } from '@/types/enums/SidebarType';
 
@@ -24,7 +24,9 @@ export const UserListFooter = (props: IUserListFooter) => {
   if (props.sidebarType === SidebarType.USERLIST) {
     return (
       <UserFooter>
-        <img src={AddUserIcon} alt="Add User" />
+        <UserInviteButton>
+          <img src={AddUserIcon} alt="Add User" />
+        </UserInviteButton>
         <CommonInput placeholder="룸 유저 검색" design={1} />
       </UserFooter>
     );

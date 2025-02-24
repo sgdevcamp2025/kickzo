@@ -14,20 +14,24 @@ export const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  cursor: pointer;
 `;
 
 export const InputContainer = styled.div`
   display: flex;
-  gap: 10px;
+  padding: 8px;
+  border-top: 1px solid var(--palette-line-solid-neutral);
 `;
 
 export const SearchInput = styled.input`
   flex: 1;
-  height: 40px;
+  height: 36px;
   border: none;
   background-color: #f4f4f4;
   border-radius: 5px;
   padding: 0 10px;
+  border: none;
+  outline: none;
 `;
 
 export const PreviewContainer = styled.div`

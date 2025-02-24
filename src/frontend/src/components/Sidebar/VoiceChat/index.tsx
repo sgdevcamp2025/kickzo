@@ -6,9 +6,9 @@ import { UserListFooter } from '@/components/Sidebar/UserList/UserListFooter';
 import { SidebarType } from '@/types/enums/SidebarType';
 import { ProfileType } from '@/types/enums/ProfileType';
 import { UserRole } from '@/types/enums/UserRole';
-import { memberListTest } from '@/assets/data/memberListTest';
 
 import { Container, UserList, ProfileWrapper } from './index.css';
+import { CurrentRoomUserDto } from '@/api/endpoints/room/room.interface';
 
 export const VoiceChat = () => {
   const [activeProfile, setActiveProfile] = useState<number | null>(null);
@@ -16,7 +16,9 @@ export const VoiceChat = () => {
     setActiveProfile(prevId => (prevId === id ? null : id));
   };
 
-  const sortedUsers = memberListTest.sort((a, b) => {
+  const memberList: CurrentRoomUserDto[] = [];
+
+  const sortedUsers = memberList.sort((a, b) => {
     if (a.role !== b.role) {
       return a.role - b.role;
     }
@@ -27,21 +29,21 @@ export const VoiceChat = () => {
     <Container>
       <UserList>
         {sortedUsers.map(member => (
-          <ProfileWrapper key={member.id}>
-            <div onClick={() => handleProfileClick(member.id)}>
+          <ProfileWrapper key={member.userId}>
+            <div onClick={() => handleProfileClick(member.userId)}>
               <SmallProfile
                 type={ProfileType.VOICECHAT}
                 role={member.role}
                 nickname={member.nickname}
-                imgUrl={member.profileImg}
+                imgUrl={member.profileImageUrl}
               />
             </div>
-            {activeProfile === member.id ? (
-              <div className={`profile-detail ${activeProfile === member.id ? 'active' : ''}`}>
+            {activeProfile === member.userId ? (
+              <div className={`profile-detail ${activeProfile === member.userId ? 'active' : ''}`}>
                 <ProfileDetail
                   nickname={member.nickname}
-                  imgUrl={member.profileImg}
-                  userId={member.id}
+                  imgUrl={member.profileImageUrl}
+                  userId={member.userId}
                   userRole={member.role}
                   myRole={UserRole.CREATOR}
                   sidebarType={SidebarType.VOICECHAT}

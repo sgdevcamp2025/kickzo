@@ -8,13 +8,13 @@ interface VideoItemContainerProps {
 
 export const Container = styled.div<VideoItemContainerProps>`
   display: flex;
-  align-items: center;
+  align-items: flex-start;
+  justify-content: space-between;
   gap: 5px;
-  padding: 10px;
-  border-radius: 5px;
+  padding: 16px 8px;
   background-color: ${({ $isPreview }) =>
     $isPreview ? 'var(--palette-line-normal-normal)' : 'var(--palette-static-white)'};
-  border: 1px solid #ddd;
+  border-bottom: 1px solid var(--palette-line-normal-alternative);
   cursor: pointer;
   position: relative;
   transition: all 0.2s ease;
@@ -79,16 +79,15 @@ export const Playlist__Youtuber = styled.div`
 `;
 
 export const ButtonContainer = styled.div`
-  width: 300px;
+  width: 100%;
   height: 100%;
   display: flex;
-  gap: 5px;
   justify-content: space-between;
-  padding: 10px 0;
+  padding: 10px;
   align-items: end;
   position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0px;
+  left: 0px;
   opacity: 0;
   visibility: hidden;
   transition:

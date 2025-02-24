@@ -19,17 +19,16 @@ export const MemberFooter = styled.div`
   width: 100%;
   display: flex;
   align-items: center;
-  padding: 8px 0;
-
-  border-top: 1px solid #d4d4d4;
+  padding: 8px;
+  border-top: 1px solid var(--palette-line-solid-neutral);
 `;
 
 export const VoiceChatFooter = styled.div`
   width: 100%;
   display: flex;
-  justify-content: space-around;
-  padding: 8px 0px;
-  border-top: 1px solid #d4d4d4;
+  justify-content: space-between;
+  padding: 8px;
+  border-top: 1px solid var(--palette-line-solid-neutral);
 `;
 
 export const ActionButton = styled.button`

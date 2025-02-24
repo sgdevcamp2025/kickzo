@@ -19,17 +19,26 @@ export const UserFooter = styled.div`
   width: 100%;
   display: flex;
   align-items: center;
-  padding: 8px 0;
+  padding: 8px;
+  border-top: 1px solid var(--palette-line-solid-neutral);
+  cursor: pointer;
+`;
 
-  border-top: 1px solid #d4d4d4;
+export const UserInviteButton = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
 `;
 
 export const VoiceChatFooter = styled.div`
   width: 100%;
   display: flex;
-  justify-content: space-around;
-  padding: 8px 0px;
-  border-top: 1px solid #d4d4d4;
+  justify-content: space-between;
+  padding: 8px;
+  gap: 8px;
+  border-top: 1px solid var(--palette-line-solid-neutral);
 `;
 
 export const ActionButton = styled.button`
@@ -38,10 +47,14 @@ export const ActionButton = styled.button`
   border-radius: 50%;
   background-color: #f4f4f4;
   cursor: pointer;
+  width: 36px;
+  height: 36px;
+  min-width: 36px;
+  min-height: 36px;
 `;
 
 export const JoinButton = styled.button`
-  width: 194px;
+  width: 100%;
   border: none;
   background-color: #ff9100;
   padding: 10px 20px;

@@ -32,7 +32,6 @@ import { useVideoStore } from '@/stores/useVideoStore';
 
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY as string;
 
-
 export const TopNavBar = () => {
   const navigate = useNavigate();
   const { user, fetchMyProfile, clearProfile } = useUserStore();
@@ -197,7 +196,13 @@ export const TopNavBar = () => {
           </ButtonBox>
           {user ? (
             <ProfileButton onClick={clickProfile}>
-              <img src={user.profileImageUrl ?? DefaultProfile} alt="Profile" />
+              <img
+                src={user.profileImageUrl ?? DefaultProfile}
+                alt="Profile"
+                onError={e => {
+                  e.currentTarget.src = DefaultProfile;
+                }}
+              />
               {isProfileModalOpen && <ProfileModal onCancel={handleCancelProfile} />}
             </ProfileButton>
           ) : (
