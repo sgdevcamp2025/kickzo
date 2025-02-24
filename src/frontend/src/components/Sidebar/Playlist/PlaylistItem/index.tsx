@@ -25,25 +25,25 @@ interface IPlaylistItem {
   active: boolean;
   isDragging?: boolean;
   isPreview?: boolean;
-  onClick: (index: number) => void;
-  onMoveUp: (index: number) => void;
-  onMoveDown: (index: number) => void;
-  onRemove: (index: number) => void;
-  onDragStart: (index: number) => void;
-  onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
+  onClick?: (index: number) => void;
+  onMoveUp?: (index: number) => void;
+  onMoveDown?: (index: number) => void;
+  onRemove?: (index: number) => void;
+  onDragStart?: (index: number) => void;
+  onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
   onDragEnd?: () => void;
-  onDrop: (index: number) => void;
+  onDrop?: (index: number) => void;
 }
 
 export const PlaylistItem = (props: IPlaylistItem) => {
   return (
     <Container
       draggable
-      onDragStart={() => props.onDragStart(props.index)}
+      onDragStart={() => props.onDragStart?.(props.index)}
       onDragOver={props.onDragOver}
       onDragEnd={props.onDragEnd}
-      onDrop={() => props.onDrop(props.index)}
-      onClick={() => props.onClick(props.index)}
+      onDrop={() => props.onDrop?.(props.index)}
+      onClick={() => props.onClick?.(props.index)}
       $active={props.active}
       $isDragging={props.isDragging}
       $isPreview={props.isPreview}
@@ -64,7 +64,7 @@ export const PlaylistItem = (props: IPlaylistItem) => {
           <CommonButton
             onClick={e => {
               e.stopPropagation();
-              props.onMoveUp(props.index);
+              props.onMoveUp?.(props.index);
             }}
             color={ButtonColor.DARKGRAY}
             borderradius="100px"
@@ -75,7 +75,7 @@ export const PlaylistItem = (props: IPlaylistItem) => {
           <CommonButton
             onClick={e => {
               e.stopPropagation();
-              props.onMoveDown(props.index);
+              props.onMoveDown?.(props.index);
             }}
             color={ButtonColor.DARKGRAY}
             borderradius="100px"
@@ -87,7 +87,7 @@ export const PlaylistItem = (props: IPlaylistItem) => {
         <CommonButton
           onClick={e => {
             e.stopPropagation();
-            props.onRemove(props.index);
+            props.onRemove?.(props.index);
           }}
           color={ButtonColor.DARKGRAY}
           borderradius="100px"
