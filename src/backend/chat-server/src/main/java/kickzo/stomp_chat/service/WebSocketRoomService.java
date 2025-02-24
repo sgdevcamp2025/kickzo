@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import kickzo.stomp_chat.dto.room.ChatMessage;
+import kickzo.stomp_chat.dto.room.UserOutEvent;
 import kickzo.stomp_chat.dto.user.ConnectionEvent;
 import kickzo.stomp_chat.dto.playlist.PlayTime;
 import kickzo.stomp_chat.dto.RoomEvent;
@@ -57,5 +58,14 @@ public class WebSocketRoomService {
 
 		RoomEvent roomEvent = new RoomEvent("play-time", playTimeObject);
 		kafkaRepository.sendPlayTime(roomEvent);
+	}
+
+	/**
+	 * Kafka에 Room에서 user가 나갔음을 전송
+	 */
+	public void sendUserRoomDisconnection(long roomId, long userId) {
+		UserOutEvent userRoomDisconnect = new UserOutEvent(roomId, userId);
+		RoomEvent userOutEvent = new RoomEvent("user-out", userRoomDisconnect);
+		kafkaRepository.sendUserRoomDisconnect(userOutEvent);
 	}
 }
