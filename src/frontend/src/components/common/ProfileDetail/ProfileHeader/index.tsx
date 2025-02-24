@@ -11,7 +11,7 @@ import {
   Profile__Header__Img,
   Profile__Header__ButtonContainer,
 } from '../index.css';
-
+import DefaultProfile from '@/assets/img/DefaultProfile.svg';
 interface IProfileHeader {
   sidebarType: SidebarType;
   imgUrl: string;
@@ -20,7 +20,12 @@ interface IProfileHeader {
 export const ProfileHeader = (props: IProfileHeader) => {
   return (
     <Profile__Header>
-      <Profile__Header__Img src={props.imgUrl} />
+      <Profile__Header__Img
+        src={props.imgUrl ?? DefaultProfile}
+        onError={e => {
+          e.currentTarget.src = DefaultProfile;
+        }}
+      />
       <Profile__Header__ButtonContainer>
         {props.sidebarType === SidebarType.VOICECHAT ? (
           <>

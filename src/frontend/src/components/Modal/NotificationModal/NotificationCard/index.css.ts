@@ -1,6 +1,7 @@
 import { styled } from 'styled-components';
 
 export const Card = styled.div`
+  width: 100%;
   background: var(--palette-static-white);
   padding: 15px;
   margin-bottom: 10px;

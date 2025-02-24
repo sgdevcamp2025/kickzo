@@ -1,46 +1,56 @@
-import { useState } from 'react';
+import { useEffect } from 'react';
 import { NotiContainer, NotiParagraph, NotiTitle } from './index.css';
 import { RelativeModalContainer, Background } from '@/components/Modal/index.css';
 import { NotificationCard } from './NotificationCard';
-import { notificationListTest } from '@/assets/data/notificationListTest';
+import { NotificationDto } from '@/api/endpoints/friend/friend.interface';
+import { useNotificationStore } from '@/stores/useNotificationStore';
 
 interface INotification {
   onCancel: (e: React.MouseEvent<HTMLDivElement>) => void;
 }
 
 export const NotificationModal = ({ onCancel }: INotification) => {
-  const notifications = notificationListTest;
+  const {
+    notifications,
+    newNotificationCount,
+    resetNotificationCount,
+    fetchNotifications,
+    acceptFriend,
+    rejectFriend,
+  } = useNotificationStore();
 
-  const [notiList, setNotiList] = useState(notifications);
+  useEffect(() => {
+    fetchNotifications();
+    resetNotificationCount();
+  }, [newNotificationCount]);
 
-  const props = {
-    title: 'Notification',
-    detail: 'Notification',
-    confirmText: 'Notification',
-    onCancel: onCancel,
+  const handleAccept = async (notification: NotificationDto) => {
+    try {
+      await acceptFriend(notification);
+    } catch (_error) {
+      alert('친구 수락에 실패했습니다.');
+    }
   };
 
-  const handleAccept = (id: number) => {
-    console.log(`초대 ID ${id} 수락`);
-    setNotiList(notiList.filter(noti => noti.id !== id)); // 수락하면 목록에서 제거
-  };
-
-  const handleReject = (id: number) => {
-    console.log(`초대 ID ${id} 거절`);
-    setNotiList(notiList.filter(noti => noti.id !== id)); // 거절하면 목록에서 제거
+  const handleReject = async (notification: NotificationDto) => {
+    try {
+      await rejectFriend(notification);
+    } catch (_error) {
+      alert('친구 거절에 실패했습니다.');
+    }
   };
 
   return (
     <>
-      <Background $hasBackground={false} onClick={props.onCancel} />
+      <Background $hasBackground={false} onClick={onCancel} />
       <RelativeModalContainer>
         <NotiContainer>
           <NotiTitle>알림</NotiTitle>
-          {notiList.length > 0 ? (
+          {notifications.length > 0 ? (
             <>
-              {notiList.map(noti => (
+              {notifications.map(noti => (
                 <NotificationCard
-                  key={noti.id}
+                  key={noti.timestamp}
                   notification={noti}
                   onAccept={handleAccept}
                   onReject={handleReject}

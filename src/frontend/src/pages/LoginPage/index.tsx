@@ -7,6 +7,8 @@ import { Wrapper, CommonInput, IdSaveCheckBox, LinkBox, SubTitle } from './index
 import { useAuth } from '@/hooks/queries/useAuth';
 import { LoadingSpinner } from '@/components/common/LoadingSpinner';
 import { useLocalStorage } from '@/hooks/utils/useLocalStorage';
+import { AxiosError } from 'axios';
+import { getErrorMessage } from '@/utils/errorUtils';
 
 export const LoginPage = () => {
   const emailRef = useRef<HTMLInputElement>(null);
@@ -33,8 +35,15 @@ export const LoginPage = () => {
       login.mutate(
         { email, password },
         {
-          onError: () => {
-            alert('이메일 또는 비밀번호가 일치하지 않습니다.');
+          onError: (error: Error) => {
+            const axiosError = error as AxiosError;
+            if (axiosError.response?.status === 401) {
+              alert('이메일 또는 비밀번호가 일치하지 않습니다.');
+            } else if (axiosError.response?.status === 429) {
+              alert('너무 많은 요청을 보내셨습니다. 잠시 후 다시 시도해주세요.');
+            } else {
+              alert(getErrorMessage(axiosError));
+            }
           },
         },
       );

@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
+import { Link, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { Link } from 'react-router-dom';
 import AddCircleIcon from '@/assets/img/AddCircle.svg';
 import BellIcon from '@/assets/img/Bell.svg';
 import {
@@ -10,6 +10,7 @@ import {
   LogoBox,
   LoginButton,
   ProfileButton,
+  NotificationCount,
 } from './index.css';
 import { LogoButton } from '@/components/common/LogoButton';
 import DefaultProfile from '@/assets/img/DefaultProfile.svg';
@@ -21,14 +22,28 @@ import { useUserStore } from '@/stores/useUserStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useMyRoomsStore } from '@/stores/useMyRoomsStore';
 import { useWebSocketStore } from '@/stores/useWebSocketStore';
+
+import { friendApi } from '@/api/endpoints/friend/friend.api';
+import { useFriendStore } from '@/stores/useFriendStore';
+import { useNotificationStore } from '@/stores/useNotificationStore';
+
 import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
 import { useVideoStore } from '@/stores/useVideoStore';
 
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY as string;
 
+
 export const TopNavBar = () => {
+  const navigate = useNavigate();
   const { user, fetchMyProfile, clearProfile } = useUserStore();
   const { fetchMyRooms } = useMyRoomsStore();
+  const { fetchFriends } = useFriendStore();
+  const {
+    newNotificationCount,
+    increaseNotificationCount,
+    resetNotificationCount,
+    fetchNotifications,
+  } = useNotificationStore();
   const { connect, subscribeRoomPlaylistUpdate } = useWebSocketStore();
   const { currentRoom } = useCurrentRoomStore();
   const { setVideoQueue } = useVideoStore();
@@ -48,8 +63,19 @@ export const TopNavBar = () => {
     }
 
     const initializeUser = async () => {
-      await fetchMyProfile();
-      await fetchMyRooms();
+      try {
+        await fetchMyProfile();
+        const [_rooms, _friends, _notifications, unreadData] = await Promise.all([
+          fetchMyRooms(),
+          fetchFriends(),
+          fetchNotifications(),
+          friendApi.getUnreadNotificationsCount(),
+        ]);
+        increaseNotificationCount(unreadData.unread_count);
+        console.log('⭐️initializeUser⭐️');
+      } catch (error) {
+        console.error('Error initializing user:', error);
+      }
     };
     initializeUser();
   }, [accessToken, clearProfile, fetchMyProfile, fetchMyRooms, connect]);
@@ -118,9 +144,23 @@ export const TopNavBar = () => {
     });
   }, [roomId, subscribeRoomPlaylistUpdate, setVideoQueue]);
 
+  const clickCreateRoom = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    if (!user) {
+      navigate('/login');
+      return;
+    }
+    setIsRoomCreateModalOpen(true);
+  };
+
   const clickNotification = (e: React.MouseEvent<HTMLDivElement>) => {
     e.stopPropagation();
+    if (!user) {
+      navigate('/login');
+      return;
+    }
     setIsNotificationModalOpen(true);
+    resetNotificationCount();
   };
 
   const handleCancelNotification = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -145,12 +185,15 @@ export const TopNavBar = () => {
         </LogoBox>
         <SearchBar />
         <ButtonContainer>
-          <ButtonBox onClick={() => setIsRoomCreateModalOpen(true)}>
+          <ButtonBox onClick={clickCreateRoom}>
             <img src={AddCircleIcon} alt="Create Room" />
           </ButtonBox>
           <ButtonBox onClick={clickNotification}>
             <img src={BellIcon} alt="Notification" />
             {isNotificationModalOpen && <NotificationModal onCancel={handleCancelNotification} />}
+            {newNotificationCount > 0 && (
+              <NotificationCount>{newNotificationCount}</NotificationCount>
+            )}
           </ButtonBox>
           {user ? (
             <ProfileButton onClick={clickProfile}>

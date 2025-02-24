@@ -1,11 +1,6 @@
 import { SearchListItem } from '@/components/Search/SearchBarListItem';
 import { TotalLi, Ul } from './index.css';
-
-interface ISearchList {
-  id: number;
-  nickname: string;
-}
-
+import { UserResponseDto } from '@/api/endpoints/user/user.interface';
 export const SearchBarList = ({
   searchList,
   searchWord,
@@ -13,7 +8,7 @@ export const SearchBarList = ({
   totalLength,
   targetIndex,
 }: {
-  searchList: ISearchList[];
+  searchList: UserResponseDto[];
   resetSearchState: () => void;
   searchWord?: string;
   totalLength: number;
