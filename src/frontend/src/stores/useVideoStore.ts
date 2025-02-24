@@ -11,6 +11,7 @@ interface IVideoItem {
 interface IVideoStore {
   videoQueue: IVideoItem[];
   currentIndex: number;
+  setVideoQueue: (videos: IVideoItem[]) => void;
   addVideo: (video: IVideoItem) => void;
   removeVideo: (index: number) => void;
   moveVideoUp: (index: number) => void;
@@ -23,6 +24,8 @@ interface IVideoStore {
 export const useVideoStore = create<IVideoStore>(set => ({
   videoQueue: [],
   currentIndex: 0,
+
+  setVideoQueue: (videos: IVideoItem[]) => set(() => ({ videoQueue: videos })),
 
   addVideo: (video: IVideoItem) =>
     set((state: IVideoStore) => ({

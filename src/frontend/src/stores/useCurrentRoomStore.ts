@@ -24,6 +24,7 @@ interface CurrentRoomStore {
   setCurrentRoom: (room: CurrentRoomDto) => void;
   clearCurrentRoom: () => void;
   processBatchMessages: () => void;
+  pubTopic: (destination: string, message: string) => void;
 }
 const BATCH_SIZE = 20;
 const BATCH_INTERVAL = 100;
@@ -110,4 +111,13 @@ export const useCurrentRoomStore = create<CurrentRoomStore>((set, get) => ({
 
   addMessage: (message: ReceiveMessageDto) =>
     set(state => ({ messages: [...state.messages, message] })),
+
+  pubTopic: (destination: string, message: string) => {
+    const { client } = useWebSocketStore.getState();
+    if (client) {
+      client.send(destination, {}, message);
+    } else {
+      console.warn('WebSocket이 아직 연결되지 않았습니다.');
+    }
+  },
 }));

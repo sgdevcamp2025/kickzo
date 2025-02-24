@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useRef, useCallback } from 'react';
 import axios from 'axios';
 import { CommonButton } from '@/components/common/Button';
 import { useVideoStore } from '@/stores/useVideoStore';
@@ -18,8 +18,12 @@ import {
 import { ButtonColor } from '@/types/enums/ButtonColor';
 import { useDebounce } from '@/hooks/utils/useDebounce';
 import { PlaylistItem } from './PlaylistItem';
+import { useWebSocketStore } from '@/stores/useWebSocketStore';
+import { useUserStore } from '@/stores/useUserStore';
+import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
 
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY as string;
+import { roomApi } from '@/api/endpoints/room/room.api';
 
 // 사용자가 입력한 URL로부터 영상의 ID와 시간을 받아온다.
 const extractVideoIdAndStartTime = (url: string) => {
@@ -50,16 +54,76 @@ export const Playlist = () => {
     setCurrentIndex,
   } = useVideoStore();
 
-  const ChangeToWebSocketType = () => {
-    const { videoQueue } = useVideoStore.getState();
-    const formattedQueue = videoQueue.map((video, index) => ({
-      order: index,
-      url: `https://www.youtube.com/watch?v=${video.id}${video.start ? `&t=${video.start}` : ''}`,
-    }));
-    // TODO: 추후 WebSocket 타입으로 변경할 때 사용
-    console.log('playlist: ' + JSON.stringify(formattedQueue));
-  };
+  const { currentRoom } = useCurrentRoomStore();
+  const roomId = currentRoom?.roomDetails?.roomInfo?.[0]?.roomId;
+  const { subscribeRoomPlaylistUpdate } = useWebSocketStore.getState();
 
+  // 드래그 상태를 useRef로 관리하고, 강제 업데이트를 위해 forceUpdate 함수를 사용
+  const draggedIndexRef = useRef<number | null>(null);
+  const dragOverIndexRef = useRef<number | null>(null);
+  const [, forceUpdate] = useState(0);
+  const triggerUpdate = useCallback(() => forceUpdate(n => n + 1), []);
+
+  // 플레이리스트 업데이트 구독
+  useEffect(() => {
+    if (!roomId) {
+      console.warn('roomId가 없습니다. 구독 취소됨');
+      return;
+    }
+    subscribeRoomPlaylistUpdate(roomId, async data => {
+      if (data?.playlist && Array.isArray(data.playlist)) {
+        const sortedPlaylist = data.playlist.sort((a, b) => a.order - b.order);
+        const updatedQueue = await Promise.all(
+          sortedPlaylist.map(async item => {
+            const { videoId, startTime } = extractVideoIdAndStartTime(item.url);
+            let title = item.title || '';
+            let youtuber = item.youtuber || '';
+
+            if (!title || !youtuber) {
+              try {
+                const { data: apiData } = await axios.get(
+                  'https://www.googleapis.com/youtube/v3/videos',
+                  {
+                    params: {
+                      part: 'snippet',
+                      id: videoId,
+                      key: API_KEY,
+                      hl: 'ko',
+                    },
+                  },
+                );
+                const items = apiData.items;
+                if (items && items.length > 0) {
+                  if (!title) title = items[0].snippet.title;
+                  if (!youtuber) youtuber = items[0].snippet.channelTitle;
+                } else {
+                  if (!title) title = '제목 없음';
+                  if (!youtuber) youtuber = '유튜버 정보 없음';
+                }
+              } catch (error) {
+                console.error('Error fetching video details for URL:', item.url, error);
+                if (!title) title = '제목 없음';
+                if (!youtuber) youtuber = '유튜버 정보 없음';
+              }
+            }
+
+            return {
+              id: videoId,
+              start: startTime,
+              thumbnail: `https://img.youtube.com/vi/${videoId}/0.jpg`,
+              title,
+              youtuber,
+            };
+          }),
+        );
+        useVideoStore.setState({ videoQueue: updatedQueue });
+      } else {
+        console.warn('잘못된 웹소켓 데이터 수신:', data);
+      }
+    });
+  }, [roomId, subscribeRoomPlaylistUpdate]);
+
+  // debouncedInputUrl이 변경되면 YouTube API를 통해 영상 정보를 가져온다
   useEffect(() => {
     const fetchVideoDetails = async (videoId: string) => {
       try {
@@ -100,7 +164,31 @@ export const Playlist = () => {
     }
   }, [debouncedInputUrl]);
 
-  const handleAddVideo = () => {
+  const updatePlaylistOnServer = useCallback(async () => {
+    const { videoQueue } = useVideoStore.getState();
+    const userId = useUserStore.getState().user?.userId;
+    if (!userId) {
+      console.error('사용자 ID가 없습니다.');
+      return;
+    }
+
+    const requestData = videoQueue.map((video, index) => ({
+      order: index,
+      url: `https://www.youtube.com/watch?v=${video.id}${video.start ? `&t=${video.start}` : ''}`,
+      title: video.title,
+      youtuber: video.youtuber,
+    }));
+
+    try {
+      const response = await roomApi.sendPlaylist(roomId!, requestData);
+      console.log('플레이리스트 업데이트 성공:', response);
+    } catch (error) {
+      console.error('플레이리스트 업데이트 실패:', error);
+    }
+  }, [roomId]);
+
+  // 영상 추가
+  const handleAddVideo = useCallback(() => {
     const { videoId, startTime } = extractVideoIdAndStartTime(inputUrl);
     if (!videoId) {
       alert('유효한 유튜브 URL을 입력하세요!');
@@ -115,45 +203,55 @@ export const Playlist = () => {
       youtuber: videoYoutuber,
     });
 
-    ChangeToWebSocketType();
-
+    updatePlaylistOnServer();
     setInputUrl('');
     setThumbnailPreview('');
     setVideoTitle('');
     setVideoYoutuber('');
-  };
+  }, [inputUrl, videoTitle, videoYoutuber, addVideo, updatePlaylistOnServer]);
 
-  const handleRemoveVideo = (index: number) => {
-    removeVideo(index);
-    ChangeToWebSocketType();
-  };
+  // 영상 제거
+  const handleRemoveVideo = useCallback(
+    (index: number) => {
+      removeVideo(index);
+      updatePlaylistOnServer();
+    },
+    [removeVideo, updatePlaylistOnServer],
+  );
 
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
+  // 드래그 앤 드롭
+  const handleDragStart = useCallback(
+    (index: number) => {
+      draggedIndexRef.current = index;
+      triggerUpdate();
+    },
+    [triggerUpdate],
+  );
 
-  const handleDragStart = useCallback((index: number) => {
-    setDraggedIndex(index);
-  }, []);
-
-  const handleDragOver = useCallback((e: React.DragEvent<HTMLDivElement>, index: number) => {
-    e.preventDefault();
-    setDragOverIndex(index);
-  }, []);
+  const handleDragOver = useCallback(
+    (e: React.DragEvent<HTMLDivElement>, index: number) => {
+      e.preventDefault();
+      dragOverIndexRef.current = index;
+      triggerUpdate();
+    },
+    [triggerUpdate],
+  );
 
   const handleDragEnd = useCallback(() => {
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-  }, []);
+    draggedIndexRef.current = null;
+    dragOverIndexRef.current = null;
+    triggerUpdate();
+  }, [triggerUpdate]);
 
+  // 드롭 시 순서 변경 후 서버에 전송
   const handleDrop = useCallback(
     (dropIndex: number) => {
+      const draggedIndex = draggedIndexRef.current;
       if (draggedIndex === null || draggedIndex === dropIndex) return;
-
       useVideoStore.setState(state => {
         const updatedQueue = [...state.videoQueue];
         const [draggedItem] = updatedQueue.splice(draggedIndex, 1);
         updatedQueue.splice(dropIndex, 0, draggedItem);
-
         let newCurrentIndex = state.currentIndex;
         if (draggedIndex === state.currentIndex) {
           newCurrentIndex = dropIndex;
@@ -162,31 +260,36 @@ export const Playlist = () => {
         } else if (dropIndex <= state.currentIndex && state.currentIndex < draggedIndex) {
           newCurrentIndex = state.currentIndex + 1;
         }
-
-        ChangeToWebSocketType();
-
+        setTimeout(() => {
+          updatePlaylistOnServer();
+        }, 0);
         return { videoQueue: updatedQueue, currentIndex: newCurrentIndex };
       });
-      setDraggedIndex(null);
-      setDragOverIndex(null);
+      draggedIndexRef.current = null;
+      dragOverIndexRef.current = null;
+      triggerUpdate();
     },
-    [draggedIndex],
+    [updatePlaylistOnServer, triggerUpdate],
   );
 
-  const handleSetCurrentVideo = (index: number) => {
-    setCurrentVideo(index);
-    setCurrentIndex(index);
-    ChangeToWebSocketType();
-  };
+  // 현재 재생 영상 변경
+  const handleSetCurrentVideo = useCallback(
+    (index: number) => {
+      setCurrentVideo(index);
+      setCurrentIndex(index);
+      updatePlaylistOnServer();
+    },
+    [setCurrentVideo, setCurrentIndex, updatePlaylistOnServer],
+  );
 
+  // 드래그한거 미리보기
   const getReorderedVideos = useCallback(() => {
-    if (draggedIndex === null || dragOverIndex === null) return videoQueue;
-
+    if (draggedIndexRef.current === null || dragOverIndexRef.current === null) return videoQueue;
     const reorderedVideos = [...videoQueue];
-    const [draggedVideo] = reorderedVideos.splice(draggedIndex, 1);
-    reorderedVideos.splice(dragOverIndex, 0, draggedVideo);
+    const [draggedVideo] = reorderedVideos.splice(draggedIndexRef.current, 1);
+    reorderedVideos.splice(dragOverIndexRef.current, 0, draggedVideo);
     return reorderedVideos;
-  }, [videoQueue, draggedIndex, dragOverIndex]);
+  }, [videoQueue]);
 
   return (
     <Container>
@@ -198,11 +301,17 @@ export const Playlist = () => {
               video={video}
               index={index}
               active={index === currentIndex}
-              isDragging={index === draggedIndex}
-              isPreview={draggedIndex !== null && index === dragOverIndex}
+              isDragging={index === draggedIndexRef.current}
+              isPreview={draggedIndexRef.current !== null && index === dragOverIndexRef.current}
               onClick={() => handleSetCurrentVideo(index)}
-              onMoveUp={() => moveVideoUp(index)}
-              onMoveDown={() => moveVideoDown(index)}
+              onMoveUp={() => {
+                moveVideoUp(index);
+                updatePlaylistOnServer();
+              }}
+              onMoveDown={() => {
+                moveVideoDown(index);
+                updatePlaylistOnServer();
+              }}
               onRemove={() => handleRemoveVideo(index)}
               onDragStart={() => handleDragStart(index)}
               onDragOver={e => handleDragOver(e, index)}
