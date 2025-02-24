@@ -26,6 +26,14 @@ export const userApi = {
     }
   },
 
+  // 프로필 이미지 업데이트
+  updateProfileImage: async (profileImageUrl: string | null) => {
+    const { data } = await instance.patch(`users/me/profile-image`, {
+      profileImageUrl,
+    });
+    return data;
+  },
+
   // 전체 유저 조회
   getUsers: async (page: number = 0, size: number = 10, nickname?: string) => {
     try {
