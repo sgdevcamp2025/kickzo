@@ -26,7 +26,12 @@ export const RoomDetail = () => {
 
   return (
     <Container>
-      <TitleContainer_Img src={roomInfo?.profileImageUrl ?? DefaultProfile} />
+      <TitleContainer_Img
+        src={roomInfo?.profileImageUrl ?? DefaultProfile}
+        onError={e => {
+          e.currentTarget.src = DefaultProfile;
+        }}
+      />
       <TextContainer>
         <Title>{roomInfo?.title}</Title>
         <Username>{roomInfo?.creator}</Username>

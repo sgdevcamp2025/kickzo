@@ -7,41 +7,88 @@ import {
   RejectButton,
   Strong,
 } from './index.css';
-import { NotificationDto } from '@/types/dto/Notification.dto';
+import { NotificationDto } from '@/api/endpoints/friend/friend.interface';
 import { formatDateToKorean } from '@/utils/dateUtils';
 
 interface INotificationCard {
   notification: NotificationDto;
-  onAccept: (id: number) => void;
-  onReject: (id: number) => void;
+  onAccept: (notification: NotificationDto) => void;
+  onReject: (notification: NotificationDto) => void;
 }
 
 export const NotificationCard = ({ notification, onAccept, onReject }: INotificationCard) => {
+  const { type, senderNickname, roomId, timestamp, status } = notification;
+
+  const message = (() => {
+    if (type === 'room_request') {
+      switch (status) {
+        case 'PENDING':
+          return (
+            <>
+              <Strong>{senderNickname}</Strong>님께서 <Strong>{roomId}</Strong>번 방에
+              초대하셨습니다.
+            </>
+          );
+        case 'ACCEPTED':
+          return (
+            <>
+              <Strong>{senderNickname}</Strong>님의 초대를 수락하셨습니다.
+            </>
+          );
+        case 'REJECTED':
+          return (
+            <>
+              <Strong>{senderNickname}</Strong>님의 초대를 거절하셨습니다.
+            </>
+          );
+      }
+    } else {
+      switch (status) {
+        case 'PENDING':
+          return (
+            <>
+              <Strong>{senderNickname}</Strong>님께서 친구 요청을 보냈습니다.
+            </>
+          );
+        case 'ACCEPTED':
+          return (
+            <>
+              <Strong>{senderNickname}</Strong>님의 친구 요청을 수락하셨습니다.
+            </>
+          );
+        case 'REJECTED':
+          return (
+            <>
+              <Strong>{senderNickname}</Strong>님의 친구 요청을 거절하셨습니다.
+            </>
+          );
+      }
+    }
+  })();
+
+  const renderButtons = () => {
+    switch (status) {
+      case 'PENDING':
+        return (
+          <>
+            <AcceptButton onClick={() => onAccept(notification)}>수락</AcceptButton>
+            <RejectButton onClick={() => onReject(notification)}>거절</RejectButton>
+          </>
+        );
+      case 'ACCEPTED':
+        return <AcceptButton disabled>수락됨</AcceptButton>;
+      case 'REJECTED':
+        return <RejectButton disabled>거절됨</RejectButton>;
+      default:
+        return null;
+    }
+  };
+
   return (
     <Card>
-      <Message>
-        {notification.type === 'room_invite' ? (
-          <>
-            <Strong>{notification.sender.nickname}</Strong>님께서{' '}
-            <Strong>{notification.roomTitle}</Strong> 방에 초대하셨습니다.
-          </>
-        ) : (
-          <>
-            <Strong>{notification.sender.nickname}</Strong>님께서 친구 요청을 보냈습니다.
-          </>
-        )}
-      </Message>
-      <Date>{formatDateToKorean(notification.timestamp)}</Date>
-      <ButtonWrapper>
-        {notification.status === 'pending' && (
-          <>
-            <AcceptButton onClick={() => onAccept(notification.id)}>수락</AcceptButton>
-            <RejectButton onClick={() => onReject(notification.id)}>거절</RejectButton>
-          </>
-        )}
-        {notification.status === 'accepted' && <AcceptButton disabled={true}>수락</AcceptButton>}
-        {notification.status === 'rejected' && <RejectButton disabled={true}>거절</RejectButton>}
-      </ButtonWrapper>
+      <Message>{message}</Message>
+      <Date>{formatDateToKorean(timestamp)}</Date>
+      <ButtonWrapper>{renderButtons()}</ButtonWrapper>
     </Card>
   );
 };

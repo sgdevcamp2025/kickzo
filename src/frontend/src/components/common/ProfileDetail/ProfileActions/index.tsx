@@ -13,7 +13,13 @@ export const ProfileActions = (props: ProfileDetailDto) => {
   ) {
     return (
       <>
-        <RoleChangeButton myRole={props.myRole} userRole={props.userRole} text="권한" />
+        <RoleChangeButton
+          userId={props.userId}
+          roomId={props.roomId}
+          myRole={props.myRole}
+          userRole={props.userRole}
+          text="권한"
+        />
         <CommonButton
           color={ButtonColor.RED}
           onClick={() => alert('방장에 의해 연결이 끊겼습니다.')}
@@ -43,7 +49,13 @@ export const ProfileActions = (props: ProfileDetailDto) => {
   if (props.myRole === UserRole.CREATOR && props.userRole !== UserRole.CREATOR) {
     return (
       <>
-        <RoleChangeButton myRole={props.myRole} userRole={props.userRole} text="권한" />
+        <RoleChangeButton
+          userId={props.userId}
+          roomId={props.roomId}
+          myRole={props.myRole}
+          userRole={props.userRole}
+          text="권한"
+        />
         <CommonButton
           color={ButtonColor.RED}
           onClick={() => alert('추방되었습니다.')}

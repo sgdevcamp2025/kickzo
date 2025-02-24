@@ -4,7 +4,7 @@ import { ButtonColor } from '@/types/enums/ButtonColor';
 import Trashcan from '@/assets/img/Trashcan.svg';
 import ArrowUp from '@/assets/img/ArrowUp.svg';
 import ArrowDown from '@/assets/img/ArrowDown.svg';
-
+import DefaultThumbnail from '@/assets/img/DefaultThumbnail.svg';
 import {
   Container,
   Thumbnail,
@@ -48,7 +48,13 @@ export const PlaylistItem = (props: IPlaylistItem) => {
       $isDragging={props.isDragging}
       $isPreview={props.isPreview}
     >
-      <Thumbnail src={props.video.thumbnail} alt={`Video ${props.video.id}`} />
+      <Thumbnail
+        src={props.video.thumbnail}
+        alt={`Video ${props.video.id}`}
+        onError={e => {
+          e.currentTarget.src = DefaultThumbnail;
+        }}
+      />
       <PreviewInfo>
         <Playlist__Title>{props.video.title || '제목 없음'}</Playlist__Title>
         <Playlist__Youtuber>{props.video.youtuber || '유튜버 정보 없음'}</Playlist__Youtuber>

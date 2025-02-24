@@ -27,9 +27,12 @@ export const userApi = {
   },
 
   // 전체 유저 조회
-  getUsers: async (page: number = 0, size: number = 10) => {
+  getUsers: async (page: number = 0, size: number = 10, nickname?: string) => {
     try {
-      const { data } = await instance.get(`users`, { params: { page, size } });
+      const { data } = await instance.get<{ users: UserResponseDto[]; totalLength: number }>(
+      `users`,
+      { params: { page, size, nickname } },
+    );
       return data;
     } catch (error) {
       logAxiosError(error, ErrorType.USER, '전체 유저 조회 실패');

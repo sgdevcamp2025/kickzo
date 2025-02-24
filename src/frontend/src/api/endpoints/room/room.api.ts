@@ -98,7 +98,7 @@ export const roomApi = {
     try {
       const { data } = await instance.post('/rooms/playlist', {
         roomId,
-        playlist: JSON.stringify(playlist),
+        playlist,
       });
       return data;
     } catch (error) {
@@ -114,8 +114,9 @@ export const roomApi = {
       targetUserId: userId,
       newRole: role,
     };
+
     try {
-      const { data } = await instance.post(`/rooms/change-role`, body);
+      const { data } = await instance.patch(`/rooms/change-role`, body);
       return data;
     } catch (error) {
       logAxiosError(error, ErrorType.ROOM, '역할 변경 실패');

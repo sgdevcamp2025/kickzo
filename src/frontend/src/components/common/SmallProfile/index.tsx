@@ -4,6 +4,7 @@ import MicrophoneOffRed from '@/assets/img/MicrophoneOffRed.svg';
 import HeadphoneOffRed from '@/assets/img/HeadphoneOffRed.svg';
 import { UserRole } from '@/types/enums/UserRole';
 import { ProfileType } from '@/types/enums/ProfileType';
+import DefaultProfile from '@/assets/img/DefaultProfile.svg';
 
 interface ISmallProfile {
   type: ProfileType;
@@ -32,7 +33,12 @@ export const SmallProfile = (props: ISmallProfile) => {
   return (
     <Container>
       <Profile>
-        <Profile__Img src={props.imgUrl} />
+        <Profile__Img
+          src={props.imgUrl ?? DefaultProfile}
+          onError={e => {
+            e.currentTarget.src = DefaultProfile;
+          }}
+        />
         <RoleNickname role={props.role} nickname={props.nickname} />
       </Profile>
       {renderBtn()}
