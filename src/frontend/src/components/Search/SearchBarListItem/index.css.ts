@@ -53,3 +53,13 @@ export const Img = styled.div`
     object-fit: cover;
   }
 `;
+
+export const Thumbnail = styled(Img)`
+  width: 32px;
+
+  img {
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    border: 1px solid var(--palette-font-gray);
+  }
+`;

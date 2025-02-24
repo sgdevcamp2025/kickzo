@@ -1,6 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { ChangeToHTML } from './ChangeToHTML';
-import { Img, Li } from './index.css';
+import { Img, Li, Thumbnail } from './index.css';
 import DefaultProfile from '@/assets/img/DefaultProfile.svg';
 import DefaultThumbnail from '@/assets/img/DefaultThumbnail.svg';
 import { useEffect, useState } from 'react';
@@ -42,13 +42,12 @@ export const SearchListItem = (props: {
         resetSearchState();
       }}
     >
-      {type === 'user' && (
+      {type === 'user' ? (
         <Img>
           <img src={imageUrl ?? DefaultProfile} alt="profile" />
         </Img>
-      )}
-      {type === 'room' && (
-        <Img>
+      ) : (
+        <Thumbnail>
           <img
             src={thumbnail}
             onError={e => {
@@ -56,7 +55,7 @@ export const SearchListItem = (props: {
             }}
             alt="thumbnail"
           />
-        </Img>
+        </Thumbnail>
       )}
       <ChangeToHTML origin={resultText} replace={inputText} />
     </Li>
