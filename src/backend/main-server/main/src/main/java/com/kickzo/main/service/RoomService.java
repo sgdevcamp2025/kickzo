@@ -3,11 +3,15 @@ package com.kickzo.main.service;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.data.redis.core.RedisTemplate;
 
 import com.kickzo.main.search.service.SearchService;
 import com.kickzo.main.dto.data.PlaylistItem;
@@ -42,12 +46,15 @@ public class RoomService {
 	private final UserRepository userRepository;
 	private final SearchService searchService;
 	private final KafkaProducerService kafkaProducerService;
+	private final RedisTemplate<String, String> redisActiveUsersTemplate;
 
 	private static final int ROLE_MEMBER = 2;
 
 	@Transactional
 	public RoomEntryResponseDto getRoomJoinResponse(String roomCode, Long userId){
 		int myRole = determineUserRole(roomCode, userId);
+		// redis에 roomId와 userId 저장
+		userEnterRoom(getRoomId(roomCode), userId);
 		RoomDetailsDto roomDetails = assembleRoomDetails(roomCode);
 		return new RoomEntryResponseDto(myRole, roomDetails);
 	}
@@ -104,6 +111,7 @@ public class RoomService {
 	 * 9. 유저 ID를 기반으로 프로필 이미지 URL 조회, 없으면 기본 이미지 반환 : getUserProfileImage
 	 * 10. Room ID를 기준으로 방의 유저 수를 1 증가시키고, 변경된 정보 저장 : saveUserCount
 	 * 11. RoomUser 엔티티를 생성하여 새로운 사용자를 방에 추가하고 기본 Role(ROLE_MEMBER)로 저장 : saveNewRoomUser
+	 * 12. Room에 join한 유저를 Redis에 저장하여 실시간 방 사용자 트래킹 : userEnterRoom
 	 */
 	private int determineUserRole(String roomCode, Long userId) {
 		if (userId == null) {
@@ -123,18 +131,19 @@ public class RoomService {
 		// Step 3: 역할(Role)이 존재하지 않으면 새 사용자 추가
 		saveUserCount(roomId);
 		saveNewRoomUser(roomId, userId);
-		sendRoomUserInfoToKafka(roomId, userId);
+		//sendRoomUserInfoToKafka(roomId, userId);
 		return ROLE_MEMBER;
 	}
 
 	private void sendRoomUserInfoToKafka(Long roomId, Long userId) {
 		String nickName = getUserNickname(userId);
-		kafkaProducerService.sendRoomUserInfo(roomId, new UserInfoDto(userId, ROLE_MEMBER, nickName, getUserProfileImage(userId)));
+		String profileImageUrl = getUserProfileImage(userId);
+		kafkaProducerService.sendRoomUserInfo(roomId, new UserInfoDto(userId, ROLE_MEMBER, nickName, profileImageUrl, true));
 	}
 
 	private RoomDetailsDto assembleRoomDetails(String roomCode) {
 		Long roomId = getRoomId(roomCode);
-
+		
 		List<UserInfoDto> userList = fetchUserList(roomId);
 		List<RoomInfoDto> roomInfo = fetchRoomInfo(roomId);
 		List<PlaylistItem> playlist = fetchPlaylist(roomId);
@@ -143,6 +152,11 @@ public class RoomService {
 	}
 
 	private List<UserInfoDto> fetchUserList(Long roomId) {
+		String redisKey = "room:" + roomId + ":users";
+		Set<String> onlineUsers = redisActiveUsersTemplate.opsForSet().members(redisKey); // 현재 온라인 유저 가져오기
+
+		log.info("Fetching user list for room {}. Online users from Redis: {}", roomId, onlineUsers);
+
 		List<Object[]> userIdRoles = roomUserRepository.findUsersByRoomId(roomId);
 		return userIdRoles.stream()
 			.map(userRole -> {
@@ -150,7 +164,8 @@ public class RoomService {
 				int role = (int) userRole[1];
 				String nickname = getUserNickname(userId);
 				String profileImageUrl = getUserProfileImage(userId);
-				return new UserInfoDto(userId, role, nickname, profileImageUrl);
+				boolean isJoined = onlineUsers != null && onlineUsers.contains(String.valueOf(userId)); // 온라인 여부 체크
+				return new UserInfoDto(userId, role, nickname, profileImageUrl, isJoined);
 			})
 			.collect(Collectors.toList());
 	}
@@ -207,5 +222,18 @@ public class RoomService {
 			.joinedAt(LocalDateTime.now())
 			.build();
 		roomUserRepository.save(roomUser);
+	}
+
+	private void userEnterRoom(Long roomId, Long userId) {
+		String key = "room:" + roomId + ":users";
+		// 현재 사용 중인 RedisConnectionFactory 정보 출력
+		RedisConnectionFactory factory = redisActiveUsersTemplate.getConnectionFactory();
+		if (factory instanceof LettuceConnectionFactory) {
+			int dbIndex = ((LettuceConnectionFactory) factory).getDatabase();
+			log.info("redisActiveUsersTemplate is using Redis DB: {}", dbIndex);
+		}
+		redisActiveUsersTemplate.opsForSet().add(key, String.valueOf(userId));
+		log.info("User {} added to Redis with key {} (via RedisTemplate: {})", userId, key, redisActiveUsersTemplate);
+		sendRoomUserInfoToKafka(roomId, userId);
 	}
 }
