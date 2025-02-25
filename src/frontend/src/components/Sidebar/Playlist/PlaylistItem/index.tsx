@@ -25,20 +25,21 @@ interface IPlaylistItem {
   active: boolean;
   isDragging?: boolean;
   isPreview?: boolean;
+  draggable: boolean;
   onClick?: (index: number) => void;
-  onMoveUp?: (index: number) => void;
-  onMoveDown?: (index: number) => void;
-  onRemove?: (index: number) => void;
-  onDragStart?: (index: number) => void;
-  onDragOver?: (e: React.DragEvent<HTMLDivElement>) => void;
-  onDragEnd?: () => void;
-  onDrop?: (index: number) => void;
+  onMoveUp: (index: number) => void;
+  onMoveDown: (index: number) => void;
+  onRemove: (index: number) => void;
+  onDragStart: (index: number) => void;
+  onDragOver: (e: React.DragEvent<HTMLDivElement>) => void;
+  onDragEnd: () => void;
+  onDrop: (index: number) => void;
 }
 
 export const PlaylistItem = (props: IPlaylistItem) => {
   return (
     <Container
-      draggable
+      draggable={props.draggable}
       onDragStart={() => props.onDragStart?.(props.index)}
       onDragOver={props.onDragOver}
       onDragEnd={props.onDragEnd}
@@ -59,44 +60,46 @@ export const PlaylistItem = (props: IPlaylistItem) => {
         <Playlist__Title>{props.video.title || '제목 없음'}</Playlist__Title>
         <Playlist__Youtuber>{props.video.youtuber || '유튜버 정보 없음'}</Playlist__Youtuber>
       </PreviewInfo>
-      <ButtonContainer className="button-container">
-        <div>
+      {props.draggable && (
+        <ButtonContainer className="button-container">
+          <div>
+            <CommonButton
+              onClick={e => {
+                e.stopPropagation();
+                props.onMoveUp?.(props.index);
+              }}
+              color={ButtonColor.DARKGRAY}
+              borderradius="100px"
+              padding="5px"
+            >
+              <img src={ArrowUp} alt="Move Up" />
+            </CommonButton>
+            <CommonButton
+              onClick={e => {
+                e.stopPropagation();
+                props.onMoveDown?.(props.index);
+              }}
+              color={ButtonColor.DARKGRAY}
+              borderradius="100px"
+              padding="5px"
+            >
+              <img src={ArrowDown} alt="Move Down" />
+            </CommonButton>
+          </div>
           <CommonButton
             onClick={e => {
               e.stopPropagation();
-              props.onMoveUp?.(props.index);
+              props.onRemove?.(props.index);
             }}
             color={ButtonColor.DARKGRAY}
             borderradius="100px"
             padding="5px"
+            height="24px"
           >
-            <img src={ArrowUp} alt="Move Up" />
+            <img src={Trashcan} alt="Remove" />
           </CommonButton>
-          <CommonButton
-            onClick={e => {
-              e.stopPropagation();
-              props.onMoveDown?.(props.index);
-            }}
-            color={ButtonColor.DARKGRAY}
-            borderradius="100px"
-            padding="5px"
-          >
-            <img src={ArrowDown} alt="Move Down" />
-          </CommonButton>
-        </div>
-        <CommonButton
-          onClick={e => {
-            e.stopPropagation();
-            props.onRemove?.(props.index);
-          }}
-          color={ButtonColor.DARKGRAY}
-          borderradius="100px"
-          padding="5px"
-          height="24px"
-        >
-          <img src={Trashcan} alt="Remove" />
-        </CommonButton>
-      </ButtonContainer>
+        </ButtonContainer>
+      )}
     </Container>
   );
 };

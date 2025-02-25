@@ -306,22 +306,7 @@ export const Playlist = () => {
               video={video}
               index={index}
               active={index === currentIndex}
-              // isDragging={index === draggedIndexRef.current}
-              // isPreview={draggedIndexRef.current !== null && index === dragOverIndexRef.current}
-              // onClick={() => handleSetCurrentVideo(index)}
-              // onMoveUp={() => {
-              //   moveVideoUp(index);
-              //   updatePlaylistOnServer();
-              // }}
-              // onMoveDown={() => {
-              //   moveVideoDown(index);
-              //   updatePlaylistOnServer();
-              // }}
-              // onRemove={() => handleRemoveVideo(index)}
-              // onDragStart={() => handleDragStart(index)}
-              // onDragOver={e => handleDragOver(e, index)}
-              // onDragEnd={handleDragEnd}
-              // onDrop={() => handleDrop(index)}
+              draggable={!isWatchOnly}
               isDragging={!isWatchOnly && index === draggedIndexRef.current}
               isPreview={
                 !isWatchOnly &&
@@ -329,13 +314,13 @@ export const Playlist = () => {
                 index === dragOverIndexRef.current
               }
               onClick={!isWatchOnly ? () => handleSetCurrentVideo(index) : undefined}
-              onMoveUp={!isWatchOnly ? () => moveVideoUp(index) : undefined}
-              onMoveDown={!isWatchOnly ? () => moveVideoDown(index) : undefined}
-              onRemove={!isWatchOnly ? () => handleRemoveVideo(index) : undefined}
-              onDragStart={!isWatchOnly ? () => handleDragStart(index) : undefined}
-              onDragOver={!isWatchOnly ? e => handleDragOver(e, index) : undefined}
-              onDragEnd={!isWatchOnly ? handleDragEnd : undefined}
-              onDrop={!isWatchOnly ? () => handleDrop(index) : undefined}
+              onMoveUp={() => moveVideoUp(index)}
+              onMoveDown={() => moveVideoDown(index)}
+              onRemove={() => handleRemoveVideo(index)}
+              onDragStart={() => handleDragStart(index)}
+              onDragOver={e => handleDragOver(e, index)}
+              onDragEnd={handleDragEnd}
+              onDrop={() => handleDrop(index)}
             />
           ) : null,
         )}
@@ -367,9 +352,12 @@ export const Playlist = () => {
         <InputContainer>
           <SearchInput
             type="text"
-            placeholder="URL을 입력하세요"
+            placeholder={
+              isWatchOnly ? '방장/매니저만 영상을 추가할 수 있습니다' : 'URL을 입력하세요'
+            }
             value={inputUrl}
             onChange={e => setInputUrl(e.target.value)}
+            disabled={isWatchOnly}
           />
         </InputContainer>
       </div>
