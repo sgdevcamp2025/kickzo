@@ -109,7 +109,7 @@ final class PlayListCollectionViewCell: UICollectionViewCell {
         deleteButton.snp.makeConstraints { make in
             make.bottom.equalToSuperview()
             make.trailing.equalToSuperview().inset(15)
-            make.size.equalTo(CGSize(width: 30, height: 30))
+            make.size.equalTo(CGSize(width: 45, height: 45))
         }
     }
 }

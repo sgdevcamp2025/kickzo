@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		5305C58C2D62471500144DFF /* ManipulateDataModel in Frameworks */ = {isa = PBXBuildFile; productRef = 53C955992D40BC23004D4DA2 /* ManipulateDataModel */; };
 		5320CF812D5206BB00EF722E /* YouTubeiOSPlayerHelper in Frameworks */ = {isa = PBXBuildFile; productRef = 5320CF802D5206BB00EF722E /* YouTubeiOSPlayerHelper */; };
 		532D560A2D37BBC300B78EA6 /* SampleTest.swift in Sources */ = {isa = PBXBuildFile; fileRef = 532D56092D37BBC300B78EA6 /* SampleTest.swift */; };
 		532F31812D364BB200D2C67E /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 532F31802D364BB200D2C67E /* SnapKit */; };
@@ -15,11 +14,13 @@
 		532F31862D364BC200D2C67E /* RxSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 532F31852D364BC200D2C67E /* RxSwift */; };
 		532F31892D364BCE00D2C67E /* ReactorKit in Frameworks */ = {isa = PBXBuildFile; productRef = 532F31882D364BCE00D2C67E /* ReactorKit */; };
 		532F318B2D364C2E00D2C67E /* .gitignore in Resources */ = {isa = PBXBuildFile; fileRef = 532F318A2D364C2E00D2C67E /* .gitignore */; };
-		533885AE2D676C7300496895 /* ManipulateDataModel in Frameworks */ = {isa = PBXBuildFile; productRef = 533885AD2D676C7300496895 /* ManipulateDataModel */; };
+		5340BFFE2D69A86D008890AB /* ManipulateDataModel in Frameworks */ = {isa = PBXBuildFile; productRef = 5351F2E02D392C600093EB87 /* ManipulateDataModel */; };
+		5340BFFF2D69A86D008890AB /* ManipulateDataModel in Frameworks */ = {isa = PBXBuildFile; productRef = 53C955992D40BC23004D4DA2 /* ManipulateDataModel */; };
 		537870282D68990D00A13B89 /* RealmSwift in Frameworks */ = {isa = PBXBuildFile; productRef = 537870272D68990D00A13B89 /* RealmSwift */; };
 		537870292D68991E00A13B89 /* RealmSwift in Embed Frameworks */ = {isa = PBXBuildFile; productRef = 537870272D68990D00A13B89 /* RealmSwift */; settings = {ATTRIBUTES = (CodeSignOnCopy, ); }; };
 		53A863DC2D4FB72E009FF8E2 /* RxDataSources in Frameworks */ = {isa = PBXBuildFile; productRef = 53A863DB2D4FB72E009FF8E2 /* RxDataSources */; };
-		53FDEFDD2D3E12C400825962 /* ManipulateDataModel in Frameworks */ = {isa = PBXBuildFile; productRef = 5351F2E02D392C600093EB87 /* ManipulateDataModel */; };
+		53A9D5762D69A54C007FA374 /* ManipulateDataModel in Frameworks */ = {isa = PBXBuildFile; productRef = 53A9D5752D69A54C007FA374 /* ManipulateDataModel */; };
+		53D492E82D69BC6A00C3C390 /* SocketIO in Frameworks */ = {isa = PBXBuildFile; productRef = 53D492E72D69BC6A00C3C390 /* SocketIO */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -54,11 +55,17 @@
 /* End PBXCopyFilesBuildPhase section */
 
 /* Begin PBXFileReference section */
+		036A18E08803867A80B2B0D8 /* Pods-KickTube-KickTubeUITests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KickTube-KickTubeUITests.release.xcconfig"; path = "Target Support Files/Pods-KickTube-KickTubeUITests/Pods-KickTube-KickTubeUITests.release.xcconfig"; sourceTree = "<group>"; };
+		3824F16FD26BF90C36BCCD9D /* Pods-KickTube-KickTubeUITests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KickTube-KickTubeUITests.debug.xcconfig"; path = "Target Support Files/Pods-KickTube-KickTubeUITests/Pods-KickTube-KickTubeUITests.debug.xcconfig"; sourceTree = "<group>"; };
+		3F972790C749118B05FE39A9 /* Pods-KickTubeTests.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KickTubeTests.release.xcconfig"; path = "Target Support Files/Pods-KickTubeTests/Pods-KickTubeTests.release.xcconfig"; sourceTree = "<group>"; };
 		532D56092D37BBC300B78EA6 /* SampleTest.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SampleTest.swift; sourceTree = "<group>"; };
 		532F31322D3649CA00D2C67E /* KickTube.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = KickTube.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		532F31482D3649CC00D2C67E /* KickTubeTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KickTubeTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		532F31522D3649CC00D2C67E /* KickTubeUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = KickTubeUITests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		532F318A2D364C2E00D2C67E /* .gitignore */ = {isa = PBXFileReference; lastKnownFileType = text; path = .gitignore; sourceTree = "<group>"; };
+		7A0E11804818B796898F990F /* Pods-KickTube.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KickTube.release.xcconfig"; path = "Target Support Files/Pods-KickTube/Pods-KickTube.release.xcconfig"; sourceTree = "<group>"; };
+		B5429378DD4E1533116988DB /* Pods-KickTubeTests.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KickTubeTests.debug.xcconfig"; path = "Target Support Files/Pods-KickTubeTests/Pods-KickTubeTests.debug.xcconfig"; sourceTree = "<group>"; };
+		EDAF7473DC03A3C99DB88C51 /* Pods-KickTube.debug.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-KickTube.debug.xcconfig"; path = "Target Support Files/Pods-KickTube/Pods-KickTube.debug.xcconfig"; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -113,10 +120,11 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				5305C58C2D62471500144DFF /* ManipulateDataModel in Frameworks */,
-				533885AE2D676C7300496895 /* ManipulateDataModel in Frameworks */,
-				53FDEFDD2D3E12C400825962 /* ManipulateDataModel in Frameworks */,
+				5340BFFF2D69A86D008890AB /* ManipulateDataModel in Frameworks */,
+				5340BFFE2D69A86D008890AB /* ManipulateDataModel in Frameworks */,
+				53D492E82D69BC6A00C3C390 /* SocketIO in Frameworks */,
 				532F31862D364BC200D2C67E /* RxSwift in Frameworks */,
+				53A9D5762D69A54C007FA374 /* ManipulateDataModel in Frameworks */,
 				532F31842D364BC200D2C67E /* RxCocoa in Frameworks */,
 				5320CF812D5206BB00EF722E /* YouTubeiOSPlayerHelper in Frameworks */,
 				532F31892D364BCE00D2C67E /* ReactorKit in Frameworks */,
@@ -143,6 +151,26 @@
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		3EF7E853DE43620FB6483BB5 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		4B897F350DEA39BA589EA41D /* Pods */ = {
+			isa = PBXGroup;
+			children = (
+				EDAF7473DC03A3C99DB88C51 /* Pods-KickTube.debug.xcconfig */,
+				7A0E11804818B796898F990F /* Pods-KickTube.release.xcconfig */,
+				3824F16FD26BF90C36BCCD9D /* Pods-KickTube-KickTubeUITests.debug.xcconfig */,
+				036A18E08803867A80B2B0D8 /* Pods-KickTube-KickTubeUITests.release.xcconfig */,
+				B5429378DD4E1533116988DB /* Pods-KickTubeTests.debug.xcconfig */,
+				3F972790C749118B05FE39A9 /* Pods-KickTubeTests.release.xcconfig */,
+			);
+			path = Pods;
+			sourceTree = "<group>";
+		};
 		532F31292D3649CA00D2C67E = {
 			isa = PBXGroup;
 			children = (
@@ -150,6 +178,8 @@
 				532F318A2D364C2E00D2C67E /* .gitignore */,
 				532F31342D3649CA00D2C67E /* KickTube */,
 				532F31332D3649CA00D2C67E /* Products */,
+				4B897F350DEA39BA589EA41D /* Pods */,
+				3EF7E853DE43620FB6483BB5 /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -170,10 +200,12 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 532F315B2D3649CC00D2C67E /* Build configuration list for PBXNativeTarget "KickTube" */;
 			buildPhases = (
+				7B387CF06FAE8A0A0B7D1764 /* [CP] Check Pods Manifest.lock */,
 				532F312E2D3649CA00D2C67E /* Sources */,
 				532F312F2D3649CA00D2C67E /* Frameworks */,
 				532F31302D3649CA00D2C67E /* Resources */,
 				5378702A2D68991E00A13B89 /* Embed Frameworks */,
+				94DCBDB2614B3C838EE985B6 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -192,8 +224,9 @@
 				53C955992D40BC23004D4DA2 /* ManipulateDataModel */,
 				53A863DB2D4FB72E009FF8E2 /* RxDataSources */,
 				5320CF802D5206BB00EF722E /* YouTubeiOSPlayerHelper */,
-				533885AD2D676C7300496895 /* ManipulateDataModel */,
 				537870272D68990D00A13B89 /* RealmSwift */,
+				53A9D5752D69A54C007FA374 /* ManipulateDataModel */,
+				53D492E72D69BC6A00C3C390 /* SocketIO */,
 			);
 			productName = KickTube;
 			productReference = 532F31322D3649CA00D2C67E /* KickTube.app */;
@@ -203,6 +236,7 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 532F31602D3649CC00D2C67E /* Build configuration list for PBXNativeTarget "KickTubeTests" */;
 			buildPhases = (
+				91602D2467BEB9B8594BF3A2 /* [CP] Check Pods Manifest.lock */,
 				532F31442D3649CC00D2C67E /* Sources */,
 				532F31452D3649CC00D2C67E /* Frameworks */,
 				532F31462D3649CC00D2C67E /* Resources */,
@@ -213,8 +247,6 @@
 				532F314A2D3649CC00D2C67E /* PBXTargetDependency */,
 			);
 			name = KickTubeTests;
-			packageProductDependencies = (
-			);
 			productName = KickTubeTests;
 			productReference = 532F31482D3649CC00D2C67E /* KickTubeTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
@@ -223,9 +255,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 532F31632D3649CC00D2C67E /* Build configuration list for PBXNativeTarget "KickTubeUITests" */;
 			buildPhases = (
+				7ECDE4AA9B4B6E540FEC1510 /* [CP] Check Pods Manifest.lock */,
 				532F314E2D3649CC00D2C67E /* Sources */,
 				532F314F2D3649CC00D2C67E /* Frameworks */,
 				532F31502D3649CC00D2C67E /* Resources */,
+				60940C920DDEBC560BB97067 /* [CP] Embed Pods Frameworks */,
 			);
 			buildRules = (
 			);
@@ -233,8 +267,6 @@
 				532F31542D3649CC00D2C67E /* PBXTargetDependency */,
 			);
 			name = KickTubeUITests;
-			packageProductDependencies = (
-			);
 			productName = KickTubeUITests;
 			productReference = 532F31522D3649CC00D2C67E /* KickTubeUITests.xctest */;
 			productType = "com.apple.product-type.bundle.ui-testing";
@@ -277,8 +309,9 @@
 				532F31872D364BCE00D2C67E /* XCRemoteSwiftPackageReference "ReactorKit" */,
 				53A863DA2D4FB72E009FF8E2 /* XCRemoteSwiftPackageReference "RxDataSources" */,
 				5320CF7F2D5206BB00EF722E /* XCRemoteSwiftPackageReference "youtube-ios-player-helper" */,
-				533885AC2D676C7300496895 /* XCRemoteSwiftPackageReference "ManipulateDataModel" */,
 				537870262D68990D00A13B89 /* XCRemoteSwiftPackageReference "realm-swift" */,
+				53A9D5742D69A54C007FA374 /* XCRemoteSwiftPackageReference "ManipulateDataModel" */,
+				53D492E62D69BC6A00C3C390 /* XCRemoteSwiftPackageReference "socket.io-client-swift" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 532F31332D3649CA00D2C67E /* Products */;
@@ -316,6 +349,109 @@
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXResourcesBuildPhase section */
+
+/* Begin PBXShellScriptBuildPhase section */
+		60940C920DDEBC560BB97067 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-KickTube-KickTubeUITests/Pods-KickTube-KickTubeUITests-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-KickTube-KickTubeUITests/Pods-KickTube-KickTubeUITests-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-KickTube-KickTubeUITests/Pods-KickTube-KickTubeUITests-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		7B387CF06FAE8A0A0B7D1764 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-KickTube-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		7ECDE4AA9B4B6E540FEC1510 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-KickTube-KickTubeUITests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		91602D2467BEB9B8594BF3A2 /* [CP] Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+			);
+			inputPaths = (
+				"${PODS_PODFILE_DIR_PATH}/Podfile.lock",
+				"${PODS_ROOT}/Manifest.lock",
+			);
+			name = "[CP] Check Pods Manifest.lock";
+			outputFileListPaths = (
+			);
+			outputPaths = (
+				"$(DERIVED_FILE_DIR)/Pods-KickTubeTests-checkManifestLockResult.txt",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_PODFILE_DIR_PATH}/Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [ $? != 0 ] ; then\n    # print error to STDERR\n    echo \"error: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\" >&2\n    exit 1\nfi\n# This output is used by Xcode 'outputs' to avoid re-running this script phase.\necho \"SUCCESS\" > \"${SCRIPT_OUTPUT_FILE_0}\"\n";
+			showEnvVarsInLog = 0;
+		};
+		94DCBDB2614B3C838EE985B6 /* [CP] Embed Pods Frameworks */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-KickTube/Pods-KickTube-frameworks-${CONFIGURATION}-input-files.xcfilelist",
+			);
+			name = "[CP] Embed Pods Frameworks";
+			outputFileListPaths = (
+				"${PODS_ROOT}/Target Support Files/Pods-KickTube/Pods-KickTube-frameworks-${CONFIGURATION}-output-files.xcfilelist",
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${PODS_ROOT}/Target Support Files/Pods-KickTube/Pods-KickTube-frameworks.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
 
 /* Begin PBXSourcesBuildPhase section */
 		532F312E2D3649CA00D2C67E /* Sources */ = {
@@ -358,6 +494,7 @@
 /* Begin XCBuildConfiguration section */
 		532F315C2D3649CC00D2C67E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = EDAF7473DC03A3C99DB88C51 /* Pods-KickTube.debug.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -387,6 +524,7 @@
 		};
 		532F315D2D3649CC00D2C67E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 7A0E11804818B796898F990F /* Pods-KickTube.release.xcconfig */;
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
@@ -453,7 +591,7 @@
 				DEBUG_INFORMATION_FORMAT = dwarf;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
 				ENABLE_TESTABILITY = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_NO_COMMON_BLOCKS = YES;
@@ -516,7 +654,7 @@
 				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
 				ENABLE_NS_ASSERTIONS = NO;
 				ENABLE_STRICT_OBJC_MSGSEND = YES;
-				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = NO;
 				GCC_C_LANGUAGE_STANDARD = gnu17;
 				GCC_NO_COMMON_BLOCKS = YES;
 				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
@@ -537,6 +675,7 @@
 		};
 		532F31612D3649CC00D2C67E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = B5429378DD4E1533116988DB /* Pods-KickTubeTests.debug.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -556,6 +695,7 @@
 		};
 		532F31622D3649CC00D2C67E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3F972790C749118B05FE39A9 /* Pods-KickTubeTests.release.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
@@ -575,6 +715,7 @@
 		};
 		532F31642D3649CC00D2C67E /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 3824F16FD26BF90C36BCCD9D /* Pods-KickTube-KickTubeUITests.debug.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -592,6 +733,7 @@
 		};
 		532F31652D3649CC00D2C67E /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 036A18E08803867A80B2B0D8 /* Pods-KickTube-KickTubeUITests.release.xcconfig */;
 			buildSettings = {
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
@@ -681,14 +823,6 @@
 				minimumVersion = 3.2.0;
 			};
 		};
-		533885AC2D676C7300496895 /* XCRemoteSwiftPackageReference "ManipulateDataModel" */ = {
-			isa = XCRemoteSwiftPackageReference;
-			repositoryURL = "https://github.com/KSK9820/ManipulateDataModel.git";
-			requirement = {
-				kind = upToNextMajorVersion;
-				minimumVersion = 1.0.0;
-			};
-		};
 		537870262D68990D00A13B89 /* XCRemoteSwiftPackageReference "realm-swift" */ = {
 			isa = XCRemoteSwiftPackageReference;
 			repositoryURL = "https://github.com/realm/realm-swift.git";
@@ -703,6 +837,22 @@
 			requirement = {
 				kind = upToNextMajorVersion;
 				minimumVersion = 5.0.2;
+			};
+		};
+		53A9D5742D69A54C007FA374 /* XCRemoteSwiftPackageReference "ManipulateDataModel" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/KSK9820/ManipulateDataModel.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.0.0;
+			};
+		};
+		53D492E62D69BC6A00C3C390 /* XCRemoteSwiftPackageReference "socket.io-client-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/socketio/socket.io-client-swift.git";
+			requirement = {
+				branch = master;
+				kind = branch;
 			};
 		};
 /* End XCRemoteSwiftPackageReference section */
@@ -733,11 +883,6 @@
 			package = 532F31872D364BCE00D2C67E /* XCRemoteSwiftPackageReference "ReactorKit" */;
 			productName = ReactorKit;
 		};
-		533885AD2D676C7300496895 /* ManipulateDataModel */ = {
-			isa = XCSwiftPackageProductDependency;
-			package = 533885AC2D676C7300496895 /* XCRemoteSwiftPackageReference "ManipulateDataModel" */;
-			productName = ManipulateDataModel;
-		};
 		5351F2E02D392C600093EB87 /* ManipulateDataModel */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ManipulateDataModel;
@@ -752,9 +897,19 @@
 			package = 53A863DA2D4FB72E009FF8E2 /* XCRemoteSwiftPackageReference "RxDataSources" */;
 			productName = RxDataSources;
 		};
+		53A9D5752D69A54C007FA374 /* ManipulateDataModel */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 53A9D5742D69A54C007FA374 /* XCRemoteSwiftPackageReference "ManipulateDataModel" */;
+			productName = ManipulateDataModel;
+		};
 		53C955992D40BC23004D4DA2 /* ManipulateDataModel */ = {
 			isa = XCSwiftPackageProductDependency;
 			productName = ManipulateDataModel;
+		};
+		53D492E72D69BC6A00C3C390 /* SocketIO */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 53D492E62D69BC6A00C3C390 /* XCRemoteSwiftPackageReference "socket.io-client-swift" */;
+			productName = SocketIO;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

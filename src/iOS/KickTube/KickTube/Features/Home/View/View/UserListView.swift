@@ -30,6 +30,7 @@ final class UserListView: BaseView<UserListReactor> {
         $0.showsVerticalScrollIndicator = false
         $0.showsHorizontalScrollIndicator = false
     }
+
     
     // MARK: - configure reactor
 
