@@ -11,11 +11,12 @@ import ManipulateDataModel
 
 @DecodeDTO
 struct KickRoomPlayStateResponseDTO {
+    @Key("userId") let userID: Int
     @Key("roomId") let roomID: Int
     @Key("playTime") var time: Int
     @Key("playerState") var state: String
     
     func toModel() -> KickRoomPlayerStateViewModel {
-        .init(progress: KickRoomPlayerStateViewModel.PlayState(rawValue: self.state) ?? .none, time: Float(self.time))
+        .init(userID: self.userID, progress: KickRoomPlayerStateViewModel.PlayState(rawValue: self.state) ?? .none, time: Float(self.time))
     }
 }

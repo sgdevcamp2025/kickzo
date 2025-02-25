@@ -144,9 +144,10 @@ extension WebSocketService {
     }
     
     func publishVideoTime(_ state: KickRoomPlayerStateViewModel) {
-        guard let roomID else { return }
+        guard let roomID, let userID else { return }
         
         let videoPayload: [String: Any] = [
+            "userId": userID,
             "roomId" : roomID,
             "playTime" : Int(state.time),
             "playerState": state.progress.rawValue

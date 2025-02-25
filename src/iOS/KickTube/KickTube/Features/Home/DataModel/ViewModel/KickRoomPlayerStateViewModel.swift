@@ -8,6 +8,7 @@
 import Foundation
 
 struct KickRoomPlayerStateViewModel {
+    var userID: Int = UserDefaultsManager.shared.myProfile.userID
     var progress: PlayState = .none
     var time: Float = 0
     
