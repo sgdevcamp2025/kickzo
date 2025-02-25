@@ -10,4 +10,5 @@ public class UserInfoDto {
 	private int role;
 	private String nickname;
 	private String profileImageUrl;
+	private boolean isJoined;
 }

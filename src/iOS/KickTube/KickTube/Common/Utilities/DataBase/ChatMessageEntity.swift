@@ -10,7 +10,7 @@ import Foundation
 import RealmSwift
 
 class ChatMessageEntity: Object, ObjectKeyIdentifiable {
-    @Persisted(primaryKey: true) var messageID: String
+    @Persisted(primaryKey: true) var messageID: UUID
     @Persisted var userID: Int
     @Persisted var createdAt: Int
     @Persisted var media: String?
@@ -30,7 +30,7 @@ class ChatMessageEntity: Object, ObjectKeyIdentifiable {
         profileImageURL: String? = nil
     ) {
         self.init()
-        self.messageID = messageID
+        self.messageID = UUID()
         self.userID = userID
         self.createdAt = createdAt
         self.media = media
@@ -43,6 +43,6 @@ class ChatMessageEntity: Object, ObjectKeyIdentifiable {
 
 extension ChatMessageEntity {
     func toDomainModel() -> ChatMessageDomainModel {
-        .init(messageID: self.messageID, roomID: -1, userID: self.userID, createdAt: self.createdAt, media: self.media, message: self.message, role: self.role, nickname: self.nickname, profileImageURL: self.profileImageURL)
+        .init(messageID: self.messageID.uuidString, roomID: -1, userID: self.userID, createdAt: self.createdAt, media: self.media, message: self.message, role: self.role, nickname: self.nickname, profileImageURL: self.profileImageURL)
     }
 }

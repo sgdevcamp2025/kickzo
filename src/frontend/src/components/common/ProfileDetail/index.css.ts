@@ -5,7 +5,7 @@ export const Container = styled.div`
   background-color: white;
   border-radius: 10px;
   padding: 10px;
-  box-shadow: 10px 10px 40px 0px #00000040;
+  box-shadow: var(--palette-elevation-shadow-heavy);
   display: flex;
   flex-direction: column;
 `;

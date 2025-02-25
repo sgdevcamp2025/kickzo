@@ -1,6 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
 import { SmallProfile } from '@/components/common/SmallProfile';
-import { ProfileDetail } from '@/components/common/ProfileDetail';
 import { UserListFooter } from '@/components/Sidebar/UserList/UserListFooter';
 import { RedBlackTree } from '@/hooks/utils/RedBlackTree';
 
@@ -13,6 +12,8 @@ import { useWebSocketStore } from '@/stores/useWebSocketStore';
 import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
 import DefaultProfile from '@/assets/img/DefaultProfile.svg';
 import { Container, UserListContainer, ProfileWrapper } from './index.css';
+import { RoomProfileModal } from '@/components/Modal/RoomProfileModal';
+
 interface IUser {
   id: number;
   role: number;
@@ -124,8 +125,8 @@ export const UserList = () => {
                 imgUrl={member.profileImg}
               />
             </div>
-            {activeProfile === member.id && (
-              <ProfileDetail
+            {roomId && activeProfile === member.id && (
+              <RoomProfileModal
                 userId={member.id}
                 roomId={roomId}
                 nickname={member.nickname}
@@ -133,6 +134,7 @@ export const UserList = () => {
                 userRole={member.role}
                 myRole={UserRole.CREATOR}
                 sidebarType={SidebarType.USERLIST}
+                onCancel={() => setActiveProfile(null)}
               />
             )}
           </ProfileWrapper>

@@ -1,8 +1,10 @@
 package com.kickzo.main.config;
 
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 import org.springframework.data.redis.connection.RedisConnectionFactory;
 import org.springframework.data.redis.connection.RedisStandaloneConfiguration;
 import org.springframework.data.redis.connection.lettuce.LettuceConnectionFactory;
@@ -17,6 +19,9 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.jsontype.impl.LaissezFaireSubTypeValidator;
 import com.kickzo.main.dto.data.InvitationData;
 
+import lombok.extern.slf4j.Slf4j;
+
+@Slf4j
 @Configuration
 public class RedisConfig {
 
@@ -27,15 +32,23 @@ public class RedisConfig {
 	private int port;
 
 	@Bean
+	@Primary
 	public RedisConnectionFactory redisConnectionFactory() {
 		RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(host, port);
 		configuration.setDatabase(3);
 		return new LettuceConnectionFactory(configuration);
 	}
 
+	@Bean
+	public RedisConnectionFactory redisConnectionFactoryDb5() {
+		RedisStandaloneConfiguration configuration = new RedisStandaloneConfiguration(host, port);
+		configuration.setDatabase(5); // 5번 DB (실시간 접속 관리)
+		return new LettuceConnectionFactory(configuration);
+	}
 
 	@Bean
-	public RedisTemplate<String, InvitationData> redisInvitationTemplate(RedisConnectionFactory connectionFactory) {
+	public RedisTemplate<String, InvitationData> redisInvitationTemplate(
+		@Qualifier("redisConnectionFactory") RedisConnectionFactory connectionFactory) {
 		RedisTemplate<String, InvitationData> template = new RedisTemplate<>();
 		template.setConnectionFactory(connectionFactory);
 
@@ -55,6 +68,19 @@ public class RedisConfig {
 		Jackson2JsonRedisSerializer<InvitationData> serializer = new Jackson2JsonRedisSerializer<>(InvitationData.class);
 		template.setValueSerializer(serializer);
 
+		template.afterPropertiesSet();
+		return template;
+	}
+
+	// 5번 DB용 RedisTemplate (실시간 접속 관리)
+	@Bean(name = "redisActiveUsersTemplate")
+	public RedisTemplate<String, String> redisActiveUsersTemplate(@Qualifier("redisConnectionFactoryDb5") RedisConnectionFactory redisConnectionFactoryDb5) {
+		log.info("🚀 Initializing redisActiveUsersTemplate with Redis DB: {}",
+			((LettuceConnectionFactory) redisConnectionFactoryDb5).getDatabase());
+		RedisTemplate<String, String> template = new RedisTemplate<>();
+		template.setConnectionFactory(redisConnectionFactoryDb5);
+		template.setKeySerializer(new StringRedisSerializer());
+		template.setValueSerializer(new StringRedisSerializer());
 		template.afterPropertiesSet();
 		return template;
 	}

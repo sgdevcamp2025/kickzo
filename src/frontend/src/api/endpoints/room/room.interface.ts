@@ -18,6 +18,7 @@ export interface MyRoomDto {
   profileImageUrl?: string;
   userCount: number;
   playlistUrl?: string;
+  public?: boolean;
 }
 
 export interface PaginationDto {
@@ -34,6 +35,7 @@ export interface RoomDto {
   profileImageUrl?: string;
   userCount: number;
   playlistUrl?: string;
+  public?: boolean;
 }
 
 export interface CurrentRoomUserDto {
@@ -80,4 +82,16 @@ export interface SendMessageDto {
 export interface ReceiveMessageDto extends SendMessageDto {
   id: string;
   timestamp: number;
+}
+
+export interface SearchUserDto {
+  userId: number;
+  nickname: string;
+  stateMessage: string;
+  profileImageUrl: string;
+}
+
+export interface ElasticSearchDto {
+  users: SearchUserDto[];
+  rooms: RoomDto[];
 }

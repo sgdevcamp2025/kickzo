@@ -227,7 +227,7 @@ export const RegisterPage = () => {
             required
           />
           <WarningMessage $isVisible={!isPasswordValid}>
-            8-20자의 영문, 숫자, 특수문자(@$!%*?&)를 포함해야 합니다.
+            8-20자의 영문, 숫자, 특수문자(@$!%*?&) 포함
           </WarningMessage>
         </div>
         <div>

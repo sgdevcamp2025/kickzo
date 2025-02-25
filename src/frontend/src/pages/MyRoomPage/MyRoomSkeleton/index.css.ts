@@ -20,7 +20,7 @@ export const SkeletonCard = styled.div`
   gap: 1rem;
   padding: 1rem 0;
   background-color: white;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--palette-line-normal-alternative);
 `;
 
 export const SkeletonThumbnail = styled(SkeletonBase)`

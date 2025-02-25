@@ -20,6 +20,7 @@ public class KafkaRepository {
 	private static final String TOPIC_CHAT = "chatting";
 	private static final String TOPIC_CONNECTION = "connection";
 	private static final String TOPIC_PLAYLIST = "playlist";
+	private static final String TOPIC_ROOM = "room";
 
 	public void sendConnectionEvent(ConnectionEvent event) {
 		try {
@@ -48,6 +49,16 @@ public class KafkaRepository {
 			log.info("Kafka play time sent: {}", jsonMessage);
 		} catch (Exception e) {
 			log.error("Failed to send Kafka play time: {}", e.getMessage());
+		}
+	}
+
+	public void sendUserRoomDisconnect(RoomEvent userOutEvent) {
+		try {
+			String jsonMessage = objectMapper.writeValueAsString(userOutEvent);
+			kafkaTemplate.send(TOPIC_ROOM, jsonMessage);
+			log.info("Kafka user room disconnection event sent: {}", jsonMessage);
+		} catch (Exception e) {
+			log.error("Failed to send Kafka user room disconnection: {}", e.getMessage());
 		}
 	}
 }

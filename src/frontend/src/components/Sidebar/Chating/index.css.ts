@@ -5,8 +5,6 @@ export const ChatContainer = styled.div`
   flex-direction: column;
   height: 100%;
   background-color: #ffffff;
-  border: 1px solid #d4d4d4;
-  border-radius: 10px;
   position: relative;
 `;
 
@@ -15,7 +13,6 @@ export const ChatScrollArea = styled.div`
   overflow-y: auto;
   display: flex;
   flex-direction: column;
-  padding: 10px;
 
   &::-webkit-scrollbar {
     width: 6px;

@@ -13,4 +13,5 @@ export const Container = styled.div`
   display: flex;
   flex-direction: column;
   overflow-y: auto;
+  padding-bottom: 80px;
 `;

@@ -6,10 +6,11 @@ import { RoomDeleteModal } from '@/components/Modal/RoomDeleteModal';
 import { useNavigate } from 'react-router-dom';
 import { MyRoomDto } from '@/api/endpoints/room/room.interface';
 import DefaultThumbnail from '@/assets/img/DefaultThumbnail.svg';
-
+import KeyIcon from '@/assets/img/Key.svg';
 import {
   ActionButton,
   ActionButtons,
+  Badge,
   Card,
   Creator,
   Info,
@@ -73,6 +74,11 @@ export const MyRoomCard = ({ room }: { room: MyRoomDto }) => {
         onMouseLeave={() => setIsHovered(false)}
       >
         <Thumbnail>
+          {!room.public && (
+            <Badge className="badge">
+              <img src={KeyIcon} alt="private" />
+            </Badge>
+          )}
           <img
             src={thumbnail}
             onError={e => {
