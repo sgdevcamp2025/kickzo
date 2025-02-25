@@ -12,6 +12,9 @@ export const RegisterSuccessModal = ({ onCancel }: IRegisterSuccessModal) => {
   const navigate = useNavigate();
 
   const handleConfirm = () => {
+    if (window.webkit?.messageHandlers?.closeModal) {
+      window.webkit.messageHandlers.closeModal.postMessage('LoginSuccess');
+    }
     navigate('/login');
     onCancel();
   };
