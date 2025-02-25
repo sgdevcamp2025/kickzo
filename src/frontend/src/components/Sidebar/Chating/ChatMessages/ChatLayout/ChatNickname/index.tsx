@@ -42,5 +42,5 @@ const Img = styled.img``;
 const Nickname = styled.div<{ $role: UserRole }>`
   color: ${({ $role }) =>
     $role === UserRole.CREATOR ? '#FF9100' : $role === UserRole.MANAGER ? '#4D94E1' : '#000000'};
-  font-weight: bold;
+  font-weight: 500;
 `;

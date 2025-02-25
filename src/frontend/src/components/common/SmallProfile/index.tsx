@@ -33,12 +33,14 @@ export const SmallProfile = (props: ISmallProfile) => {
   return (
     <Container>
       <Profile>
-        <Profile__Img
-          src={props.imgUrl ?? DefaultProfile}
-          onError={e => {
-            e.currentTarget.src = DefaultProfile;
-          }}
-        />
+        <Profile__Img>
+          <img
+            src={props.imgUrl ?? DefaultProfile}
+            onError={e => {
+              e.currentTarget.src = DefaultProfile;
+            }}
+          />
+        </Profile__Img>
         <RoleNickname role={props.role} nickname={props.nickname} />
       </Profile>
       {renderBtn()}

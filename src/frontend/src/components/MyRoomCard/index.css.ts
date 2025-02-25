@@ -4,9 +4,14 @@ export const Card = styled.div`
   display: flex;
   align-items: stretch;
   padding: 1rem 0;
-  border-bottom: 1px solid #ddd;
+  border-bottom: 1px solid var(--palette-line-normal-alternative);
   position: relative;
   cursor: pointer;
+
+  &:hover .badge {
+    background: rgba(0, 0, 0, 0.8);
+    border-radius: 50%;
+  }
 `;
 
 export const Thumbnail = styled.div`
@@ -21,6 +26,25 @@ export const Thumbnail = styled.div`
     width: 100%;
     height: 100%;
     object-fit: cover;
+  }
+`;
+
+export const Badge = styled.div`
+  position: absolute;
+  bottom: 4px;
+  right: 4px;
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background-color: rgba(0, 0, 0, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease-in-out;
+
+  & > img {
+    width: 16px;
+    height: 16px;
   }
 `;
 

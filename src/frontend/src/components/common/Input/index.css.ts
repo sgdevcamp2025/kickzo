@@ -13,7 +13,7 @@ export const Container = styled.div`
 export const Wrapper = styled.div<{ $design: InputDesign }>`
   display: flex;
   align-items: center;
-  border: 1px solid #d4d4d4;
+  border: 1px solid var(--palette-line-solid-neutral);
   border-radius: 4px;
   padding: 2px;
 

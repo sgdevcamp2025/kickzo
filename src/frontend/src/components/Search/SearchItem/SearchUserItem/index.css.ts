@@ -1,6 +1,7 @@
 import { styled } from 'styled-components';
 
 export const SearchItemContainer = styled.div`
+  position: relative;
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -19,6 +20,9 @@ export const SearchItemProfileImage = styled.div`
   border-radius: 10px;
   overflow: hidden;
   margin-right: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 `;
 
 export const SearchItemInfo = styled.div`

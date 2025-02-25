@@ -4,20 +4,26 @@ import { ProfileActions } from './ProfileActions';
 import { Container, Profile, ButtonContainer } from './index.css';
 import { ProfileDetailDto } from '@/types/dto/ProfileDetailDto.dto';
 import DefaultProfile from '@/assets/img/DefaultProfile.svg';
-
-const detailProfile = {
-  nickname: '이노',
-  introduce: '저는 이제 집으로 갑니다',
-  imgUrl:
-    'https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMDA3MjVfMTQ5%2FMDAxNTk1Njc4MzEyNzA4.knqIC64twrLoZDviHrAUSrEbgtxNp8h4nGsT-4mrWgkg.VImfsqV3F5GqyCPCIN4Xfid4TpUXQkljevfhuX_HK4gg.JPEG.haha9558%2FIMG_0114.JPG&type=a340',
-};
+import { useEffect, useState } from 'react';
+import { userApi } from '@/api/endpoints/user/user.api';
+import { UserResponseDto } from '@/api/endpoints/user/user.interface';
 
 export const ProfileDetail = (props: ProfileDetailDto) => {
+  const [profile, setProfile] = useState<UserResponseDto | null>(null);
+
+  useEffect(() => {
+    const getprofile = async () => {
+      const profile = await userApi.getProfile(props.userId.toString());
+      setProfile(profile);
+    };
+    getprofile();
+  }, [props.userId]);
+
   return (
     <Container>
       <Profile>
-        <ProfileHeader sidebarType={props.sidebarType} imgUrl={props.imgUrl || DefaultProfile} />
-        <ProfileInfo nickname={props.nickname} introduce={detailProfile.introduce} />
+        <ProfileHeader sidebarType={props.sidebarType} imgUrl={profile?.profileImageUrl || DefaultProfile} />
+        <ProfileInfo nickname={props.nickname} introduce={profile?.stateMessage} />
       </Profile>
       <ButtonContainer>
         <ProfileActions {...props} />

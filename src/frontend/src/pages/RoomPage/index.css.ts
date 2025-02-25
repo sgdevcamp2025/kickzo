@@ -5,7 +5,7 @@ export const Container = styled.div`
   flex-direction: row;
   justify-content: space-between;
   gap: 20px;
-  padding-right: 16px;
+  padding: 1rem;
 `;
 
 export const Wrapper = styled.div`

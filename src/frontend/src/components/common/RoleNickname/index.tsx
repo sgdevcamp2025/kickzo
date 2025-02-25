@@ -12,16 +12,18 @@ export const RoleNickname = (props: IRoleNickname) => {
   return (
     <Wrapper>
       {props.role !== UserRole.MEMBER ? (
-        <Img
-          src={
-            props.role === UserRole.CREATOR
-              ? RoleOwner
-              : props.role === UserRole.MANAGER
-                ? RoleManager
-                : ''
-          }
-          alt="User Role"
-        />
+        <Img>
+          <img
+            src={
+              props.role === UserRole.CREATOR
+                ? RoleOwner
+                : props.role === UserRole.MANAGER
+                  ? RoleManager
+                  : ''
+            }
+            alt="User Role"
+          />
+        </Img>
       ) : (
         ''
       )}

@@ -17,7 +17,7 @@ import DefaultProfile from '@/assets/img/DefaultProfile.svg';
 import { RoomCreateModal } from '@/components/Modal/RoomCreateModal';
 import { NotificationModal } from '@/components/Modal/NotificationModal';
 import { SearchBar } from '@/components/Search/SearchBar';
-import { ProfileModal } from '@/components/Modal/ProfileModal';
+import { ProfileModal } from '@/components/Modal/MyProfileModal';
 import { useUserStore } from '@/stores/useUserStore';
 import { useAuthStore } from '@/stores/useAuthStore';
 import { useMyRoomsStore } from '@/stores/useMyRoomsStore';
@@ -31,7 +31,6 @@ import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
 import { useVideoStore } from '@/stores/useVideoStore';
 
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY as string;
-
 
 export const TopNavBar = () => {
   const navigate = useNavigate();
@@ -197,7 +196,13 @@ export const TopNavBar = () => {
           </ButtonBox>
           {user ? (
             <ProfileButton onClick={clickProfile}>
-              <img src={user.profileImageUrl ?? DefaultProfile} alt="Profile" />
+              <img
+                src={user.profileImageUrl ?? DefaultProfile}
+                alt="Profile"
+                onError={e => {
+                  e.currentTarget.src = DefaultProfile;
+                }}
+              />
               {isProfileModalOpen && <ProfileModal onCancel={handleCancelProfile} />}
             </ProfileButton>
           ) : (

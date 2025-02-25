@@ -13,11 +13,18 @@ export const Profile = styled.div`
   align-items: center;
 `;
 
-export const Profile__Img = styled.img`
+export const Profile__Img = styled.div`
   width: 32px;
   height: 32px;
-  margin-right: 4px;
+  margin-right: 8px;
   border-radius: 8px;
+  overflow: hidden;
+
+  & > img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
 `;
 
 export const ImgWrapper = styled.div`
