@@ -3,13 +3,15 @@ import styled from 'styled-components';
 import { useVideoStore } from '@/stores/useVideoStore';
 import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
 import { useWebSocketStore } from '@/stores/useWebSocketStore';
+import { UserRole } from '@/types/enums/UserRole';
 
 export const YouTubePlayer = () => {
   const { videoQueue } = useVideoStore();
-  const { currentRoom } = useCurrentRoomStore();
+  const { roomId } = useCurrentRoomStore.getState();
   const { client, subTopic } = useWebSocketStore();
   const pubTopic = useWebSocketStore.getState().pubTopic;
-  const roomId = currentRoom?.roomDetails?.roomInfo?.[0]?.roomId;
+  const myRole = useCurrentRoomStore.getState().currentRoom?.myRole;
+  const isWatchOnly = myRole === UserRole.MEMBER;
 
   const playerRef = useRef<YT.Player | null>(null);
   const lastSentStateRef = useRef<'playing' | 'paused' | null>(null);
@@ -29,6 +31,9 @@ export const YouTubePlayer = () => {
       script.src = 'https://www.youtube.com/iframe_api';
       document.body.appendChild(script);
     }
+    return () => {
+      useVideoStore.getState().clearVideoQueue();
+    };
   }, []);
 
   // 유튜브 플레이어 로드
@@ -46,7 +51,12 @@ export const YouTubePlayer = () => {
           height: '100%',
           width: '100%',
           videoId: id,
-          playerVars: { autoplay: 1, controls: 1, start: startTime },
+          playerVars: {
+            autoplay: 1,
+            controls: isWatchOnly ? 0 : 1,
+            disablekb: 1,
+            start: startTime,
+          },
           events: {
             onStateChange: handleVideoStateChange,
             onReady: handlePlayerReady,
@@ -63,10 +73,14 @@ export const YouTubePlayer = () => {
 
   // 유튜브 영상의 재생, 멈춤, 끝남 상태에 따라 동작
   const broadcastPlayerState = (state: 'playing' | 'paused', time: number) => {
+    if (myRole === 2) return;
+    const roomId = useCurrentRoomStore.getState().roomId;
+
     if (!client || !roomId || !pubTopic) {
       console.warn('⚠ WebSocket 준비 안됨');
       return;
     }
+
     lastSentStateRef.current = state;
     const message = JSON.stringify({ roomId, playTime: time, playerState: state });
     pubTopic(`/app/play-time`, message);
@@ -74,6 +88,8 @@ export const YouTubePlayer = () => {
 
   // 내부 이벤트로 인한 상태 변화 감지
   const handleVideoStateChange = (event: YT.OnStateChangeEvent) => {
+    if (isWatchOnly) return;
+
     if (isRemoteUpdateRef.current) {
       isRemoteUpdateRef.current = false;
       return;
@@ -109,7 +125,6 @@ export const YouTubePlayer = () => {
   const applySyncState = ({ playTime, playerState }: { playTime: number; playerState: string }) => {
     if (!playerRef.current) return;
     playerRef.current.seekTo(playTime, true);
-
     if (playerState === 'playing') {
       playerRef.current.playVideo();
     } else if (playerState === 'paused') {
@@ -166,6 +181,7 @@ export const YouTubePlayer = () => {
   return (
     <Container>
       <VideoWrapper>
+        {/* <VideoDiv id="youtube-player" $isWatchOnly={isWatchOnly}></VideoDiv> */}
         <div id="youtube-player"></div>
       </VideoWrapper>
     </Container>
@@ -190,3 +206,7 @@ const VideoWrapper = styled.div`
   justify-content: center;
   overflow: hidden;
 `;
+
+// const VideoDiv = styled.div<{ $isWatchOnly: boolean }>`
+//   ${({ $isWatchOnly }) => $isWatchOnly && 'pointer-events: none;'}
+// `;

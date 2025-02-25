@@ -22,6 +22,7 @@ import DefaultThumbnail from '@/assets/img/DefaultThumbnail.svg';
 import { useWebSocketStore } from '@/stores/useWebSocketStore';
 import { useUserStore } from '@/stores/useUserStore';
 import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
+import { UserRole } from '@/types/enums/UserRole';
 
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY as string;
 import { roomApi } from '@/api/endpoints/room/room.api';
@@ -57,6 +58,9 @@ export const Playlist = () => {
 
   const { currentRoom } = useCurrentRoomStore();
   const roomId = currentRoom?.roomDetails?.roomInfo?.[0]?.roomId;
+  const myRole = currentRoom?.myRole;
+  const isWatchOnly = myRole === UserRole.MEMBER;
+
   const { subscribeRoomPlaylistUpdate } = useWebSocketStore.getState();
 
   // 드래그 상태를 useRef로 관리하고, 강제 업데이트를 위해 forceUpdate 함수를 사용
@@ -302,17 +306,16 @@ export const Playlist = () => {
               video={video}
               index={index}
               active={index === currentIndex}
-              isDragging={index === draggedIndexRef.current}
-              isPreview={draggedIndexRef.current !== null && index === dragOverIndexRef.current}
-              onClick={() => handleSetCurrentVideo(index)}
-              onMoveUp={() => {
-                moveVideoUp(index);
-                updatePlaylistOnServer();
-              }}
-              onMoveDown={() => {
-                moveVideoDown(index);
-                updatePlaylistOnServer();
-              }}
+              draggable={!isWatchOnly}
+              isDragging={!isWatchOnly && index === draggedIndexRef.current}
+              isPreview={
+                !isWatchOnly &&
+                draggedIndexRef.current !== null &&
+                index === dragOverIndexRef.current
+              }
+              onClick={!isWatchOnly ? () => handleSetCurrentVideo(index) : undefined}
+              onMoveUp={() => moveVideoUp(index)}
+              onMoveDown={() => moveVideoDown(index)}
               onRemove={() => handleRemoveVideo(index)}
               onDragStart={() => handleDragStart(index)}
               onDragOver={e => handleDragOver(e, index)}
@@ -349,9 +352,12 @@ export const Playlist = () => {
         <InputContainer>
           <SearchInput
             type="text"
-            placeholder="URL을 입력하세요"
+            placeholder={
+              isWatchOnly ? '방장/매니저만 영상을 추가할 수 있습니다' : 'URL을 입력하세요'
+            }
             value={inputUrl}
             onChange={e => setInputUrl(e.target.value)}
+            disabled={isWatchOnly}
           />
         </InputContainer>
       </div>
