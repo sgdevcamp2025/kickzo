@@ -30,6 +30,7 @@ export const ButtonWrapper = styled.div`
 `;
 
 export const ButtonBox = styled.div<{ $isActive: boolean }>`
+  position: relative;
   width: 40px;
   height: 40px;
   display: flex;
