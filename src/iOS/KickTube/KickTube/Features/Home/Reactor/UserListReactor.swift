@@ -16,28 +16,45 @@ final class UserListReactor: Reactor {
         case loadView
         case searchText(String)
         case profileCellTapped(idx: IndexPath)
+        case newUser(KickRoomUserDomainModel)
+        case roleChange(KickRoomChangeUserRoleDomainModel)
     }
     
     enum Mutation {
         case setUserList
         case searchUser(String)
         case userOverview(_ idx: IndexPath)
+        case addUser(KickRoomUserViewModel)
+        case changeUserRole(KickRoomChangeUserRoleViewModel)
     }
     
     struct State {
         var roomID: Int?
         var userList: [KickRoomUserViewModel]
+        var aliveUserSet: Set<Int> = []
         var searchUserResult: [KickRoomUserViewModel] = []
         var selectedCell: (id: Int, role: UserRole)?
     }
     
     let initialState: State
+    private var disposeBag = DisposeBag()
     
     init(roomID: Int?, _ user: [KickRoomUserViewModel]?) {
         self.initialState = State(
             roomID: roomID,
             userList: user ?? []
         )
+        
+        WebSocketService.shared.newUserObservable
+            .subscribe(onNext: { [weak self] user in
+                self?.action.onNext(.newUser(user.toModel()))
+            })
+            .disposed(by: disposeBag)
+        WebSocketService.shared.roleChangeObservable
+            .subscribe(onNext: { [weak self] user in
+                self?.action.onNext(.roleChange(user.toModel()))
+            })
+            .disposed(by: disposeBag)
     }
     
     func mutate(action: Action) -> Observable<Mutation> {
@@ -48,6 +65,10 @@ final class UserListReactor: Reactor {
             return .just(.searchUser(text))
         case .profileCellTapped(let idx):
             return .just(.userOverview(idx))
+        case .newUser(let user):
+            return .just(.addUser(user.toModel()))
+        case .roleChange(let user):
+            return .just(.changeUserRole(user.toModel()))
         }
     }
     
@@ -56,10 +77,8 @@ final class UserListReactor: Reactor {
         
         switch mutation {
         case .setUserList:
-            if let myInformation = newState.userList.enumerated().filter({ $0.element.userID == UserDefaultsManager.shared.myProfile.userID }).first {
-                newState.userList.remove(at: myInformation.offset)
-                newState.userList.insert(myInformation.element, at: 0)
-            }
+            newState.aliveUserSet = Set(newState.userList.map { $0.userID })
+            newState.userList = sortUserList(newState.userList)
             newState.searchUserResult = newState.userList
         case .searchUser(let text):
             if text == "" {
@@ -72,15 +91,37 @@ final class UserListReactor: Reactor {
             newState.selectedCell = nil
         case .userOverview(let idx):
             var user: KickRoomUserViewModel
-            if newState.searchUserResult.count == 0 {
-                user = newState.searchUserResult[idx.row]
-            } else {
-                user = newState.userList[idx.row]
-            }
             
+            user = newState.searchUserResult[idx.row]
             newState.selectedCell = (id: user.userID, role: user.role)
+        case .addUser(let user):
+            newState.userList.append(user)
+            newState.searchUserResult.append(user)
+        case .changeUserRole(let user):
+            if newState.aliveUserSet.contains(user.targetUserID) {
+                if let uIdx = newState.userList.firstIndex(where: { $0.userID == user.targetUserID }) {
+                    newState.userList[uIdx].role = user.newRole
+                }
+                if let sIdx = newState.searchUserResult.firstIndex(where: { $0.userID == user.targetUserID }) {
+                    newState.searchUserResult[sIdx].role = user.newRole
+                }
+                newState.userList = sortUserList(newState.userList)
+                newState.searchUserResult = sortUserList(newState.searchUserResult)
+            }
         }
         
         return newState
-    } 
+    }
+    
+    private func sortUserList(_ list: [KickRoomUserViewModel]) -> [KickRoomUserViewModel] {
+        var userList = list
+        
+        userList = userList.sorted { $0.role.rawValue < $1.role.rawValue }
+        if let myInformation = userList.enumerated().filter({ $0.element.userID == UserDefaultsManager.shared.myProfile.userID }).first {
+            userList.remove(at: myInformation.offset)
+            userList.insert(myInformation.element, at: 0)
+        }
+        
+        return userList
+    }
 }

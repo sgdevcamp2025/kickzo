@@ -45,7 +45,6 @@ final class PlayListViewModel {
       
         
         playlistSubject
-            .take(1)
             .flatMap { [weak self] playlist -> Single<[YoutubeVideoViewModel]> in
                 guard let self else { return .error(NetworkError.unknown) }
                 
@@ -56,6 +55,11 @@ final class PlayListViewModel {
                 owner.videoList = value
                 videoListSubject.onNext(value)
             }
+            .disposed(by: disposeBag)
+        
+        WebSocketService.shared.playlistObservable
+            .map { $0.map { $0.toModel().toModel() }}
+            .bind(to: playlistSubject)
             .disposed(by: disposeBag)
         
         input.emptyThumbnailImage
@@ -103,8 +107,8 @@ final class PlayListViewModel {
             .filter { !$0.isEmpty }
             .subscribe(with: self) { owner, value in
                 if let video = value.first {
-                    owner.videoList.append(video)
-                    videoListSubject.onNext(owner.videoList)
+                    owner.playlist.append(KickRoomPlaylistViewModel(url: video.id.youtubeLink, order: owner.playlist.count))
+                    owner.changePlaylist()
                     validVideoSubject.onNext([])
                 }
             }
@@ -114,21 +118,16 @@ final class PlayListViewModel {
             .subscribe(with: self) { owner, value in
                 let (from, to) = value
                 let playlistData = owner.playlist.remove(at: from.row)
-                let videoListData = owner.videoList.remove(at: from.row)
                 
                 owner.playlist.insert(playlistData, at: to.row)
-                owner.videoList.insert(videoListData, at: to.row)
-                
-                videoListSubject.onNext(owner.videoList)
+                owner.changePlaylist()
             }
             .disposed(by: disposeBag)
         
         input.deleteButtonTapped
             .subscribe(with: self) { owner, value in
                 owner.playlist.remove(at: value)
-                owner.videoList.remove(at: value)
-                
-                videoListSubject.onNext(owner.videoList)
+                owner.changePlaylist()
             }
             .disposed(by: disposeBag)
         
@@ -171,8 +170,11 @@ final class PlayListViewModel {
         }
     }
 
-    private func changePlaylist(_ request: RoomPlaylistRequestDTO) {
-        let playlistRequest = DefaultRequest<String>(method: .post, path: ["api", "rooms", "playlist"], header: [.json, .authorizationAccessToken], body: request)
+    private func changePlaylist() {
+        guard let roomID = self.roomID else { return }
+        
+        let bodyRequest = RoomPlaylistRequestDTO(roomID: roomID, playlist: playlist.map { $0.toModel()})
+        let playlistRequest = DefaultRequest<String>(method: .post, path: ["api", "rooms", "playlist"], header: [.json, .authorizationAccessToken], body: bodyRequest)
     
         Task {
             do {

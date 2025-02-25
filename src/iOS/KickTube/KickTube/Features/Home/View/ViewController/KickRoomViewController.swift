@@ -141,11 +141,29 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
             .disposed(by: disposeBag)
         
         reactor.state
-            .map { $0.playState }
-            .compactMap { $0 }
+            .compactMap { $0.playState }
+            .distinctUntilChanged { $0.time == $1.time }
             .observe(on: MainScheduler.instance)
             .subscribe(with: self) { owner, value in
-                owner.playerView.seek(toSeconds: value.time, allowSeekAhead: false)
+                switch value.progress {
+                case .playing:
+                    owner.playerView.seek(toSeconds: value.time, allowSeekAhead: true)
+                default:
+                    owner.playerView.seek(toSeconds: value.time, allowSeekAhead: false)
+                }
+            }
+            .disposed(by: disposeBag)
+        
+        reactor.state
+            .compactMap { $0.myRole }
+            .observe(on: MainScheduler.instance)
+            .subscribe(with: self) { owner, role in
+                switch role {
+                case .manager, .creator:
+                    owner.playerView.isUserInteractionEnabled = true
+                default:
+                    owner.playerView.isUserInteractionEnabled = false
+                }
             }
             .disposed(by: disposeBag)
     }
@@ -340,19 +358,24 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
 
 extension KickRoomViewController: YTPlayerViewDelegate {
     func playerView(_ playerView: YTPlayerView, didChangeTo state: YTPlayerState) {
-        switch state {
-        case .paused:
-            startTrackingTime()
-        case .playing:
-            stopTrackingTime()
-            
-            playerView.currentTime { time, error in
-                let state = KickRoomPlayerState(progress: .playing, time: time.magnitude)
+        if reactor.currentState.localUpdate {
+            switch state {
+            case .paused:
+                startTrackingTime()
+            case .playing:
+                stopTrackingTime()
                 
-                self.reactor.action.onNext(.playPlayer(state))
+                playerView.currentTime { time, error in
+                    let state = KickRoomPlayerStateViewModel(progress: .playing, time: time.magnitude)
+                    
+                    self.reactor.action.onNext(.localUpdatePlayer(state))
+                }
+            default:
+                break
             }
-        default:
-            break
+        }
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1) {
+            self.reactor.action.onNext(.setLocalUpdate(true))
         }
     }
     
@@ -365,9 +388,9 @@ extension KickRoomViewController: YTPlayerViewDelegate {
                 if let _ = error { return }
                 
                 if time.magnitudeSquared != self.previousTime {
-                    let state = KickRoomPlayerState(progress: .paused, time: time.magnitude)
+                    let state = KickRoomPlayerStateViewModel(progress: .paused, time: time.magnitude)
                     
-                    self.reactor.action.onNext(.stopPlayer(state))
+                    self.reactor.action.onNext(.localUpdatePlayer(state))
                     self.previousTime = time.magnitudeSquared
                 }
             }
