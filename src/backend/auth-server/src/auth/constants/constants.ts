@@ -17,10 +17,10 @@ export const TOKEN_TYPE = {
 } as const;
 
 export const TOKEN_EXPIRATION_TIME = {
-  ACCESS: 300, // 5분
-  REFRESH: 3600, // 1시간
-  // ACCESS: 3600, // 1시간
-  // REFRESH: 604800, // 7일
+  // ACCESS: 300, // 5분
+  // REFRESH: 3600, // 1시간
+  ACCESS: 3600, // 1시간
+  REFRESH: 604800, // 7일
 } as const;
 
 export const RAW_TOKEN_TYPE = {
