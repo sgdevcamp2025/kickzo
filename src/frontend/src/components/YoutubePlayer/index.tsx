@@ -7,10 +7,11 @@ import { UserRole } from '@/types/enums/UserRole';
 
 export const YouTubePlayer = () => {
   const { videoQueue } = useVideoStore();
-  const { roomId } = useCurrentRoomStore.getState();
+  const currentRoom = useCurrentRoomStore(state => state.currentRoom);
+  const myRole = currentRoom?.myRole;
+  const roomId = useCurrentRoomStore(state => state.roomId);
   const { client, subTopic } = useWebSocketStore();
   const pubTopic = useWebSocketStore.getState().pubTopic;
-  const myRole = useCurrentRoomStore.getState().currentRoom?.myRole;
   const isWatchOnly = myRole === UserRole.MEMBER;
 
   const playerRef = useRef<YT.Player | null>(null);
