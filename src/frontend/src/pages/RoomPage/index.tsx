@@ -41,7 +41,7 @@ export const RoomPage = () => {
         useMyRoomsStore.getState().subscribeRoom(roomId);
       }
     };
-  }, []);
+  }, [room]);
 
   // YouTube API를 이용하여 영상 정보(제목 & 유튜버) 가져오기
   const fetchVideoDetails = async (videoIds: string[]) => {
