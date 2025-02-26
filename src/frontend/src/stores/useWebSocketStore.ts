@@ -43,6 +43,7 @@ interface WebSocketStore {
       playlist: { order: number; url: string; title: string; youtuber: string }[];
     }) => void,
   ) => void;
+  unsubscribe: (destination: string) => void;
   unsubscribeAll: () => void;
   pubTopic: (destination: string, message: string) => void;
 }
@@ -200,6 +201,15 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
   ) => {
     const destination = `/topic/room/${roomId}/playlist-update`;
     get().subTopic(destination, callback);
+  },
+
+  unsubscribe: (destination: string) => {
+    const { client } = get();
+    if (!client) return;
+
+    const subscription = get().subscriptions.get(destination);
+    subscription?.unsubscribe();
+    get().subscriptions.delete(destination);
   },
 
   // 구독 해제
