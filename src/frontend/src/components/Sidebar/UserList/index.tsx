@@ -131,7 +131,7 @@ export const UserList = () => {
                 nickname={member.nickname}
                 imgUrl={member.profileImg}
                 userRole={member.role}
-                myRole={currentRoom?.myRole || 2}
+                myRole={currentRoom?.myRole ?? 2}
                 sidebarType={SidebarType.USERLIST}
                 onCancel={() => setActiveProfile(null)}
               />
