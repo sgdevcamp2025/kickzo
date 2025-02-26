@@ -28,7 +28,11 @@ Sentry.init({
 
   // Set `tracePropagationTargets` to control for which URLs trace propagation should be enabled
   // tracePropagationTargets: [/^\//, /^https:\/\/yourserver\.io\/api/],
-  tracePropagationTargets: ['localhost'],
+  tracePropagationTargets: [
+    'localhost',
+    /^http:\/\/kicktube\.site/,
+    /^http:\/\/13\.231\.39\.189:8000\/api/,
+  ],
 
   // Capture Replay for 100% of all sessions,
   // plus for 100% of sessions with an error

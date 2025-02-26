@@ -1,6 +1,11 @@
 import axios from 'axios';
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
+import { useFriendStore } from './useFriendStore';
+import { useNotificationStore } from './useNotificationStore';
+import { useUserStore } from './useUserStore';
+import { useMyRoomsStore } from './useMyRoomsStore';
+import { useWebSocketStore } from './useWebSocketStore';
 
 const instance = axios.create({
   baseURL: import.meta.env.VITE_API_URL,
@@ -31,6 +36,11 @@ export const useAuthStore = create(
       },
       clear: () => {
         set({ accessToken: null });
+        useFriendStore.getState().clear();
+        useNotificationStore.getState().clear();
+        useMyRoomsStore.getState().clearMyRooms();
+        useUserStore.getState().clearProfile();
+        useWebSocketStore.getState().disconnect();
       },
     }),
     {

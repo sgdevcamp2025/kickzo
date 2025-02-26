@@ -17,7 +17,7 @@ import { queryClient } from '@/lib/react-query';
 import { useUserStore } from './stores/useUserStore';
 
 const ProtectedRoute = ({ children }: { children: JSX.Element }) => {
-  const { user } = useUserStore();
+  const user = useUserStore(state => state.user);
 
   if (!user) {
     return <Navigate to="/login" replace />;

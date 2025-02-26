@@ -11,12 +11,13 @@ import { AlertDescription } from '@/components/common/AlertDescription';
 export const MyRoomPage = () => {
   const { data } = useMyRooms();
   const { user } = useUserStore();
-  const { myRooms, setMyRooms, clearMyRooms } = useMyRoomsStore();
+  const { myRooms, setMyRooms, clearMyRooms, resetNewChatCount } = useMyRoomsStore();
   const showSkeleton = useDelayedLoading(data);
 
   useEffect(() => {
     if (data) {
       setMyRooms(data);
+      resetNewChatCount();
     } else {
       clearMyRooms();
     }

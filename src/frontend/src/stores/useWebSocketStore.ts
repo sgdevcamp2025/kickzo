@@ -25,8 +25,6 @@ interface WebSocketStore {
   disconnect: () => void;
 
   subTopic: <T>(destination: string, callback: (message: T) => void) => void;
-  subscribeRoom: (roomId: number) => void;
-  subscribeRooms: (roomIds: number[]) => void;
   subscribeInvitations: <T>(userId: number, callback: (message: T) => void) => void;
   subscribeFriendConnection: <T>(userId: number, callback: (message: T) => void) => void;
   subscribeRoomUserInfo: (
@@ -45,6 +43,7 @@ interface WebSocketStore {
       playlist: { order: number; url: string; title: string; youtuber: string }[];
     }) => void,
   ) => void;
+  unsubscribe: (destination: string) => void;
   unsubscribeAll: () => void;
   pubTopic: (destination: string, message: string) => void;
 }
@@ -173,14 +172,6 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
     get().subTopic(destination, callback);
   },
 
-  // 방 채팅 구독
-  subscribeRoom: (roomId: number) => {
-    const destination = `/topic/room/${roomId}/chat`;
-    get().subTopic(destination, message => {
-      console.log('subscribeRoomChat', message);
-    });
-  },
-
   // 채팅방 내 신규 유저 정보 구독
   subscribeRoomUserInfo: (
     roomId: number,
@@ -212,12 +203,13 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
     get().subTopic(destination, callback);
   },
 
-  // 내가 속한 방 채팅 구독
-  subscribeRooms: (roomIds: number[]) => {
-    if (!roomIds) return;
-    roomIds.forEach(roomId => {
-      get().subscribeRoom(roomId);
-    });
+  unsubscribe: (destination: string) => {
+    const { client } = get();
+    if (!client) return;
+
+    const subscription = get().subscriptions.get(destination);
+    subscription?.unsubscribe();
+    get().subscriptions.delete(destination);
   },
 
   // 구독 해제

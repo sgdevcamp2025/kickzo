@@ -111,3 +111,19 @@ export const SkeletonBase = styled.div`
 export const Divider = styled.div`
   height: 1rem;
 `;
+
+export const NotificationCount = styled.div`
+  position: absolute;
+  top: 2px;
+  right: 2px;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background-color: var(--palette-status-negative);
+  color: var(--palette-static-white);
+  font-size: 0.75rem;
+  font-weight: 600;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+`;

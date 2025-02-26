@@ -158,12 +158,45 @@ export const roomApi = {
     }
   },
 
+  // 엘라스틱서치 검색
   searchFromElastic: async (keyword: string) => {
     try {
       const { data } = await instance.get<ElasticSearchDto>(`/search`, { params: { keyword } });
       return data;
     } catch (error) {
       logAxiosError(error, ErrorType.ROOM, '엘라스틱서치 검색 실패');
+      throw error;
+    }
+  },
+
+  // 방 초대 수락
+  acceptInvitation: async (roomId: number, me: number, senderId: number, roomCode: string) => {
+    try {
+      const { data } = await instance.post(`/rooms/invitations/accept`, {
+        senderId,
+        receiverId: me,
+        roomId,
+        roomCode,
+      });
+      return data;
+    } catch (error) {
+      logAxiosError(error, ErrorType.ROOM, '방 초대 수락 실패');
+      throw error;
+    }
+  },
+
+  // 방 초대 거절
+  rejectInvitation: async (roomId: number, me: number, senderId: number, roomCode: string) => {
+    try {
+      const { data } = await instance.post(`/rooms/invitations/reject`, {
+        senderId,
+        receiverId: me,
+        roomId,
+        roomCode,
+      });
+      return data;
+    } catch (error) {
+      logAxiosError(error, ErrorType.ROOM, '방 초대 거절 실패');
       throw error;
     }
   },

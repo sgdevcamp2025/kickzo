@@ -11,6 +11,8 @@ import { useCurrentRoom } from '@/hooks/queries/useCurrentRoom';
 import { useVideoStore } from '@/stores/useVideoStore';
 import { getVideoQueueFromPlaylist } from '@/utils/playlistUtils';
 import { useWebSocketStore } from '@/stores/useWebSocketStore';
+import { useMyRoomsStore } from '@/stores/useMyRoomsStore';
+
 export const RoomPage = () => {
   const [searchParams] = useSearchParams();
   const roomCode = searchParams.get('code');
@@ -18,7 +20,7 @@ export const RoomPage = () => {
   console.log('RoomPage:', room);
   const { setVideoQueue } = useVideoStore();
   const { subscribeRoomPlaylistUpdate } = useWebSocketStore();
-  const { roomId } = useCurrentRoomStore();
+  const roomId = useCurrentRoomStore(state => state.roomId);
 
   useEffect(() => {
     if (room) {
@@ -35,6 +37,9 @@ export const RoomPage = () => {
     }
     return () => {
       useCurrentRoomStore.getState().clearCurrentRoom();
+      if (roomId) {
+        useMyRoomsStore.getState().subscribeRoom(roomId);
+      }
     };
   }, [room]);
 
