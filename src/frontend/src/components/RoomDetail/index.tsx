@@ -16,7 +16,7 @@ import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
 import DefaultProfile from '@/assets/img/DefaultProfile.svg';
 
 export const RoomDetail = () => {
-  const { currentRoom } = useCurrentRoomStore();
+  const currentRoom = useCurrentRoomStore(state => state.currentRoom);
   const roomInfo = currentRoom?.roomDetails.roomInfo[0];
 
   const handleDescription = () => {
