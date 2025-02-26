@@ -87,7 +87,6 @@ services:
         paths:
           - /api/signal
         strip_path: false  # 경로 변환 방지
-      
 
   # History Service (보호된 서비스 예시)
   - name: history-service
@@ -153,12 +152,12 @@ services:
               uri_param_names: []
           - name: custom-jwt-header
 
-  # - name: chat-service
-  #   url: http://chat-service-upstream # upstream 이름
-  #   routes:
-  #     - name: chat-route
-  #       paths:
-  #         - /api/chat
+  - name: chat-service
+    url: http://chat-service-upstream # upstream 이름
+    routes:
+      - name: chat-route
+        paths:
+          - /api/chat
 
   # JSON Mock Server
   - name: mock-service
@@ -168,16 +167,16 @@ services:
         paths:
           - /mock
 
-# upstreams:
-#   - name: chat-service-upstream
-#     targets:
-#       - target: chat-1:8200
-#         weight: 50
-#       - target: chat-2:8201
-#         weight: 50
-#     healthchecks:
-#       active:
-#         http_path: /health
+upstreams:
+  - name: chat-service-upstream
+    targets:
+      - target: chat-1:8200
+        weight: 50
+      - target: chat-2:8201
+        weight: 50
+    healthchecks:
+      active:
+        http_path: /health
 
 consumers:
   - username: api-consumer
