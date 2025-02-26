@@ -26,6 +26,7 @@ export const Chat = () => {
 
     if (isInitialLoad) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+      setnewMessageCount(0);
       setIsInitialLoad(false);
     }
   }, [messages, isInitialLoad]);
@@ -58,6 +59,7 @@ export const Chat = () => {
       top: chatContainerRef.current.scrollHeight,
       behavior: 'smooth',
     });
+    setnewMessageCount(0);
   };
 
   // 메시지 추가
