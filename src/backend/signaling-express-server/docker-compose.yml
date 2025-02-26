@@ -1,0 +1,20 @@
+name: kickzo
+
+services:
+  signaling-express:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: signaling-express
+    ports:
+      - "${SIGNAL_PORT}:${SIGNAL_PORT}"
+    env_file:
+      - .env.docker
+    environment:
+      NODE_ENV: docker
+    networks:
+      - kickzo-network
+
+networks:
+  kickzo-network:
+    driver: bridge

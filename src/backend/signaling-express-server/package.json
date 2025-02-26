@@ -1,0 +1,20 @@
+{
+  "name": "my-express-server",
+  "version": "1.0.0",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.2",
+    "express-ws": "^5.0.2",
+    "ioredis": "^5.5.0",
+    "socket.io": "^4.6.1",
+    "sockjs": "^0.3.24",
+    "stompjs": "^2.3.3",
+    "ws": "^8.18.0"
+  }
+}
