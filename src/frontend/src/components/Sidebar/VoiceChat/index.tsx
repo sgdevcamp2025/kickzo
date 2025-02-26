@@ -4,7 +4,6 @@ import { UserListFooter } from '@/components/Sidebar/UserList/UserListFooter';
 
 import { SidebarType } from '@/types/enums/SidebarType';
 import { ProfileType } from '@/types/enums/ProfileType';
-import { UserRole } from '@/types/enums/UserRole';
 
 import { Container, UserList, ProfileWrapper } from './index.css';
 import { CurrentRoomUserDto } from '@/api/endpoints/room/room.interface';
@@ -12,8 +11,9 @@ import { RoomProfileModal } from '@/components/Modal/RoomProfileModal';
 import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
 export const VoiceChat = () => {
   const [activeProfile, setActiveProfile] = useState<number | null>(null);
-  const { currentRoom } = useCurrentRoomStore();
-  const roomId = currentRoom?.roomDetails.roomInfo[0]?.roomId;
+
+  const currentRoom = useCurrentRoomStore(state => state.currentRoom);
+  const roomId = useCurrentRoomStore(state => state.roomId);
   const handleProfileClick = (id: number) => {
     setActiveProfile(prevId => (prevId === id ? null : id));
   };
@@ -46,7 +46,7 @@ export const VoiceChat = () => {
                 imgUrl={member.profileImageUrl}
                 userId={member.userId}
                 userRole={member.role}
-                myRole={UserRole.CREATOR}
+                myRole={currentRoom?.myRole || 2}
                 sidebarType={SidebarType.VOICECHAT}
                 roomId={roomId}
                 onCancel={() => setActiveProfile(null)}

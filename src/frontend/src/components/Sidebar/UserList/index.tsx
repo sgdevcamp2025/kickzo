@@ -5,7 +5,6 @@ import { RedBlackTree } from '@/hooks/utils/RedBlackTree';
 
 import { SidebarType } from '@/types/enums/SidebarType';
 import { ProfileType } from '@/types/enums/ProfileType';
-import { UserRole } from '@/types/enums/UserRole';
 
 import { roomApi } from '@/api/endpoints/room/room.api';
 import { useWebSocketStore } from '@/stores/useWebSocketStore';
@@ -31,8 +30,8 @@ const compareUsers = (a: IUser, b: IUser): number => {
 export const UserList = () => {
   const treeRef = useRef<RedBlackTree<IUser> | null>(null);
   const [, setVersion] = useState(0);
-  const { currentRoom } = useCurrentRoomStore();
-  const roomId = currentRoom?.roomDetails.roomInfo[0]?.roomId;
+  const currentRoom = useCurrentRoomStore(state => state.currentRoom);
+  const roomId = useCurrentRoomStore(state => state.roomId);
   const { subscribeRoomUserInfo, subscribeRoomRoleChange } = useWebSocketStore.getState();
 
   useEffect(() => {
@@ -132,7 +131,7 @@ export const UserList = () => {
                 nickname={member.nickname}
                 imgUrl={member.profileImg}
                 userRole={member.role}
-                myRole={UserRole.CREATOR}
+                myRole={currentRoom?.myRole || 2}
                 sidebarType={SidebarType.USERLIST}
                 onCancel={() => setActiveProfile(null)}
               />
