@@ -1,4 +1,167 @@
-# kickzo
+![메인베너이미지]()
+
+# 같이 유튜브 볼래? KickTube에서!
+
+<a href="http://kicktube.site/">KickTube 바로가기(http://kicktube.site/)</a>
+
+**KickTube**는 영상 동기화 기반 커뮤니티입니다. 다른 사람들과 함께 같은 유튜브 영상을 보며 소통할 수 있도록 제작하였습니다.
+
+**"KickTube"로 친구와 함께 혹은 다함께 유튜브 영상을 보며 얘기하는 시간 가져볼까요?**
+
+## 📄 목차
+
+- [📌 프로젝트 개요](#-프로젝트-개요)
+- [🚀 주요 기능](#-주요-기능)
+- [⚙️ 아키텍처](#️-아키텍처)
+- [🤔 우리의 도전](#️-우리의-도전)
+- [🔧 기술 스택](#️-기술-스택)
+- [🕶️ 팀원 소개](#-팀원-소개)
+
+## 📌 프로젝트 개요
+
+**KickTube**는 방 안의 사용자들이 같은 영상을 보며, 채팅이나 음성채팅을 즐길 수 있는 커뮤니티입니다.
+
+✅ 다같이 같은 영상 시청 <br/>
+
+✅ 영상 플레이리스트 관리 <br/>
+
+✅ 실시간 채팅 & 음성 채팅 <br/>
+
+✅ 웹 & 모바일(iOS) 지원 <br/>
+
+![데모영상]()
+
+## 🚀 주요 기능
+
+### 1. 영상 동기화
+
+- **재생/일시정지 상태, 영상 시간 동기화**: 영상 정보를 웹소켓을 주고 받아 방 안의 모든 사용자에게 같은 영상, 같은 상태를 제공합니다
+
+![영상 동기화]()
+
+- **영상 플레이리스트 동기화**: 영상의 추가/삭제/순서 변경을 동기화하여 모두에게 같은 플레이리스트를 제공합니다.
+
+![플레이리스트 동기화]()
+
+### 2. 커뮤니티
+
+- **실시간 채팅**: 채팅을 통해 함께 대화를 나눌 수 있습니다.
+
+![채팅]()
+
+- **음성 채팅**: 방 내 사용자들과 자유롭게 음성으로 소통할 수 있습니다.
+
+![음성 채팅]()
+
+- **친구 관리**: 친구를 추가하고, 친구의 접속 여부를 확인할 수 있습니다
+
+![친구 관리]()
+
+### 3. 검색
+
+- **검색**: 원하는 유저/방을 검색할 수 있습니다
+
+![검색]()
+
+### 4. 웹/모바일(iOS) 지원
+
+- **PC와 모바일에서 모두 사용할 수 있도록 반응형 UI를 제공합니다.**
+
+![웹/모바일(iOS) 지원]()
+
+## ⚙️ 아키텍처
+
+### 1. 전체 아키텍처
+
+![전체 아키텍처]()
+
+### 2. 세부 아키텍처
+
+![세부 아키텍처1]()
+
+![세부 아키텍처2]()
+
+![세부 아키텍처3]()
+
+## 🤔 우리의 도전
+
+**김수경**: <a href="http://각자 발표할때 준비한 내용들 첨부 -> 인당 1개 링크 (wiki)">내가 도전한건 이거다</a>
+
+**김주원**: <a href="http://각자 발표할때 준비한 내용들 첨부 -> 인당 1개 링크 (wiki)">내가 도전한건 이거다</a>
+
+**신인호**: <a href="http://각자 발표할때 준비한 내용들 첨부 -> 인당 1개 링크 (wiki)">내가 도전한건 이거다</a>
+
+**우다현**: <a href="http://각자 발표할때 준비한 내용들 첨부 -> 인당 1개 링크 (wiki)">내가 도전한건 이거다</a>
+
+**유성욱**: <a href="http://각자 발표할때 준비한 내용들 첨부 -> 인당 1개 링크 (wiki)">내가 도전한건 이거다</a>
+
+## **🛠 기술 스택**
+
+| 분류            | 기술 스택                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| **공통**        | <img src="https://img.shields.io/badge/WebRTC-333333?style=for-the-badge&logo=WebRTC&logoColor=white"> <img src="https://img.shields.io/badge/Socket.io-010101?style=for-the-badge&logo=socketdotio&logoColor=white"> <img src="https://img.shields.io/badge/Kurento-0082FC?style=for-the-badge&logo=data:image/png;base64&logoColor=white"> <img src="https://img.shields.io/badge/Coturn-2D2D2D?style=for-the-badge&logoColor=white"> <img src="https://img.shields.io/badge/WebSocket(STOMP)-F44A41?style=for-the-badge&logo=websocket&logoColor=white"> <img src="https://img.shields.io/badge/Kong API Gateway-1A73E8?style=for-the-badge&logo=kong&logoColor=white">                                                                                                                                                                                                                                                                                                                                                                                                                                   |
+| **프론트엔드**  | <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=TypeScript&logoColor=white"> <img src="https://img.shields.io/badge/React-61DAFB?style=for-the-badge&logo=React&logoColor=white"> <img src="https://img.shields.io/badge/Vite-646CFF?style=for-the-badge&logo=Vite&logoColor=white"> <img src="https://img.shields.io/badge/Styled Components-DB7093?style=for-the-badge&logo=styled-components&logoColor=white"> <img src="https://img.shields.io/badge/Zustand-FE7D37?style=for-the-badge&logo=Zustand&logoColor=white"> <img src="https://img.shields.io/badge/Storybook-FF4785?style=for-the-badge&logo=Storybook&logoColor=white"> <img src="https://img.shields.io/badge/Axios-5A29E4?style=for-the-badge&logo=Axios&logoColor=white"> <img src="https://img.shields.io/badge/Sentry-F04A51?style=for-the-badge&logo=Sentry&logoColor=white"> <img src="https://img.shields.io/badge/TanStack Query-FF4154?style=for-the-badge&logo=react-query&logoColor=white"> <img src="https://img.shields.io/badge/pnpm-CB3837?style=for-the-badge&logo=pnpm&logoColor=white"> |
+| **백엔드**      | <img src="https://img.shields.io/badge/Java-007396?style=for-the-badge&logo=java&logoColor=white"> <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=TypeScript&logoColor=white"> <img src="https://img.shields.io/badge/Spring Boot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"> <img src="https://img.shields.io/badge/NestJS-E0234E?style=for-the-badge&logo=nestjs&logoColor=white"> <img src="https://img.shields.io/badge/MySQL-4479A1?style=for-the-badge&logo=mysql&logoColor=white"> <img src="https://img.shields.io/badge/MongoDB-47A248?style=for-the-badge&logo=mongodb&logoColor=white"> <img src="https://img.shields.io/badge/Apache Kafka-231F20?style=for-the-badge&logo=apachekafka&logoColor=white"><img src="https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis&logoColor=white"> <img src="https://img.shields.io/badge/Amazon S3-569A31?style=for-the-badge&logo=amazonaws&logoColor=white">                                                                                                                    |
+| **모바일(iOS)** | <img src="https://img.shields.io/badge/UIKit-2396F3?style=for-the-badge&logo=swift&logoColor=white"> <img src="https://img.shields.io/badge/RxSwift-B7178C?style=for-the-badge&logo=reactivex&logoColor=white"> <img src="https://img.shields.io/badge/ReactorKit-0052CC?style=for-the-badge&logo=react&logoColor=white"> <img src="https://img.shields.io/badge/Swift Concurrency-F05138?style=for-the-badge&logo=swift&logoColor=white"> <img src="https://img.shields.io/badge/Swift Macro-FF8700?style=for-the-badge&logo=swift&logoColor=white"> <img src="https://img.shields.io/badge/SwiftTesting-2C2D72?style=for-the-badge&logo=swift&logoColor=white"> <img src="https://img.shields.io/badge/SwiftData-4A4A4A?style=for-the-badge&logo=swift&logoColor=white">                                                                                                                                                                                                                                                                                                                                   |
+| **배포**        | <img src="https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker&logoColor=white"> <img src="https://img.shields.io/badge/AWS-232F3E?style=for-the-badge&logo=amazonaws&logoColor=white"> <img src="https://img.shields.io/badge/GitHub Actions-2088FF?style=for-the-badge&logo=githubactions&logoColor=white">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          |
+| **협업**        | <img src="https://img.shields.io/badge/Slack-4A154B?style=for-the-badge&logo=slack&logoColor=white"> <img src="https://img.shields.io/badge/Notion-000000?style=for-the-badge&logo=notion&logoColor=white"> <img src="https://img.shields.io/badge/Figma-F24E1E?style=for-the-badge&logo=figma&logoColor=white">                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                             |
+
+## 🕶️ 팀원 소개
+
+<markdown-accessiblity-table>
+ <table>
+  <tbody>
+   <tr>
+    <td align="center" width="150px">iOS</td>
+    <td align="center" width="150px">FE</td>
+    <td align="center" width="150px">FE + BE</td>
+    <td align="center" width="150px">BE</td>
+    <td align="center" width="150px">BE</td>
+   </tr>
+   <tr height="150px">
+    <td align="center" width="150px">
+     <a href="https://github.com/KSK9820">
+     <img src="https://avatars.githubusercontent.com/u/68066104?v=4" style="max-width: 100%;"></a>
+    </td>
+    <td align="center" width="150px">
+     <a href="https://github.com/juwon5272">
+     <img src="https://avatars.githubusercontent.com/u/98096178?v=4" style="max-width: 100%;"></a>
+    </td>
+    <td align="center" width="150px">
+     <a href="https://github.com/42inshin">
+     <img src="https://avatars.githubusercontent.com/u/72684256?v=4" style="max-width: 100%;"></a>
+    </td>
+    <td align="center" width="150px">
+     <a href="https://github.com/dahyun24">
+     <img src="https://avatars.githubusercontent.com/u/123882512?v=4" style="max-width: 100%;"></a>
+    </td>
+    <td align="center" width="150px">
+     <a href="https://github.com/yoo-chris">
+     <img src="https://avatars.githubusercontent.com/u/87296254?v=4" style="max-width: 100%;"></a>
+    </td>
+   </tr>
+   <tr height="50px">
+    <td align="center" width="150px">
+     <a href="https://github.com/KSK9820">김수경</a>
+    </td>
+    <td align="center" width="150px">
+     <a href="https://github.com/juwon5272">김주원</a>
+    </td>
+    <td align="center" width="150px">
+     <a href="https://github.com/42inshin">신인호</a>
+    </td>
+    <td align="center" width="150px">
+     <a href="https://github.com/dahyun24">우다현</a>
+    </td>
+    <td align="center" width="150px">
+     <a href="https://github.com/yoo-chris">유성욱</a>
+    </td>
+   </tr>
+  </tbody>
+ </table>
+</markdown-accessiblity-table>
+
+<!-- # kickzo
 
 ## 🚀 kickzo 소개
 
@@ -109,4 +272,4 @@
 3. **Example**
 
 - `[FE] FEAT: 회원가입 폼 추가 #42`
-- `[BE] BUG: 로그인 시 쿠키 누락 버그 수정 #138`
+- `[BE] BUG: 로그인 시 쿠키 누락 버그 수정 #138` -->
