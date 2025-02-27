@@ -14,13 +14,11 @@ export const MyRoomPage = () => {
   const myRooms = useMyRoomsStore(state => state.myRooms);
   const setMyRooms = useMyRoomsStore(state => state.setMyRooms);
   const clearMyRooms = useMyRoomsStore(state => state.clearMyRooms);
-  const resetNewChatCount = useMyRoomsStore(state => state.resetNewChatCount);
   const showSkeleton = useDelayedLoading(data);
 
   useEffect(() => {
     if (data) {
       setMyRooms(data);
-      resetNewChatCount();
     } else {
       clearMyRooms();
     }

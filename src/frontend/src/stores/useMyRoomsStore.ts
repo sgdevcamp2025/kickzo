@@ -20,11 +20,13 @@ interface MyRoomsStore {
   messageQueue: ReceiveMessageDto[]; // 현재 방의 메시지 큐
   myRooms: MyRoomDto[]; // 내 방 목록
   newChatCount: number; // 새로운 채팅 수
+  newChatRoomsCount: Record<number, number>; // 방별 새로운 채팅 수
   setMyRooms: (rooms: MyRoomDto[]) => void; // 내 방 목록 설정
   fetchMyRooms: () => Promise<MyRoomDto[]>; // 내 방 목록 조회
   subscribeRoom: (roomId: number) => void; // 방 채팅 구독
   subscribeRooms: (roomIds: number[]) => void;
   resetNewChatCount: () => void;
+  resetNewChatRoomCount: (roomId: number) => void;
   clearMyRooms: () => void;
   sendMessage: (message: string) => void;
   subscribeChat: () => void;
@@ -48,7 +50,7 @@ export const useMyRoomsStore = create(
       messageQueue: [],
       myRooms: [],
       newChatCount: 0,
-      newChatRooms: {},
+      newChatRoomsCount: {},
       // 내 방 목록 설정
       setMyRooms: (rooms: MyRoomDto[]) => set({ myRooms: rooms }),
 
@@ -74,6 +76,10 @@ export const useMyRoomsStore = create(
           console.log('subscribeRoomChat', message);
           set(state => ({
             newChatCount: state.newChatCount + 1,
+            newChatRoomsCount: {
+              ...state.newChatRoomsCount,
+              [roomId]: (state.newChatRoomsCount[roomId] || 0) + 1,
+            },
           }));
         });
       },
@@ -90,14 +96,36 @@ export const useMyRoomsStore = create(
         set({ newChatCount: 0 });
       },
 
+      resetNewChatRoomCount: (roomId: number) => {
+        set(state => {
+          // 먼저 roomId의 카운트를 0으로 설정
+          const updatedChatRoomsCount = {
+            ...state.newChatRoomsCount,
+            [roomId]: 0,
+          };
+
+          // 총 개수 계산
+          const newChatCount = Object.values(updatedChatRoomsCount).reduce(
+            (acc, count) => acc + count,
+            0,
+          );
+
+          return {
+            newChatRoomsCount: updatedChatRoomsCount,
+            newChatCount,
+          };
+        });
+      },
       // 내 방 목록 초기화
       clearMyRooms: () => set({ myRooms: [], newChatCount: 0 }),
 
       // 현재 방 설정
       setCurrentRoom: (room: CurrentRoomDto) => {
-        set({ currentRoom: room, roomId: room.roomDetails.roomInfo[0]?.roomId });
+        const roomId = room.roomDetails.roomInfo[0]?.roomId;
+        set({ currentRoom: room, roomId: roomId });
         get().fetchMessages();
         get().subscribeChat();
+        get().resetNewChatRoomCount(roomId);
       },
 
       // 현재 방 초기화

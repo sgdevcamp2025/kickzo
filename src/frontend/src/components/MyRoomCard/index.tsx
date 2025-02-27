@@ -19,12 +19,15 @@ import {
   UserCount,
 } from './index.css';
 import { getYoutubeThumbnail } from '@/utils/youtubeUtils';
+import { useMyRoomsStore } from '@/stores/useMyRoomsStore';
+import { NotificationCount } from '../TopNavBar/index.css';
 
 export const MyRoomCard = ({ room }: { room: MyRoomDto }) => {
   const [isHovered, setIsHovered] = useState(false);
   const [isClickDelete, setIsClickDelete] = useState(false);
   const [thumbnail, setThumbnail] = useState<string>(DefaultThumbnail);
   const navigate = useNavigate();
+  const newChatRoomsCount = useMyRoomsStore(state => state.newChatRoomsCount);
 
   useEffect(() => {
     if (!room.playlistUrl) return;
@@ -86,6 +89,9 @@ export const MyRoomCard = ({ room }: { room: MyRoomDto }) => {
             }}
             alt={room.title}
           />
+          {newChatRoomsCount[room.roomId] > 0 && (
+            <NotificationCount>{newChatRoomsCount[room.roomId]}</NotificationCount>
+          )}
         </Thumbnail>
         <Info>
           <div>
