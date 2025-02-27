@@ -12,11 +12,11 @@ import {
   MoreButton,
   Circle,
 } from './index.css';
-import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
+import { useMyRoomsStore } from '@/stores/useMyRoomsStore';
 import DefaultProfile from '@/assets/img/DefaultProfile.svg';
 
 export const RoomDetail = () => {
-  const currentRoom = useCurrentRoomStore(state => state.currentRoom);
+  const currentRoom = useMyRoomsStore(state => state.currentRoom);
   const roomInfo = currentRoom?.roomDetails.roomInfo[0];
 
   const handleDescription = () => {

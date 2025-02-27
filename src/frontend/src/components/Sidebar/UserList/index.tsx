@@ -8,7 +8,7 @@ import { ProfileType } from '@/types/enums/ProfileType';
 
 import { roomApi } from '@/api/endpoints/room/room.api';
 import { useWebSocketStore } from '@/stores/useWebSocketStore';
-import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
+import { useMyRoomsStore } from '@/stores/useMyRoomsStore';
 import DefaultProfile from '@/assets/img/DefaultProfile.svg';
 import { Container, UserListContainer, ProfileWrapper } from './index.css';
 import { RoomProfileModal } from '@/components/Modal/RoomProfileModal';
@@ -30,8 +30,8 @@ const compareUsers = (a: IUser, b: IUser): number => {
 export const UserList = () => {
   const treeRef = useRef<RedBlackTree<IUser> | null>(null);
   const [, setVersion] = useState(0);
-  const currentRoom = useCurrentRoomStore(state => state.currentRoom);
-  const roomId = useCurrentRoomStore(state => state.roomId);
+  const currentRoom = useMyRoomsStore(state => state.currentRoom);
+  const roomId = useMyRoomsStore(state => state.roomId);
   const { subscribeRoomUserInfo, subscribeRoomRoleChange } = useWebSocketStore.getState();
 
   useEffect(() => {

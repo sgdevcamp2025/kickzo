@@ -11,7 +11,10 @@ import { AlertDescription } from '@/components/common/AlertDescription';
 export const MyRoomPage = () => {
   const { data } = useMyRooms();
   const { user } = useUserStore();
-  const { myRooms, setMyRooms, clearMyRooms, resetNewChatCount } = useMyRoomsStore();
+  const myRooms = useMyRoomsStore(state => state.myRooms);
+  const setMyRooms = useMyRoomsStore(state => state.setMyRooms);
+  const clearMyRooms = useMyRoomsStore(state => state.clearMyRooms);
+  const resetNewChatCount = useMyRoomsStore(state => state.resetNewChatCount);
   const showSkeleton = useDelayedLoading(data);
 
   useEffect(() => {

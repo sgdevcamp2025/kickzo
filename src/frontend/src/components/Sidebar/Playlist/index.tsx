@@ -21,7 +21,7 @@ import { PlaylistItem } from './PlaylistItem';
 import DefaultThumbnail from '@/assets/img/DefaultThumbnail.svg';
 import { useWebSocketStore } from '@/stores/useWebSocketStore';
 import { useUserStore } from '@/stores/useUserStore';
-import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
+import { useMyRoomsStore } from '@/stores/useMyRoomsStore';
 import { UserRole } from '@/types/enums/UserRole';
 
 const API_KEY = import.meta.env.VITE_YOUTUBE_API_KEY as string;
@@ -56,8 +56,8 @@ export const Playlist = () => {
     setCurrentIndex,
   } = useVideoStore();
 
-  const { currentRoom } = useCurrentRoomStore();
-  const roomId = currentRoom?.roomDetails?.roomInfo?.[0]?.roomId;
+  const currentRoom = useMyRoomsStore(state => state.currentRoom);
+  const roomId = useMyRoomsStore(state => state.roomId);
   const myRole = currentRoom?.myRole;
   const isWatchOnly = myRole === UserRole.MEMBER;
 

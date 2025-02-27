@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from 'react';
 import styled from 'styled-components';
 import { useVideoStore } from '@/stores/useVideoStore';
-import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
+import { useMyRoomsStore } from '@/stores/useMyRoomsStore';
 import { useWebSocketStore } from '@/stores/useWebSocketStore';
 import { UserRole } from '@/types/enums/UserRole';
 
 export const YouTubePlayer = () => {
   const { videoQueue } = useVideoStore();
-  const currentRoom = useCurrentRoomStore(state => state.currentRoom);
+  const currentRoom = useMyRoomsStore(state => state.currentRoom);
   const myRole = currentRoom?.myRole;
-  const roomId = useCurrentRoomStore(state => state.roomId);
+  const roomId = useMyRoomsStore(state => state.roomId);
   const { client, subTopic } = useWebSocketStore();
   const pubTopic = useWebSocketStore.getState().pubTopic;
   const isWatchOnly = myRole === UserRole.MEMBER;
@@ -53,7 +53,7 @@ export const YouTubePlayer = () => {
           width: '100%',
           videoId: id,
           playerVars: {
-            autoplay: 1,
+            autoplay: 0,
             controls: isWatchOnly ? 0 : 1,
             disablekb: 1,
             start: startTime,
@@ -75,7 +75,7 @@ export const YouTubePlayer = () => {
   // 유튜브 영상의 재생, 멈춤, 끝남 상태에 따라 동작
   const broadcastPlayerState = (state: 'playing' | 'paused', time: number) => {
     if (myRole === 2) return;
-    const roomId = useCurrentRoomStore.getState().roomId;
+    const roomId = useMyRoomsStore.getState().roomId;
 
     if (!client || !roomId || !pubTopic) {
       console.warn('⚠ WebSocket 준비 안됨');

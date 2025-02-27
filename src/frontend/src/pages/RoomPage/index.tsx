@@ -4,27 +4,28 @@ import { YouTubePlayer } from '@/components/YoutubePlayer';
 import { RoomDetail } from '@/components/RoomDetail';
 
 import { Container, Wrapper } from './index.css';
-import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
+import { useMyRoomsStore } from '@/stores/useMyRoomsStore';
 import { useEffect } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useCurrentRoom } from '@/hooks/queries/useCurrentRoom';
 import { useVideoStore } from '@/stores/useVideoStore';
 import { getVideoQueueFromPlaylist } from '@/utils/playlistUtils';
 import { useWebSocketStore } from '@/stores/useWebSocketStore';
-import { useMyRoomsStore } from '@/stores/useMyRoomsStore';
 
 export const RoomPage = () => {
   const [searchParams] = useSearchParams();
   const roomCode = searchParams.get('code');
   const { data: room } = useCurrentRoom(roomCode);
   console.log('RoomPage:', room);
-  const { setVideoQueue } = useVideoStore();
-  const { subscribeRoomPlaylistUpdate } = useWebSocketStore();
-  const roomId = useCurrentRoomStore(state => state.roomId);
+  const setVideoQueue = useVideoStore(state => state.setVideoQueue);
+  const subscribeRoomPlaylistUpdate = useWebSocketStore(state => state.subscribeRoomPlaylistUpdate);
+  const setCurrentRoom = useMyRoomsStore(state => state.setCurrentRoom);
+  const clearCurrentRoom = useMyRoomsStore(state => state.clearCurrentRoom);
+  const roomId = useMyRoomsStore(state => state.roomId);
 
   useEffect(() => {
     if (room) {
-      useCurrentRoomStore.getState().setCurrentRoom(room);
+      setCurrentRoom(room);
       if (room.roomDetails?.playlist && Array.isArray(room.roomDetails.playlist)) {
         getVideoQueueFromPlaylist(room.roomDetails.playlist)
           .then(videoQueue => {
@@ -36,12 +37,9 @@ export const RoomPage = () => {
       }
     }
     return () => {
-      useCurrentRoomStore.getState().clearCurrentRoom();
-      if (roomId) {
-        useMyRoomsStore.getState().subscribeRoom(roomId);
-      }
+      clearCurrentRoom();
     };
-  }, [room]);
+  }, [room, setCurrentRoom, clearCurrentRoom]);
 
   // YouTube API를 이용하여 영상 정보(제목 & 유튜버) 가져오기
   const fetchVideoDetails = async (videoIds: string[]) => {

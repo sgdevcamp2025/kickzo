@@ -14,6 +14,7 @@ import { useFriendStore } from './useFriendStore';
 import { useNotificationStore } from './useNotificationStore';
 import { useToastStore } from './useToastStore';
 import { NotificationDto } from '@/api/endpoints/friend/friend.interface';
+import { useMyRoomsStore } from './useMyRoomsStore';
 
 interface WebSocketStore {
   socket: WebSocket | null;
@@ -119,6 +120,7 @@ export const useWebSocketStore = create<WebSocketStore>((set, get) => ({
           get().subscribeFriendConnection<FriendConnectionMessage>(userId, message => {
             useFriendStore.getState().updateFriendStatus(message.userId, message.status);
           });
+          useMyRoomsStore.getState().subscribeChat();
         }
       },
       error => {

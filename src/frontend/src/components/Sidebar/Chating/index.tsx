@@ -1,13 +1,13 @@
 import { useRef, useEffect, useCallback, useState } from 'react';
 import { ChatInput } from '@/components/Sidebar/Chating/ChatInput';
 import { ChatContainer, ChatScrollArea, ScrollButton } from './index.css';
-import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
+import { useMyRoomsStore } from '@/stores/useMyRoomsStore';
 import { ChatLayout } from './ChatMessages/ChatLayout';
 import ArrowDown from '@/assets/img/ArrowDown.svg';
 export const Chat = () => {
-  const messages = useCurrentRoomStore(state => state.messages);
-  const sendMessage = useCurrentRoomStore(state => state.sendMessage);
-  const fetchMessages = useCurrentRoomStore(state => state.fetchMessages);
+  const messages = useMyRoomsStore(state => state.messages);
+  const sendMessage = useMyRoomsStore(state => state.sendMessage);
+  const fetchMessages = useMyRoomsStore(state => state.fetchMessages);
 
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -98,7 +98,7 @@ export const Chat = () => {
     if (currentScrollTop == 0 && hasMoreMessages) {
       prevScrollHeightRef.current = scrollHeight;
       setIsFetching(true);
-      const count = await fetchMessages(useCurrentRoomStore.getState().messages[0]?.timestamp);
+      const count = await fetchMessages(useMyRoomsStore.getState().messages[0]?.timestamp);
       if (count == 0) setHasMoreMessages(false);
     }
   };

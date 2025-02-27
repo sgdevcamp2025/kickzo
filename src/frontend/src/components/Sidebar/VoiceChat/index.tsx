@@ -7,7 +7,7 @@ import HeadphoneOn from '@/assets/img/HeadphoneOn.svg';
 import MicrophoneOffRed from '@/assets/img/MicrophoneOffRed.svg';
 import HeadphoneOffRed from '@/assets/img/HeadphoneOffRed.svg';
 
-import { useCurrentRoomStore } from '@/stores/useCurrentRoomStore';
+import { useMyRoomsStore } from '@/stores/useMyRoomsStore';
 import { useUserStore } from '@/stores/useUserStore';
 
 import { SidebarType } from '@/types/enums/SidebarType';
@@ -30,10 +30,10 @@ import {
 } from './index.css';
 
 export const VoiceChat = () => {
-  const roomId = useCurrentRoomStore(state => state.roomId);
+  const roomId = useMyRoomsStore(state => state.roomId);
   const userId = useUserStore(state => state.user?.userId);
   const userNickname = useUserStore(state => state.user?.nickname);
-  const userList = useCurrentRoomStore(state => state.currentRoom?.roomDetails.userList || []);
+  const userList = useMyRoomsStore(state => state.currentRoom?.roomDetails.userList || []);
 
   const [socket, setSocket] = useState<Socket | null>(null);
   const [joined, setJoined] = useState(false);
@@ -306,7 +306,8 @@ export const VoiceChat = () => {
   };
 
   const [activeProfile, setActiveProfile] = useState<number | null>(null);
-  const currentRoom = useCurrentRoomStore(state => state.currentRoom);
+
+  const currentRoom = useMyRoomsStore(state => state.currentRoom);
   const handleProfileClick = (id: number) => {
     setActiveProfile(prevId => (prevId === id ? null : id));
   };
