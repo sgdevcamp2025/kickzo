@@ -80,6 +80,14 @@ services:
               uri_param_names: []
           - name: custom-jwt-header
 
+  - name: signaling-express-service
+    url: http://signaling-express:8105 # SIGNAL_PORT=8105
+    routes:
+      - name: signal-public-route
+        paths:
+          - /api/signal
+        strip_path: false  # 경로 변환 방지
+
   # History Service (보호된 서비스 예시)
   - name: history-service
     url: http://history:8300 # HISTORY_PORT=8300
