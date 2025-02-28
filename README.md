@@ -71,17 +71,39 @@
 
 ## ⚙️ 아키텍처
 
+---
+
 ### 1. 전체 아키텍처
 
-![전체 아키텍처]()
+![최종아키텍처 drawio](https://github.com/user-attachments/assets/7689ba92-0cf8-4e75-8809-c06444b06638)
+
+---
 
 ### 2. 세부 아키텍처
 
-![세부 아키텍처1]()
+#### 🔹 메인 서버
+<img src="https://github.com/user-attachments/assets/2bae3470-27e6-44ed-b635-72c54467f229" alt="메인 서버" width="700" height="auto">
 
-![세부 아키텍처2]()
+---
 
-![세부 아키텍처3]()
+#### 🔹 playTime 동기화
+<img src="https://github.com/user-attachments/assets/1f6cb071-8c70-4993-b471-a07604ecd1a2" alt="playTime 동기화" width="600" height="auto">
+
+---
+
+#### 🔹 채팅/히스토리
+<img src="https://github.com/user-attachments/assets/1bae147d-be97-4876-8f03-f122cdc0b8a2" alt="채팅/히스토리" width="600" height="auto">
+
+---
+
+#### 🔹 상태관리 서버
+<img src="https://github.com/user-attachments/assets/4f29680d-1296-4fe1-b36a-fa5d792d3c7f" alt="상태관리 서버" width="700" height="auto">
+
+---
+
+#### 🔹 시그널링 서버
+<img src="https://github.com/user-attachments/assets/00dfebb3-52a2-4ad6-b472-c65e22cda0da" alt="시그널링 서버" width="700" height="auto">
+
 
 ## 🤔 우리의 도전
 
