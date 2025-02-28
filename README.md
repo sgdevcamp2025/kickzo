@@ -1,4 +1,4 @@
-![메인베너이미지]()
+<img src="https://github.com/user-attachments/assets/bc1b900b-2fee-44b3-b71c-087b2ce140c3" alt="로고" width="300" height="auto">
 
 # 같이 유튜브 볼래? KickTube에서!
 
@@ -7,6 +7,11 @@
 **KickTube**는 영상 동기화 기반 커뮤니티입니다. 다른 사람들과 함께 같은 유튜브 영상을 보며 소통할 수 있도록 제작하였습니다.
 
 **"KickTube"로 친구와 함께 혹은 다함께 유튜브 영상을 보며 얘기하는 시간 가져볼까요?**
+<br><br>
+<div align="center">
+    <img src="https://github.com/user-attachments/assets/dbd97b0c-1654-4d79-b275-5369ae3554bd" alt="메인 페이지" width="500" height="auto">
+</div>
+
 
 ## 📄 목차
 
