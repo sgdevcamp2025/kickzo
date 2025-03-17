@@ -79,8 +79,7 @@
 ---
 
 ### 1. 전체 아키텍처
-
-![최종아키텍처 drawio](https://github.com/user-attachments/assets/7689ba92-0cf8-4e75-8809-c06444b06638)
+![kickzo-최종전체1111 drawio](https://github.com/user-attachments/assets/d436ba19-f2d0-46b7-a4d2-c1cc34bb9c0c)
 
 ---
 
