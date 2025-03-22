@@ -3,6 +3,7 @@ package com.kickzo.main.repository;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -33,4 +34,8 @@ public interface RoomUserRepository extends JpaRepository<RoomUser, RoomUserId> 
 
 	@Query(value = "SELECT EXISTS (SELECT 1 FROM room_user ru WHERE ru.room_id = :roomId AND ru.user_id = :userId)", nativeQuery = true)
 	Integer existsByUserIdAndRoomId(@Param("roomId") Long roomId, @Param("userId") Long userId);
+
+	@Modifying
+	@Query(value = "DELETE FROM room_user ru WHERE ru.room_id = :roomId", nativeQuery = true)
+	void deleteByRoomId(@Param("roomId") Long roomId);
 }

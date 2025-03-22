@@ -74,6 +74,28 @@ public class RoomService {
 		kafkaProducerService.sendRoomUpdateMessage(event);
 	}
 
+	// 방을 만든 사람이 나간다면,,?
+	public void leaveRoom(Long roomId, Long userId) {
+		Room room = roomRepository.findById(roomId)
+			.orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
+		room.decrementUserCount();
+		roomRepository.save(room);
+		RoomUserId id = new RoomUserId(roomId, userId);
+		roomUserRepository.deleteById(id);
+		userOutRedisRepository.removeUserFromRoom(roomId, userId);
+	}
+
+	public void deleteRoom(Long roomId, Long userId) {
+		// 삭제 권한 확인
+		int role = roomUserRepository.findRoleByUserIdAndRoomId(roomId, userId);
+		if (role != 0){
+			throw new CustomException(CustomErrorCode.INVALID_ACCESS_ROLE);
+		}
+		roomRepository.deleteById(roomId);
+		roomUserRepository.deleteByRoomId(roomId);
+		userOutRedisRepository.removeRoom(roomId);
+	}
+
 	// 새로 들어온 유저 db에 저장 및 Room에 join한 유저를 Redis에 저장하여 실시간 방 사용자 트래킹
 	private void userEnterRoom(Long roomId, Long userId) {
 		assignUserRole(roomId, userId);
