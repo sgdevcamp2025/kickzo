@@ -20,6 +20,7 @@ import com.kickzo.main.dto.request.RoomUpdateRequestDto;
 import com.kickzo.main.dto.response.RoomEntryResponseDto;
 import com.kickzo.main.dto.response.UserInfoDto;
 import com.kickzo.main.service.PlaylistService;
+import com.kickzo.main.service.RoomQueryService;
 import com.kickzo.main.service.RoomService;
 import com.kickzo.main.service.RoomUserService;
 
@@ -34,6 +35,7 @@ import lombok.extern.slf4j.Slf4j;
 public class RoomController implements RoomApi {
 
 	private final RoomService roomService;
+	private final RoomQueryService roomQueryService;
 	private final PlaylistService playlistService;
 	private final RoomUserService roomUserService;
 
@@ -44,7 +46,8 @@ public class RoomController implements RoomApi {
 		@RequestBody RoomJoinRequestDto roomJoinRequestDto) {
 		String roomCode = roomJoinRequestDto.getRoomCode();
 		log.info("Join Room : UserId = {}, RoomCode = {}", userId, roomCode);
-		RoomEntryResponseDto response = roomService.getRoomJoinResponse(roomCode, userId);
+		roomService.joinRoom(roomCode, userId);
+		RoomEntryResponseDto response = roomQueryService.getRoomJoinResponse(roomCode, userId);
 		return ResponseEntity.ok(response);
 	}
 
@@ -86,6 +89,6 @@ public class RoomController implements RoomApi {
 	@GetMapping("/participants")
 	public ResponseEntity<List<UserInfoDto>> getRoomParticipants(
 		@RequestParam Long roomId) {
-		return ResponseEntity.ok(roomService.getRoomParticipants(roomId));
+		return ResponseEntity.ok(roomQueryService.getRoomParticipants(roomId));
 	}
 }

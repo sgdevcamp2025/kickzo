@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.kickzo.main.dto.request.RoomInviteRequestDto;
 import com.kickzo.main.service.InvitationService;
-import com.kickzo.main.service.RoomService;
+import com.kickzo.main.service.RoomQueryService;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -19,7 +19,7 @@ import lombok.extern.slf4j.Slf4j;
 @RequestMapping("/api/rooms/invitations")
 @RequiredArgsConstructor
 public class InvitationController {
-	private final RoomService roomService;
+	private final RoomQueryService roomQueryService;
 	private final InvitationService invitationService;
 
 	@PostMapping()
@@ -35,7 +35,7 @@ public class InvitationController {
 		@RequestHeader(value = "x-user-id") Long receiverId,
 		@RequestBody RoomInviteRequestDto inviteRequestDto) {
 		invitationService.acceptInvitation(receiverId, inviteRequestDto);
-		roomService.getRoomJoinResponse(inviteRequestDto.getRoomCode(), receiverId);
+		roomQueryService.getRoomJoinResponse(inviteRequestDto.getRoomCode(), receiverId);
 		return ResponseEntity.ok("Invitation accepted");
 	}
 
