@@ -68,10 +68,3 @@ CREATE TABLE IF NOT EXISTS playlist (
     PRIMARY KEY (room_id),
     FOREIGN KEY (room_id) REFERENCES room(id) ON DELETE CASCADE
 );
-
-
--- user 테이블 예시
-INSERT INTO user (email, nickname, password) VALUES
-('user1@example.com', 'User1', 'password1'),
-('user2@example.com', 'User2', 'password2'),
-('user3@example.com', 'User3', 'password3');
