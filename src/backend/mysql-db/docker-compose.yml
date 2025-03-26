@@ -13,7 +13,9 @@ services:
     ports:
       - "${MYSQL_HOST_PORT}:${MYSQL_CONTAINER_PORT}"
     volumes:
-      - mysql:/var/lib/mysql
+      - ./master/my.cnf:/etc/mysql/conf.d/my.cnf
+      - ./master/repl.sql:/docker-entrypoint-initdb.d/0-repl.sql
+      - ./master/init.sql:/docker-entrypoint-initdb.d/1-init.sql
     networks:
       - kickzo-network
     healthcheck:
@@ -22,6 +24,23 @@ services:
       timeout: 5s
       retries: 10
       start_period: 5s
+  mysql-slave:
+    build:
+      context: .
+    container_name: mysql-slave
+    ports:
+      - "3307:${MYSQL_CONTAINER_PORT}"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    depends_on:
+      - mysql
+    volumes:
+      - ./slave/my.cnf:/etc/mysql/conf.d/my.cnf
+    networks:
+      - kickzo-network
 
 volumes:
   mysql:
