@@ -90,27 +90,27 @@
 ### 2. 세부 아키텍처
 
 #### 🔹 메인 서버
-<img src="https://github.com/user-attachments/assets/2bae3470-27e6-44ed-b635-72c54467f229" alt="메인 서버" width="700" height="auto">
+<img src="https://github.com/user-attachments/assets/38da37e2-a62e-48b2-b88f-96236a6d976d" alt="메인 서버" width="800" height="auto">
 
 ---
 
 #### 🔹 playTime 동기화
-<img src="https://github.com/user-attachments/assets/1f6cb071-8c70-4993-b471-a07604ecd1a2" alt="playTime 동기화" width="600" height="auto">
+<img src="https://github.com/user-attachments/assets/adf290dd-1d22-45f3-bae5-e4e8d610628c" alt="playTime 동기화" width="600" height="auto">
 
 ---
 
 #### 🔹 채팅/히스토리
-<img src="https://github.com/user-attachments/assets/1bae147d-be97-4876-8f03-f122cdc0b8a2" alt="채팅/히스토리" width="600" height="auto">
+<img src="https://github.com/user-attachments/assets/782135a2-9b33-466d-ad5e-2da426f68cad" alt="채팅/히스토리" width="600" height="auto">
 
 ---
 
 #### 🔹 상태관리 서버
-<img src="https://github.com/user-attachments/assets/4f29680d-1296-4fe1-b36a-fa5d792d3c7f" alt="상태관리 서버" width="700" height="auto">
+<img src="https://github.com/user-attachments/assets/effb55fa-b360-4576-b4cf-aeaeb41163f4" alt="상태관리 서버" width="700" height="auto">
 
 ---
 
 #### 🔹 시그널링 서버
-<img src="https://github.com/user-attachments/assets/00dfebb3-52a2-4ad6-b472-c65e22cda0da" alt="시그널링 서버" width="700" height="auto">
+<img src="https://github.com/user-attachments/assets/1a6e233b-6651-4c7e-8550-006dd98ae164" alt="시그널링 서버" width="700" height="auto">
 
 
 ## 🤔 우리의 도전
