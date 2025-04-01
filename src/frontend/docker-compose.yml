@@ -1,0 +1,28 @@
+name: kickzo-frontend
+
+services:
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: kickzo-frontend
+    ports:
+      - '5173:5173'
+    volumes:
+      - .:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+      - VITE_IS_PROD=${VITE_IS_PROD:-false}
+      - VITE_API_URL=${VITE_API_URL:-http://localhost:8000/api}
+      - VITE_WEBSOCKET_URL=${VITE_WEBSOCKET_URL:-http://localhost:8000/api/chat/ws}
+      - VITE_YOUTUBE_API_KEY=${VITE_YOUTUBE_API_KEY}
+      - VITE_SENTRY_DSN=${VITE_SENTRY_DSN}
+      - SENTRY_AUTH_TOKEN=${SENTRY_AUTH_TOKEN}
+    networks:
+      - kickzo-frontend-network
+    restart: unless-stopped
+
+networks:
+  kickzo-frontend-network:
+    driver: bridge
