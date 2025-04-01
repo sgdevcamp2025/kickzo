@@ -8,7 +8,7 @@ PROFILES = --profile mock \
 SERVICE ?= chat-service # 기본 컨테이너 이름
 
 # 기본 대상
-.PHONY: all up down re mock logs build ps clean fclean help
+.PHONY: all up down re mock logs build ps clean fclean help fe fe-down
 
 all: ## 전체 컨테이너 실행
 	docker compose -f $(DOCKER_COMPOSE_FILE) $(PROFILES) up -d
@@ -48,6 +48,12 @@ fclean: ## 캐싱된 이미지, 볼륨, 네트워크 모두 제거
 	docker volume prune -f
 	docker network prune -f
 
+fe: ## 프론트엔드 컨테이너 실행
+	docker compose -f ./frontend/docker-compose.yml up -d
+
+fe-down: ## 프론트엔드 컨테이너 중지
+	docker compose -f ./frontend/docker-compose.yml down
+
 help: ## 사용 가능한 명령어 표시
 	@echo "사용 가능한 명령어:"
 	@echo "  make all       - 전체 컨테이너 실행"
@@ -61,4 +67,5 @@ help: ## 사용 가능한 명령어 표시
 	@echo "  make ps        - 실행 중인 컨테이너 목록 확인"
 	@echo "  make clean     - 모든 컨테이너, 네트워크 및 볼륨 제거"
 	@echo "  make fclean    - 캐싱된 이미지, 볼륨, 네트워크 모두 제거"
-	@echo "  make help      - 사용 가능한 명령어 표시"
+	@echo "  make fe        - 프론트엔드 컨테이너 실행"
+	@echo "  make fe-down   - 프론트엔드 컨테이너 중지"
