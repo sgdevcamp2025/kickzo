@@ -10,10 +10,10 @@ services:
       - kickzo-network
     healthcheck:
       test: echo srvr | nc localhost 2181 || exit 1
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 10s
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
 
   kafka:
     image: wurstmeister/kafka:latest
@@ -38,10 +38,10 @@ services:
           "CMD-SHELL",
           "/opt/kafka/bin/kafka-topics.sh --bootstrap-server kafka:${KAFKA_INTERNAL_PORT} --list",
         ]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-      start_period: 15s
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
     depends_on:
       zookeeper:
         condition: service_healthy

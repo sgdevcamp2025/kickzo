@@ -21,9 +21,9 @@ services:
           "CMD-SHELL",
           "curl -s -I http://localhost:5601/app/home | grep -q '200 OK'",
         ]
-      interval: 20s
-      timeout: 10s
-      retries: 15
+      interval: 5s
+      timeout: 3s
+      retries: 20
       start_period: 30s
 
 volumes:

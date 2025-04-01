@@ -10,6 +10,15 @@ services:
       - SERVER_PORT=${STATE_PORT} # server.port 설정
     ports:
       - "${STATE_PORT}:${STATE_PORT}"
+    depends_on:
+      elasticsearch:
+        condition: service_healthy
+      kibana:
+        condition: service_healthy
+      mysql:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - kickzo-network
 

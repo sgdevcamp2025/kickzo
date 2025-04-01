@@ -36,9 +36,10 @@ services:
           "CMD-SHELL",
           'curl -s http://localhost:9200/_cluster/health | grep -vq ''"status":"red"''',
         ]
-      interval: 20s
-      timeout: 10s
-      retries: 5
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
 
 volumes:
   es-data:
