@@ -58,6 +58,6 @@
 | 담당자 | 주요 담당 서버 및 기능 |
 |----------|------------------------|
 | **<a href="https://github.com/42inshin">신인호</a>** | 인증 서버, 유저 서버 |
-| **<a href="https://github.com/dahyun24">우다현</a>** | 메인 서버, 소켓 서버, 검색 및 로그 수집 (ELK), WebRTC 시그널링 서버 |
+| **<a href="https://github.com/dahyun24">우다현</a>** | [메인 서버](https://github.com/sgdevcamp2025/kickzo/tree/dev/src/backend/main-server/main), [소켓 서버](https://github.com/sgdevcamp2025/kickzo/tree/dev/src/backend/chat-server), 검색 및 로그 수집 (ELK), [시그널링 서버](https://github.com/sgdevcamp2025/kickzo/tree/dev/src/backend/signaling-server) |
 | **<a href="https://github.com/yoo-chris">유성욱</a>** | 채팅 서버, 채팅 히스토리 서버, 상태 관리 서버, 친구 서버, 모니터링 (Prometheus, Grafana) |
 
