@@ -17,7 +17,7 @@ jobs:
       DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
       DOCKERHUB_TOKEN: ${{ secrets.DOCKERHUB_TOKEN }}
       SERVER_NAME: main
-      DOCKERFILE_DIR: ./backend/main-server/main
+      DOCKERFILE_DIR: src/backend/main-server/main
 
     steps:
       - name: Checkout repo
