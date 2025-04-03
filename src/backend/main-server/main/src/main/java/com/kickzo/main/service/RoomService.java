@@ -1,6 +1,7 @@
 package com.kickzo.main.service;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -8,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.kickzo.main.dto.response.UserInfoDto;
 import com.kickzo.main.entity.RoomUser;
 import com.kickzo.main.entity.RoomUserId;
+import com.kickzo.main.enums.RoomRole;
 import com.kickzo.main.repository.RoomUserRepository;
 import com.kickzo.main.repository.UserEnterRedisRepository;
 import com.kickzo.main.repository.UserOutRedisRepository;
@@ -33,7 +35,6 @@ public class RoomService {
 	private final RoomRepository roomRepository;
 	private final RoomUserRepository roomUserRepository;
 	private final UserEnterRedisRepository userEnterRedisRepository;
-	private static final int ROLE_MEMBER = 2;
 	private final UserOutRedisRepository userOutRedisRepository;
 
 	public void joinRoom(String roomCode, Long userId) {
@@ -87,8 +88,8 @@ public class RoomService {
 
 	public void deleteRoom(Long roomId, Long userId) {
 		// 삭제 권한 확인
-		int role = roomUserRepository.findRoleByUserIdAndRoomId(roomId, userId);
-		if (role != 0){
+		Integer role = roomUserRepository.findRoleByUserIdAndRoomId(roomId, userId);
+		if (role == null || !Objects.equals(role, RoomRole.CREATOR.getValue())){
 			throw new CustomException(CustomErrorCode.INVALID_ACCESS_ROLE);
 		}
 		roomRepository.deleteById(roomId);
@@ -125,7 +126,7 @@ public class RoomService {
 	private void saveNewRoomUser(Long roomId, Long userId) {
 		RoomUser roomUser = RoomUser.builder()
 			.id(new RoomUserId(roomId, userId))
-			.role(ROLE_MEMBER) // 2: member 역할
+			.role(RoomRole.MEMBER.getValue()) // 2: member 역할
 			.joinedAt(LocalDateTime.now())
 			.build();
 		roomUserRepository.save(roomUser);
@@ -135,6 +136,6 @@ public class RoomService {
 	private void sendRoomUserInfoToKafka(Long roomId, Long userId) {
 		String nickName = roomQueryService.getUserNickname(userId);
 		String profileImageUrl = roomQueryService.getUserProfileImage(userId);
-		kafkaProducerService.sendRoomUserInfo(roomId, new UserInfoDto(userId, ROLE_MEMBER, nickName, profileImageUrl, true));
+		kafkaProducerService.sendRoomUserInfo(roomId, new UserInfoDto(userId, RoomRole.MEMBER.getValue(), nickName, profileImageUrl, true));
 	}
 }

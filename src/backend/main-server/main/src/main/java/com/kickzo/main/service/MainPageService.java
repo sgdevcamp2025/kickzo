@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import com.kickzo.main.enums.RoomRole;
 import com.kickzo.main.search.service.SearchService;
 import com.kickzo.main.dto.data.PlaylistItem;
 import com.kickzo.main.dto.request.CreateRoomRequestDto;
@@ -41,7 +42,6 @@ public class MainPageService {
 	private final SearchService searchService;
 
 	private static final int MAX_ROOMS_PER_USER = 5;
-	private static final int ROLE_CREATOR = 0;
 
 	// 메인 페이지 방 list 제공
 	@Transactional(readOnly = true)
@@ -149,7 +149,7 @@ public class MainPageService {
 	private void saveRoomUser(Long roomId, Long userId) {
 		RoomUser roomUser = RoomUser.builder()
 			.id(new RoomUserId(roomId, userId))
-			.role(ROLE_CREATOR) // 0: creator 역할
+			.role(RoomRole.CREATOR.getValue()) // 0: creator 역할
 			.joinedAt(LocalDateTime.now())
 			.build();
 
