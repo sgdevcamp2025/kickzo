@@ -35,8 +35,9 @@ final class ChatDataRepository {
 
     func fetchMessages(for roomID: String) -> [ChatMessageDomainModel]? {
         let realm = try! Realm()
+      
         if let chatRoom = realm.object(ofType: ChatRoomEntity.self, forPrimaryKey: roomID) {
-            return Array(chatRoom.messages.sorted(by: { $0.createdAt < $1.createdAt })).map { $0.toDomainModel() }
+            return Array(chatRoom.messages.sorted(byKeyPath: "createdAt", ascending: true).map { $0.toDomainModel() })
         }
         return nil
     }

@@ -32,6 +32,7 @@ extension Date {
         var formattedDate: String
         
         formatterForToday.dateFormat = comparisonDate == today ? StringDateFormat.messageTime.rawValue : StringDateFormat.messageDate.rawValue
+        formatterForToday.timeZone = .current
         formattedDate = formatterForToday.string(from: self)
         
         return formattedDate

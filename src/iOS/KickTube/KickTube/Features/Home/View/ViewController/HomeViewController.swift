@@ -38,6 +38,8 @@ final class HomeViewController: BaseViewController<HomeReactor> {
         reactor.action.onNext(.getRoom)
     }
     
+    
+    
     // MARK: - configure Reactor
     
     override func bindAction(reactor: HomeReactor) {
@@ -45,18 +47,33 @@ final class HomeViewController: BaseViewController<HomeReactor> {
             .map { Reactor.Action.homeCellTapped(idx: $0) }
             .bind(to: reactor.action)
             .disposed(by: disposeBag)
+       
+//        homeCollectionView.rx.contentOffset
+//            .observe(on: MainScheduler.instance)
+//            .filter { [weak self] offset in
+//                guard let self = self else { return false }
+//                let visibleHeight = self.homeCollectionView.frame.height
+//                let contentHeight = self.homeCollectionView.contentSize.height
+//                let yOffset = offset.y
+//                return yOffset + visibleHeight >= contentHeight - 100
+//            }
+//            .distinctUntilChanged()
+//            .subscribe(with: self) { owner, _ in
+//                reactor.action.onNext(.getRoom) 
+//            }
+//            .disposed(by: disposeBag)
         
-        homeCollectionView.rx.prefetchItems
-            .subscribe(onNext: { [weak self] indexPaths in
-                guard let self else { return }
-                
-                let lastIndexPath = indexPaths.last?.row ?? 0
-               
-                if lastIndexPath >= self.reactor.currentState.rooms.count - 4 {
-                    reactor.action.onNext(.getRoom)
-                }
-            })
-            .disposed(by: disposeBag)
+//        homeCollectionView.rx.prefetchItems
+//            .subscribe(onNext: { [weak self] indexPaths in
+//                guard let self else { return }
+//                
+//                let lastIndexPath = indexPaths.last?.row ?? 0
+//               
+//                if lastIndexPath >= self.reactor.currentState.rooms.count - 4 {
+//                    reactor.action.onNext(.getRoom)
+//                }
+//            })
+//            .disposed(by: disposeBag)
     }
     
     override func bindState(reactor: HomeReactor) {

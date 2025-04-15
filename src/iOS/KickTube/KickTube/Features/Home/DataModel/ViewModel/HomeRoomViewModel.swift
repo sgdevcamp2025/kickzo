@@ -16,6 +16,7 @@ struct HomeRoomViewModel: Equatable {
     var profileImageURL: URL?
     var userCount: Int
     var playlistURL: String?
+    var isPublic: Bool
     
     var videoThumbnail: Data?
     var profileThumbnanil: Data?

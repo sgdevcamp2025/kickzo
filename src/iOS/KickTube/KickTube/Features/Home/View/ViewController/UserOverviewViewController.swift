@@ -58,7 +58,11 @@ final class UserOverviewViewController: BaseViewController<UserOverviewReactor> 
             .compactMap { $0 }
             .observe(on: MainScheduler.instance)
             .subscribe(with: self) { owner, value in
-                //                thumbnailView.image = value.profileImageData
+                if let profile = value.profileImageData {
+                    owner.thumbnailView.image = UIImage(data: profile)
+                } else {
+                    owner.thumbnailView.image = .defaultProfile
+                }
                 owner.nameLabel.text = value.nickname
                 owner.descriptionLabel.text = value.stateMessage
             }

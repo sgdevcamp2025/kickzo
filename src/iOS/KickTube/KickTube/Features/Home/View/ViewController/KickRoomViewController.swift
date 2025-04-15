@@ -95,6 +95,7 @@ final class KickRoomViewController: BaseViewController<KickRoomReactor> {
         
         setNotification()
         setPopView()
+        setFirstVideo()
     }
     
     override func viewWillDisappear(_ animated: Bool) {
@@ -400,5 +401,22 @@ extension KickRoomViewController: YTPlayerViewDelegate {
     private func stopTrackingTime() {
         timeTrackingTimer?.invalidate()
         timeTrackingTimer = nil
+    }
+}
+
+extension KickRoomViewController {
+    func setFirstVideo() {
+        WebSocketService.shared.playlistObservable
+            .filter { self.reactor.currentState.youtubeID == nil && $0.count == 0 }
+            .compactMap { $0.first?.toModel().url.youtubeID }
+            .withLatestFrom(reactor.state.map { $0.playerVars }) { ($0, $1) }
+            .observe(on: MainScheduler.instance)
+            .subscribe(with: self) { owner, value in
+                let (youtubeID, playerVars) = value
+                
+                owner.emptyPlayerView.isHidden = true
+                owner.playerView.load(withVideoId: youtubeID, playerVars: playerVars)
+            }
+            .disposed(by: disposeBag)
     }
 }

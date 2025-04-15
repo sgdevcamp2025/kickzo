@@ -14,5 +14,5 @@ struct UserProfileViewModel: Codable {
     let profileImageURL: String?
     let stateMessage: String?
     
-    var profileImageData: Data? = UIImage.profile.toData()
+    var profileImageData: Data?
 }

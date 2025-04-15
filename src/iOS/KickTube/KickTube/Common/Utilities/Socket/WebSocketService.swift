@@ -73,6 +73,7 @@ class WebSocketService: NSObject {
         stompClient.openSocketWithURLRequest(
             request: NSURLRequest(url: url),
             delegate: self
+//            connectionHeaders: ["hear-beat": "0,30000"]
         )
         
         self.connectionCompletion = completion

@@ -69,7 +69,7 @@ final class PlayListCollectionViewCell: UICollectionViewCell {
         if let videoThumbnail = playlist.thumbnailData {
             videoThumbnailView.image = UIImage(data: videoThumbnail)
         } else {
-            videoThumbnailView.backgroundColor = .darkGray
+            videoThumbnailView.image = .defaultThumbnail
         }
         
         titleLabel.text = playlist.title

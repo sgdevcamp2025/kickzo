@@ -43,7 +43,7 @@ final class VoiceUserOverviewReactor: Reactor {
 //            let data = SampleTest.overviewuserlist.toModel()
 //            let thumbnailData = Data()
 //            data.profileImageData = thumbnailData
-            //            return .just(.setUserInformation(data))
+//                        return .just(.setUserInformation(data))
             return .empty()
         case .inviteButtonTapped:
             return .just(.inviteUser)

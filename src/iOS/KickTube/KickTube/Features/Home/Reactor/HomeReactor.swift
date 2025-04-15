@@ -111,7 +111,7 @@ final class HomeReactor: Reactor {
         return newState
     }
     
-    private func getRooms(_ page: Int, _ size: Int? = nil) -> Observable<Mutation> {
+    private func getRooms(_ page: Int, _ size: Int? = 30 ) -> Observable<Mutation> {
         var mainRoomRequest = DefaultRequest<[HomeRoomResponseDTO]>(method: .get, path: ["api", "rooms", "all"], header: [.authorizationAccessToken], pathQueries: [URLQueryItem(name: "page", value: String(page))])
         
         if let size {

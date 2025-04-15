@@ -27,12 +27,10 @@ final class LoginViewController: BaseViewController<LoginReactor> {
     }
     private let idTextField = LightStrokeTextField().then {
         $0.setPlacehodler("아이디")
-        $0.textfield.text = "a@sg.com"
     }
     private let pwTextField = LightStrokeTextField().then {
         $0.setPlacehodler("비밀번호")
         $0.setPWStyle()
-        $0.textfield.text = "!1234qwer"
     }
     private let saveIDCheckBox = CheckBoxView("아이디 저장")
     private let loginButton = RoundButton("로그인")
@@ -123,6 +121,14 @@ final class LoginViewController: BaseViewController<LoginReactor> {
         loginButton.rx.tap
             .map { Reactor.Action.loginButtonTap }
             .bind(to: reactor.action)
+            .disposed(by: disposeBag)
+        registerButton.rx.tap
+            .subscribe(with: self) { owner, _ in
+                let vc = SignUpViewController()
+                vc.modalPresentationStyle = .overCurrentContext
+                
+                self.present(vc, animated: false)
+            }
             .disposed(by: disposeBag)
     }
     

@@ -18,6 +18,7 @@ struct HomeRoomDomainModel: DTOMappable {
     let profileImageURL: String?
     let userCount: Int
     let playlistURL: String?
+    let isPublic: Bool
     
     func toModel() -> HomeRoomViewModel {
         var pURL: URL?
@@ -33,6 +34,7 @@ struct HomeRoomDomainModel: DTOMappable {
                      creator: self.creator,
                      profileImageURL: pURL,
                      userCount: self.userCount,
-                     playlistURL: self.playlistURL)
+                     playlistURL: self.playlistURL,
+                     isPublic: self.isPublic)
     }
 }

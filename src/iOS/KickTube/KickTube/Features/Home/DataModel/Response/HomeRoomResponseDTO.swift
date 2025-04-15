@@ -20,6 +20,7 @@ struct HomeRoomResponseDTO {
     @Key("profileImageUrl") let profileImageURL: String?
     let userCount: Int
     @Key("playlistUrl") let playlistURL: String?
+    @Key("public") let isPublic: Bool
 }
 
 extension HomeRoomResponseDTO: Equatable {}

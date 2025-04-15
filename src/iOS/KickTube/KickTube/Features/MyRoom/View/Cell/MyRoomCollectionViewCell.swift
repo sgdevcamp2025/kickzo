@@ -40,7 +40,11 @@ final class MyRoomCollectionViewCell: UICollectionViewCell {
         $0.textColor = .kDarkgray
         $0.font = KFont.light14
     }
-
+    private let secretImageView = UIImageView().then {
+        $0.layer.cornerRadius = 8
+        $0.image = .key.withTintColor(.kDarkgray)
+    }
+    
     var moveToOptionVC: (() -> Void)?
     
     private var disposeBag = DisposeBag()
@@ -71,13 +75,15 @@ final class MyRoomCollectionViewCell: UICollectionViewCell {
         if let videoThumbnail = room.videoThumbnail {
             videoThumbnailView.image = UIImage(data: videoThumbnail)
         } else {
-            videoThumbnailView.backgroundColor = .darkGray
+            videoThumbnailView.image = .defaultThumbnail
         }
         
         titleLabel.text = room.title
         usernameLabel.text = room.creator
         participatingCountLabel.text = room.participatedUserCount
-
+        
+        secretImageView.isHidden = room.isPublic
+        
         optionButton.rx.tap
             .subscribe(with: self) { owner, _ in
                 owner.moveToOptionVC?()
@@ -90,12 +96,13 @@ final class MyRoomCollectionViewCell: UICollectionViewCell {
         titleLabel.text = nil
         usernameLabel.text = nil
         participatingCountLabel.text = nil
+        secretImageView.isHidden = true
     }
     
     // MARK: - configure UI
     
     private func configureHierarchy() {
-        [videoThumbnailView, titleLabel, optionButton, usernameLabel, participaingIconImageView, participatingCountLabel].forEach {
+        [videoThumbnailView, titleLabel, optionButton, usernameLabel, participaingIconImageView, participatingCountLabel, secretImageView].forEach {
             addSubview($0)
         }
     }
@@ -126,6 +133,11 @@ final class MyRoomCollectionViewCell: UICollectionViewCell {
         participatingCountLabel.snp.makeConstraints { make in
             make.leading.equalTo(participaingIconImageView.snp.trailing).offset(4)
             make.centerY.equalTo(participaingIconImageView.snp.centerY)
+        }
+        secretImageView.snp.makeConstraints { make in
+            make.leading.equalTo(participatingCountLabel.snp.trailing).offset(12)
+            make.bottom.equalToSuperview().offset(-4)
+            make.size.equalTo(14)
         }
     }
 }

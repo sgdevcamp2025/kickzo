@@ -55,7 +55,7 @@ final class HomeVideoCollectionViewCell: UICollectionViewCell {
         if let videoThumbnail = room.videoThumbnail {
             videoThumbnailView.image = UIImage(data: videoThumbnail)
         } else {
-            videoThumbnailView.backgroundColor = .darkGray
+            videoThumbnailView.image = .defaultThumbnail
         }
         if let profileThumbnanil = room.profileThumbnanil {
             userProfileThumbnailView.image = UIImage(data: profileThumbnanil)

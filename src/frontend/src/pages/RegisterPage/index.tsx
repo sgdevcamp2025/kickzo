@@ -75,12 +75,25 @@ export const RegisterPage = () => {
         nickname: nicknameRef.current?.value || '',
       });
       if (result.userId) {
+        sendSignupSuccessToNative();
         setOnSuccessModal(true);
       }
     } catch (_error) {
       alert('회원가입에 실패했습니다.');
     }
   };
+
+  const sendSignupSuccessToNative = () => {
+    const webkit = (window as any).webkit;
+    
+    if (webkit && webkit.messageHandlers && webkit.messageHandlers.LoginSuccess) {
+      console.log("iOS에 회원가입 성공 메시지 전송");
+      alert('회원가입에 실패했습니다.');
+      webkit.messageHandlers.LoginSuccess.postMessage({
+        signup: "success"
+      });
+    }
+  }; 
 
   const handleEmailCheck = async (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
@@ -156,10 +169,27 @@ export const RegisterPage = () => {
     setIsPasswordMatched(passwordRef.current?.value === confirmPassword);
   };
 
+  const testNativeCommunication = () => {
+    console.log("테스트 버튼 클릭됨");
+    sendSignupSuccessToNative();
+  };
+
   return (
     <Wrapper>
       <LogoButton />
       <SubTitle>회원가입 후 킥튜브를 즐겨보세요 :)</SubTitle>
+      <button 
+  type="button" 
+  onClick={testNativeCommunication}
+  style={{ 
+    marginTop: '20px', 
+    backgroundColor: 'blue', 
+    color: 'white', 
+    padding: '10px 20px' 
+  }}
+>
+  네이티브 통신 테스트
+</button>
       <form onSubmit={handleSubmit}>
         <div>
           <CommonLabel htmlFor="email">이메일</CommonLabel>

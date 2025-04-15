@@ -86,6 +86,8 @@ final class PlaylistView: UIView {
         
         output.playlist
             .asDriver(onErrorJustReturn: [])
+            .filter { $0.count >= 1 }
+            .map { $0[1...] }
             .drive(playlistCollectionView.rx.items(cellIdentifier: PlayListCollectionViewCell.reuseIdentifier, cellType: PlayListCollectionViewCell.self)) { (item, element, cell) in
                 if element.thumbnailData == nil {
                     input.emptyThumbnailImage.accept(item)

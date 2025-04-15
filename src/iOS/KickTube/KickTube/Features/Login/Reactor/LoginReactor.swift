@@ -70,7 +70,6 @@ final class LoginReactor: Reactor {
             KeyChainManager.shared.save(key: .accessToken, value: data.accessToken)
             KeyChainManager.shared.save(key: .refreshToken, value: data.refreshToken)
             
-            print(data.accessToken)
         case .setMyProfile(let data):
             var loginData = data.toModel()
             

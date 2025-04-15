@@ -12,6 +12,7 @@ import RxSwift
 
 final class UserOverviewReactor: Reactor {
     private let session = Session()
+    private let networkManager = NetworkManager()
     
     enum Action {
         case loadView
@@ -21,7 +22,7 @@ final class UserOverviewReactor: Reactor {
     }
     
     enum Mutation {
-        case setUserInformation(UserProfileDomainModel)
+        case setUserInformation(UserProfileViewModel)
         case inviteUser
         case changeRole
         case banUser
@@ -61,12 +62,11 @@ final class UserOverviewReactor: Reactor {
         
         switch mutation {
         case .setUserInformation(let user):
-            newState.userProfile = user.toModel()
+            newState.userProfile = user
         case .inviteUser:
             break
         case .changeRole:
             newState.userRole = newState.userRole == .member ? .manager : .member
-            
         case .banUser:
             break
         }
@@ -82,9 +82,15 @@ final class UserOverviewReactor: Reactor {
             
             Task {
                 do {
-                    let userResponse = try await self.session.send(userRequest)
+                    var user = try await self.session.send(userRequest).toModel().toModel()
                     
-                    observer.onNext(Mutation.setUserInformation(userResponse.toModel()))
+                    if let urlString = user.profileImageURL,
+                       let url = URL(string: urlString) {
+                        let profileImage = try await self.networkManager.getCachingDataFromURL(url)
+                        
+                        user.profileImageData = profileImage
+                    }
+                    observer.onNext(Mutation.setUserInformation(user))
                     observer.onCompleted()
                 } catch {
                     print(error)

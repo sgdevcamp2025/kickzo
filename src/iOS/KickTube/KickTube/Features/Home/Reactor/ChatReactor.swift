@@ -42,34 +42,60 @@ final class ChatReactor: Reactor {
             .disposed(by: disposeBag)
     }
     
-    func mutate(action: Action) -> Observable<Mutation> {
-        switch action {
-        case .getSavedMessage:
-            return Single.create { [weak self] single in
-                guard let self else {
-                    single(.failure(NSError(domain: "ChatReactor", code: -1, userInfo: [NSLocalizedDescriptionKey: "Self is nil."])))
-                    return Disposables.create()
-                }
-                
-                Task {
-                    let lastMessage = self.repository.fetchMessages(for: self.currentState.roomID) ?? []
-                    let lastMessageCreatedAt = lastMessage.last?.createdAt
-                    let newMessages = try await self.getUnreadMessage(lastMessageCreatedAt)
-                    let message = lastMessage + newMessages
-                    
-                    single(.success(.setMessages(.saved, message)))
-                }
-                
-                return Disposables.create()
-            }
-            .asObservable()
-        case .getNewMessage(let message):
-            return .just(.appendNewMessage(message))
-        case .sendMessage(let message):
-            WebSocketService.shared.publishChatMessage(message: message)
-            return .empty()
-        }
-    }
+//    func mutate(action: Action) -> Observable<Mutation> {
+//        switch action {
+//        case .getSavedMessage:
+//            return Single.create { [weak self] single in
+//                guard let self else {
+//                    single(.failure(NSError(domain: "ChatReactor", code: -1, userInfo: [NSLocalizedDescriptionKey: "Self is nil."])))
+//                    return Disposables.create()
+//                }
+//                
+//                Task {
+//                    let lastMessage = self.repository.fetchMessages(for: self.currentState.roomID) ?? []
+//                    let lastMessageCreatedAt = lastMessage.last?.createdAt
+//                    let newMessages = try await self.getUnreadMessage(lastMessageCreatedAt)
+//                    let message = lastMessage + newMessages.reversed()
+//                    
+//                    single(.success(.setMessages(.saved, message)))
+//                }
+//                
+//                return Disposables.create()
+//            }
+//            .asObservable()
+//        case .getNewMessage(let message):
+//            return .just(.appendNewMessage(message))
+//        case .sendMessage(let message):
+//            WebSocketService.shared.publishChatMessage(message: message)
+//            return .empty()
+//        }
+//    }
+//
+//    func reduce(state: State, mutation: Mutation) -> State {
+//        var newState = state
+//
+//        switch mutation {
+//        case .setMessages(let sectionType, let messages):
+//            let section = classifyChatMessage(messages.map { $0.toModel() }, section: sectionType)
+//            
+//            if let index = newState.messsageSection.firstIndex(where: { $0.header == sectionType.header }) {
+//                newState.messsageSection[index] = section
+//            } else {
+//                newState.messsageSection.append(section)
+//            }
+//
+//        case .appendNewMessage(let message):
+//            repository.addMessage(to: currentState.roomID, messages: [message.toDBModel()])
+//            if let newSectionIndex = newState.messsageSection.firstIndex(where: { $0.header == ChatSectionType.new.header }) {
+//                newState.messsageSection[newSectionIndex].items.append(.newMessage(message.toModel()))
+//            } else {
+//                let newSection = classifyChatMessage([message.toModel()], section: .new)
+//                newState.messsageSection.append(newSection)
+//            }
+//        }
+//
+//        return newState
+//    }
 
     func reduce(state: State, mutation: Mutation) -> State {
         var newState = state
@@ -77,15 +103,12 @@ final class ChatReactor: Reactor {
         switch mutation {
         case .setMessages(let sectionType, let messages):
             let section = classifyChatMessage(messages.map { $0.toModel() }, section: sectionType)
-            
             if let index = newState.messsageSection.firstIndex(where: { $0.header == sectionType.header }) {
                 newState.messsageSection[index] = section
             } else {
                 newState.messsageSection.append(section)
             }
-
         case .appendNewMessage(let message):
-            repository.addMessage(to: currentState.roomID, messages: [message.toDBModel()])
             if let newSectionIndex = newState.messsageSection.firstIndex(where: { $0.header == ChatSectionType.new.header }) {
                 newState.messsageSection[newSectionIndex].items.append(.newMessage(message.toModel()))
             } else {
@@ -95,6 +118,36 @@ final class ChatReactor: Reactor {
         }
 
         return newState
+    }
+
+    
+    func mutate(action: Action) -> Observable<Mutation> {
+        switch action {
+        case .getSavedMessage:
+            return Single.create { [weak self] single in
+                guard let self else {
+                    single(.failure(NSError(domain: "ChatReactor", code: -1, userInfo: [NSLocalizedDescriptionKey: "Self is nil."])))
+                    return Disposables.create()
+                }
+
+                Task {
+                    let lastMessage = self.repository.fetchMessages(for: self.currentState.roomID) ?? []
+                    let lastMessageCreatedAt = lastMessage.last?.createdAt
+                    let newMessages = try await self.getUnreadMessage(lastMessageCreatedAt)
+                    let message = lastMessage + newMessages.reversed().sorted { $0.createdAt < $1.createdAt }
+                    
+                    single(.success(.setMessages(.saved, message)))
+                }
+
+                return Disposables.create()
+            }
+            .asObservable()
+        case .getNewMessage(let message):
+            return .just(.appendNewMessage(message))
+        case .sendMessage(let message):
+            WebSocketService.shared.publishChatMessage(message: message)
+            return .empty()
+        }
     }
 
     
@@ -121,7 +174,10 @@ final class ChatReactor: Reactor {
         }
 
         let response = try await self.session.send(request).map { $0.toModel() }
-        repository.addMessage(to: currentState.roomID, messages: response.map { $0.toDBModel() })
+        if !response.isEmpty {
+            repository.addMessage(to: currentState.roomID, messages: response.map { $0.toDBModel() })
+        }
+
         return response
     }
 

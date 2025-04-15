@@ -49,6 +49,11 @@ final class PlayListViewModel {
                 guard let self else { return .error(NetworkError.unknown) }
                 
                 let youtubeID = playlist.compactMap { $0.url.youtubeID }
+                
+//                if youtubeID.count >= 1 {
+//                    _ = youtubeID.removeFirst()
+//                }
+                
                 return self.getYoutubeSearchResult(with: youtubeID)
             }
             .subscribe(with: self) { owner, value in

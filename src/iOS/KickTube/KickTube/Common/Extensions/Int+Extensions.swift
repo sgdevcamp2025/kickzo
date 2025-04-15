@@ -9,6 +9,6 @@ import Foundation
 
 extension Int {
     var toDate: Date {
-        return Date(timeIntervalSince1970: TimeInterval(self))
+        return Date(timeIntervalSince1970: TimeInterval(self) / 1000)
     }
 }
