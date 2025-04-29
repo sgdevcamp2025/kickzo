@@ -1,5 +1,5 @@
 # 1️⃣ Java 21 LTS 기반 이미지 사용
-FROM eclipse-temurin:21-jdk AS build
+FROM amazoncorretto:21-alpine AS build
 
 # 2️⃣ 작업 디렉토리 설정
 WORKDIR /app
@@ -12,7 +12,7 @@ RUN chmod +x gradlew
 RUN ./gradlew build -x test
 
 # 5️⃣ 실행을 위한 Java 21 런타임 이미지
-FROM eclipse-temurin:21-jdk-jammy
+FROM amazoncorretto:21-alpine
 WORKDIR /app
 
 # 6️⃣ 빌드된 JAR 복사

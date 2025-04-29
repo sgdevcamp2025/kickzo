@@ -16,20 +16,30 @@ services:
     volumes:
       - es-data:/usr/share/elasticsearch/data
       - ./elasticsearch-init.sh:/usr/share/elasticsearch/init.sh
-    entrypoint: [ "/bin/sh", "-c", "/usr/share/elasticsearch/init.sh & /usr/local/bin/docker-entrypoint.sh" ]
+    entrypoint:
+      [
+        "/bin/sh",
+        "-c",
+        "/usr/share/elasticsearch/init.sh & /usr/local/bin/docker-entrypoint.sh",
+      ]
     ulimits:
       memlock:
         soft: -1
         hard: -1
     networks:
       - kickzo-network
-    restart: always
+    # ARM64 아키텍처 문제 해결을 위한 플랫폼 지정
+    platform: linux/amd64
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:9200/_cluster/health" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
+      test:
+        [
+          "CMD-SHELL",
+          'curl -s http://localhost:9200/_cluster/health | grep -vq ''"status":"red"''',
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
 
 volumes:
   es-data:

@@ -1,5 +1,5 @@
 # 1️⃣ 베이스 이미지로 OpenJDK 17 사용
-FROM openjdk:17-jdk-slim AS build
+FROM amazoncorretto:17-alpine AS build
 
 # 2️⃣ 작업 디렉토리 설정
 WORKDIR /app
@@ -12,7 +12,7 @@ RUN chmod +x gradlew
 RUN ./gradlew build -x test
 
 # 5️⃣ 런타임 이미지로 OpenJDK 17 사용
-FROM openjdk:17-jdk-slim
+FROM amazoncorretto:17-alpine
 WORKDIR /app
 
 # 6️⃣ 빌드된 JAR 파일 복사

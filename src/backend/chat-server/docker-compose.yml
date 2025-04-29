@@ -12,6 +12,9 @@ services:
       - "${CHAT_PORT_1}:${CHAT_PORT_1}"
     networks:
       - kickzo-network
+    depends_on:
+      kafka:
+        condition: service_healthy
 
   chat-2:
     build:
@@ -24,6 +27,9 @@ services:
       - "${CHAT_PORT_2}:${CHAT_PORT_2}"
     networks:
       - kickzo-network
+    depends_on:
+      kafka:
+        condition: service_healthy
 
 networks:
   kickzo-network:

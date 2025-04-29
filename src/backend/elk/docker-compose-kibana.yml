@@ -16,12 +16,15 @@ services:
     networks:
       - kickzo-network
     healthcheck:
-      test: [ "CMD", "curl", "-f", "http://localhost:5601/api/status" ]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 10s
-
+      test:
+        [
+          "CMD-SHELL",
+          "curl -s -I http://localhost:5601/app/home | grep -q '200 OK'",
+        ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+      start_period: 30s
 
 volumes:
   es-data:
