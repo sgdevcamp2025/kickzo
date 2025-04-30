@@ -19,4 +19,12 @@ public class UserOutRedisRepository {
 		String redisKey = "room:" + roomId + ":users";
 		redisActiveUsersTemplate.opsForSet().remove(redisKey, String.valueOf(userId));
 	}
+
+	/**
+	 * 특정 방(roomId) 전체 제거
+	 */
+	public void removeRoom(Long roomId) {
+		String redisKey = "room:" + roomId + ":users";
+		redisActiveUsersTemplate.delete(redisKey);
+	}
 }

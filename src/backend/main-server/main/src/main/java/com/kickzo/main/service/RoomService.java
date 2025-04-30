@@ -1,62 +1,47 @@
 package com.kickzo.main.service;
 
 import java.time.LocalDateTime;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.Optional;
-import java.util.stream.Collectors;
+import java.util.Objects;
 
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.kickzo.main.repository.UserEnterRedisRepository;
-import com.kickzo.main.search.service.SearchService;
-import com.kickzo.main.dto.data.PlaylistItem;
-import com.kickzo.main.dto.event.RoomUpdateEvent;
-import com.kickzo.main.dto.request.RoomUpdateRequestDto;
-import com.kickzo.main.dto.response.RoomDetailsDto;
-import com.kickzo.main.dto.response.RoomEntryResponseDto;
-import com.kickzo.main.dto.response.RoomInfoDto;
 import com.kickzo.main.dto.response.UserInfoDto;
-import com.kickzo.main.entity.Room;
 import com.kickzo.main.entity.RoomUser;
 import com.kickzo.main.entity.RoomUserId;
-import com.kickzo.main.entity.Playlist;
+import com.kickzo.main.enums.RoomRole;
+import com.kickzo.main.repository.RoomUserRepository;
+import com.kickzo.main.repository.UserEnterRedisRepository;
+import com.kickzo.main.repository.UserOutRedisRepository;
+import com.kickzo.main.search.service.SearchService;
+import com.kickzo.main.dto.event.RoomUpdateEvent;
+import com.kickzo.main.dto.request.RoomUpdateRequestDto;
+import com.kickzo.main.entity.Room;
 import com.kickzo.main.exception.CustomErrorCode;
 import com.kickzo.main.exception.CustomException;
-import com.kickzo.main.repository.PlaylistRepository;
 import com.kickzo.main.repository.RoomRepository;
-import com.kickzo.main.repository.RoomUserRepository;
-import com.kickzo.main.repository.UserRepository;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 
 @Slf4j
 @Service
+@Transactional
 @RequiredArgsConstructor
 public class RoomService {
-
-	private final RoomRepository roomRepository;
-	private final RoomUserRepository roomUserRepository;
-	private final PlaylistRepository playlistRepository;
-	private final UserRepository userRepository;
 	private final SearchService searchService;
 	private final KafkaProducerService kafkaProducerService;
+	private final RoomQueryService roomQueryService;
+	private final RoomRepository roomRepository;
+	private final RoomUserRepository roomUserRepository;
 	private final UserEnterRedisRepository userEnterRedisRepository;
-	private static final int ROLE_MEMBER = 2;
+	private final UserOutRedisRepository userOutRedisRepository;
 
-	@Transactional
-	public RoomEntryResponseDto getRoomJoinResponse(String roomCode, Long userId){
-		int myRole = determineUserRole(roomCode, userId);
+	public void joinRoom(String roomCode, Long userId) {
 		// redis에 roomId와 userId 저장
-		userEnterRoom(getRoomId(roomCode), userId);
-		RoomDetailsDto roomDetails = assembleRoomDetails(roomCode);
-		return new RoomEntryResponseDto(myRole, roomDetails);
+		userEnterRoom(roomQueryService.getRoomId(roomCode), userId);
 	}
 
-	@Transactional
 	public void updateRoomInfo(RoomUpdateRequestDto updateRequestDto) {
 		Long roomId = updateRequestDto.getRoomId();
 		Room room = roomRepository.findById(roomId)
@@ -90,118 +75,46 @@ public class RoomService {
 		kafkaProducerService.sendRoomUpdateMessage(event);
 	}
 
-	@Transactional(readOnly = true)
-	public List<UserInfoDto> getRoomParticipants(Long roomId) {
-		return fetchUserList(roomId);
+	// 방을 만든 사람이 나간다면,,?
+	public void leaveRoom(Long roomId, Long userId) {
+		Room room = roomRepository.findById(roomId)
+			.orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
+		room.decrementUserCount();
+		roomRepository.save(room);
+		RoomUserId id = new RoomUserId(roomId, userId);
+		roomUserRepository.deleteById(id);
+		userOutRedisRepository.removeUserFromRoom(roomId, userId);
 	}
 
-	/**
-	 * roomCode에 따른 방의 정보와 유저 list 전달
-	 * 1. 사용자 역할(Role) 확인, 비로그인 유저인 경우 기본 Role(99) 반환 : determineUserRole
-	 * 2. 사용자 역할(Role) 조회, 존재하지 않으면 새 사용자로 등록 후 기본 Role(ROLE_MEMBER) 반환 : findOrAssignUserRole
-	 * 3. 주어진 역할(Role)과 방 코드를 기반으로 Room의 전체 세부 정보 생성 : assembleRoomDetails
-	 * 4. Room ID를 기준으로 방에 참여한 유저의 ID, Role, 닉네임, 프로필 이미지 조회 : fetchUserList
-	 * 5. Room ID로 방의 정보를 조회하고 RoomInfoDto 리스트로 변환 : fetchRoomInfo
-	 * 6. Room ID를 기반으로 Playlist 정보를 JSON에서 List<PlaylistItem> 형태로 변환 : fetchPlaylist
-	 * 7. Room Code로 Room ID 조회, 존재하지 않으면 예외 발생 : getRoomId
-	 * 8. 방 생성자의 닉네임을 기반으로 프로필 이미지 URL 조회, 없으면 기본 이미지 반환 : getCreatorProfileImage
-	 * 9. 유저 ID를 기반으로 프로필 이미지 URL 조회, 없으면 기본 이미지 반환 : getUserProfileImage
-	 * 10. Room ID를 기준으로 방의 유저 수를 1 증가시키고, 변경된 정보 저장 : saveUserCount
-	 * 11. RoomUser 엔티티를 생성하여 새로운 사용자를 방에 추가하고 기본 Role(ROLE_MEMBER)로 저장 : saveNewRoomUser
-	 * 12. Room에 join한 유저를 Redis에 저장하여 실시간 방 사용자 트래킹 : userEnterRoom
-	 */
-	private int determineUserRole(String roomCode, Long userId) {
-		if (userId == null) {
-			return 99; // 비로그인 유저는 role = 99
-		}
-		Long roomId = getRoomId(roomCode);
-		return findOrAssignUserRole(roomId, userId);
-	}
-
-	private int findOrAssignUserRole(Long roomId, Long userId) {
-		// Step 1: 해당 방에서 유저의 역할(Role)을 찾음
+	public void deleteRoom(Long roomId, Long userId) {
+		// 삭제 권한 확인
 		Integer role = roomUserRepository.findRoleByUserIdAndRoomId(roomId, userId);
-		if (role != null) {
-			// Step 2: 역할(Role)이 존재하면 반환
-			return role;
+		if (role == null || !Objects.equals(role, RoomRole.CREATOR.getValue())){
+			throw new CustomException(CustomErrorCode.INVALID_ACCESS_ROLE);
 		}
-		// Step 3: 역할(Role)이 존재하지 않으면 새 사용자 추가
+		roomRepository.deleteById(roomId);
+		roomUserRepository.deleteByRoomId(roomId);
+		userOutRedisRepository.removeRoom(roomId);
+	}
+
+	// 새로 들어온 유저 db에 저장 및 Room에 join한 유저를 Redis에 저장하여 실시간 방 사용자 트래킹
+	private void userEnterRoom(Long roomId, Long userId) {
+		assignUserRole(roomId, userId);
+		userEnterRedisRepository.addUserToRoom(roomId, userId);
+		sendRoomUserInfoToKafka(roomId, userId);
+	}
+
+	// 현재 유저가 해당 방에 소속되어있는 지 확인 후 저장
+	private void assignUserRole(Long roomId, Long userId) {
+		Integer role = roomQueryService.findUserRole(roomId, userId);
+		if (role != null) {
+			return;
+		}
 		saveUserCount(roomId);
 		saveNewRoomUser(roomId, userId);
-		//sendRoomUserInfoToKafka(roomId, userId);
-		return ROLE_MEMBER;
 	}
 
-	private void sendRoomUserInfoToKafka(Long roomId, Long userId) {
-		String nickName = getUserNickname(userId);
-		String profileImageUrl = getUserProfileImage(userId);
-		kafkaProducerService.sendRoomUserInfo(roomId, new UserInfoDto(userId, ROLE_MEMBER, nickName, profileImageUrl, true));
-	}
-
-	private RoomDetailsDto assembleRoomDetails(String roomCode) {
-		Long roomId = getRoomId(roomCode);
-		
-		List<UserInfoDto> userList = fetchUserList(roomId);
-		List<RoomInfoDto> roomInfo = fetchRoomInfo(roomId);
-		List<PlaylistItem> playlist = fetchPlaylist(roomId);
-
-		return new RoomDetailsDto(userList, roomInfo, playlist);
-	}
-
-	private List<UserInfoDto> fetchUserList(Long roomId) {
-		Set<String> onlineUsers = userEnterRedisRepository.getOnlineUsers(roomId);
-
-		List<Object[]> userIdRoles = roomUserRepository.findUsersByRoomId(roomId);
-		return userIdRoles.stream()
-			.map(userRole -> {
-				Long userId = (Long) userRole[0];
-				int role = (int) userRole[1];
-				String nickname = getUserNickname(userId);
-				String profileImageUrl = getUserProfileImage(userId);
-				boolean isJoined = onlineUsers != null && onlineUsers.contains(String.valueOf(userId)); // 온라인 여부 체크
-				return new UserInfoDto(userId, role, nickname, profileImageUrl, isJoined);
-			})
-			.collect(Collectors.toList());
-	}
-
-	private List<RoomInfoDto> fetchRoomInfo(Long roomId) {
-		return roomRepository.findRoomById(roomId)
-			.stream()
-			.map(room -> RoomInfoDto.builder()
-				.roomId(room.getId())
-				.code(room.getCode())
-				.title(room.getTitle())
-				.description(room.getDescription())
-				.userCount(room.getUserCount())
-				.creator(room.getCreator())
-				.profileImageUrl(getCreatorProfileImage(room.getCreator()))
-				.build())
-			.collect(Collectors.toList());
-	}
-
-	private List<PlaylistItem> fetchPlaylist(Long roomId) {
-		return playlistRepository.findByRoomId(roomId)
-			.map(Playlist::getOrderAsList)  // JSON → List 변환
-			.orElse(Collections.emptyList());  // Playlist가 없으면 빈 리스트 반환
-	}
-
-	private Long getRoomId(String roomCode) {
-		return Optional.ofNullable(roomRepository.findRoomIdByRoomCode(roomCode))
-			.orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
-	}
-
-	private String getCreatorProfileImage(String creatorNickname) {
-		return userRepository.findProfileImageUrlByNickname(creatorNickname);
-	}
-
-	private String getUserProfileImage(Long userId) {
-		return userRepository.findProfileImageUrlById(userId);
-	}
-
-	private String getUserNickname(Long userId) {
-		return userRepository.findNicknameById(userId);
-	}
-
+	// Room ID를 기준으로 방의 유저 수를 1 증가시키고, 변경된 정보 저장
 	private void saveUserCount(Long roomId){
 		Room room = roomRepository.findById(roomId)
 			.orElseThrow(() -> new CustomException(CustomErrorCode.ROOM_NOT_FOUND));
@@ -209,17 +122,20 @@ public class RoomService {
 		roomRepository.save(room);
 	}
 
+	// RoomUser 엔티티를 생성하여 새로운 사용자를 방에 추가하고 기본 Role(ROLE_MEMBER)로 저장
 	private void saveNewRoomUser(Long roomId, Long userId) {
 		RoomUser roomUser = RoomUser.builder()
 			.id(new RoomUserId(roomId, userId))
-			.role(ROLE_MEMBER) // 2: member 역할
+			.role(RoomRole.MEMBER.getValue()) // 2: member 역할
 			.joinedAt(LocalDateTime.now())
 			.build();
 		roomUserRepository.save(roomUser);
 	}
 
-	private void userEnterRoom(Long roomId, Long userId) {
-		userEnterRedisRepository.addUserToRoom(roomId, userId);
-		sendRoomUserInfoToKafka(roomId, userId);
+	// 새로운 유저가 들어왔음을 Kafka로 전송
+	private void sendRoomUserInfoToKafka(Long roomId, Long userId) {
+		String nickName = roomQueryService.getUserNickname(userId);
+		String profileImageUrl = roomQueryService.getUserProfileImage(userId);
+		kafkaProducerService.sendRoomUserInfo(roomId, new UserInfoDto(userId, RoomRole.MEMBER.getValue(), nickName, profileImageUrl, true));
 	}
 }

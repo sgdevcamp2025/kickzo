@@ -8,6 +8,7 @@ import org.springframework.transaction.annotation.Transactional;
 import com.kickzo.main.dto.request.RoleChangeRequestDto;
 import com.kickzo.main.entity.RoomUser;
 import com.kickzo.main.entity.RoomUserId;
+import com.kickzo.main.enums.RoomRole;
 import com.kickzo.main.exception.CustomErrorCode;
 import com.kickzo.main.exception.CustomException;
 import com.kickzo.main.repository.RoomUserRepository;
@@ -20,8 +21,6 @@ public class RoomUserService {
 
 	private final RoomUserRepository roomUserRepository;
 	private final KafkaProducerService kafkaProducerService;
-
-	private static final int ROLE_MEMBER = 2;
 
 	@Transactional
 	public void changeUserRole(Long userId, RoleChangeRequestDto roleChangeRequestDto) {
@@ -50,7 +49,7 @@ public class RoomUserService {
 			throw new CustomException(CustomErrorCode.ROOM_USER_NOT_FOUND);
 		}
 
-		if (requester.get().getRole() == ROLE_MEMBER) {
+		if (requester.get().getRole() == RoomRole.MEMBER.getValue()) {
 			throw new CustomException(CustomErrorCode.INVALID_ACCESS_ROLE);
 		}
 	}
