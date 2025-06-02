@@ -16,6 +16,7 @@ services:
     volumes:
       - es-data:/usr/share/elasticsearch/data
       - ./elasticsearch-init.sh:/usr/share/elasticsearch/init.sh
+      - ./init:/usr/share/elasticsearch/init
     entrypoint: [ "/bin/sh", "-c", "/usr/share/elasticsearch/init.sh & /usr/local/bin/docker-entrypoint.sh" ]
     ulimits:
       memlock:

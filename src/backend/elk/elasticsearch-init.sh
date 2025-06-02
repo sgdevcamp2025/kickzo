@@ -37,3 +37,13 @@ curl -X PUT "http://localhost:9200/_security/user/kickzo" \
 }'
 
 echo "✅ Elasticsearch user and roles setup completed."
+
+# room 인덱스 생성
+curl -X PUT "http://elasticsearch:9200/room" \
+  -H 'Content-Type: application/json' \
+  --data-binary "@/usr/share/elasticsearch/init/room-index.json"
+
+# user 인덱스 생성
+curl -X PUT "http://elasticsearch:9200/user" \
+  -H 'Content-Type: application/json' \
+  --data-binary "@/usr/share/elasticsearch/init/user-index.json"

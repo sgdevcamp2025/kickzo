@@ -1,0 +1,38 @@
+{
+  "settings": {
+    "analysis": {
+      "tokenizer": {
+        "edge_ngram_tokenizer": {
+          "type": "edge_ngram",
+          "min_gram": 1,
+          "max_gram": 20,
+          "token_chars": ["letter", "digit", "whitespace"]
+        }
+      },
+      "analyzer": {
+        "edge_ngram_analyzer": {
+          "type": "custom",
+          "tokenizer": "edge_ngram_tokenizer"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "userId": {
+        "type": "long"
+      },
+      "nickname": {
+        "type": "text",
+        "analyzer": "edge_ngram_analyzer",
+        "search_analyzer": "standard"
+      },
+      "profileImageUrl": {
+        "type": "keyword"
+      },
+      "stateMessage": {
+        "type": "text"
+      }
+    }
+  }
+}

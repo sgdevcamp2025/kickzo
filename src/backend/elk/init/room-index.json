@@ -1,0 +1,35 @@
+{
+  "settings": {
+    "analysis": {
+      "tokenizer": {
+        "edge_ngram_tokenizer": {
+          "type": "edge_ngram",
+          "min_gram": 1,
+          "max_gram": 20,
+          "token_chars": ["letter", "digit", "whitespace"]
+        }
+      },
+      "analyzer": {
+        "edge_ngram_analyzer": {
+          "type": "custom",
+          "tokenizer": "edge_ngram_tokenizer"
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text",
+        "analyzer": "edge_ngram_analyzer",
+        "search_analyzer": "standard"
+      },
+      "roomId": {
+        "type": "long"
+      },
+      "public": {
+        "type": "boolean"
+      }
+    }
+  }
+}
