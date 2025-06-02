@@ -9,7 +9,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Document(indexName = "search")
+@Document(indexName = "room")
 public class RoomDocument {
 	@Id
 	private Long roomId;

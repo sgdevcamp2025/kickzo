@@ -12,7 +12,7 @@ import lombok.Setter;
 
 @Getter
 @Setter
-@Document(indexName = "search")
+@Document(indexName = "user")
 @AllArgsConstructor
 @NoArgsConstructor
 public class UserDocument {
